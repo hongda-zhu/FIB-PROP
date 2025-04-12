@@ -19,9 +19,10 @@ public class PartidasJugadasStrategy implements RankingOrderStrategy {
             Map<String, Integer> victoriasUsuario) {
         
         return partidasJugadasPorUsuario.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+        .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()
+        .thenComparing(Map.Entry::getKey))
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
     }
     
     @Override

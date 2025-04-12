@@ -1,11 +1,9 @@
 package domain.models;
 
-import java.io.Serializable;
-
 /**
  * Clase que representa a un jugador humano en el sistema.
  */
-public class JugadorHumano implements Usuario, Serializable {
+public class JugadorHumano implements Usuario {
     private static final long serialVersionUID = 1L;
     
     private String id;

@@ -1,28 +1,13 @@
 package domain.controllers.subcontrollers;
 
-import domain.controllers.subcontrollers.managers.GestorAutenticacion;
 import domain.controllers.subcontrollers.managers.GestorConfiguracionApp;
 import domain.models.Configuracion;
 
 public class ControladorConfiguracion {
-    private GestorAutenticacion gestorAutenticacion;
     private GestorConfiguracionApp gestorConfiguracionApp;
 
     public ControladorConfiguracion() {
-        this.gestorAutenticacion = new GestorAutenticacion();
         this.gestorConfiguracionApp = new GestorConfiguracionApp();
-    }
-
-    public boolean autenticar(String usuario, String contrasena) {
-        return gestorAutenticacion.autenticar(usuario, contrasena);
-    }
-    
-    public boolean existeUsuario(String usuario) {
-        return gestorAutenticacion.existe(usuario);
-    }
-    
-    public boolean registrarUsuario (String usuario, String contrasena) {
-    	return gestorAutenticacion.registrar(usuario, contrasena);
     }
     
     public void agregarConfiguracion(String clave, String valor) {

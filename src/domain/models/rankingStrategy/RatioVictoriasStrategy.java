@@ -31,7 +31,8 @@ public class RatioVictoriasStrategy implements RankingOrderStrategy {
         }
         
         return ratioVictorias.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed()
+                .thenComparing(Map.Entry::getKey))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }

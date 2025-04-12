@@ -19,7 +19,6 @@ public class Ranking implements Serializable {
     private Map<String, Integer> victoriasUsuario;
     
     private RankingOrderStrategy estrategiaActual;
-    private RankingOrderStrategyFactory strategyFactory;
     
     /**
      * Constructor de la clase Ranking.

@@ -1,63 +1,49 @@
 package domain.controllers;
 
 import domain.controllers.subcontrollers.*;
-
-import java.util.*;
-
-/*
- * ControladorDomain.java
- * 
- * Este controlador actúa como un intermediario entre los controladores de configuración,
- * juego y ranking. Facilita la comunicación entre ellos y proporciona una interfaz
- * unificada para interactuar con el dominio del juego.
- */
+import domain.models.Usuario;
+import java.io.File;
+import java.util.List;
 
 public class ControladorDomain {
     private ControladorConfiguracion controladorConfiguracion;
     private ControladorJuego controladorJuego;
     private ControladorRanking controladorRanking;
+    private ControladorUsuario controladorUsuario;
 
-    /*
-        * Constructor de ControladorDomain
-        * Inicializa los controladores de configuración, juego y ranking.
-    */
     public ControladorDomain() {
         this.controladorConfiguracion = new ControladorConfiguracion();
         this.controladorJuego = new ControladorJuego();
         this.controladorRanking = new ControladorRanking();
+        this.controladorUsuario = ControladorUsuario.getInstance();
     }
-    /*
-        * Método para iniciar la sesión de un jugador
-        * @param username Nombre de usuario del jugador
-        * @param password Contraseña del jugador
-    */
+
     public void iniciarSesion(String username, String password) {
-        if (!controladorConfiguracion.existeUsuario(username)) {
+        if (!controladorUsuario.existeUsuario(username)) {
             throw new ExceptionUserNotExist();
         }
-        controladorConfiguracion.autenticar(username, password);
+        if (!controladorUsuario.autenticar(username, password)) {
+            throw new ExceptionAuthFail();
+        }
     }
-    /*
-        * Método para registrar un jugador
-        * @param username Nombre de usuario del jugador
-        * @param password Contraseña del jugador
-    */
+
     public void registrarUsuario(String username, String password) {
-        if (controladorConfiguracion.existeUsuario(username)) {
+        if (controladorUsuario.existeUsuario(username)) {
             throw new ExceptionUserExist();
         }
-        controladorConfiguracion.registrarUsuario(username, password);
-    }  
+        if (!controladorUsuario.registrarUsuario(username, password)) {
+            throw new RuntimeException("Error al registrar usuario.");
+        }
+    }
 
     public void cerrrarSesion(String username) {
-        if (!controladorConfiguracion.existeUsuario(username)) {
+        if (!controladorUsuario.existeUsuario(username)) {
             throw new ExceptionUserNotExist();
         }
-        if (!controladorConfiguracion.isLoggedIn(username)) {
+        if (!controladorUsuario.isLoggedIn(username)) {
             throw new ExceptionUserNotLoggedIn();
         }
-        // Cerrar sesión del usuario
-        controladorConfiguracion.cerrarSesion(username);
+        controladorUsuario.cerrarSesion(username);
     }
 
     public void modificarConfiguracion(String clave, String nuevoValor) {
@@ -138,8 +124,9 @@ public class ControladorDomain {
         }
         if (ordenador) {
             controladorJuego.definirPartida(nombre, diccionario, dificultad);
+        } else {
+            controladorJuego.definirPartida(nombre, diccionario);
         }
-        controladorJuego.definirPartida(nombre, diccionario);
     }
 
     public void iniciarJuego(String username) {
@@ -148,10 +135,7 @@ public class ControladorDomain {
         }
         controladorJuego.iniciarJuego(username);
     }
-    /*
-        * Método para jugar
-        * Está incompleto
-    */
+
     public void jugar(String username, String palabra, int fila, int columna, String direccion) {
         controladorJuego.jugar(username, palabra, fila, columna, direccion);
     }
@@ -172,7 +156,7 @@ public class ControladorDomain {
     }
 
     public void agregarPuntuacion(String username, int puntuacion) {
-        if (!controladorConfiguracion.existeUsuario(username)) {
+        if (!controladorUsuario.existeUsuario(username)) {
             throw new ExceptionUserNotExist();
         }
         controladorRanking.agregarPuntuacion(username, puntuacion);

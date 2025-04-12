@@ -1,13 +1,11 @@
 package domain.models;
 
-import java.io.Serializable;
-
 /**
  * Clase que representa a un jugador controlado por IA en el sistema.
  * Los jugadores IA se crean para una única partida y no mantienen estadísticas de juego
  * entre sesiones.
  */
-public class JugadorIA implements Usuario, Serializable {
+public class JugadorIA implements Usuario {
     private static final long serialVersionUID = 1L;
     
     /**
