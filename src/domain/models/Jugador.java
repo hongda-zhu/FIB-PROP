@@ -1,12 +1,16 @@
 package domain.models;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Clase abstracta que define las operaciones y atributos básicos comunes a todos los jugadores.
  */
 public abstract class Jugador implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    public Map<String, Integer> rack; 
+    public int skipTrack;
     
     /**
      * Identificador único del jugador
@@ -69,6 +73,15 @@ public abstract class Jugador implements Serializable {
      */
     public int getPuntuacion() {
         return puntuacion;
+    }
+
+    public void robarFichas(Bolsa bolsa, int cantidad) {
+        for (int i = 0; i < cantidad; i++) {
+            Ficha ficha = bolsa.sacarFicha();
+            if (ficha != null) {
+                rack.put(ficha.getLetra(), ficha.getValor());
+            }
+        }
     }
     
     /**

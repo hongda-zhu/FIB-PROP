@@ -1,58 +1,46 @@
 package domain.models;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import domain.controllers.subcontrollers.managers.GestorJugada.Direction;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Tablero {
     private String[][] tablero;
-    public Bonus[][] bonus;
-    public Map<Character, Integer> alphabetPoint;
-    {
-        alphabetPoint = new HashMap<>();
-        alphabetPoint.put('a', 1);
-        alphabetPoint.put('b', 2);
-        alphabetPoint.put('c', 3);
-        alphabetPoint.put('d', 4);
-        alphabetPoint.put('e', 5);
-        alphabetPoint.put('f', 6);
-        alphabetPoint.put('g', 7);
-        alphabetPoint.put('h', 8);
-        alphabetPoint.put('i', 9);
-        alphabetPoint.put('j', 10);
-        alphabetPoint.put('k', 11);
-        alphabetPoint.put('l', 12);
-        alphabetPoint.put('m', 13);
-        alphabetPoint.put('n', 14);
-        alphabetPoint.put('o', 15);
-        alphabetPoint.put('p', 16);
-        alphabetPoint.put('q', 17);
-        alphabetPoint.put('r', 18);
-        alphabetPoint.put('s', 19);
-        alphabetPoint.put('t', 20);
-        alphabetPoint.put('u', 21);
-        alphabetPoint.put('v', 22);
-        alphabetPoint.put('w', 23);
-        alphabetPoint.put('x', 24);
-        alphabetPoint.put('y', 25);
-        alphabetPoint.put('z', 26);
-    }
+    private Bonus[][] bonus;
+    private Map<Character, Integer> alphabetPoint;
     private int N;
 
+    private void inicializarPuntosAlfabeto() {
+        alphabetPoint = new HashMap<>();
+        String letras = "abcdefghijklmnopqrstuvwxyz";
+        for (int i = 0; i < letras.length(); i++) {
+            alphabetPoint.put(letras.charAt(i), i + 1);
+        }
+    }
 
     public enum Bonus {
         N, TW, TL, DW, DL, X
     }
 
+    /**
+     * Constructor por defecto. Crea un tablero de 15x15.
+     */
     public Tablero() {
         this(15);
     }
 
+    /**
+     * Constructor que inicializa un tablero de tamaño NxN.
+     * 
+     * @param N Tamaño del tablero
+     */
     public Tablero (int N) {
         this.tablero = new String[N][N];
         this.N = N;
-        this.bonus = this.N == 15? inicializarTablero15x15(): new Bonus[N][N];
+        inicializarPuntosAlfabeto();
+        this.bonus = this.N == 15 ? inicializarTablero15x15() : new Bonus[N][N];
         
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
@@ -64,88 +52,88 @@ public class Tablero {
 
     private Bonus[][] inicializarTablero15x15() {
         Bonus[][] bonusMatrix = new Bonus[N][N];
+        // Inicializar todo con N (Normal)
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 bonusMatrix[i][j] = Bonus.N;
             }
         }   
-        //starting center
-		bonusMatrix[7][7] = Bonus.N;
-		//triple word
-		bonusMatrix[0][0] = Bonus.TW;
-		bonusMatrix[7][0] = Bonus.TW;
-		bonusMatrix[14][0] = Bonus.TW;
-		bonusMatrix[0][7] = Bonus.TW;
-		bonusMatrix[0][14] = Bonus.TW;
-		bonusMatrix[7][14] = Bonus.TW;
-		bonusMatrix[14][7] = Bonus.TW;
-		bonusMatrix[14][14] = Bonus.TW;
-		//triple letter
-		bonusMatrix[5][1] = Bonus.TL;
-		bonusMatrix[9][1] = Bonus.TL;
-		bonusMatrix[1][5] = Bonus.TL;
-		bonusMatrix[5][5] = Bonus.TL;
-		bonusMatrix[9][5] = Bonus.TL;
-		bonusMatrix[13][5] = Bonus.TL;;
-		bonusMatrix[1][9] = Bonus.TL;
-		bonusMatrix[5][9] = Bonus.TL;
-		bonusMatrix[9][9] = Bonus.TL;
-		bonusMatrix[13][9] = Bonus.TL;;
-		bonusMatrix[5][13] = Bonus.TL;;
-		bonusMatrix[9][13] = Bonus.TL;;
-		//double word
-		bonusMatrix[1][1] = Bonus.DW;
-		bonusMatrix[2][2] = Bonus.DW;
-		bonusMatrix[3][3] = Bonus.DW;
-		bonusMatrix[4][4] = Bonus.DW;
-		bonusMatrix[4][10] = Bonus.DW;;
-		bonusMatrix[3][11] = Bonus.DW;;
-		bonusMatrix[2][12] = Bonus.DW;;
-		bonusMatrix[1][13] = Bonus.DW;;
-		bonusMatrix[13][1] = Bonus.DW;;
-		bonusMatrix[12][2] = Bonus.DW;;
-		bonusMatrix[11][3] = Bonus.DW;;
-		bonusMatrix[10][4] = Bonus.DW;;
-		bonusMatrix[10][10] = Bonus.DW;;
-		bonusMatrix[11][11] = Bonus.DW;;
-		bonusMatrix[12][12] = Bonus.DW;;
-		bonusMatrix[13][13] = Bonus.DW;;
-		//double letters
-		bonusMatrix[3][0] = Bonus.DL;
-		bonusMatrix[11][0] = Bonus.DL;;
-		bonusMatrix[0][3] = Bonus.DL;
-		bonusMatrix[6][2] = Bonus.DL;
-		bonusMatrix[7][3] = Bonus.DL;
-		bonusMatrix[8][2] = Bonus.DL;
-		bonusMatrix[14][3] = Bonus.DL;;
-		bonusMatrix[2][6] = Bonus.DL;
-		bonusMatrix[6][6] = Bonus.DL;
-		bonusMatrix[8][6] = Bonus.DL;
-		bonusMatrix[12][6] = Bonus.DL;;
-		bonusMatrix[3][7] = Bonus.DL;
-		bonusMatrix[11][7] = Bonus.DL;;
-		bonusMatrix[2][8] = Bonus.DL;
-		bonusMatrix[6][8] = Bonus.DL;
-		bonusMatrix[8][8] = Bonus.DL;
-		bonusMatrix[12][8] = Bonus.DL;;
-		bonusMatrix[0][11] = Bonus.DL;;
-		bonusMatrix[7][11] = Bonus.DL;;
-		bonusMatrix[14][11] = Bonus.DL;;
-		bonusMatrix[6][12] = Bonus.DL;;
-		bonusMatrix[8][12] = Bonus.DL;;
-		bonusMatrix[3][14] = Bonus.DL;;
-		bonusMatrix[6][12] = Bonus.DL;;
-		bonusMatrix[11][14] = Bonus.DL;;
-
+        
+        // Triple Word (TW)
+        List<Tuple<Integer, Integer>> twPositions = Arrays.asList(
+            new Tuple<>(0, 0), new Tuple<>(7, 0), new Tuple<>(14, 0),
+            new Tuple<>(0, 7), new Tuple<>(0, 14), new Tuple<>(7, 14),
+            new Tuple<>(14, 7), new Tuple<>(14, 14)
+        );
+        
+        // Triple Letter (TL)
+        List<Tuple<Integer, Integer>> tlPositions = Arrays.asList(
+            new Tuple<>(5, 1), new Tuple<>(9, 1), new Tuple<>(1, 5),
+            new Tuple<>(5, 5), new Tuple<>(9, 5), new Tuple<>(13, 5),
+            new Tuple<>(1, 9), new Tuple<>(5, 9), new Tuple<>(9, 9),
+            new Tuple<>(13, 9), new Tuple<>(5, 13), new Tuple<>(9, 13)
+        );
+        
+        // Double Word (DW)
+        List<Tuple<Integer, Integer>> dwPositions = Arrays.asList(
+            new Tuple<>(1, 1), new Tuple<>(2, 2), new Tuple<>(3, 3),
+            new Tuple<>(4, 4), new Tuple<>(4, 10), new Tuple<>(3, 11),
+            new Tuple<>(2, 12), new Tuple<>(1, 13), new Tuple<>(13, 1),
+            new Tuple<>(12, 2), new Tuple<>(11, 3), new Tuple<>(10, 4),
+            new Tuple<>(10, 10), new Tuple<>(11, 11), new Tuple<>(12, 12),
+            new Tuple<>(13, 13)
+        );
+        
+        // Double Letter (DL)
+        List<Tuple<Integer, Integer>> dlPositions = Arrays.asList(
+            new Tuple<>(3, 0), new Tuple<>(11, 0), new Tuple<>(0, 3),
+            new Tuple<>(6, 2), new Tuple<>(7, 3), new Tuple<>(8, 2),
+            new Tuple<>(14, 3), new Tuple<>(2, 6), new Tuple<>(6, 6),
+            new Tuple<>(8, 6), new Tuple<>(12, 6), new Tuple<>(3, 7),
+            new Tuple<>(11, 7), new Tuple<>(2, 8), new Tuple<>(6, 8),
+            new Tuple<>(8, 8), new Tuple<>(12, 8), new Tuple<>(0, 11),
+            new Tuple<>(7, 11), new Tuple<>(14, 11), new Tuple<>(6, 12),
+            new Tuple<>(8, 12), new Tuple<>(3, 14), new Tuple<>(11, 14)
+        );
+        
+        // Asignar casillas especiales
+        for (Tuple<Integer, Integer> pos : twPositions) {
+            bonusMatrix[pos.x][pos.y] = Bonus.TW;
+        }
+        
+        for (Tuple<Integer, Integer> pos : tlPositions) {
+            bonusMatrix[pos.x][pos.y] = Bonus.TL;
+        }
+        
+        for (Tuple<Integer, Integer> pos : dwPositions) {
+            bonusMatrix[pos.x][pos.y] = Bonus.DW;
+        }
+        
+        for (Tuple<Integer, Integer> pos : dlPositions) {
+            bonusMatrix[pos.x][pos.y] = Bonus.DL;
+        }
+        
+        // Centro del tablero
+        bonusMatrix[7][7] = Bonus.N;
+        
         return bonusMatrix;
     }
 
+    /**
+     * Constructor de copia.
+     * 
+     * @param tablero2 Tablero a copiar
+     */
     public Tablero(Tablero tablero2) {
         this.N = tablero2.getSize();
         this.tablero = new String[N][N];
+        this.bonus = new Bonus[N][N];
+        inicializarPuntosAlfabeto();
+        
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 this.tablero[i][j] = tablero2.getTile(new Tuple<>(i, j));
+                this.bonus[i][j] = tablero2.getBonus(new Tuple<>(i, j));
             }
         }
     }
@@ -211,47 +199,111 @@ public class Tablero {
         return this.N;
     }
 
-    public int makeMove(Tuple<Integer, Integer> lastPos, String word, Direction direction) {
-        int points = 0;
-        int doubleTimes = 0;
-        int tripleTimes = 0;
-        if (validPosition(lastPos)) {
-            for (int i = word.length() - 1; i >= 0; i--) {
-                setTile(lastPos, String.valueOf(word.charAt(i)));
-                if (direction == Direction.HORIZONTAL) {
-                    lastPos = new Tuple<Integer, Integer>(lastPos.x, lastPos.y - 1); // Move to the next position in the word
-                } else {
-                    lastPos = new Tuple<Integer, Integer>(lastPos.x - 1, lastPos.y);
-                }
-                int letterPoint = alphabetPoint.get(String.valueOf(word.charAt(i)).toLowerCase().charAt(0));
+    public Tuple<Integer, Integer> getCenter() {
+        return new Tuple<>(N/2, N/2);
+    }
 
-                switch (bonus[lastPos.x][lastPos.y]) {
-                    case TW:
-                        points += letterPoint;
-                        tripleTimes++;
-                        break;
-                    case TL:
-                        points += letterPoint * 3;
-                        break;
-                    case DW:
-                        points += letterPoint;
-                        doubleTimes++;
-                        break;
-                    case DL:
-                        points += letterPoint * 2;
-                        break;
-                    case X:
-                        points += letterPoint * 2;
-                        break;
-                    default:
-                        points += letterPoint;
-                }
-            }
-            return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes); 
+    /**
+     * Calcula el siguiente punto en una dirección dada.
+     * 
+     * @param pos Posición actual
+     * @param direction Dirección del movimiento
+     * @return Nueva posición
+     */
+    private Tuple<Integer, Integer> calcularSiguientePosicion(Tuple<Integer, Integer> pos, Direction direction) {
+        if (direction == Direction.HORIZONTAL) {
+            return new Tuple<>(pos.x, pos.y - 1);
         } else {
-            throw new IllegalArgumentException("Posición inválida en el tablero.");
+            return new Tuple<>(pos.x - 1, pos.y);
         }
     }
 
+    /**
+     * Calcula los puntos para una letra en una posición específica.
+     * 
+     * @param letra Letra a colocar
+     * @param pos Posición en el tablero
+     * @return Par con los puntos base y multiplicadores (para palabras)
+     */
+    private Tuple<Integer, Integer> calcularPuntosLetra(char letra, Tuple<Integer, Integer> pos) {
+        int puntos = alphabetPoint.get(Character.toLowerCase(letra));
+        int multiplicadorPalabra = 1;
+        
+        switch (bonus[pos.x][pos.y]) {
+            case TW:
+                multiplicadorPalabra = 3;
+                break;
+            case TL:
+                puntos *= 3;
+                break;
+            case DW:
+                multiplicadorPalabra = 2;
+                break;
+            case DL:
+                puntos *= 2;
+                break;
+            case X:
+                puntos *= 2;
+                break;
+            default:
+                // Sin modificación
+        }
+        
+        return new Tuple<>(puntos, multiplicadorPalabra);
+    }
+
+    /**
+     * Realiza un movimiento en el tablero.
+     *
+     * @param lastPos Posición final de la palabra
+     * @param word Palabra a colocar
+     * @param direction Dirección (horizontal o vertical)
+     * @return Puntos obtenidos por el movimiento
+     */
+    public int makeMove(Tuple<Integer, Integer> lastPos, String word, Direction direction) {
+        if (!validPosition(lastPos)) {
+            throw new IllegalArgumentException("Posición inválida en el tablero.");
+        }
+        
+        int puntosTotales = 0;
+        int multiplicadorPalabraTotal = 1;
+        Tuple<Integer, Integer> posActual = lastPos;
+        
+        for (int i = word.length() - 1; i >= 0; i--) {
+            char letra = word.charAt(i);
+            setTile(posActual, String.valueOf(letra));
+            
+            Tuple<Integer, Integer> puntuacion = calcularPuntosLetra(letra, posActual);
+            puntosTotales += puntuacion.x;
+            multiplicadorPalabraTotal *= puntuacion.y;
+            
+            posActual = calcularSiguientePosicion(posActual, direction);
+        }
+        
+        return puntosTotales * multiplicadorPalabraTotal;
+    }
+
+    /**
+     * Obtiene el bonus en una posición del tablero.
+     * 
+     * @param pos Posición del tablero
+     * @return Tipo de bonus en esa posición
+     */
+    public Bonus getBonus(Tuple<Integer, Integer> pos) {
+        if (validPosition(pos)) {
+            return bonus[pos.x][pos.y];
+        }
+        return null;
+    }
+    
+    /**
+     * Obtiene el valor en puntos de una letra.
+     * 
+     * @param letra Letra a consultar
+     * @return Valor en puntos
+     */
+    public int getPointValue(char letra) {
+        return alphabetPoint.getOrDefault(Character.toLowerCase(letra), 0);
+    }
 
 }

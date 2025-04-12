@@ -11,10 +11,10 @@ public class Dawg {
     public void insert(String word) {
         DawgNode current = root;
         for (char c : word.toCharArray()) {
-            if (current.getEdge(c) == null) {
-                current.addEdge(c, new DawgNode());
+            if (current.getEdge(String.valueOf(c)) == null) {
+                current.addEdge(String.valueOf(c), new DawgNode());
             }
-            current = current.getEdge(c);
+            current = current.getEdge(String.valueOf(c));
         }
         current.setFinal(true);
     }
@@ -22,10 +22,10 @@ public class Dawg {
     public boolean search(String word) {
         DawgNode current = root;
         for (char c : word.toCharArray()) {
-            if (current.getEdge(c) == null) {
+            if (current.getEdge(String.valueOf(c)) == null) {
                 return false;
             }
-            current = current.getEdge(c);
+            current = current.getEdge(String.valueOf(c));
         }
         return current.isFinal();
     }
@@ -37,10 +37,10 @@ public class Dawg {
     public DawgNode getNode(String word) {
         DawgNode current = root;
         for (char c : word.toCharArray()) {
-            if (current.getEdge(c) == null) {
+            if (current.getEdge(String.valueOf(c)) == null) {
                 return null;
             }
-            current = current.getEdge(c);
+            current = current.getEdge(String.valueOf(c));
         }
         return current;
     }

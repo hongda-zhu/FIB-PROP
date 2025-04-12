@@ -1,8 +1,6 @@
 package domain.models;
 
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,8 +21,9 @@ public class JugadorIA extends Jugador {
     
     private Dificultad nivelDificultad;
     private int puntuacionUltimaPartida;
-    private Map<Character, Integer> rack; 
-    private int skipTrack;
+    protected Map<Character, Integer> rack;
+    protected int skipTrack;
+
     
     /**
      * Constructor de la clase JugadorIA.
@@ -124,15 +123,6 @@ public class JugadorIA extends Jugador {
 
     public void setSkipTrack(int skipTrack) {
         this.skipTrack = skipTrack;
-    }
-    
-    public void robarFichas(Bolsa bolsa, int cantidad) {
-        for (int i = 0; i < cantidad; i++) {
-            Ficha ficha = bolsa.sacarFicha();
-            if (ficha != null) {
-                rack.put(ficha.getLetra(), ficha.getValor());
-            }
-        }
     }
     
     @Override

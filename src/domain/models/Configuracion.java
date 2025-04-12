@@ -1,35 +1,38 @@
 package domain.models;
 
 public class Configuracion {
-    private String clave;
-    private String valor;
+    private Idioma idioma;
+    private int volumen; // percentage
+    private Tema tema;
 
-    public Configuracion(String clave, String valor) {
-        this.clave = clave;
-        this.valor = valor;
+    public Configuracion() {
+        this.idioma = Idioma.ESPANOL;
+        this.volumen = 50;
+        this.tema = Tema.CLARO;
     }
 
-    public String getClave() {
-        return clave;
+    public Idioma obteneridioma() {
+        return this.idioma;
     }
 
-    public void setClave(String clave) {
-        this.clave = clave;
+    public Tema obtenerTema() {
+        return this.tema;
     }
 
-    public String getValor() {
-        return valor;
+    public int obtenerVolumen() {
+        return this.volumen;
     }
 
-    public void setValor(String valor) {
-        this.valor = valor;
+    public void setIdioma(Idioma i) {
+        this.idioma = i;
     }
 
-    @Override
-    public String toString() {
-        return "Configuracion{" +
-                "clave='" + clave + '\'' +
-                ", valor='" + valor + '\'' +
-                '}';
+    public void setTema(Tema t) {
+        this.tema = t;
     }
+
+    public void setVolumen(int v) {
+        this.volumen = v;
+    }
+
 }

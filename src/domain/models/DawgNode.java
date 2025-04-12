@@ -5,7 +5,7 @@ import java.util.Set;
 
 
 public class DawgNode {
-    private Map<Character, DawgNode> edges;
+    private Map<String, DawgNode> edges;
     private boolean isFinal;
 
     public DawgNode() {
@@ -13,15 +13,15 @@ public class DawgNode {
         this.isFinal = false;
     }
 
-    public DawgNode getEdge(char c) {
+    public DawgNode getEdge(String c) {
         return edges.get(c);
     }
 
-    public Set<Character> getAllEdges() {
+    public Set<String> getAllEdges() {
         return edges.keySet();
     }
 
-    public void addEdge(char c, DawgNode node) {
+    public void addEdge(String c, DawgNode node) {
         edges.put(c, node);
     }
 

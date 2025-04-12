@@ -1,12 +1,7 @@
 package domain.models;
 
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-
-import domain.controllers.subcontrollers.managers.GestorJugada.Direction;
 
 /**
  * Clase que representa a un jugador humano en el sistema.
@@ -21,8 +16,7 @@ public class JugadorHumano extends Jugador {
     private boolean enPartida;
     private boolean logueado;
     
-    private Map<Character, Integer> rack; 
-    private int skipTrack;
+
     /**
      * Constructor de la clase JugadorHumano.
      * 
@@ -183,7 +177,7 @@ public class JugadorHumano extends Jugador {
     }
 
 
-    public Map<Character, Integer> getFichas() {
+    public Map<String, Integer> getFichas() {
         return rack;
     }
 
@@ -220,66 +214,8 @@ public class JugadorHumano extends Jugador {
                '}';
     }
 
-    public Triple<String, Tuple<Integer, Integer>, Direction> jugarTurno() {
-        Scanner scanner = new Scanner(System.in);
-        
-        // Leer la palabra
-        System.out.print("Introduce la palabra a colocar (o 'p' para pasar): ");
-        String palabra = scanner.nextLine();
-        
-        // Si el usuario escribe 'p', retornar null
-        if (palabra.equals("p")) {
-            return null;
-        }
-        
-        // Leer la posición de la última letra (coordenada X e Y)
-        int x = -1;
-        int y = -1;
-        boolean coordenadasValidas = false;
-        
-        while (!coordenadasValidas) {
-            System.out.print("Introduce la posición de la última letra (X Y): ");
-            try {
-                x = scanner.nextInt();
-                y = scanner.nextInt();
-                scanner.nextLine(); // Consume the remaining newline
-                coordenadasValidas = true;
-            } catch (Exception e) {
-                scanner.nextLine(); // Clear the invalid input
-                System.out.println("Formato incorrecto. Debes introducir dos números separados por un espacio.");
-            }
-        }
-        
-        // Leer la dirección
-        String dir;
-        boolean direccionValida = false;
-        
-        while (!direccionValida) {
-            System.out.print("Introduce la dirección (HORIZONTAL o VERTICAL): ");
-            dir = scanner.nextLine().toUpperCase();
-            
-            if (dir.equals("HORIZONTAL") || dir.equals("VERTICAL")) {
-                direccionValida = true;
-                Direction direction = dir.equals("HORIZONTAL") ? Direction.HORIZONTAL : Direction.VERTICAL;
-                
-                // Devolver la respuesta en formato Triple
-                return new Triple<>(palabra, new Tuple<>(x, y), direction);
-            } else {
-                System.out.println("Dirección no válida. Debe ser HORIZONTAL o VERTICAL.");
-            }
-        }
-        
-        // Este return nunca debería alcanzarse, pero es necesario para la compilación
-        return null;
-    }
 
-    public void robarFichas(Bolsa bolsa, int cantidad) {
-        for (int i = 0; i < cantidad; i++) {
-            Ficha ficha = bolsa.sacarFicha();
-            if (ficha != null) {
-                rack.put(ficha.getLetra(), ficha.getValor());
-            }
-        }
-    }
+
+
 
 }

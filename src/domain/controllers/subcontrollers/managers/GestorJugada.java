@@ -2,13 +2,20 @@ package domain.controllers.subcontrollers.managers;
 
 import domain.models.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 public class GestorJugada {
+
+
 
     public enum Direction {
         HORIZONTAL,
@@ -17,18 +24,50 @@ public class GestorJugada {
 
     private Tablero tablero;
     public Dawg dawg;
-    private final Map<Character, Integer> alphabet;
-    private Map<Tuple<Integer, Integer>, Set<Character>> lastCrossCheck;
+    private final Map<String, Integer> alphabet;
+    private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
     private Direction direction;
 
 
-    public GestorJugada(Tablero tablero, Dawg dawg, Map<Character, Integer> alphabet) {
+    public GestorJugada(Tablero tablero, Dawg dawg, Map<String, Integer> alphabet) {
         this.tablero = tablero;
         this.dawg = dawg;
         this.lastCrossCheck = null;
         this.alphabet = alphabet;
+    
     }
 
+    public void setAlphabet(String rutaArchivo) {
+        List<String> lineas = leerArchivoLineaPorLinea(rutaArchivo);
+        for (String linea : lineas) {
+                String[] partes = linea.split(" ");
+                if (partes.length == 3) {
+                    String caracter = partes[0];
+                    // int frecuencia = Integer.parseInt(partes[1]); no se usa aqui
+                    int puntos = Integer.parseInt(partes[2]);
+                    alphabet.put(caracter, puntos);                     
+                }
+                else {
+                    System.out.println("Línea con formato incorrecto: " + linea);                
+                }
+        }
+    }
+
+    private List<String> leerArchivoLineaPorLinea(String rutaArchivo) {
+        List<String> lineas = new ArrayList<>();
+        try (Scanner scanner = new Scanner(new File(rutaArchivo))) {
+            while (scanner.hasNextLine()) {
+                String linea = scanner.nextLine().trim();
+                if (!linea.isEmpty()) { 
+                    lineas.add(linea);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo: " + e.getMessage());
+        }
+        return lineas;
+    }
+    
     public Tuple<Integer, Integer> before (Tuple<Integer, Integer> pos) {
         return direction == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
     } 
@@ -60,16 +99,19 @@ public class GestorJugada {
         return anchors;
     }
 
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendLeft(String partialWord, Map<Character, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, int limit) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendLeft(String partialWord, Map<String, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, int limit) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
         words.addAll(extendRight(partialWord, rack, currenNode, nextPos, false));
 
         if (limit > 0){
-            for (Character c : currenNode.getAllEdges()) {
-                if (rack.containsKey(c)) {
+            for (String c : currenNode.getAllEdges()) {
+                if (rack.containsKey(c) ||rack.containsKey("#")) {
                     String newPartialWord = partialWord + c;
                     DawgNode nextNode = currenNode.getEdge(c);
-                    Map<Character, Integer> newRack = new HashMap<>(rack);
+                    Map<String, Integer> newRack = new HashMap<>(rack);
+
+                    if (!rack.containsKey(c)) c = "#";
+
                     if (newRack.get(c) == 1) {
                         newRack.remove(c);
                     } else {
@@ -82,7 +124,7 @@ public class GestorJugada {
         return words;
     }
 
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<Character, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<String, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
 
         if(!this.tablero.isFilled(nextPos) && currenNode.isFinal() && archorFilled) {
@@ -91,12 +133,14 @@ public class GestorJugada {
         if (this.tablero.validPosition(nextPos)){
             if (this.tablero.isEmpty(nextPos)) {
 
-                for (Character c : currenNode.getAllEdges()) {
-                    Set<Character> allowedChars = this.lastCrossCheck.get(nextPos);
-                    if (rack.containsKey(c) && allowedChars != null && allowedChars.contains(c)) {
+                for (String c : currenNode.getAllEdges()) {
+                    Set<String> allowedChars = this.lastCrossCheck.get(nextPos);
+                    if ((rack.containsKey(c) || rack.containsKey("#")) && allowedChars != null && allowedChars.contains(c)) {
                         String newPartialWord = partialWord + c;
                         DawgNode nextNode = currenNode.getEdge(c);
-                        Map<Character, Integer> newRack = new HashMap<>(rack);
+                        Map<String, Integer> newRack = new HashMap<>(rack);
+
+                        if (!rack.containsKey(c)) c = "#";
                         if (newRack.get(c) == 1) {
                             newRack.remove(c);
                         } else {
@@ -106,8 +150,8 @@ public class GestorJugada {
                     }
                 }
             } else {
-                char c = this.tablero.getTile(nextPos).charAt(0);
-                if (currenNode.getAllEdges().contains(c)) {
+                String c = String.valueOf(this.tablero.getTile(nextPos));
+                if (currenNode.getAllEdges().contains(String.valueOf(c))) {
                     String newPartialWord = partialWord + c;
                     DawgNode nextNode = currenNode.getEdge(c);
                     words.addAll(extendRight(newPartialWord, rack, nextNode, after(nextPos), true));
@@ -118,8 +162,8 @@ public class GestorJugada {
     }
 
 
-    public Map<Tuple<Integer, Integer>, Set<Character>> crossCheck() {
-        Map<Tuple<Integer, Integer>, Set<Character>> words = new HashMap<>();
+    public Map<Tuple<Integer, Integer>, Set<String>> crossCheck() {
+        Map<Tuple<Integer, Integer>, Set<String>> words = new HashMap<>();
         for (int i = 0; i < tablero.getSize(); i++) {
             for (int j = 0; j < tablero.getSize(); j++) {
                 Tuple<Integer, Integer> pos = new Tuple<>(i,j);
@@ -138,11 +182,11 @@ public class GestorJugada {
                         afterPart = afterPart + tablero.getTile(after_cross(down_pos));
                         down_pos = after_cross(down_pos);
                     }
-                    Set<Character> set = new HashSet<>();
+                    Set<String> set = new HashSet<>();
                     if (beforePart.length() == 0 && afterPart.length() == 0) {
-                        Collections.addAll(set, alphabet.keySet().toArray(new Character[0]));
+                        Collections.addAll(set, alphabet.keySet().toArray(new String[0]));
                     } else {
-                        for (Character c : alphabet.keySet()) {
+                        for (String c : alphabet.keySet()) {
                             String candidateWord = beforePart + c + afterPart;
                             if (dawg.search(candidateWord)) {
                                 set.add(c);
@@ -156,7 +200,7 @@ public class GestorJugada {
         return words;
     }
 
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<Character, Integer> rack) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> answers = new HashSet<>();
         Set<Tuple<Integer, Integer>> anchors = find_anchors();
 
@@ -233,7 +277,7 @@ public class GestorJugada {
             if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
                 points += letterPoint;
             } else {
-                switch (this.tablero.bonus[pos.x][pos.y]) {
+                switch (this.tablero.getBonus(pos)) {
                     case TW:
                         points += letterPoint;
                         tripleTimes++;
@@ -253,6 +297,7 @@ public class GestorJugada {
                         break;
                     default:
                         points += letterPoint;
+                        break;
                 }
             }
             pos = dir == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
@@ -261,13 +306,124 @@ public class GestorJugada {
     }
 
 
-    public boolean isValidMove (Triple<String,Tuple<Integer, Integer>, Direction> move, Map<Character, Integer> rack) {
+    public boolean isValidMove (Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> possibleWords = searchAllMoves(rack);
         return possibleWords.contains(move);
     }
 
+    public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+        String word = move.x;
+        Tuple<Integer, Integer> pos = move.y;
+        Direction dir = move.z;
+
+        // Check if the word fits within the board boundaries
+        for (int i = word.length() - 1; i >= 0; i--) {
+            if (!tablero.validPosition(pos)) {
+                return false;
+            }
+            pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
+        }
+
+        // Reset position to the starting point
+        pos = move.y;
+
+        // Check if the word is placed on the center tile
+        boolean centerTileCovered = false;
+        for (int i = word.length() - 1; i >= 0; i--) {
+            if (pos.equals(tablero.getCenter())) {
+                centerTileCovered = true;
+            }
+            pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
+        }
+
+        if (!centerTileCovered) {
+            return false;
+        }
+
+        // Check if the word can be formed using the rack
+        Map<String, Integer> tempRack = new HashMap<>(rack);
+        for (char c : word.toCharArray()) {
+            String letter = String.valueOf(c).toUpperCase();
+            if (tempRack.containsKey(letter)) {
+                if (tempRack.get(letter) == 1) {
+                    tempRack.remove(letter);
+                } else {
+                    tempRack.put(letter, tempRack.get(letter) - 1);
+                }
+            } else if (tempRack.containsKey("#")) { // Use blank tile
+                if (tempRack.get("#") == 1) {
+                    tempRack.remove("#");
+                } else {
+                    tempRack.put("#", tempRack.get("#") - 1);
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void mostrarTablero () {
         System.out.println(this.tablero.toString());
+    }
+
+    public Triple<String, Tuple<Integer, Integer>, Direction> jugarTurno() {
+        Scanner scanner = new Scanner(System.in);
+        
+        // Leer la palabra
+        System.out.print("Introduce la palabra a colocar (o 'p' para pasar): ");
+        String palabra = scanner.nextLine();
+        
+        // Si el usuario escribe 'p', retornar null
+        if (palabra.equals("p")) {
+            return null;
+        }
+        
+        // Leer la posición de la última letra (coordenada X e Y)
+        int x = -1;
+        int y = -1;
+        boolean coordenadasValidas = false;
+        
+        while (!coordenadasValidas) {
+            System.out.print("Introduce la posición de la última letra (X Y): ");
+            try {
+                x = scanner.nextInt();
+                y = scanner.nextInt();
+                scanner.nextLine(); // Consume the remaining newline
+                coordenadasValidas = true;
+            } catch (Exception e) {
+                scanner.nextLine(); // Clear the invalid input
+                System.out.println("Formato incorrecto. Debes introducir dos números separados por un espacio.");
+            }
+        }
+        
+        // Leer la dirección
+        String dir;
+        boolean direccionValida = false;
+        
+        while (!direccionValida) {
+            System.out.print("Introduce la dirección (HORIZONTAL (H) o VERTICAL(V)): ");
+            dir = scanner.nextLine().toUpperCase();
+            
+            if (dir.equals("H") || dir.equals("V")) {
+                direccionValida = true;
+                Direction direction = dir.equals("H") ? Direction.HORIZONTAL : Direction.VERTICAL;
+                
+                // Devolver la respuesta en formato Triple
+                return new Triple<>(palabra, new Tuple<>(x, y), direction);
+            } else {
+                System.out.println("Dirección no válida. Debe ser HORIZONTAL o VERTICAL.");
+            }
+        }
+        // Este return nunca debería alcanzarse, pero es necesario para la compilación
+        return null;
+    }
+
+    public void inicializarDawg (List<String> palabras) {
+        for (String palabra : palabras) {
+            dawg.insert(palabra);
+        }
     }
 
  }

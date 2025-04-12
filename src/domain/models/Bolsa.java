@@ -1,43 +1,51 @@
 package domain.models;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 public class Bolsa {
     private List<Ficha> fichas;
 
-    public void llenarBolsa() {
+    public void llenarBolsa(String rutaArchivo) {
         fichas = new ArrayList<>();
     
-        agregarFichas('a', 12, 1);
-        agregarFichas('e', 12, 1);
-        agregarFichas('o', 9, 1);
-        agregarFichas('s', 6, 1);
-        agregarFichas('i', 6, 1);
-        agregarFichas('u', 6, 1);
-        agregarFichas('n', 5, 1);
-        agregarFichas('l', 4, 1);
-        agregarFichas('r', 5, 1);
-        agregarFichas('t', 4, 1);
-        agregarFichas('c', 4, 3);
-        agregarFichas('d', 5, 2);
-        agregarFichas('m', 3, 3);
-        agregarFichas('b', 2, 3);
-        agregarFichas('p', 2, 3);
-        agregarFichas('h', 2, 4);
-        agregarFichas('g', 2, 2);
-        agregarFichas('y', 1, 4);
-        agregarFichas('q', 1, 5);
-        agregarFichas('j', 1, 8);
-        agregarFichas('ñ', 1, 8);
-        agregarFichas('x', 1, 8);
-        agregarFichas('z', 1, 10);
-
-    
+        List<String> lineas = leerArchivoLineaPorLinea(rutaArchivo);
+        for (String linea : lineas) {
+                String[] partes = linea.split(" ");
+                if (partes.length == 3) {
+                    String caracter = partes[0];
+                    int frecuencia = Integer.parseInt(partes[1]);
+                    int puntos = Integer.parseInt(partes[2]);
+                    agregarFichas(caracter, frecuencia, puntos);                     
+                }
+                else {
+                    System.out.println("Línea con formato incorrecto: " + linea);                
+                }
+        }
+      
         Collections.shuffle(fichas);
     }
-    
-    private void agregarFichas(char letra, int cantidad, int valor) {
+
+
+    private List<String> leerArchivoLineaPorLinea(String rutaArchivo) {
+        List<String> lineas = new ArrayList<>();
+        try (Scanner scanner = new Scanner(new File(rutaArchivo))) {
+            while (scanner.hasNextLine()) {
+                String linea = scanner.nextLine().trim();
+                if (!linea.isEmpty()) { 
+                    lineas.add(linea);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo: " + e.getMessage());
+        }
+        return lineas;
+    }
+        
+    private void agregarFichas(String letra, int cantidad, int valor) {
         for (int i = 0; i < cantidad; i++) {
             fichas.add(new Ficha(letra, valor));
         }

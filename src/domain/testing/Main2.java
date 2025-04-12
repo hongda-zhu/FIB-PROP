@@ -31,6 +31,7 @@ public class Main2 {
         controladorJuego.inicializarDawg();
 
         // Iniciar el juego
-        controladorJuego.iniciarJuego();
+        String rutaArchivo = "";
+        controladorJuego.iniciarJuego(rutaArchivo);
     }
 }
