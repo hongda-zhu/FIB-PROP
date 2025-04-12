@@ -228,30 +228,32 @@ public class GestorJugada {
         Tuple<Integer, Integer> pos = move.y;
         Direction dir = move.z;
 
-
-
         for (int i = word.length() - 1; i >= 0; i--) {
             int letterPoint = alphabet.get(String.valueOf(word.charAt(i)).toLowerCase().charAt(0));
-            switch (this.tablero.bonus[pos.x][pos.y]) {
-                case TW:
-                    points += letterPoint;
-                    tripleTimes++;
-                    break;
-                case TL:
-                    points += letterPoint * 3;
-                    break;
-                case DW:
-                    points += letterPoint;
-                    doubleTimes++;
-                    break;
-                case DL:
-                    points += letterPoint * 2;
-                    break;
-                case X:
-                    points += letterPoint * 2;
-                    break;
-                default:
-                    points += letterPoint;
+            if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
+                points += letterPoint;
+            } else {
+                switch (this.tablero.bonus[pos.x][pos.y]) {
+                    case TW:
+                        points += letterPoint;
+                        tripleTimes++;
+                        break;
+                    case TL:
+                        points += letterPoint * 3;
+                        break;
+                    case DW:
+                        points += letterPoint;
+                        doubleTimes++;
+                        break;
+                    case DL:
+                        points += letterPoint * 2;
+                        break;
+                    case X:
+                        points += letterPoint * 2;
+                        break;
+                    default:
+                        points += letterPoint;
+                }
             }
             pos = dir == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
         }
