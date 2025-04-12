@@ -7,7 +7,7 @@ import domain.controllers.subcontrollers.managers.GestorJugada.Direction;
 
 public class Tablero {
     private String[][] tablero;
-    private Bonus[][] bonus;
+    public Bonus[][] bonus;
     public Map<Character, Integer> alphabetPoint;
     {
         alphabetPoint = new HashMap<>();

@@ -1,5 +1,10 @@
 package domain.models;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Clase que representa a un jugador controlado por IA en el sistema.
  * Los jugadores IA se crean para una única partida y no mantienen estadísticas de juego
@@ -17,6 +22,9 @@ public class JugadorIA extends Jugador {
     }
     
     private Dificultad nivelDificultad;
+    private int puntuacionUltimaPartida;
+    private Map<Character, Integer> rack; 
+    private int skipTrack;
     
     /**
      * Constructor de la clase JugadorIA.
@@ -27,6 +35,8 @@ public class JugadorIA extends Jugador {
     public JugadorIA(String id, Dificultad dificultad) {
         super(id, "IA-" + id);
         this.nivelDificultad = dificultad;
+        this.puntuacionUltimaPartida = 0;
+        this.rack = new HashMap<>(); // Inicialmente no tiene fichas en el rack
     }
     
     /**
@@ -66,6 +76,15 @@ public class JugadorIA extends Jugador {
     public int getPartidasJugadas() {
         return 1;
     }
+
+    public int getPuntuacionUltimaPartida() {
+        return puntuacionUltimaPartida;
+    }
+    
+    public void setPuntuacionUltimaPartida(int puntuacion) {
+        this.puntuacionUltimaPartida = puntuacion;
+    }
+
     
     /**
      * Para simular estadísticas en rankings.
@@ -79,6 +98,41 @@ public class JugadorIA extends Jugador {
     @Override
     public boolean esIA() {
         return true;
+    }
+
+    
+    public Map<Character, Integer> getFichas() {
+        return rack;
+    }
+
+    public int getPuntaje() {
+        return puntuacionUltimaPartida;
+    }
+
+    public void addPuntaje(int puntos) {
+        this.puntuacionUltimaPartida += puntos;
+    }
+
+    
+    public void addSkipTrack() {
+        this.skipTrack += 1;
+    }
+
+    public int getSkipTrack() {
+        return skipTrack;
+    }
+
+    public void setSkipTrack(int skipTrack) {
+        this.skipTrack = skipTrack;
+    }
+    
+    public void robarFichas(Bolsa bolsa, int cantidad) {
+        for (int i = 0; i < cantidad; i++) {
+            Ficha ficha = bolsa.sacarFicha();
+            if (ficha != null) {
+                rack.put(ficha.getLetra(), ficha.getValor());
+            }
+        }
     }
     
     @Override

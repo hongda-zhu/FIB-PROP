@@ -16,16 +16,17 @@ public class GestorJugada {
     }
 
     private Tablero tablero;
-    private Dawg dawg;
-    private final Character[] alphabet = {'a', 'b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
-    private Map<Tuple<Integer, Integer>, Set<Character>> lastCrossCheck = new HashMap<>();
-    private Direction direction = null;
+    public Dawg dawg;
+    private final Map<Character, Integer> alphabet;
+    private Map<Tuple<Integer, Integer>, Set<Character>> lastCrossCheck;
+    private Direction direction;
 
 
-    public GestorJugada(Tablero tablero, Dawg dawg) {
+    public GestorJugada(Tablero tablero, Dawg dawg, Map<Character, Integer> alphabet) {
         this.tablero = tablero;
         this.dawg = dawg;
         this.lastCrossCheck = null;
+        this.alphabet = alphabet;
     }
 
     public Tuple<Integer, Integer> before (Tuple<Integer, Integer> pos) {
@@ -59,9 +60,9 @@ public class GestorJugada {
         return anchors;
     }
 
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> allWordsbefore(String partialWord, Map<Character, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, int limit) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendLeft(String partialWord, Map<Character, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, int limit) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
-        words.addAll(allWords(partialWord, rack, currenNode, nextPos, false));
+        words.addAll(extendRight(partialWord, rack, currenNode, nextPos, false));
 
         if (limit > 0){
             for (Character c : currenNode.getAllEdges()) {
@@ -74,14 +75,14 @@ public class GestorJugada {
                     } else {
                         newRack.put(c, newRack.get(c) - 1);
                     }
-                    words.addAll(allWordsbefore(newPartialWord, newRack, nextNode, nextPos, limit - 1));
+                    words.addAll(extendLeft(newPartialWord, newRack, nextNode, nextPos, limit - 1));
                 }
             }
         }
         return words;
     }
 
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> allWords(String partialWord, Map<Character, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<Character, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
 
         if(!this.tablero.isFilled(nextPos) && currenNode.isFinal() && archorFilled) {
@@ -101,7 +102,7 @@ public class GestorJugada {
                         } else {
                             newRack.put(c, newRack.get(c) - 1);
                         }
-                        words.addAll(allWords(newPartialWord, newRack, nextNode, after(nextPos), true));
+                        words.addAll(extendRight(newPartialWord, newRack, nextNode, after(nextPos), true));
                     }
                 }
             } else {
@@ -109,7 +110,7 @@ public class GestorJugada {
                 if (currenNode.getAllEdges().contains(c)) {
                     String newPartialWord = partialWord + c;
                     DawgNode nextNode = currenNode.getEdge(c);
-                    words.addAll(allWords(newPartialWord, rack, nextNode, after(nextPos), true));
+                    words.addAll(extendRight(newPartialWord, rack, nextNode, after(nextPos), true));
                 }
             }
         }
@@ -139,9 +140,9 @@ public class GestorJugada {
                     }
                     Set<Character> set = new HashSet<>();
                     if (beforePart.length() == 0 && afterPart.length() == 0) {
-                        Collections.addAll(set, alphabet);
+                        Collections.addAll(set, alphabet.keySet().toArray(new Character[0]));
                     } else {
-                        for (Character c : alphabet) {
+                        for (Character c : alphabet.keySet()) {
                             String candidateWord = beforePart + c + afterPart;
                             if (dawg.search(candidateWord)) {
                                 set.add(c);
@@ -155,7 +156,7 @@ public class GestorJugada {
         return words;
     }
 
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> allAnswers(Map<Character, Integer> rack) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<Character, Integer> rack) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> answers = new HashSet<>();
         Set<Tuple<Integer, Integer>> anchors = find_anchors();
 
@@ -179,7 +180,7 @@ public class GestorJugada {
                 
                 DawgNode currentNode = dawg.getNode(partial_word);
                 if (currentNode != null) {
-                    answers.addAll(this.allWords(partial_word, rack, currentNode, pos, false));
+                    answers.addAll(this.extendRight(partial_word, rack, currentNode, pos, false));
                 }
                 } else {
 
@@ -190,7 +191,7 @@ public class GestorJugada {
                         before_pos = before(before_pos);
                     }
                     
-                    answers.addAll(allWordsbefore("", rack, dawg.getRoot(), pos, limit));
+                    answers.addAll(extendLeft("", rack, dawg.getRoot(), pos, limit));
                     
                 }
                 
@@ -198,5 +199,73 @@ public class GestorJugada {
         }
         return answers;
     }
-    
-}
+
+
+    public void makeMove(Triple<String,Tuple<Integer, Integer>, Direction> move) {
+        String word = move.x;
+        Tuple<Integer, Integer> pos = move.y;
+        Direction dir = move.z;
+
+        for (int i = word.length() - 1; i >= 0; i--) {
+            this.tablero.setTile(pos, String.valueOf(word.charAt(i)));
+            if (dir == Direction.HORIZONTAL) {
+                pos = new Tuple<Integer, Integer>(pos.x, pos.y - 1); 
+            } else {
+                pos = new Tuple<Integer, Integer>(pos.x - 1, pos.y);
+            }
+        }
+
+    }
+
+
+    public int calculateMovePoints(Triple<String,Tuple<Integer, Integer>, Direction> move) {
+
+        int points = 0;
+        int doubleTimes = 0;
+        int tripleTimes = 0;
+        
+        String word = move.x;
+        Tuple<Integer, Integer> pos = move.y;
+        Direction dir = move.z;
+
+
+
+        for (int i = word.length() - 1; i >= 0; i--) {
+            int letterPoint = alphabet.get(String.valueOf(word.charAt(i)).toLowerCase().charAt(0));
+            switch (this.tablero.bonus[pos.x][pos.y]) {
+                case TW:
+                    points += letterPoint;
+                    tripleTimes++;
+                    break;
+                case TL:
+                    points += letterPoint * 3;
+                    break;
+                case DW:
+                    points += letterPoint;
+                    doubleTimes++;
+                    break;
+                case DL:
+                    points += letterPoint * 2;
+                    break;
+                case X:
+                    points += letterPoint * 2;
+                    break;
+                default:
+                    points += letterPoint;
+            }
+            pos = dir == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
+        }
+        return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes); 
+    }
+
+
+    public boolean isValidMove (Triple<String,Tuple<Integer, Integer>, Direction> move, Map<Character, Integer> rack) {
+        Set<Triple<String,Tuple<Integer, Integer>, Direction>> possibleWords = searchAllMoves(rack);
+        return possibleWords.contains(move);
+    }
+
+    public void mostrarTablero () {
+        System.out.println(this.tablero.toString());
+    }
+
+ }
