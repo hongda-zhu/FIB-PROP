@@ -4,11 +4,14 @@ import java.io.Serializable;
 
 /**
  * Clase que representa a un jugador humano en el sistema.
- * Extiende de UsuarioBase para mantener la información básica.
  */
-public class JugadorHumano extends UsuarioBase implements Serializable {
+public class JugadorHumano implements Usuario, Serializable {
     private static final long serialVersionUID = 1L;
     
+    private String id;
+    private String password;
+    private int partidasJugadas;
+    private int partidasGanadas;
     private int puntuacionUltimaPartida;
     private boolean enPartida;
     private boolean logueado;
@@ -16,26 +19,14 @@ public class JugadorHumano extends UsuarioBase implements Serializable {
     /**
      * Constructor de la clase JugadorHumano.
      * 
-     * @param username Nombre de usuario
+     * @param id Identificador único del jugador
      * @param password Contraseña
      */
-    public JugadorHumano(String username, String password) {
-        super(username, password);
-        this.puntuacionUltimaPartida = 0;
-        this.enPartida = false;
-        this.logueado = false;
-    }
-    
-    /**
-     * Constructor de la clase JugadorHumano con información extendida.
-     * 
-     * @param username Nombre de usuario
-     * @param password Contraseña
-     * @param email Correo electrónico
-     * @param nombreCompleto Nombre completo del usuario
-     */
-    public JugadorHumano(String username, String password, String email, String nombreCompleto) {
-        super(username, password, email, nombreCompleto);
+    public JugadorHumano(String id, String password) {
+        this.id = id;
+        this.password = password;
+        this.partidasJugadas = 0;
+        this.partidasGanadas = 0;
         this.puntuacionUltimaPartida = 0;
         this.enPartida = false;
         this.logueado = false;
@@ -96,11 +87,54 @@ public class JugadorHumano extends UsuarioBase implements Serializable {
     }
     
     @Override
+    public String getId() {
+        return id;
+    }
+    
+    @Override
+    public boolean verificarPassword(String passwordToCheck) {
+        return this.password.equals(passwordToCheck);
+    }
+    
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+    @Override
+    public void incrementarPartidasJugadas() {
+        this.partidasJugadas++;
+    }
+    
+    @Override
+    public void incrementarPartidasGanadas() {
+        this.partidasGanadas++;
+    }
+    
+    @Override
+    public int getPartidasJugadas() {
+        return partidasJugadas;
+    }
+    
+    @Override
+    public int getPartidasGanadas() {
+        return partidasGanadas;
+    }
+    
+    @Override
+    public double getRatioVictorias() {
+        return partidasJugadas > 0 ? (double) partidasGanadas / partidasJugadas : 0.0;
+    }
+    
+    @Override
+    public boolean esIA() {
+        return false;
+    }
+    
+    @Override
     public String toString() {
         return "JugadorHumano{" +
-               "username='" + username + '\'' +
-               ", email='" + email + '\'' +
-               ", nombreCompleto='" + nombreCompleto + '\'' +
+               "id='" + id + '\'' +
                ", partidasJugadas=" + partidasJugadas +
                ", partidasGanadas=" + partidasGanadas +
                ", puntuacionUltimaPartida=" + puntuacionUltimaPartida +

@@ -1,13 +1,13 @@
 package domain.models;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Clase que representa a un jugador controlado por IA en el sistema.
- * Extiende de UsuarioBase para mantener la información básica.
+ * Los jugadores IA se crean para una única partida y no mantienen estadísticas de juego
+ * entre sesiones.
  */
-public class JugadorIA extends UsuarioBase implements Serializable {
+public class JugadorIA implements Usuario, Serializable {
     private static final long serialVersionUID = 1L;
     
     /**
@@ -15,22 +15,24 @@ public class JugadorIA extends UsuarioBase implements Serializable {
      */
     public enum Dificultad {
         FACIL, 
+        MEDIO,
         DIFICIL
     }
     
+    private String id;
     private Dificultad nivelDificultad;
-    private int puntuacionUltimaPartida;
+    private int puntuacion;
     
     /**
      * Constructor de la clase JugadorIA.
      * 
-     * @param username Nombre de usuario para la IA
+     * @param id Identificador único para la IA
      * @param dificultad Nivel de dificultad de la IA
      */
-    public JugadorIA(String username, Dificultad dificultad) {
-        super(username, "ia_password"); // La IA no necesita contraseña real
+    public JugadorIA(String id, Dificultad dificultad) {
+        this.id = id;
         this.nivelDificultad = dificultad;
-        this.puntuacionUltimaPartida = 0;
+        this.puntuacion = 0;
     }
     
     /**
@@ -52,31 +54,78 @@ public class JugadorIA extends UsuarioBase implements Serializable {
     }
     
     /**
-     * Establece la puntuación de la última partida jugada.
+     * Establece la puntuación de la IA.
      * 
      * @param puntuacion Puntuación obtenida
      */
-    public void setPuntuacionUltimaPartida(int puntuacion) {
-        this.puntuacionUltimaPartida = puntuacion;
+    public void setPuntuacion(int puntuacion) {
+        this.puntuacion = puntuacion;
     }
     
     /**
-     * Obtiene la puntuación de la última partida jugada.
+     * Obtiene la puntuación de la IA.
      * 
-     * @return Puntuación de la última partida
+     * @return Puntuación
      */
-    public int getPuntuacionUltimaPartida() {
-        return puntuacionUltimaPartida;
+    public int getPuntuacion() {
+        return puntuacion;
+    }
+    
+    @Override
+    public String getId() {
+        return id;
+    }
+    
+    @Override
+    public boolean verificarPassword(String passwordToCheck) {
+        // Los jugadores IA no tienen contraseña
+        return true;
+    }
+    
+    @Override
+    public void setPassword(String password) {
+        // No hacer nada, los jugadores IA no tienen contraseña
+    }
+    
+    @Override
+    public void incrementarPartidasJugadas() {
+        // No aplicable para IA
+    }
+    
+    @Override
+    public void incrementarPartidasGanadas() {
+        // No aplicable para IA
+    }
+    
+    @Override
+    public int getPartidasJugadas() {
+        // Siempre es 1 para IA
+        return 1;
+    }
+    
+    @Override
+    public int getPartidasGanadas() {
+        // 0 o 1 según si ganó
+        return puntuacion > 0 ? 1 : 0;
+    }
+    
+    @Override
+    public double getRatioVictorias() {
+        // Siempre 0 o 1 para IA
+        return puntuacion > 0 ? 1.0 : 0.0;
+    }
+    
+    @Override
+    public boolean esIA() {
+        return true;
     }
     
     @Override
     public String toString() {
         return "JugadorIA{" +
-               "username='" + username + '\'' +
+               "id='" + id + '\'' +
                ", nivelDificultad=" + nivelDificultad +
-               ", partidasJugadas=" + partidasJugadas +
-               ", partidasGanadas=" + partidasGanadas +
-               ", puntuacionUltimaPartida=" + puntuacionUltimaPartida +
+               ", puntuacion=" + puntuacion +
                '}';
     }
 }

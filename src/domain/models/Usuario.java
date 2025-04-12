@@ -3,120 +3,67 @@ package domain.models;
 import java.io.Serializable;
 
 /**
- * Clase que representa a un usuario en el sistema.
- * Contiene información básica de identificación y autenticación.
+ * Interfaz que define las operaciones básicas de un usuario en el sistema.
  */
-public class Usuario implements Serializable {
-    protected String username;
-    protected String password;
-    protected String email;
-    // Información adicional que puede ser útil para el perfil
-    protected String nombreCompleto;
-    protected int partidasJugadas;
-    protected int partidasGanadas;
+public interface Usuario extends Serializable {
     
     /**
-     * Constructor de la clase Usuario.
+     * Obtiene el ID del usuario.
      * 
-     * @param username Nombre de usuario
-     * @param password Contraseña
+     * @return ID del usuario
      */
-    public Usuario(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.partidasJugadas = 0;
-        this.partidasGanadas = 0;
-    }
-    
-    /**
-     * Constructor de la clase Usuario con información extendida.
-     * 
-     * @param username Nombre de usuario
-     * @param password Contraseña
-     * @param email Correo electrónico
-     * @param nombreCompleto Nombre completo del usuario
-     */
-    public Usuario(String username, String password, String email, String nombreCompleto) {
-        this(username, password);
-        this.email = email;
-        this.nombreCompleto = nombreCompleto;
-    }
+    String getId();
     
     /**
      * Verifica si la contraseña proporcionada coincide con la del usuario.
      * 
-     * @param passwordToCheck Contraseña a verificar
+     * @param password Contraseña a verificar
      * @return true si la contraseña coincide, false en caso contrario
      */
-    public boolean verificarPassword(String passwordToCheck) {
-        return this.password.equals(passwordToCheck);
-    }
+    boolean verificarPassword(String password);
+    
+    /**
+     * Establece una nueva contraseña para el usuario.
+     * 
+     * @param password Nueva contraseña
+     */
+    void setPassword(String password);
     
     /**
      * Incrementa el contador de partidas jugadas.
      */
-    public void incrementarPartidasJugadas() {
-        this.partidasJugadas++;
-    }
+    void incrementarPartidasJugadas();
     
     /**
      * Incrementa el contador de partidas ganadas.
      */
-    public void incrementarPartidasGanadas() {
-        this.partidasGanadas++;
-    }
+    void incrementarPartidasGanadas();
+    
+    /**
+     * Obtiene el número de partidas jugadas.
+     * 
+     * @return Número de partidas jugadas
+     */
+    int getPartidasJugadas();
+    
+    /**
+     * Obtiene el número de partidas ganadas.
+     * 
+     * @return Número de partidas ganadas
+     */
+    int getPartidasGanadas();
     
     /**
      * Obtiene el ratio de victorias del usuario.
      * 
      * @return Ratio de victorias (partidas ganadas / partidas jugadas)
      */
-    public double getRatioVictorias() {
-        return partidasJugadas > 0 ? (double) partidasGanadas / partidasJugadas : 0.0;
-    }
+    double getRatioVictorias();
     
-    // Getters y Setters
-    
-    public String getUsername() {
-        return username;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    
-    public String getEmail() {
-        return email;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public String getNombreCompleto() {
-        return nombreCompleto;
-    }
-    
-    public void setNombreCompleto(String nombreCompleto) {
-        this.nombreCompleto = nombreCompleto;
-    }
-    
-    public int getPartidasJugadas() {
-        return partidasJugadas;
-    }
-    
-    public int getPartidasGanadas() {
-        return partidasGanadas;
-    }
-    
-    @Override
-    public String toString() {
-        return "Usuario{" +
-               "username='" + username + '\'' +
-               ", email='" + email + '\'' +
-               ", nombreCompleto='" + nombreCompleto + '\'' +
-               ", partidasJugadas=" + partidasJugadas +
-               ", partidasGanadas=" + partidasGanadas +
-               '}';
-    }
+    /**
+     * Verifica si el usuario es una IA.
+     * 
+     * @return true si es una IA, false si es un jugador humano
+     */
+    boolean esIA();
 }

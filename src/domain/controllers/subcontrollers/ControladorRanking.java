@@ -1,9 +1,6 @@
 package domain.controllers.subcontrollers;
 
 import domain.models.Ranking;
-import domain.models.Usuario;
-import domain.models.JugadorHumano;
-import domain.models.JugadorIA;
 
 import java.io.*;
 import java.util.*;
@@ -15,9 +12,7 @@ import java.util.*;
 public class ControladorRanking {
     private static ControladorRanking instance;
     private Ranking ranking;
-    private Map<String, Usuario> usuarios;
     private static final String RANKING_FILE = "ranking.dat";
-    private static final String USUARIOS_FILE = "usuarios.dat";
     
     /**
      * Constructor privado para implementar el patrón Singleton.
@@ -25,7 +20,6 @@ public class ControladorRanking {
      */
     private ControladorRanking() {
         this.ranking = new Ranking();
-        this.usuarios = new HashMap<>();
         cargarDatos();
     }
     
@@ -44,51 +38,67 @@ public class ControladorRanking {
     /**
      * Agrega una puntuación para un usuario específico.
      * 
-     * @param username Nombre del usuario
+     * @param id ID del usuario
      * @param puntuacion Puntuación a agregar
      * @return true si se agregó correctamente, false en caso contrario
      */
-    public boolean agregarPuntuacion(String username, int puntuacion) {
-        // Verificar si el usuario existe
-        if (!usuarios.containsKey(username)) {
-            System.err.println("Error: El usuario " + username + " no existe.");
+    public boolean agregarPuntuacion(String id, int puntuacion) {
+        // Verificar que se proporciona un usuario válido
+        if (id == null || id.isEmpty()) {
+            System.err.println("Error: El ID del usuario no puede estar vacío.");
             return false;
         }
         
-        boolean resultado = ranking.agregarPuntuacion(username, puntuacion);
+        boolean resultado = ranking.agregarPuntuacion(id, puntuacion);
         
         if (resultado) {
-            // Actualizar estadísticas del usuario
-            Usuario usuario = usuarios.get(username);
-            usuario.incrementarPartidasJugadas();
-            
             // Guardar los cambios
             guardarDatos();
             
-            System.out.println("Puntuación " + puntuacion + " agregada para " + username);
+            System.out.println("Puntuación " + puntuacion + " agregada para " + id);
         } else {
-            System.err.println("Error: No se pudo agregar la puntuación para " + username);
+            System.err.println("Error: No se pudo agregar la puntuación para " + id);
         }
         
         return resultado;
     }
     
     /**
+     * Actualiza las estadísticas de un usuario (partidas jugadas y victoria).
+     * 
+     * @param id ID del usuario
+     * @param esVictoria true si el usuario ha ganado la partida
+     * @return true si se actualizaron correctamente las estadísticas
+     */
+    public boolean actualizarEstadisticasUsuario(String id, boolean esVictoria) {
+        // Verificar que se proporciona un usuario válido
+        if (id == null || id.isEmpty()) {
+            System.err.println("Error: El ID del usuario no puede estar vacío.");
+            return false;
+        }
+        
+        ranking.actualizarEstadisticasUsuario(id, esVictoria);
+        guardarDatos();
+        
+        return true;
+    }
+    
+    /**
      * Elimina una puntuación específica de un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param id ID del usuario
      * @param puntuacion Puntuación a eliminar
      * @return true si se eliminó correctamente, false en caso contrario
      */
-    public boolean eliminarPuntuacion(String username, int puntuacion) {
-        boolean resultado = ranking.eliminarPuntuacion(username, puntuacion);
+    public boolean eliminarPuntuacion(String id, int puntuacion) {
+        boolean resultado = ranking.eliminarPuntuacion(id, puntuacion);
         
         if (resultado) {
             // Guardar los cambios
             guardarDatos();
-            System.out.println("Puntuación " + puntuacion + " eliminada para " + username);
+            System.out.println("Puntuación " + puntuacion + " eliminada para " + id);
         } else {
-            System.err.println("Error: No se pudo eliminar la puntuación para " + username);
+            System.err.println("Error: No se pudo eliminar la puntuación para " + id);
         }
         
         return resultado;
@@ -97,289 +107,142 @@ public class ControladorRanking {
     /**
      * Verifica si existe una puntuación específica para un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param id ID del usuario
      * @param puntuacion Puntuación a verificar
      * @return true si existe la puntuación, false en caso contrario
      */
-    public boolean existePuntuacion(String username, int puntuacion) {
-        return ranking.existePuntuacion(username, puntuacion);
+    public boolean existePuntuacion(String id, int puntuacion) {
+        return ranking.existePuntuacion(id, puntuacion);
     }
     
     /**
-     * Registra un nuevo usuario en el sistema.
+     * Elimina un usuario del ranking.
      * 
-     * @param username Nombre de usuario
-     * @param password Contraseña
-     * @return true si se registró correctamente, false en caso contrario
-     */
-    public boolean registrarUsuario(String username, String password) {
-        if (usuarios.containsKey(username)) {
-            System.err.println("Error: El usuario " + username + " ya existe.");
-            return false;
-        }
-        
-        Usuario nuevoUsuario = new JugadorHumano(username, password);
-        usuarios.put(username, nuevoUsuario);
-        
-        // Guardar los cambios
-        guardarDatos();
-        
-        System.out.println("Usuario " + username + " registrado correctamente.");
-        return true;
-    }
-    
-    /**
-     * Registra un nuevo usuario en el sistema con información extendida.
-     * 
-     * @param username Nombre de usuario
-     * @param password Contraseña
-     * @param email Correo electrónico
-     * @param nombreCompleto Nombre completo
-     * @return true si se registró correctamente, false en caso contrario
-     */
-    public boolean registrarUsuario(String username, String password, String email, String nombreCompleto) {
-        if (usuarios.containsKey(username)) {
-            System.err.println("Error: El usuario " + username + " ya existe.");
-            return false;
-        }
-        
-        Usuario nuevoUsuario = new JugadorHumano(username, password, email, nombreCompleto);
-        usuarios.put(username, nuevoUsuario);
-        
-        // Guardar los cambios
-        guardarDatos();
-        
-        System.out.println("Usuario " + username + " registrado correctamente.");
-        return true;
-    }
-    
-    /**
-     * Registra un nuevo jugador IA en el sistema.
-     * 
-     * @param username Nombre para la IA
-     * @param dificultad Nivel de dificultad
-     * @return true si se registró correctamente, false en caso contrario
-     */
-    public boolean registrarJugadorIA(String username, JugadorIA.Dificultad dificultad) {
-        if (usuarios.containsKey(username)) {
-            System.err.println("Error: El usuario " + username + " ya existe.");
-            return false;
-        }
-        
-        JugadorIA nuevoJugadorIA = new JugadorIA(username, dificultad);
-        usuarios.put(username, nuevoJugadorIA);
-        
-        // Guardar los cambios
-        guardarDatos();
-        
-        System.out.println("Jugador IA " + username + " registrado correctamente.");
-        return true;
-    }
-    
-    /**
-     * Elimina un usuario del sistema.
-     * 
-     * @param username Nombre del usuario a eliminar
+     * @param id ID del usuario a eliminar
      * @return true si se eliminó correctamente, false en caso contrario
      */
-    public boolean eliminarUsuario(String username) {
-        if (!usuarios.containsKey(username)) {
-            System.err.println("Error: El usuario " + username + " no existe.");
-            return false;
+    public boolean eliminarUsuario(String id) {
+        boolean resultado = ranking.eliminarUsuario(id);
+        
+        if (resultado) {
+            // Guardar los cambios
+            guardarDatos();
+            System.out.println("Usuario " + id + " eliminado del ranking.");
+        } else {
+            System.err.println("Error: No se pudo eliminar el usuario " + id + " del ranking.");
         }
         
-        usuarios.remove(username);
-        ranking.eliminarUsuario(username);
-        
-        // Guardar los cambios
-        guardarDatos();
-        
-        System.out.println("Usuario " + username + " eliminado correctamente.");
-        return true;
+        return resultado;
     }
     
     /**
-     * Obtiene un usuario por su nombre de usuario.
+     * Cambia la estrategia de ordenación del ranking.
      * 
-     * @param username Nombre del usuario
-     * @return Usuario encontrado o null si no existe
+     * @param criterio Criterio de ordenación
      */
-    public Usuario getUsuario(String username) {
-        return usuarios.getOrDefault(username, null);
+    public void cambiarEstrategia(String criterio) {
+        ranking.setEstrategia(criterio);
+        System.out.println("Estrategia de ranking cambiada a: " + ranking.getEstrategiaActual());
     }
     
     /**
-     * Verifica si un usuario existe en el sistema.
-     * 
-     * @param username Nombre del usuario
-     * @return true si el usuario existe, false en caso contrario
-     */
-    public boolean existeUsuario(String username) {
-        return usuarios.containsKey(username);
-    }
-    
-    /**
-     * Muestra el ranking de usuarios ordenado por puntuación máxima.
+     * Muestra el ranking de usuarios según la estrategia actual.
      */
     public void verRanking() {
-        List<String> rankingOrdenado = ranking.getRankingPorPuntuacionMaxima();
+        List<String> rankingOrdenado = ranking.getRanking();
         
-        System.out.println("===== RANKING DE JUGADORES =====");
-        System.out.println("Posición | Usuario | Puntuación Máxima | Puntuación Media | Partidas");
-        System.out.println("------------------------------------------------------------------");
+        System.out.println("===== RANKING DE JUGADORES (" + ranking.getEstrategiaActual() + ") =====");
+        System.out.println("Posición | Usuario | Puntuación Máxima | Puntuación Media | Partidas | Victorias");
+        System.out.println("--------------------------------------------------------------------------------");
         
         int posicion = 1;
-        for (String username : rankingOrdenado) {
-            Usuario usuario = usuarios.get(username);
-            int puntuacionMaxima = ranking.getPuntuacionMaxima(username);
-            double puntuacionMedia = ranking.getPuntuacionMedia(username);
-            int partidas = usuario != null ? usuario.getPartidasJugadas() : 0;
+        for (String id : rankingOrdenado) {
+            int puntuacionMaxima = ranking.getPuntuacionMaxima(id);
+            double puntuacionMedia = ranking.getPuntuacionMedia(id);
+            int partidas = ranking.getPartidasJugadas(id);
+            int victorias = ranking.getVictorias(id);
             
-            System.out.printf("%8d | %-20s | %15d | %15.2f | %7d%n", 
-                             posicion++, username, puntuacionMaxima, puntuacionMedia, partidas);
+            System.out.printf("%8d | %-20s | %15d | %15.2f | %7d | %9d%n", 
+                             posicion++, id, puntuacionMaxima, puntuacionMedia, partidas, victorias);
         }
         
-        System.out.println("==================================================================");
+        System.out.println("================================================================================");
     }
     
     /**
-     * Muestra el ranking de usuarios filtrado y ordenado según un criterio.
+     * Muestra el ranking de usuarios con un criterio específico.
      * 
-     * @param criterio Criterio de ordenación: "max" (máxima), "media" o "partidas"
+     * @param criterio Criterio de ordenación
      */
     public void verRanking(String criterio) {
-        List<String> rankingOrdenado;
-        
-        switch (criterio.toLowerCase()) {
-            case "max":
-                rankingOrdenado = ranking.getRankingPorPuntuacionMaxima();
-                break;
-            case "media":
-                rankingOrdenado = ranking.getRankingPorPuntuacionMedia();
-                break;
-            case "partidas":
-                rankingOrdenado = ranking.getRankingPorPartidasJugadas();
-                break;
-            default:
-                System.err.println("Criterio no válido. Usando puntuación máxima por defecto.");
-                rankingOrdenado = ranking.getRankingPorPuntuacionMaxima();
-        }
+        List<String> rankingOrdenado = ranking.getRanking(criterio);
         
         System.out.println("===== RANKING DE JUGADORES (" + criterio + ") =====");
-        System.out.println("Posición | Usuario | Puntuación Máxima | Puntuación Media | Partidas");
-        System.out.println("------------------------------------------------------------------");
+        System.out.println("Posición | Usuario | Puntuación Máxima | Puntuación Media | Partidas | Victorias");
+        System.out.println("--------------------------------------------------------------------------------");
         
         int posicion = 1;
-        for (String username : rankingOrdenado) {
-            Usuario usuario = usuarios.get(username);
-            int puntuacionMaxima = ranking.getPuntuacionMaxima(username);
-            double puntuacionMedia = ranking.getPuntuacionMedia(username);
-            int partidas = usuario != null ? usuario.getPartidasJugadas() : 0;
+        for (String id : rankingOrdenado) {
+            int puntuacionMaxima = ranking.getPuntuacionMaxima(id);
+            double puntuacionMedia = ranking.getPuntuacionMedia(id);
+            int partidas = ranking.getPartidasJugadas(id);
+            int victorias = ranking.getVictorias(id);
             
-            System.out.printf("%8d | %-20s | %15d | %15.2f | %7d%n", 
-                             posicion++, username, puntuacionMaxima, puntuacionMedia, partidas);
+            System.out.printf("%8d | %-20s | %15d | %15.2f | %7d | %9d%n", 
+                             posicion++, id, puntuacionMaxima, puntuacionMedia, partidas, victorias);
         }
         
-        System.out.println("==================================================================");
+        System.out.println("================================================================================");
     }
     
     /**
      * Obtiene todas las puntuaciones de un usuario específico.
      * 
-     * @param username Nombre del usuario
+     * @param id ID del usuario
      * @return Lista de puntuaciones del usuario
      */
-    public List<Integer> getPuntuacionesUsuario(String username) {
-        return ranking.getPuntuacionesUsuario(username);
+    public List<Integer> getPuntuacionesUsuario(String id) {
+        return ranking.getPuntuacionesUsuario(id);
     }
     
     /**
      * Obtiene la puntuación máxima de un usuario específico.
      * 
-     * @param username Nombre del usuario
+     * @param id ID del usuario
      * @return Puntuación máxima del usuario
      */
-    public int getPuntuacionMaxima(String username) {
-        return ranking.getPuntuacionMaxima(username);
+    public int getPuntuacionMaxima(String id) {
+        return ranking.getPuntuacionMaxima(id);
     }
     
     /**
      * Obtiene la puntuación media de un usuario específico.
      * 
-     * @param username Nombre del usuario
+     * @param id ID del usuario
      * @return Puntuación media del usuario
      */
-    public double getPuntuacionMedia(String username) {
-        return ranking.getPuntuacionMedia(username);
+    public double getPuntuacionMedia(String id) {
+        return ranking.getPuntuacionMedia(id);
     }
     
     /**
-     * Registra una victoria para un usuario.
+     * Obtiene el número de partidas jugadas por un usuario específico.
      * 
-     * @param username Nombre del usuario
-     * @return true si se registró correctamente, false en caso contrario
+     * @param id ID del usuario
+     * @return Número de partidas jugadas
      */
-    public boolean registrarVictoria(String username) {
-        if (!usuarios.containsKey(username)) {
-            System.err.println("Error: El usuario " + username + " no existe.");
-            return false;
-        }
-        
-        Usuario usuario = usuarios.get(username);
-        usuario.incrementarPartidasGanadas();
-        
-        // Guardar los cambios
-        guardarDatos();
-        
-        System.out.println("Victoria registrada para " + username);
-        return true;
+    public int getPartidasJugadas(String id) {
+        return ranking.getPartidasJugadas(id);
     }
     
     /**
-     * Guarda los datos del ranking y usuarios en archivos.
+     * Obtiene el número de victorias de un usuario específico.
+     * 
+     * @param id ID del usuario
+     * @return Número de victorias
      */
-    private void guardarDatos() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(RANKING_FILE))) {
-            oos.writeObject(ranking);
-            System.out.println("Ranking guardado correctamente.");
-        } catch (IOException e) {
-            System.err.println("Error al guardar el ranking: " + e.getMessage());
-        }
-        
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(USUARIOS_FILE))) {
-            oos.writeObject(usuarios);
-            System.out.println("Usuarios guardados correctamente.");
-        } catch (IOException e) {
-            System.err.println("Error al guardar los usuarios: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Carga los datos del ranking y usuarios desde archivos.
-     */
-    @SuppressWarnings("unchecked")
-    private void cargarDatos() {
-        File rankingFile = new File(RANKING_FILE);
-        if (rankingFile.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(rankingFile))) {
-                ranking = (Ranking) ois.readObject();
-                System.out.println("Ranking cargado correctamente.");
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error al cargar el ranking: " + e.getMessage());
-                ranking = new Ranking(); // Si hay error, inicializar con uno nuevo
-            }
-        }
-        
-        File usuariosFile = new File(USUARIOS_FILE);
-        if (usuariosFile.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(usuariosFile))) {
-                usuarios = (Map<String, Usuario>) ois.readObject();
-                System.out.println("Usuarios cargados correctamente.");
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error al cargar los usuarios: " + e.getMessage());
-                usuarios = new HashMap<>(); // Si hay error, inicializar con uno nuevo
-            }
-        }
+    public int getVictorias(String id) {
+        return ranking.getVictorias(id);
     }
     
     /**
@@ -388,14 +251,42 @@ public class ControladorRanking {
     public void listarPuntuaciones() {
         System.out.println("===== PUNTUACIONES POR USUARIO =====");
         
-        for (String username : usuarios.keySet()) {
-            List<Integer> puntuaciones = ranking.getPuntuacionesUsuario(username);
+        for (String id : ranking.getUsuarios()) {
+            List<Integer> puntuaciones = ranking.getPuntuacionesUsuario(id);
             if (!puntuaciones.isEmpty()) {
-                System.out.println("Usuario: " + username);
+                System.out.println("Usuario: " + id);
                 System.out.println("Puntuaciones: " + puntuaciones);
-                System.out.println("Máxima: " + ranking.getPuntuacionMaxima(username));
-                System.out.println("Media: " + ranking.getPuntuacionMedia(username));
+                System.out.println("Máxima: " + ranking.getPuntuacionMaxima(id));
+                System.out.println("Media: " + ranking.getPuntuacionMedia(id));
+                System.out.println("Partidas jugadas: " + ranking.getPartidasJugadas(id));
+                System.out.println("Victorias: " + ranking.getVictorias(id));
                 System.out.println("------------------------------");
+            }
+        }
+    }
+    
+    /**
+     * Guarda los datos del ranking en un archivo.
+     */
+    private void guardarDatos() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(RANKING_FILE))) {
+            oos.writeObject(ranking);
+        } catch (IOException e) {
+            System.err.println("Error al guardar el ranking: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Carga los datos del ranking desde un archivo.
+     */
+    private void cargarDatos() {
+        File rankingFile = new File(RANKING_FILE);
+        if (rankingFile.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(rankingFile))) {
+                ranking = (Ranking) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Error al cargar el ranking: " + e.getMessage());
+                ranking = new Ranking(); // Si hay error, inicializar con uno nuevo
             }
         }
     }
