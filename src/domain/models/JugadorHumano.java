@@ -3,14 +3,12 @@ package domain.models;
 /**
  * Clase que representa a un jugador humano en el sistema.
  */
-public class JugadorHumano implements Usuario {
+public class JugadorHumano extends Jugador {
     private static final long serialVersionUID = 1L;
     
-    private String id;
     private String password;
     private int partidasJugadas;
     private int partidasGanadas;
-    private int puntuacionUltimaPartida;
     private boolean enPartida;
     private boolean logueado;
     
@@ -21,11 +19,21 @@ public class JugadorHumano implements Usuario {
      * @param password Contraseña
      */
     public JugadorHumano(String id, String password) {
-        this.id = id;
+        this(id, id, password); // Por defecto, el nombre es igual al ID
+    }
+    
+    /**
+     * Constructor de la clase JugadorHumano con nombre personalizado.
+     * 
+     * @param id Identificador único del jugador
+     * @param nombre Nombre para mostrar del jugador
+     * @param password Contraseña
+     */
+    public JugadorHumano(String id, String nombre, String password) {
+        super(id, nombre);
         this.password = password;
         this.partidasJugadas = 0;
         this.partidasGanadas = 0;
-        this.puntuacionUltimaPartida = 0;
         this.enPartida = false;
         this.logueado = false;
     }
@@ -67,12 +75,22 @@ public class JugadorHumano implements Usuario {
     }
     
     /**
+     * Establece el nombre para mostrar del jugador.
+     * 
+     * @param nombre Nuevo nombre
+     */
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+    
+    /**
      * Establece la puntuación de la última partida jugada.
      * 
      * @param puntuacion Puntuación obtenida
      */
-    public void setPuntuacionUltimaPartida(int puntuacion) {
-        this.puntuacionUltimaPartida = puntuacion;
+    @Override
+    public void setPuntuacion(int puntuacion) {
+        this.puntuacion = puntuacion;
     }
     
     /**
@@ -80,46 +98,67 @@ public class JugadorHumano implements Usuario {
      * 
      * @return Puntuación de la última partida
      */
-    public int getPuntuacionUltimaPartida() {
-        return puntuacionUltimaPartida;
+    @Override
+    public int getPuntuacion() {
+        return puntuacion;
     }
     
-    @Override
-    public String getId() {
-        return id;
-    }
-    
-    @Override
+    /**
+     * Verifica si la contraseña proporcionada coincide con la del jugador.
+     * 
+     * @param password Contraseña a verificar
+     * @return true si la contraseña coincide, false en caso contrario
+     */
     public boolean verificarPassword(String passwordToCheck) {
         return this.password.equals(passwordToCheck);
     }
     
-    @Override
+    /**
+     * Establece una nueva contraseña para el jugador.
+     * 
+     * @param password Nueva contraseña
+     */
     public void setPassword(String password) {
         this.password = password;
     }
     
-    @Override
+    /**
+     * Incrementa el contador de partidas jugadas.
+     */
     public void incrementarPartidasJugadas() {
         this.partidasJugadas++;
     }
     
-    @Override
+    /**
+     * Incrementa el contador de partidas ganadas.
+     */
     public void incrementarPartidasGanadas() {
         this.partidasGanadas++;
     }
     
-    @Override
+    /**
+     * Obtiene el número de partidas jugadas.
+     * 
+     * @return Número de partidas jugadas
+     */
     public int getPartidasJugadas() {
         return partidasJugadas;
     }
     
-    @Override
+    /**
+     * Obtiene el número de partidas ganadas.
+     * 
+     * @return Número de partidas ganadas
+     */
     public int getPartidasGanadas() {
         return partidasGanadas;
     }
     
-    @Override
+    /**
+     * Obtiene el ratio de victorias del jugador.
+     * 
+     * @return Ratio de victorias (partidas ganadas / partidas jugadas)
+     */
     public double getRatioVictorias() {
         return partidasJugadas > 0 ? (double) partidasGanadas / partidasJugadas : 0.0;
     }
@@ -133,9 +172,10 @@ public class JugadorHumano implements Usuario {
     public String toString() {
         return "JugadorHumano{" +
                "id='" + id + '\'' +
+               ", nombre='" + nombre + '\'' +
                ", partidasJugadas=" + partidasJugadas +
                ", partidasGanadas=" + partidasGanadas +
-               ", puntuacionUltimaPartida=" + puntuacionUltimaPartida +
+               ", puntuacion=" + puntuacion +
                ", enPartida=" + enPartida +
                ", logueado=" + logueado +
                '}';

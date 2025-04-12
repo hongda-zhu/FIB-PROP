@@ -3,7 +3,7 @@ package domain.controllers.subcontrollers;
 import domain.controllers.subcontrollers.managers.GestorAutenticacion;
 import domain.models.JugadorHumano;
 import domain.models.JugadorIA;
-import domain.models.Usuario;
+import domain.models.Jugador;
 
 import java.io.*;
 import java.util.*;
@@ -14,19 +14,19 @@ import java.util.*;
  */
 public class ControladorUsuario {
     private static ControladorUsuario instance;
-    private Map<String, Usuario> usuarios;
-    private Set<String> usuariosLogueados;
+    private Map<String, Jugador> jugadores;
+    private Set<String> jugadoresLogueados;
     private GestorAutenticacion gestorAutenticacion;
     
-    private static final String USUARIOS_FILE = "usuarios.dat";
+    private static final String JUGADORES_FILE = "jugadores.dat";
     
     /**
      * Constructor privado para implementar el patrón Singleton.
-     * Inicializa la gestión de usuarios y carga los datos si existen.
+     * Inicializa la gestión de jugadores y carga los datos si existen.
      */
     private ControladorUsuario() {
-        this.usuarios = new HashMap<>();
-        this.usuariosLogueados = new HashSet<>();
+        this.jugadores = new HashMap<>();
+        this.jugadoresLogueados = new HashSet<>();
         this.gestorAutenticacion = new GestorAutenticacion();
         cargarDatos();
     }
@@ -44,25 +44,29 @@ public class ControladorUsuario {
     }
     
     /**
-     * Autentica a un usuario en el sistema.
+     * Autentica a un jugador en el sistema.
      * 
-     * @param id ID del usuario
+     * @param id ID del jugador
      * @param password Contraseña
      * @return true si la autenticación es exitosa, false en caso contrario
      */
     public boolean autenticar(String id, String password) {
-        if (!existeUsuario(id)) {
+        if (!existeJugador(id)) {
             return false;
         }
         
-        if (gestorAutenticacion.autenticar(id, password)) {
-            usuariosLogueados.add(id);
-            
-            // Si es un JugadorHumano, actualizar su estado logueado
-            Usuario usuario = usuarios.get(id);
-            if (usuario instanceof JugadorHumano) {
-                ((JugadorHumano) usuario).setLogueado(true);
-            }
+        Jugador jugador = jugadores.get(id);
+        
+        // Solo los jugadores humanos requieren autenticación
+        if (jugador.esIA()) {
+            return false;
+        }
+        
+        JugadorHumano jugadorHumano = (JugadorHumano) jugador;
+        
+        if (gestorAutenticacion.autenticar(id, password) && jugadorHumano.verificarPassword(password)) {
+            jugadoresLogueados.add(id);
+            jugadorHumano.setLogueado(true);
             
             return true;
         }
@@ -71,29 +75,29 @@ public class ControladorUsuario {
     }
     
     /**
-     * Verifica si un usuario existe en el sistema.
+     * Verifica si un jugador existe en el sistema.
      * 
-     * @param id ID del usuario
-     * @return true si el usuario existe, false en caso contrario
+     * @param id ID del jugador
+     * @return true si el jugador existe, false en caso contrario
      */
-    public boolean existeUsuario(String id) {
-        return usuarios.containsKey(id);
+    public boolean existeJugador(String id) {
+        return jugadores.containsKey(id);
     }
     
     /**
-     * Verifica si un usuario está actualmente logueado.
+     * Verifica si un jugador está actualmente logueado.
      * 
-     * @param id ID del usuario
-     * @return true si el usuario está logueado, false en caso contrario
+     * @param id ID del jugador
+     * @return true si el jugador está logueado, false en caso contrario
      */
     public boolean isLoggedIn(String id) {
-        return usuariosLogueados.contains(id);
+        return jugadoresLogueados.contains(id);
     }
     
     /**
-     * Cierra la sesión de un usuario.
+     * Cierra la sesión de un jugador.
      * 
-     * @param id ID del usuario
+     * @param id ID del jugador
      * @return true si se cerró la sesión correctamente, false en caso contrario
      */
     public boolean cerrarSesion(String id) {
@@ -101,12 +105,11 @@ public class ControladorUsuario {
             return false;
         }
         
-        usuariosLogueados.remove(id);
+        jugadoresLogueados.remove(id);
         
-        // Si es un JugadorHumano, actualizar su estado logueado
-        Usuario usuario = usuarios.get(id);
-        if (usuario instanceof JugadorHumano) {
-            ((JugadorHumano) usuario).setLogueado(false);
+        Jugador jugador = jugadores.get(id);
+        if (!jugador.esIA()) {
+            ((JugadorHumano) jugador).setLogueado(false);
         }
         
         return true;
@@ -115,17 +118,29 @@ public class ControladorUsuario {
     /**
      * Registra un nuevo jugador humano en el sistema.
      * 
-     * @param id ID del usuario
+     * @param id ID del jugador
      * @param password Contraseña
      * @return true si se registró correctamente, false en caso contrario
      */
     public boolean registrarUsuario(String id, String password) {
-        if (existeUsuario(id)) {
+        return registrarUsuario(id, id, password); // Por defecto, el nombre es igual al ID
+    }
+    
+    /**
+     * Registra un nuevo jugador humano en el sistema con un nombre personalizado.
+     * 
+     * @param id ID del jugador
+     * @param nombre Nombre del jugador
+     * @param password Contraseña
+     * @return true si se registró correctamente, false en caso contrario
+     */
+    public boolean registrarUsuario(String id, String nombre, String password) {
+        if (existeJugador(id)) {
             return false;
         }
         
-        JugadorHumano nuevoJugador = new JugadorHumano(id, password);
-        usuarios.put(id, nuevoJugador);
+        JugadorHumano nuevoJugador = new JugadorHumano(id, nombre, password);
+        jugadores.put(id, nuevoJugador);
         gestorAutenticacion.registrar(id, password);
         
         guardarDatos();
@@ -140,25 +155,25 @@ public class ControladorUsuario {
      * @return true si se registró correctamente, false en caso contrario
      */
     public boolean registrarJugadorIA(String id, JugadorIA.Dificultad dificultad) {
-        if (existeUsuario(id)) {
+        if (existeJugador(id)) {
             return false;
         }
         
         JugadorIA nuevoJugadorIA = new JugadorIA(id, dificultad);
-        usuarios.put(id, nuevoJugadorIA);
+        jugadores.put(id, nuevoJugadorIA);
         
         guardarDatos();
         return true;
     }
     
     /**
-     * Elimina un usuario del sistema.
+     * Elimina un jugador del sistema.
      * 
-     * @param id ID del usuario a eliminar
+     * @param id ID del jugador a eliminar
      * @return true si se eliminó correctamente, false en caso contrario
      */
     public boolean eliminarUsuario(String id) {
-        if (!existeUsuario(id)) {
+        if (!existeJugador(id)) {
             return false;
         }
         
@@ -167,7 +182,7 @@ public class ControladorUsuario {
             cerrarSesion(id);
         }
         
-        usuarios.remove(id);
+        jugadores.remove(id);
         gestorAutenticacion.eliminarUsuario(id);
         
         guardarDatos();
@@ -175,24 +190,29 @@ public class ControladorUsuario {
     }
     
     /**
-     * Cambia la contraseña de un usuario.
+     * Cambia la contraseña de un jugador.
      * 
-     * @param id ID del usuario
+     * @param id ID del jugador
      * @param oldPassword Contraseña actual
      * @param newPassword Nueva contraseña
      * @return true si se cambió correctamente, false en caso contrario
      */
     public boolean cambiarContrasena(String id, String oldPassword, String newPassword) {
-        if (!existeUsuario(id)) {
+        if (!existeJugador(id)) {
             return false;
         }
         
-        Usuario usuario = usuarios.get(id);
-        if (!usuario.verificarPassword(oldPassword)) {
+        Jugador jugador = jugadores.get(id);
+        if (jugador.esIA()) {
+            return false; // Las IAs no tienen contraseña
+        }
+        
+        JugadorHumano jugadorHumano = (JugadorHumano) jugador;
+        if (!jugadorHumano.verificarPassword(oldPassword)) {
             return false;
         }
         
-        usuario.setPassword(newPassword);
+        jugadorHumano.setPassword(newPassword);
         gestorAutenticacion.cambiarContrasena(id, newPassword);
         
         guardarDatos();
@@ -200,54 +220,77 @@ public class ControladorUsuario {
     }
     
     /**
-     * Obtiene un usuario por su ID.
+     * Cambia el nombre de un jugador humano.
      * 
-     * @param id ID del usuario
-     * @return Usuario encontrado o null si no existe
+     * @param id ID del jugador
+     * @param nuevoNombre Nuevo nombre
+     * @return true si se cambió correctamente, false en caso contrario
      */
-    public Usuario getUsuario(String id) {
-        return usuarios.get(id);
-    }
-    
-    /**
-     * Incrementa el contador de partidas jugadas para un usuario.
-     * 
-     * @param id ID del usuario
-     * @return true si se incrementó correctamente, false en caso contrario
-     */
-    public boolean incrementarPartidasJugadas(String id) {
-        if (!existeUsuario(id)) {
+    public boolean cambiarNombre(String id, String nuevoNombre) {
+        if (!existeJugador(id)) {
             return false;
         }
         
-        Usuario usuario = usuarios.get(id);
-        if (usuario.esIA()) {
-            return false; // Las IAs no tienen contador de partidas
+        Jugador jugador = jugadores.get(id);
+        if (jugador.esIA()) {
+            return false; // No permitimos cambiar el nombre de las IAs
         }
         
-        usuario.incrementarPartidasJugadas();
+        ((JugadorHumano) jugador).setNombre(nuevoNombre);
         
         guardarDatos();
         return true;
     }
     
     /**
-     * Incrementa el contador de partidas ganadas para un usuario.
+     * Obtiene un jugador por su ID.
      * 
-     * @param id ID del usuario
+     * @param id ID del jugador
+     * @return Jugador encontrado o null si no existe
+     */
+    public Jugador getJugador(String id) {
+        return jugadores.get(id);
+    }
+    
+    /**
+     * Incrementa el contador de partidas jugadas para un jugador.
+     * 
+     * @param id ID del jugador
      * @return true si se incrementó correctamente, false en caso contrario
      */
-    public boolean incrementarPartidasGanadas(String id) {
-        if (!existeUsuario(id)) {
+    public boolean incrementarPartidasJugadas(String id) {
+        if (!existeJugador(id)) {
             return false;
         }
         
-        Usuario usuario = usuarios.get(id);
-        if (usuario.esIA()) {
+        Jugador jugador = jugadores.get(id);
+        if (jugador.esIA()) {
             return false; // Las IAs no tienen contador de partidas
         }
         
-        usuario.incrementarPartidasGanadas();
+        ((JugadorHumano) jugador).incrementarPartidasJugadas();
+        
+        guardarDatos();
+        return true;
+    }
+    
+    /**
+     * Incrementa el contador de partidas ganadas para un jugador.
+     * 
+     * @param id ID del jugador
+     * @return true si se incrementó correctamente, false en caso contrario
+     */
+    public boolean incrementarPartidasGanadas(String id) {
+        if (!existeJugador(id)) {
+            return false;
+        }
+        
+        Jugador jugador = jugadores.get(id);
+        if (jugador.esIA()) {
+            return false; // Las IAs no tienen contador de partidas
+        }
+        
+        ((JugadorHumano) jugador).incrementarPartidasGanadas();
         
         guardarDatos();
         return true;
@@ -256,154 +299,128 @@ public class ControladorUsuario {
     /**
      * Establece si un jugador humano está en una partida.
      * 
-     * @param id ID del usuario
+     * @param id ID del jugador
      * @param enPartida true si está en partida, false en caso contrario
      * @return true si se estableció correctamente, false en caso contrario
      */
     public boolean setEnPartida(String id, boolean enPartida) {
-        if (!existeUsuario(id)) {
+        if (!existeJugador(id)) {
             return false;
         }
         
-        Usuario usuario = usuarios.get(id);
-        if (usuario instanceof JugadorHumano) {
-            ((JugadorHumano) usuario).setEnPartida(enPartida);
-            guardarDatos();
-            return true;
+        Jugador jugador = jugadores.get(id);
+        if (jugador.esIA()) {
+            return false; // Las IAs no pueden estar en múltiples partidas
         }
         
-        return false;
+        ((JugadorHumano) jugador).setEnPartida(enPartida);
+        guardarDatos();
+        return true;
     }
     
     /**
      * Verifica si un jugador humano está en una partida.
      * 
-     * @param id ID del usuario
+     * @param id ID del jugador
      * @return true si está en partida, false en caso contrario
      */
     public boolean isEnPartida(String id) {
-        if (!existeUsuario(id)) {
+        if (!existeJugador(id)) {
             return false;
         }
         
-        Usuario usuario = usuarios.get(id);
-        if (usuario instanceof JugadorHumano) {
-            return ((JugadorHumano) usuario).isEnPartida();
+        Jugador jugador = jugadores.get(id);
+        if (jugador.esIA()) {
+            return false; // Las IAs no están "en partida" del mismo modo que los humanos
         }
         
-        return false;
+        return ((JugadorHumano) jugador).isEnPartida();
     }
     
     /**
-     * Establece la puntuación para un jugador IA.
-     * 
-     * @param id ID de la IA
-     * @param puntuacion Puntuación
-     * @return true si se estableció correctamente, false en caso contrario
-     */
-    public boolean setPuntuacionIA(String id, int puntuacion) {
-        if (!existeUsuario(id)) {
-            return false;
-        }
-        
-        Usuario usuario = usuarios.get(id);
-        if (usuario instanceof JugadorIA) {
-            ((JugadorIA) usuario).setPuntuacion(puntuacion);
-            guardarDatos();
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Establece la puntuación de última partida para un jugador humano.
+     * Establece la puntuación para un jugador.
      * 
      * @param id ID del jugador
      * @param puntuacion Puntuación
      * @return true si se estableció correctamente, false en caso contrario
      */
-    public boolean setPuntuacionUltimaPartida(String id, int puntuacion) {
-        if (!existeUsuario(id)) {
+    public boolean setPuntuacion(String id, int puntuacion) {
+        if (!existeJugador(id)) {
             return false;
         }
         
-        Usuario usuario = usuarios.get(id);
-        if (usuario instanceof JugadorHumano) {
-            ((JugadorHumano) usuario).setPuntuacionUltimaPartida(puntuacion);
-            guardarDatos();
-            return true;
-        }
-        
-        return false;
+        Jugador jugador = jugadores.get(id);
+        jugador.setPuntuacion(puntuacion);
+        guardarDatos();
+        return true;
     }
     
     /**
-     * Obtiene una lista de IDs de todos los usuarios registrados.
+     * Obtiene una lista de IDs de todos los jugadores registrados.
      * 
-     * @return Lista de IDs de usuario
+     * @return Lista de IDs de jugadores
      */
-    public List<String> getUsuariosRegistrados() {
-        return new ArrayList<>(usuarios.keySet());
+    public List<String> getJugadoresRegistrados() {
+        return new ArrayList<>(jugadores.keySet());
     }
     
     /**
-     * Obtiene una lista de IDs de todos los usuarios humanos.
+     * Obtiene una lista de IDs de todos los jugadores humanos.
      * 
-     * @return Lista de IDs de usuarios humanos
+     * @return Lista de IDs de jugadores humanos
      */
-    public List<String> getUsuariosHumanos() {
-        List<String> usuariosHumanos = new ArrayList<>();
+    public List<String> getJugadoresHumanos() {
+        List<String> jugadoresHumanos = new ArrayList<>();
         
-        for (Map.Entry<String, Usuario> entry : usuarios.entrySet()) {
+        for (Map.Entry<String, Jugador> entry : jugadores.entrySet()) {
             if (!entry.getValue().esIA()) {
-                usuariosHumanos.add(entry.getKey());
+                jugadoresHumanos.add(entry.getKey());
             }
         }
         
-        return usuariosHumanos;
+        return jugadoresHumanos;
     }
     
     /**
-     * Obtiene una lista de IDs de todos los usuarios IA.
+     * Obtiene una lista de IDs de todos los jugadores IA.
      * 
-     * @return Lista de IDs de usuarios IA
+     * @return Lista de IDs de jugadores IA
      */
-    public List<String> getUsuariosIA() {
-        List<String> usuariosIA = new ArrayList<>();
+    public List<String> getJugadoresIA() {
+        List<String> jugadoresIA = new ArrayList<>();
         
-        for (Map.Entry<String, Usuario> entry : usuarios.entrySet()) {
+        for (Map.Entry<String, Jugador> entry : jugadores.entrySet()) {
             if (entry.getValue().esIA()) {
-                usuariosIA.add(entry.getKey());
+                jugadoresIA.add(entry.getKey());
             }
         }
         
-        return usuariosIA;
+        return jugadoresIA;
     }
     
     /**
-     * Guarda los datos de los usuarios en un archivo.
+     * Guarda los datos de los jugadores en un archivo.
      */
     private void guardarDatos() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(USUARIOS_FILE))) {
-            oos.writeObject(usuarios);
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(JUGADORES_FILE))) {
+            oos.writeObject(jugadores);
         } catch (IOException e) {
-            System.err.println("Error al guardar los usuarios: " + e.getMessage());
+            System.err.println("Error al guardar los jugadores: " + e.getMessage());
         }
     }
     
     /**
-     * Carga los datos de los usuarios desde un archivo.
+     * Carga los datos de los jugadores desde un archivo.
      */
     @SuppressWarnings("unchecked")
     private void cargarDatos() {
-        File usuariosFile = new File(USUARIOS_FILE);
-        if (usuariosFile.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(usuariosFile))) {
-                usuarios = (Map<String, Usuario>) ois.readObject();
+        File jugadoresFile = new File(JUGADORES_FILE);
+        if (jugadoresFile.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(jugadoresFile))) {
+                jugadores = (Map<String, Jugador>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error al cargar los usuarios: " + e.getMessage());
-                usuarios = new HashMap<>(); // Si hay error, inicializar con uno nuevo
+                System.err.println("Error al cargar los jugadores: " + e.getMessage());
+                jugadores = new HashMap<>(); // Si hay error, inicializar con uno nuevo
             }
         }
     }

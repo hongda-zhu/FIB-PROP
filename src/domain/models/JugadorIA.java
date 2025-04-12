@@ -5,7 +5,7 @@ package domain.models;
  * Los jugadores IA se crean para una única partida y no mantienen estadísticas de juego
  * entre sesiones.
  */
-public class JugadorIA implements Usuario {
+public class JugadorIA extends Jugador {
     private static final long serialVersionUID = 1L;
     
     /**
@@ -13,13 +13,10 @@ public class JugadorIA implements Usuario {
      */
     public enum Dificultad {
         FACIL, 
-        MEDIO,
         DIFICIL
     }
     
-    private String id;
     private Dificultad nivelDificultad;
-    private int puntuacion;
     
     /**
      * Constructor de la clase JugadorIA.
@@ -28,9 +25,8 @@ public class JugadorIA implements Usuario {
      * @param dificultad Nivel de dificultad de la IA
      */
     public JugadorIA(String id, Dificultad dificultad) {
-        this.id = id;
+        super(id, "IA-" + id);
         this.nivelDificultad = dificultad;
-        this.puntuacion = 0;
     }
     
     /**
@@ -52,64 +48,31 @@ public class JugadorIA implements Usuario {
     }
     
     /**
-     * Establece la puntuación de la IA.
+     * Para simular las estadísticas en ranking, aunque la IA
+     * no almacena historial, se considera que ha ganado si tiene
+     * puntuación mayor a 0.
      * 
-     * @param puntuacion Puntuación obtenida
+     * @return 1 si ha ganado, 0 si no
      */
-    public void setPuntuacion(int puntuacion) {
-        this.puntuacion = puntuacion;
-    }
-    
-    /**
-     * Obtiene la puntuación de la IA.
-     * 
-     * @return Puntuación
-     */
-    public int getPuntuacion() {
-        return puntuacion;
-    }
-    
-    @Override
-    public String getId() {
-        return id;
-    }
-    
-    @Override
-    public boolean verificarPassword(String passwordToCheck) {
-        // Los jugadores IA no tienen contraseña
-        return true;
-    }
-    
-    @Override
-    public void setPassword(String password) {
-        // No hacer nada, los jugadores IA no tienen contraseña
-    }
-    
-    @Override
-    public void incrementarPartidasJugadas() {
-        // No aplicable para IA
-    }
-    
-    @Override
-    public void incrementarPartidasGanadas() {
-        // No aplicable para IA
-    }
-    
-    @Override
-    public int getPartidasJugadas() {
-        // Siempre es 1 para IA
-        return 1;
-    }
-    
-    @Override
     public int getPartidasGanadas() {
-        // 0 o 1 según si ganó
         return puntuacion > 0 ? 1 : 0;
     }
     
-    @Override
+    /**
+     * Para simular estadísticas en rankings.
+     * 
+     * @return Siempre 1 para IA
+     */
+    public int getPartidasJugadas() {
+        return 1;
+    }
+    
+    /**
+     * Para simular estadísticas en rankings.
+     * 
+     * @return 0 o 1 en función de si tiene puntuación > 0
+     */
     public double getRatioVictorias() {
-        // Siempre 0 o 1 para IA
         return puntuacion > 0 ? 1.0 : 0.0;
     }
     
@@ -122,6 +85,7 @@ public class JugadorIA implements Usuario {
     public String toString() {
         return "JugadorIA{" +
                "id='" + id + '\'' +
+               ", nombre='" + nombre + '\'' +
                ", nivelDificultad=" + nivelDificultad +
                ", puntuacion=" + puntuacion +
                '}';
