@@ -4,11 +4,14 @@ import java.io.Serializable;
 
 /**
  * Clase que representa a un jugador humano en el sistema.
- * Extiende de Usuario para mantener la información básica.
+ * Extiende de UsuarioBase para mantener la información básica.
  */
-public class JugadorHumano extends Usuario implements Serializable {
+public class JugadorHumano extends UsuarioBase implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private int puntuacionUltimaPartida;
     private boolean enPartida;
+    private boolean logueado;
     
     /**
      * Constructor de la clase JugadorHumano.
@@ -20,6 +23,7 @@ public class JugadorHumano extends Usuario implements Serializable {
         super(username, password);
         this.puntuacionUltimaPartida = 0;
         this.enPartida = false;
+        this.logueado = false;
     }
     
     /**
@@ -34,6 +38,7 @@ public class JugadorHumano extends Usuario implements Serializable {
         super(username, password, email, nombreCompleto);
         this.puntuacionUltimaPartida = 0;
         this.enPartida = false;
+        this.logueado = false;
     }
     
     /**
@@ -55,6 +60,24 @@ public class JugadorHumano extends Usuario implements Serializable {
     }
     
     /**
+     * Establece si el jugador está logueado.
+     * 
+     * @param logueado true si está logueado, false en caso contrario
+     */
+    public void setLogueado(boolean logueado) {
+        this.logueado = logueado;
+    }
+    
+    /**
+     * Verifica si el jugador está logueado.
+     * 
+     * @return true si está logueado, false en caso contrario
+     */
+    public boolean isLogueado() {
+        return logueado;
+    }
+    
+    /**
      * Establece la puntuación de la última partida jugada.
      * 
      * @param puntuacion Puntuación obtenida
@@ -72,19 +95,6 @@ public class JugadorHumano extends Usuario implements Serializable {
         return puntuacionUltimaPartida;
     }
     
-    /**
-     * Implementación para un jugador humano de cómo jugar su turno.
-     * En este caso, es solo un método base que debe ser completado
-     * con la interacción real del usuario en la capa de presentación.
-     * 
-     * @return true si el jugador ha completado su turno, false en caso contrario
-     */
-    public boolean jugarTurno() {
-        // En un jugador humano, este método sería básicamente un placeholder
-        // ya que la lógica real estaría en la capa de presentación
-        return true;
-    }
-    
     @Override
     public String toString() {
         return "JugadorHumano{" +
@@ -95,6 +105,7 @@ public class JugadorHumano extends Usuario implements Serializable {
                ", partidasGanadas=" + partidasGanadas +
                ", puntuacionUltimaPartida=" + puntuacionUltimaPartida +
                ", enPartida=" + enPartida +
+               ", logueado=" + logueado +
                '}';
     }
 }

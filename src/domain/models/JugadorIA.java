@@ -5,12 +5,17 @@ import java.util.List;
 
 /**
  * Clase que representa a un jugador controlado por IA en el sistema.
- * Extiende de Usuario para mantener la información básica.
+ * Extiende de UsuarioBase para mantener la información básica.
  */
-public class JugadorIA extends Usuario implements Serializable {
-    // Niveles de dificultad para la IA
+public class JugadorIA extends UsuarioBase implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    /**
+     * Niveles de dificultad para la IA
+     */
     public enum Dificultad {
-        FACIL, DIFICIL
+        FACIL, 
+        DIFICIL
     }
     
     private Dificultad nivelDificultad;
@@ -62,30 +67,6 @@ public class JugadorIA extends Usuario implements Serializable {
      */
     public int getPuntuacionUltimaPartida() {
         return puntuacionUltimaPartida;
-    }
-    
-    /**
-     * Implementación para un jugador IA de cómo jugar su turno.
-     * Este método contiene la lógica principal que determina la jugada de la IA.
-     * 
-     * @param tablero Tablero actual del juego
-     * @param fichasDisponibles Fichas disponibles para la IA
-     * @return Una representación de la jugada elegida por la IA
-     */
-    public Object jugarTurno(Object tablero, List<Character> fichasDisponibles) {
-        // Aquí iría la lógica de decisión de la IA según su nivel de dificultad
-        // Por ahora es un placeholder
-        
-        switch (nivelDificultad) {
-            case FACIL:
-                // Lógica simple: buscar cualquier palabra válida
-                break;
-            case DIFICIL:
-                // Lógica avanzada: maximizar puntuación y posición estratégica
-                break;
-        }
-        
-        return null; // Placeholder
     }
     
     @Override
