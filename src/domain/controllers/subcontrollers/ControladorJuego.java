@@ -25,13 +25,11 @@ public class ControladorJuego {
 
     public ControladorJuego() {
         Map<String, Integer> alphabet = new HashMap<>();
-
         this.gestorJugada = new GestorJugada(new Tablero(), new Dawg(), alphabet) ;
         this.bolsa = null;
     }
 
     public void inicializarDawgDesdeEntrada(String rutaArchivo) {
-
         if (rutaArchivo == null || rutaArchivo.isEmpty()) {
             Scanner scanner = new Scanner(System.in);
             System.out.println("Introduce palabras separadas por enter. Escribe 'FIN' para terminar:");
