@@ -1,4 +1,4 @@
-package domain.helpers;
+package scrabble.helpers;
 
 public enum Idioma {
     ESPANOL,

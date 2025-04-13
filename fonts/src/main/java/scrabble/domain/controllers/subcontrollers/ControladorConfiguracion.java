@@ -1,8 +1,8 @@
 package domain.controllers.subcontrollers;
 
-import domain.helpers.Idioma;
-import domain.helpers.Tema;
-import domain.models.Configuracion;
+import scrabble.helpers.Idioma;
+import scrabble.helpers.Tema;
+import scrabble.domain.models.Configuracion;
 
 public class ControladorConfiguracion {
     private Configuracion configuracion;

@@ -1,7 +1,7 @@
-package domain.models;
+package scrabble.domain.models;
 
-import domain.helpers.Idioma;
-import domain.helpers.Tema;
+import scrabble.helpers.Idioma;
+import scrabble.helpers.Tema;
 
 public class Configuracion {
     private Idioma idioma;

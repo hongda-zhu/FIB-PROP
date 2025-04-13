@@ -1,5 +1,5 @@
 package scrabble.tests;
-
+import scrabble.domain.models.Configuracion;
 import scrabble.helpers.Idioma;
 import scrabble.helpers.Tema;
 import org.junit.Before;
