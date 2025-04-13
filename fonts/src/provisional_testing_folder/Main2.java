@@ -1,4 +1,4 @@
-package testing;
+package provisional_testing_folder;
 
 import domain.controllers.subcontrollers.ControladorJuego;
 import domain.helpers.Tuple;
