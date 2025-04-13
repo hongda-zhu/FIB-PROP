@@ -1,5 +1,7 @@
 package domain.controllers.subcontrollers.managers;
 
+import domain.helpers.Triple;
+import domain.helpers.Tuple;
 import domain.models.*;
 
 import java.io.File;
@@ -53,7 +55,7 @@ public class GestorJugada {
         }
     }
 
-    private List<String> leerArchivoLineaPorLinea(String rutaArchivo) {
+    public List<String> leerArchivoLineaPorLinea(String rutaArchivo) {
         List<String> lineas = new ArrayList<>();
         try (Scanner scanner = new Scanner(new File(rutaArchivo))) {
             while (scanner.hasNextLine()) {
@@ -245,19 +247,32 @@ public class GestorJugada {
     }
 
 
-    public void makeMove(Triple<String,Tuple<Integer, Integer>, Direction> move) {
+    public Map<String, Integer> makeMove(Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
         String word = move.x;
         Tuple<Integer, Integer> pos = move.y;
         Direction dir = move.z;
 
+        Map<String, Integer> newRack = new HashMap<>(rack);
+
         for (int i = word.length() - 1; i >= 0; i--) {
-            this.tablero.setTile(pos, String.valueOf(word.charAt(i)));
+            String letter = String.valueOf(word.charAt(i));
+            this.tablero.setTile(pos, String.valueOf(letter));
             if (dir == Direction.HORIZONTAL) {
                 pos = new Tuple<Integer, Integer>(pos.x, pos.y - 1); 
             } else {
                 pos = new Tuple<Integer, Integer>(pos.x - 1, pos.y);
             }
+
+            if (newRack.containsKey(letter)) {
+                if (newRack.get(letter) == 1) {
+                    newRack.remove(letter);
+                } else {
+                    newRack.put(letter, newRack.get(letter) - 1);
+                }
+            }
         }
+
+        return newRack;
 
     }
 
@@ -273,7 +288,7 @@ public class GestorJugada {
         Direction dir = move.z;
 
         for (int i = word.length() - 1; i >= 0; i--) {
-            int letterPoint = alphabet.get(String.valueOf(word.charAt(i)).toLowerCase().charAt(0));
+            int letterPoint = alphabet.get(String.valueOf(word.charAt(i)));
             if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
                 points += letterPoint;
             } else {

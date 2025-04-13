@@ -1,5 +1,8 @@
 package domain.models;
 
+import domain.helpers.Idioma;
+import domain.helpers.Tema;
+
 public class Configuracion {
     private Idioma idioma;
     private int volumen; // percentage

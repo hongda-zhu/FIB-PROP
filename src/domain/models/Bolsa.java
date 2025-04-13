@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Bolsa {
-    private List<Ficha> fichas;
+    private List<String> fichas;
 
     public void llenarBolsa(String rutaArchivo) {
+        System.out.println("Llenando bolsa desde: " + rutaArchivo);
         fichas = new ArrayList<>();
     
         List<String> lineas = leerArchivoLineaPorLinea(rutaArchivo);
@@ -18,8 +19,7 @@ public class Bolsa {
                 if (partes.length == 3) {
                     String caracter = partes[0];
                     int frecuencia = Integer.parseInt(partes[1]);
-                    int puntos = Integer.parseInt(partes[2]);
-                    agregarFichas(caracter, frecuencia, puntos);                     
+                    agregarFichas(caracter, frecuencia);                     
                 }
                 else {
                     System.out.println("Línea con formato incorrecto: " + linea);                
@@ -45,14 +45,14 @@ public class Bolsa {
         return lineas;
     }
         
-    private void agregarFichas(String letra, int cantidad, int valor) {
+    private void agregarFichas(String letra, int cantidad) {
         for (int i = 0; i < cantidad; i++) {
-            fichas.add(new Ficha(letra, valor));
+            fichas.add(letra);
         }
     }
     
 
-    public Ficha sacarFicha() {
+    public String sacarFicha() {
         if (fichas.isEmpty()) return null;
         return fichas.remove(0);
     }

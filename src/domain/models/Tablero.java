@@ -1,6 +1,8 @@
 package domain.models;
 
 import domain.controllers.subcontrollers.managers.GestorJugada.Direction;
+import domain.helpers.Tuple;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
