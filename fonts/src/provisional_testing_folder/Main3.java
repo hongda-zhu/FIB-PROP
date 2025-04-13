@@ -369,3 +369,52 @@
 //         }
 //     }
 // }
+
+
+// int opcion;
+//         Scanner scanner = new Scanner(System.in);
+//         System.out.println("Selecciona una opción:");
+//         System.out.println("1. Dos jugadores");
+//         System.out.println("2. Jugador vs IA");
+//         System.out.println("Opción: ");
+//         opcion = scanner.nextInt();
+//         scanner.nextLine(); // Consumir el salto de línea
+//         switch (opcion) {
+//             case 1:
+//                 System.out.println("Introduce el id del jugador 1:");
+//                 String idJugador1 = scanner.nextLine();
+//                 if (!controladorUsuario.existeJugador(idJugador1)) {
+//                     throw new ExceptionUserNotExist();
+//                 }
+//                 while (!controladorUsuario.isLoggedIn(idJugador1)) {
+//                     System.out.println("El jugador 1 no ha iniciado sesión.");
+//                     System.out.println("Por favor, inicie sesión.");
+//                     System.out.println("Introduce la contraseña:");
+//                     String password = scanner.nextLine();
+//                     if (controladorUsuario.autenticar(idJugador1, password)) {
+//                         System.out.println("Jugador 1 autenticado.");
+//                     } else {
+//                        System.out.println("Contraseña incorrecta.");
+//                     }
+//                 }
+//                 System.out.println("Introduce el id del jugador 2:");
+//                 String idJugador2 = scanner.nextLine();
+//                  if (!controladorUsuario.existeJugador(idJugador2)) {
+//                     throw new ExceptionUserNotExist();
+//                 }
+//                 while (!controladorUsuario.isLoggedIn(idJugador2)) {
+//                     System.out.println("El jugador 2 no ha iniciado sesión.");
+//                     System.out.println("Por favor, inicie sesión.");
+//                     System.out.println("Introduce la contraseña:");
+//                     String password = scanner.nextLine();
+//                     if (controladorUsuario.autenticar(idJugador2, password)) {
+//                         System.out.println("Jugador 1 autenticado.");
+//                     } else {
+//                         System.out.println("Contraseña incorrecta.");
+//                     }
+//                 }
+                
+//                 break;
+//             case 2:
+
+//         }

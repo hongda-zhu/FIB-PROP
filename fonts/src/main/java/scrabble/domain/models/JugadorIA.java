@@ -21,7 +21,7 @@ public class JugadorIA extends Jugador {
     
     private Dificultad nivelDificultad;
     private int puntuacionUltimaPartida;
-    protected Map<Character, Integer> rack;
+    protected Map<String, Integer> rack;
     protected int skipTrack;
 
     
@@ -100,7 +100,7 @@ public class JugadorIA extends Jugador {
     }
 
     
-    public Map<Character, Integer> getFichas() {
+    public Map<String, Integer> getFichas() {
         return rack;
     }
 

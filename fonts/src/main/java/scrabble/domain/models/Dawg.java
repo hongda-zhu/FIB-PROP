@@ -9,6 +9,10 @@ public class Dawg {
     }
 
     public void insert(String word) {
+        if (word.isEmpty()) {
+            return;
+        }
+        
         DawgNode current = root;
         for (char c : word.toCharArray()) {
             if (current.getEdge(String.valueOf(c)) == null) {
@@ -35,6 +39,10 @@ public class Dawg {
     }
 
     public DawgNode getNode(String word) {
+        if (word.isEmpty()) {
+            return null;
+        }
+        
         DawgNode current = root;
         for (char c : word.toCharArray()) {
             if (current.getEdge(String.valueOf(c)) == null) {

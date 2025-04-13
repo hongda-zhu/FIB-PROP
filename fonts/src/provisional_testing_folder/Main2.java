@@ -1,11 +1,11 @@
 package scrabble.tests;
 
 import scrabble.domain.controllers.subcontrollers.ControladorJuego;
-import scrabble.helpers.Tuple;
 import scrabble.domain.models.Jugador;
 import scrabble.domain.models.JugadorHumano;
 import scrabble.domain.models.JugadorIA;
 import scrabble.domain.models.JugadorIA.Dificultad;
+import scrabble.helpers.Tuple;
 
 import java.util.Map;
 import java.util.Scanner;
@@ -41,12 +41,10 @@ public class Main2 {
             jugador.inicializarRack(rack);
         }
 
-        Boolean isIA = false;
         Dificultad dificultad = null;
 
         for (Jugador jugador : jugadores) {
             if (jugador instanceof JugadorIA) {
-                isIA = true;
                 dificultad = ((JugadorIA) jugador).getNivelDificultad();
             }
         }
@@ -54,7 +52,7 @@ public class Main2 {
         // Bucle de juego hasta que termine
         while (!juego.isJuegoTerminado()) {
             for (Jugador jugador : jugadores) {
-                Tuple<Map<String, Integer>, Integer> result = juego.realizarTurno(jugador.getNombre(), jugador.getRack(), isIA, dificultad);
+                Tuple<Map<String, Integer>, Integer> result = juego.realizarTurno(jugador.getNombre(), jugador.getRack(), jugador instanceof JugadorIA, dificultad);
 
                 if (result == null) {
                     System.out.println("El jugador " + jugador.getNombre() + " paso la jugada.");

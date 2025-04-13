@@ -213,9 +213,4 @@ public class JugadorHumano extends Jugador {
                ", logueado=" + logueado +
                '}';
     }
-
-
-
-
-
 }
