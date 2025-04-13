@@ -4,45 +4,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Bolsa {
     private List<String> fichas;
 
-    public void llenarBolsa(String rutaArchivo) {
-        System.out.println("Llenando bolsa desde: " + rutaArchivo);
+    public void llenarBolsa(Map<String, Integer> bolsa) {
         fichas = new ArrayList<>();
-    
-        List<String> lineas = leerArchivoLineaPorLinea(rutaArchivo);
-        for (String linea : lineas) {
-                String[] partes = linea.split(" ");
-                if (partes.length == 3) {
-                    String caracter = partes[0];
-                    int frecuencia = Integer.parseInt(partes[1]);
-                    agregarFichas(caracter, frecuencia);                     
-                }
-                else {
-                    System.out.println("Línea con formato incorrecto: " + linea);                
-                }
+        for (Map.Entry<String, Integer> entry : bolsa.entrySet()) {
+            String caracter = entry.getKey();
+            int frecuencia = entry.getValue();
+            agregarFichas(caracter, frecuencia);                     
         }
-      
         Collections.shuffle(fichas);
-    }
-
-
-    private List<String> leerArchivoLineaPorLinea(String rutaArchivo) {
-        List<String> lineas = new ArrayList<>();
-        try (Scanner scanner = new Scanner(new File(rutaArchivo))) {
-            while (scanner.hasNextLine()) {
-                String linea = scanner.nextLine().trim();
-                if (!linea.isEmpty()) { 
-                    lineas.add(linea);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo: " + e.getMessage());
-        }
-        return lineas;
     }
         
     private void agregarFichas(String letra, int cantidad) {
@@ -51,7 +26,6 @@ public class Bolsa {
         }
     }
     
-
     public String sacarFicha() {
         if (fichas.isEmpty()) return null;
         return fichas.remove(0);

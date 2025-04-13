@@ -6,7 +6,9 @@ import domain.helpers.Triple;
 import domain.helpers.Tuple;
 import domain.models.Bolsa;
 import domain.models.Dawg;
+import domain.models.Diccionario;
 import domain.models.Tablero;
+import domain.models.JugadorIA.Dificultad;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,37 +26,13 @@ public class ControladorJuego {
 
 
     public ControladorJuego() {
-        Map<String, Integer> alphabet = new HashMap<>();
-        this.gestorJugada = new GestorJugada(new Tablero(), new Dawg(), alphabet) ;
+        this.gestorJugada = new GestorJugada(new Tablero()) ;
         this.bolsa = null;
     }
 
-    public void inicializarDawgDesdeEntrada(String rutaArchivo) {
-        if (rutaArchivo == null || rutaArchivo.isEmpty()) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Introduce palabras separadas por enter. Escribe 'FIN' para terminar:");
-        
-            List<String> palabras = new ArrayList<>();
-            while (true) {
-                String palabra = scanner.nextLine();
-                if (palabra.equalsIgnoreCase("FIN")) {
-                    break;
-                }
-                palabras.add(palabra);
-            }
-            this.gestorJugada.inicializarDawg(palabras);
-        } else {
-            // Si se proporciona una ruta de archivo, inicializa el Dawg desde el archivo
-            List<String> palabras = this.gestorJugada.leerArchivoLineaPorLinea(rutaArchivo);
-            this.gestorJugada.inicializarDawg(palabras);
-        }
-    }
-
-    public void iniciarJuego(String rutaArchivoFichas, String rutaArchivoAlphabet) {
+    public void iniciarJuego(String languaje) {
         bolsa = new Bolsa();
-        bolsa.llenarBolsa(rutaArchivoFichas);
-        inicializarDawgDesdeEntrada(rutaArchivoAlphabet);
-        this.gestorJugada.setAlphabet(rutaArchivoFichas);
+        bolsa.llenarBolsa(this.gestorJugada.getBag(languaje));
     }
 
     private void limpiarConsola() {
@@ -63,11 +41,27 @@ public class ControladorJuego {
         }
     }
 
+    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) {
+        this.gestorJugada.anadirLenguaje(nombre, rutaArchivoAlpha, rutaArchivoWords);
+    }
+
+    public void setLenguaje(String nombre) {
+        this.gestorJugada.setLenguaje(nombre);
+    }
+
+    
+
     private Tuple<Map<String, Integer>, Integer> primerTurno(String nombreJugador, Map<String, Integer> rack) {
 
-        Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno();
+        Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno(true);
 
-        if (this.gestorJugada.isValidFirstMove(move, rack)) {
+        if (move == null) {
+            // Si el jugador decide pasar su turno, se puede implementar aquí
+            System.out.println(nombreJugador + "no puedes pasar de turno, eres el primero en jugar.");
+            return null;
+        }
+
+        if (move != null && this.gestorJugada.isValidFirstMove(move, rack)) {
             this.juegoIniciado = true;
             return new Tuple<Map<String, Integer>, Integer>(this.gestorJugada.makeMove(move, rack), this.gestorJugada.calculateMovePoints(move));
         } else {
@@ -76,22 +70,22 @@ public class ControladorJuego {
         }
     }
 
-    public Tuple<Map<String, Integer>, Integer> realizarTurno(String nombreJugador, Map<String, Integer> rack,  boolean isIA) {
+    public Tuple<Map<String, Integer>, Integer> realizarTurno(String nombreJugador, Map<String, Integer> rack,  boolean isIA, Dificultad dificultad) {
         limpiarConsola();
         this.gestorJugada.mostrarTablero();
 
         System.out.println("Tu rack actual es: " + rack);
-        return !juegoIniciado? primerTurno(nombreJugador, rack) : realizarAccion(nombreJugador, rack, isIA);
+        return !juegoIniciado? primerTurno(nombreJugador, rack) : realizarAccion(nombreJugador, rack, isIA, dificultad);
     }
 
-    private Tuple<Map<String, Integer>, Integer> realizarAccion(String nombreJugador, Map<String, Integer> rack,  boolean isIA) {
+    private Tuple<Map<String, Integer>, Integer> realizarAccion(String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad) {
         // El jugador puede colocar palabras, pasar o intercambiar fichas.
         if (!isIA) {
             // El jugador humano puede ingresar una palabra o hacer una acción
             // Aquí implementas la lógica para que el jugador humano haga su jugada.
             System.out.println(nombreJugador + "Es tu turno, coloca una palabra o skip");
 
-            Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno();
+            Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno(false);
 
             if (move == null) {
                 // Si el jugador decide pasar su turno, se puede implementar aquí
@@ -102,7 +96,7 @@ public class ControladorJuego {
                     return new Tuple<Map<String,Integer>,Integer>(this.gestorJugada.makeMove(move, rack), this.gestorJugada.calculateMovePoints(move));
                 } else {
                     System.out.println("La jugada no es válida. Intenta nuevamente.");
-                    return realizarAccion(nombreJugador, rack, isIA);// Verifica si la jugada es válida
+                    return realizarAccion(nombreJugador, rack, isIA, dificultad);// Verifica si la jugada es válida
                 }
             }
         } else {
@@ -118,6 +112,11 @@ public class ControladorJuego {
                     if (bestMove == null || currentMovePoints > bestMovePoints) {
                         bestMove = m;
                         bestMovePoints = currentMovePoints;
+                    }
+                    if (dificultad == Dificultad.FACIL) {
+                        if (currentMovePoints > 0) {
+                            break; // Si la dificultad es fácil, no es necesario buscar más
+                        }
                     }
                 }
                 System.out.println("El jugador IA está haciendo su jugada.");
@@ -138,10 +137,9 @@ public class ControladorJuego {
     }
 
     public void reiniciarJuego() {
-        Map<String, Integer> alphabet = new HashMap<>();
-
-        this.gestorJugada = new GestorJugada(new Tablero(), new Dawg(), alphabet);
-        this.bolsa = null;
+        this.gestorJugada = new GestorJugada(new Tablero());
+        juegoTerminado = false;
+        juegoIniciado = false;
     }
 
     public boolean isJuegoTerminado() {

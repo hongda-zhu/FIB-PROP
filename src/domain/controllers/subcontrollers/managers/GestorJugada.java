@@ -25,51 +25,38 @@ public class GestorJugada {
     }
 
     private Tablero tablero;
-    public Dawg dawg;
-    private final Map<String, Integer> alphabet;
+    private Diccionario diccionario;
     private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
     private Direction direction;
+    private Map<String, Integer> alphabet;
+
+    private Dawg dawg;
 
 
-    public GestorJugada(Tablero tablero, Dawg dawg, Map<String, Integer> alphabet) {
+    public GestorJugada(Tablero tablero) {
         this.tablero = tablero;
-        this.dawg = dawg;
         this.lastCrossCheck = null;
-        this.alphabet = alphabet;
-    
+        this.direction = null;
+        this.diccionario = null;
     }
 
-    public void setAlphabet(String rutaArchivo) {
-        List<String> lineas = leerArchivoLineaPorLinea(rutaArchivo);
-        for (String linea : lineas) {
-                String[] partes = linea.split(" ");
-                if (partes.length == 3) {
-                    String caracter = partes[0];
-                    // int frecuencia = Integer.parseInt(partes[1]); no se usa aqui
-                    int puntos = Integer.parseInt(partes[2]);
-                    alphabet.put(caracter, puntos);                     
-                }
-                else {
-                    System.out.println("Línea con formato incorrecto: " + linea);                
-                }
+    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) {
+        if (this.diccionario == null) {
+            this.diccionario = new Diccionario();
         }
+        this.diccionario.addDawg(nombre, rutaArchivoWords);
+        this.diccionario.addAlphabet(nombre, rutaArchivoAlpha);
     }
 
-    public List<String> leerArchivoLineaPorLinea(String rutaArchivo) {
-        List<String> lineas = new ArrayList<>();
-        try (Scanner scanner = new Scanner(new File(rutaArchivo))) {
-            while (scanner.hasNextLine()) {
-                String linea = scanner.nextLine().trim();
-                if (!linea.isEmpty()) { 
-                    lineas.add(linea);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo: " + e.getMessage());
-        }
-        return lineas;
+    public void setLenguaje(String nombre) {
+        this.dawg = this.diccionario.getDawg(nombre);
+        this.alphabet = this.diccionario.getAlphabet(nombre);
     }
-    
+
+    public Map<String, Integer> getBag(String name) {
+        return this.diccionario.getBag(name);
+    }
+ 
     public Tuple<Integer, Integer> before (Tuple<Integer, Integer> pos) {
         return direction == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
     } 
@@ -383,17 +370,25 @@ public class GestorJugada {
         System.out.println(this.tablero.toString());
     }
 
-    public Triple<String, Tuple<Integer, Integer>, Direction> jugarTurno() {
+    public Triple<String, Tuple<Integer, Integer>, Direction> jugarTurno(boolean isFirst) {
         Scanner scanner = new Scanner(System.in);
-        
+        String palabra = "";
         // Leer la palabra
-        System.out.print("Introduce la palabra a colocar (o 'p' para pasar): ");
-        String palabra = scanner.nextLine();
+        if (isFirst) {
+            System.out.println("Es tu primer turno, debes colocar una palabra en el centro del tablero.");
+        } else {
+            System.out.print("Introduce la palabra a colocar (o 'p' para pasar): ");
+        }
+
+        System.out.println("Coloca una palabra en el tablero.");
+        palabra = scanner.nextLine();
+        
         
         // Si el usuario escribe 'p', retornar null
-        if (palabra.equals("p")) {
+        if (!isFirst && palabra.equals("p")) {
             return null;
         }
+        
         
         // Leer la posición de la última letra (coordenada X e Y)
         int x = -1;
@@ -435,10 +430,6 @@ public class GestorJugada {
         return null;
     }
 
-    public void inicializarDawg (List<String> palabras) {
-        for (String palabra : palabras) {
-            dawg.insert(palabra);
-        }
-    }
+
 
  }
