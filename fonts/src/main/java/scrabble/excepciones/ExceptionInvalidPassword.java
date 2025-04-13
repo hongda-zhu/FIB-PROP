@@ -1,4 +1,4 @@
-package excepciones;
+package scrabble.excepciones;
 
 /**
  * Excepción lanzada cuando una contraseña no cumple con los requisitos de seguridad.

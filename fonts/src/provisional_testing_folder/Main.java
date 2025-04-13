@@ -1,10 +1,10 @@
-package provisional_testing_folder;
+package scrabble.tests;
 // package domain.testing;
 
 // import java.util.Scanner;
 
-// import domain.controllers.*;
-// import domain.controllers.subcontrollers.ControladorConfiguracion;
+// import scrabble.domain.controllers.*;
+// import scrabble.domain.controllers.subcontrollers.ControladorConfiguracion;
 
 // public class Main {
 //     public static void main(String[] args) {

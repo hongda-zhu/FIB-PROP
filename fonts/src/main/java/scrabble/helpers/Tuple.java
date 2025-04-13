@@ -1,4 +1,4 @@
-package domain.helpers;
+package scrabble.helpers;
 
 import java.util.Objects;
 

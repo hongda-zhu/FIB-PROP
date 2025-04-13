@@ -1,14 +1,14 @@
-package domain.controllers.subcontrollers;
+package scrabble.domain.controllers.subcontrollers;
 
-import domain.controllers.subcontrollers.managers.GestorJugada;
-import domain.controllers.subcontrollers.managers.GestorJugada.Direction;
-import domain.helpers.Triple;
-import domain.helpers.Tuple;
-import domain.models.Bolsa;
-import domain.models.Dawg;
-import domain.models.Diccionario;
-import domain.models.Tablero;
-import domain.models.JugadorIA.Dificultad;
+import scrabble.domain.controllers.subcontrollers.managers.GestorJugada;
+import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
+import scrabble.helpers.Triple;
+import scrabble.helpers.Tuple;
+import scrabble.domain.models.Bolsa;
+import scrabble.domain.models.Dawg;
+import scrabble.domain.models.Diccionario;
+import scrabble.domain.models.Tablero;
+import scrabble.domain.models.JugadorIA.Dificultad;
 
 import java.util.ArrayList;
 import java.util.HashMap;

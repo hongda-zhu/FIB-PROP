@@ -1,4 +1,4 @@
-package provisional_testing_folder;
+// package scrabble.tests;
 // import config.*;
 // import java.util.Scanner;
 

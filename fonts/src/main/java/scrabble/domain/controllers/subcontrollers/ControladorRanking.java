@@ -1,6 +1,6 @@
-package domain.controllers.subcontrollers;
+package scrabble.domain.controllers.subcontrollers;
 
-import domain.models.Ranking;
+import scrabble.domain.models.Ranking;
 
 import java.io.*;
 import java.util.*;

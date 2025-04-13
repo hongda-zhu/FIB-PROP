@@ -1,4 +1,4 @@
-package excepciones;
+package scrabble.excepciones;
 
 /**
  * Excepción lanzada cuando se intenta acceder a un usuario que no existe.

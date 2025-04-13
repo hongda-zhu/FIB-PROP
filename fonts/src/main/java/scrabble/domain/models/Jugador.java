@@ -1,9 +1,9 @@
-package domain.models;
+package scrabble.domain.models;
 
 import java.io.Serializable;
 import java.util.Map;
 
-import domain.helpers.Tuple;
+import scrabble.helpers.Tuple;
 
 /**
  * Clase abstracta que define las operaciones y atributos básicos comunes a todos los jugadores.

@@ -1,4 +1,4 @@
-package domain.models.rankingStrategy;
+package scrabble.domain.models.rankingStrategy;
 
 import java.util.List;
 import java.util.Map;

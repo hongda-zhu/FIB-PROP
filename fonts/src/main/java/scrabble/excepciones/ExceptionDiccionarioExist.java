@@ -1,4 +1,4 @@
-package excepciones;
+package scrabble.excepciones;
 
 /**
  * Excepción lanzada cuando se intenta crear un diccionario que ya existe.

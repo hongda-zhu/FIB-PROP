@@ -1,11 +1,11 @@
-package provisional_testing_folder;
+package scrabble.tests;
 
-import domain.controllers.subcontrollers.ControladorJuego;
-import domain.helpers.Tuple;
-import domain.models.Jugador;
-import domain.models.JugadorHumano;
-import domain.models.JugadorIA;
-import domain.models.JugadorIA.Dificultad;
+import scrabble.domain.controllers.subcontrollers.ControladorJuego;
+import scrabble.helpers.Tuple;
+import scrabble.domain.models.Jugador;
+import scrabble.domain.models.JugadorHumano;
+import scrabble.domain.models.JugadorIA;
+import scrabble.domain.models.JugadorIA.Dificultad;
 
 import java.util.Map;
 import java.util.Scanner;

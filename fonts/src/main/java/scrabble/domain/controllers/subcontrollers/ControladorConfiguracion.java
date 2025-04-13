@@ -1,4 +1,4 @@
-package domain.controllers.subcontrollers;
+package scrabble.domain.controllers.subcontrollers;
 
 import scrabble.helpers.Idioma;
 import scrabble.helpers.Tema;

@@ -1,4 +1,4 @@
-package domain.controllers.subcontrollers.managers;
+package scrabble.domain.controllers.subcontrollers.managers;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.Serializable;

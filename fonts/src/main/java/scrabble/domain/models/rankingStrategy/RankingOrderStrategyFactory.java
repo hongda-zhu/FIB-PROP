@@ -1,4 +1,4 @@
-package domain.models.rankingStrategy;
+package scrabble.domain.models.rankingStrategy;
 
 /**
  * Factory para crear estrategias de ordenación de ranking.

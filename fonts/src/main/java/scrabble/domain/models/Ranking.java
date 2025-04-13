@@ -1,6 +1,6 @@
-package domain.models;
+package scrabble.domain.models;
 
-import domain.models.rankingStrategy.*;
+import scrabble.domain.models.rankingStrategy.*;
 
 import java.io.Serializable;
 import java.util.*;

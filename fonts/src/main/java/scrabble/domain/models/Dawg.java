@@ -1,4 +1,4 @@
-package domain.models;
+package scrabble.domain.models;
 
 public class Dawg {
 

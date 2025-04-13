@@ -1,7 +1,7 @@
-package domain.models;
+package scrabble.domain.models;
 
-import domain.controllers.subcontrollers.managers.GestorJugada.Direction;
-import domain.helpers.Tuple;
+import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
+import scrabble.helpers.Tuple;
 
 import java.util.Arrays;
 import java.util.HashMap;

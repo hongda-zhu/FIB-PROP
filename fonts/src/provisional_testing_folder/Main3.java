@@ -1,7 +1,7 @@
-package provisional_testing_folder;
+// package provisional_testing_folder;
 // package domain.testing;
 
-// import domain.controllers.ControladorDomain;
+// import scrabble.domain.controllers.ControladorDomain;
 // import java.io.File;
 // import java.util.ArrayList;
 // import java.util.List;

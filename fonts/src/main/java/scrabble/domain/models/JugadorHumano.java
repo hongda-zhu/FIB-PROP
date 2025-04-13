@@ -1,4 +1,4 @@
-package domain.models;
+package scrabble.domain.models;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,8 +1,8 @@
-package domain.controllers.subcontrollers.managers;
+package scrabble.domain.controllers.subcontrollers.managers;
 
-import domain.helpers.Triple;
-import domain.helpers.Tuple;
-import domain.models.*;
+import scrabble.helpers.Triple;
+import scrabble.helpers.Tuple;
+import scrabble.domain.models.*;
 
 import java.io.File;
 import java.io.IOException;

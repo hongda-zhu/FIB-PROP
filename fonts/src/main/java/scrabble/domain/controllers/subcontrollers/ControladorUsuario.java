@@ -1,9 +1,9 @@
-package domain.controllers.subcontrollers;
+package scrabble.domain.controllers.subcontrollers;
 
-import domain.controllers.subcontrollers.managers.GestorAutenticacion;
-import domain.models.JugadorHumano;
-import domain.models.JugadorIA;
-import domain.models.Jugador;
+import scrabble.domain.controllers.subcontrollers.managers.GestorAutenticacion;
+import scrabble.domain.models.JugadorHumano;
+import scrabble.domain.models.JugadorIA;
+import scrabble.domain.models.Jugador;
 
 import java.io.*;
 import java.util.*;
