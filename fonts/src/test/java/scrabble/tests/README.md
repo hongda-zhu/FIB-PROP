@@ -7,6 +7,8 @@ Este directorio contiene pruebas unitarias para todos los componentes de la apli
 ## Estructura del Directorio
 
 ### Pruebas de Modelos
+- **ConfiguracionTest.java**  
+  Pruebas unitarias para la clase `Configuracion`. Se prueba las gestiones de las configuraciones de la app como el volumen, idioma y tema.
 
 - **JugadorTest.java**  
   Pruebas unitarias para la clase abstracta `Jugador`. Se prueba la funcionalidad común que comparten todos los tipos de jugador mediante una implementación concreta.
@@ -35,10 +37,12 @@ Este directorio contiene pruebas unitarias para todos los componentes de la apli
 - **DawgNodeTest.java**  
   Pruebas unitarias para la clase `DawgNode`. Se prueba el funcionamiento de los nodos que componen el grafo acíclico dirigido de palabras (DAWG) utilizado para validar palabras de manera eficiente.
 
+
 ## Relación con los Modelos
 
 Cada archivo de prueba corresponde a una clase del modelo en el paquete `scrabble.domain.models`:
 
+- `ConfiguracionTest.java` → `Configuracion.java` 
 - `JugadorTest.java` → `Jugador.java`  
 - `JugadorHumanoTest.java` → `JugadorHumano.java`  
 - `JugadorIATest.java` → `JugadorIA.java`  

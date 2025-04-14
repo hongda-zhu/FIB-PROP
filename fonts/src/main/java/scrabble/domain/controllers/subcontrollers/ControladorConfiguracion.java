@@ -1,8 +1,5 @@
 package scrabble.domain.controllers.subcontrollers;
 
-/* 
-import scrabble.helpers.Idioma;
-import scrabble.helpers.Tema;
 import scrabble.domain.models.Configuracion;
 
 public class ControladorConfiguracion {
@@ -23,7 +20,6 @@ public class ControladorConfiguracion {
     public int obtenerVolumen() {
         return configuracion.obtenerVolumen();
     }
-        
 
     public void setIdioma(String i) {
         configuracion.setIdioma(i);
@@ -37,4 +33,3 @@ public class ControladorConfiguracion {
         configuracion.setVolumen(v);
     }
 }
-*/
