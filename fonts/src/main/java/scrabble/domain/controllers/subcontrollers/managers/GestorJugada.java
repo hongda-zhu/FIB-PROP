@@ -1,23 +1,29 @@
 package scrabble.domain.controllers.subcontrollers.managers;
 
-import scrabble.helpers.Triple;
-import scrabble.helpers.Tuple;
-import scrabble.domain.models.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.List;
 
-public class GestorJugada {
+import scrabble.domain.models.Dawg;
+import scrabble.domain.models.DawgNode;
+import scrabble.domain.models.Diccionario;
+import scrabble.domain.models.Tablero;
+import scrabble.helpers.Triple;
+import scrabble.helpers.Tuple;
+import scrabble.helpers.BooleanWrapper;
+/**
+ * Clase GestorJugada
+ * Esta clase se encarga de gestionar las jugadas en el juego de Scrabble.
+ * Permite añadir lenguajes, establecer el lenguaje actual, buscar movimientos válidos,
+ * calcular puntos y realizar jugadas en el tablero.
+ */
 
-
+public class GestorJugada implements Serializable{
 
     public enum Direction {
         HORIZONTAL,
@@ -29,7 +35,6 @@ public class GestorJugada {
     private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
     private Direction direction;
     private Map<String, Integer> alphabet;
-
     private Dawg dawg;
 
 
@@ -39,6 +44,26 @@ public class GestorJugada {
         this.direction = null;
         this.diccionario = null;
     }
+    
+    /**
+    * Devuelve la lista de nombres de los diccionarios disponibles actualmente en el sistema.
+    * 
+    * @return Lista de nombres de diccionarios disponibles.
+    */
+    public List<String> getDiccionariosDisponibles() {
+        return this.diccionario.getDiccionariosDisponibles();
+    }
+
+
+    public void creaTableroNxN(int N) {
+        this.tablero = new Tablero(N);
+    }
+    /*
+     * Método para añadir un nuevo lenguaje al juego.
+     * @param nombre Nombre del lenguaje.
+     * @param rutaArchivoAlpha Ruta del archivo que contiene el alfabeto.
+     * @param rutaArchivoWords Ruta del archivo que contiene las palabras.
+     */
 
     public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) {
         if (this.diccionario == null) {
@@ -48,45 +73,110 @@ public class GestorJugada {
         this.diccionario.addAlphabet(nombre, rutaArchivoAlpha);
     }
 
+    /*
+     * Método para seleccionar un lenguaje existente.
+     * @param nombre Nombre del lenguaje a seleccionar.
+     */
+
     public void setLenguaje(String nombre) {
         this.dawg = this.diccionario.getDawg(nombre);
         this.alphabet = this.diccionario.getAlphabet(nombre);
     }
 
+    /*
+     * Método para saber si existe un lenguaje en el diccionario.
+     * @param nombre Nombre del lenguaje a verificar.
+     * @return true si el lenguaje existe, false en caso contrario.
+     */
+
+    public boolean existeLenguaje(String nombre) {
+        if(this.diccionario == null) return false;
+        return this.diccionario.existeDawg(nombre);
+    }
+
+    /*
+     * Método para obtener la bolsa de letras 
+     * @param nombre Nombre del lenguaje.
+     * @return Mapa que representa la bolsa de letras.
+     */
+
     public Map<String, Integer> getBag(String name) {
         return this.diccionario.getBag(name);
     }
- 
+
+    /*
+     * Método before
+     * @param pos Posición actual.
+     * @return Nueva posición antes de la actual.
+     */
+
     public Tuple<Integer, Integer> before (Tuple<Integer, Integer> pos) {
         return direction == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
     } 
+
+    /* 
+     * Método after
+     * @param pos Posición actual.
+     * @return Nueva posición después de la actual.
+     */
 
     public Tuple<Integer, Integer> after (Tuple<Integer, Integer> pos) {
         return direction == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y + 1): new Tuple<>(pos.x + 1, pos.y);
     }
 
+    /*
+     * Método before_cross
+     * @param pos Posición actual.
+     * @return Nueva posición antes de la actual en la dirección girada.
+     */
+
     public Tuple<Integer, Integer> before_cross (Tuple<Integer, Integer> pos) {
         return direction == Direction.HORIZONTAL? new Tuple<>(pos.x - 1, pos.y): new Tuple<>(pos.x, pos.y - 1);
     }
+
+    /*
+     * Método after_cross
+     * @param pos Posición actual.
+     * @return Nueva posición después de la actual en la dirección girada.
+     */
 
     public Tuple<Integer, Integer> after_cross (Tuple<Integer, Integer> pos) {
         return direction == Direction.HORIZONTAL? new Tuple<>(pos.x + 1, pos.y): new Tuple<>(pos.x, pos.y + 1);
     }
 
-    public Set<Tuple<Integer, Integer>> find_anchors() {
+    /*
+     * Método para encontrar los anclajes en el tablero.
+     * @return Conjunto de posiciones de anclajes.
+     */
+
+    public Set<Tuple<Integer, Integer>> find_anchors(boolean juegoIniciado) {
         Set<Tuple<Integer, Integer>> anchors = new HashSet<>();
-        for (int i = 0; i < tablero.getSize(); i++) {
-            for (int j = 0; j < tablero.getSize(); j++) {
-                Tuple<Integer, Integer> pos = new Tuple<>(i,j);
-                if (tablero.isEmpty(pos)) {
-                    if (tablero.isFilled(before_cross(pos)) || tablero.isFilled(after_cross(pos)) || tablero.isFilled(before(pos)) || tablero.isFilled(after(pos))) {
-                        anchors.add(pos);
+        if (juegoIniciado) {
+
+            for (int i = 0; i < tablero.getSize(); i++) {
+                for (int j = 0; j < tablero.getSize(); j++) {
+                    Tuple<Integer, Integer> pos = new Tuple<>(i,j);
+                    if (tablero.isEmpty(pos)) {
+                        if (tablero.isFilled(before_cross(pos)) || tablero.isFilled(after_cross(pos)) || tablero.isFilled(before(pos)) || tablero.isFilled(after(pos))) {
+                            anchors.add(pos);
+                        }
                     }
                 }
             }
-        }
+        } else anchors.add(this.tablero.getCenter());
+        System.out.println("Anchors encontrados: " + anchors);
         return anchors;
     }
+
+    /*
+     * Método para extender la palabra hacia la izquierda.
+     * @param partialWord Palabra parcial.
+     * @param rack Mapa de letras disponibles.
+     * @param currenNode Nodo actual en el DAWG.
+     * @param nextPos Posición siguiente.
+     * @param limit Límite de letras a usar.
+     * @return Conjunto de palabras extendidas.
+     */
 
     public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendLeft(String partialWord, Map<String, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, int limit) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
@@ -112,6 +202,16 @@ public class GestorJugada {
         }
         return words;
     }
+
+    /*
+     * Método para extender la palabra hacia la derecha.
+     * @param partialWord Palabra parcial.
+     * @param rack Mapa de letras disponibles.
+     * @param currenNode Nodo actual en el DAWG.
+     * @param nextPos Posición siguiente.
+     * @param archorFilled Indica si el anclaje está lleno.
+     * @return Conjunto de palabras extendidas.
+     */
 
     public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<String, Integer> rack, DawgNode currenNode, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
@@ -150,6 +250,10 @@ public class GestorJugada {
         return words;
     }
 
+    /*
+     * Método para realizar una verificación cruzada en el tablero.
+     * @return Mapa de posiciones y conjuntos de palabras posibles.
+     */
 
     public Map<Tuple<Integer, Integer>, Set<String>> crossCheck() {
         Map<Tuple<Integer, Integer>, Set<String>> words = new HashMap<>();
@@ -189,9 +293,15 @@ public class GestorJugada {
         return words;
     }
 
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack) {
+    /*
+     * Método para buscar todos los movimientos posibles en el tablero.
+     * @param rack Mapa de letras disponibles.
+     * @return Conjunto de movimientos posibles.
+     */
+
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack, boolean isFirst) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> answers = new HashSet<>();
-        Set<Tuple<Integer, Integer>> anchors = find_anchors();
+        Set<Tuple<Integer, Integer>> anchors = find_anchors(isFirst);
 
         for (Direction dir : Direction.values()) {
 
@@ -233,36 +343,46 @@ public class GestorJugada {
         return answers;
     }
 
+    /*
+     * Método para realizar un movimiento en el tablero.
+     * @param move Movimiento a realizar.
+     * @param rack Mapa de letras disponibles.
+     * @return Mapa actualizado de letras disponibles.
+     */
 
     public Map<String, Integer> makeMove(Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        String word = move.x;
+        String word = move.x.toUpperCase();
         Tuple<Integer, Integer> pos = move.y;
         Direction dir = move.z;
 
         Map<String, Integer> newRack = new HashMap<>(rack);
 
         for (int i = word.length() - 1; i >= 0; i--) {
-            String letter = String.valueOf(word.charAt(i));
-            this.tablero.setTile(pos, String.valueOf(letter));
-            if (dir == Direction.HORIZONTAL) {
-                pos = new Tuple<Integer, Integer>(pos.x, pos.y - 1); 
-            } else {
-                pos = new Tuple<Integer, Integer>(pos.x - 1, pos.y);
-            }
-
-            if (newRack.containsKey(letter)) {
+            String letter = String.valueOf(word.charAt(i)).toUpperCase();
+            
+            if (newRack.containsKey(letter) && this.tablero.isEmpty(pos)) {
                 if (newRack.get(letter) == 1) {
                     newRack.remove(letter);
                 } else {
                     newRack.put(letter, newRack.get(letter) - 1);
                 }
             }
+            this.tablero.setTile(pos, String.valueOf(letter));
+            if (dir == Direction.HORIZONTAL) {
+                pos = new Tuple<Integer, Integer>(pos.x, pos.y - 1); 
+            } else {
+                pos = new Tuple<Integer, Integer>(pos.x - 1, pos.y);
+            }
         }
-
         return newRack;
 
     }
 
+    /*
+     * Método para calcular los puntos de un movimiento.
+     * @param move Movimiento a evaluar.
+     * @return Puntos obtenidos por el movimiento.
+     */
 
     public int calculateMovePoints(Triple<String,Tuple<Integer, Integer>, Direction> move) {
 
@@ -307,85 +427,130 @@ public class GestorJugada {
         return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes); 
     }
 
+    /*
+     * Método para verificar si un movimiento es válido.
+     * @param move Movimiento a evaluar.
+     * @param rack Mapa de letras disponibles.
+     * @return true si el movimiento es válido, false en caso contrario.
+     */
 
     public boolean isValidMove (Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        Set<Triple<String,Tuple<Integer, Integer>, Direction>> possibleWords = searchAllMoves(rack);
+        Set<Triple<String,Tuple<Integer, Integer>, Direction>> possibleWords = searchAllMoves(rack, true);
         return possibleWords.contains(move);
     }
 
-    public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+    /*
+     * Método para verificar si es un movimiento válido en el primer turno.
+     * @param move Movimiento a evaluar.
+     * @param rack Mapa de letras disponibles.
+     * @return true si el movimiento es válido, false en caso contrario.
+     */
+
+     public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
         String word = move.x;
         Tuple<Integer, Integer> pos = move.y;
         Direction dir = move.z;
-
+    
+        System.out.println("Validando palabra: " + word + " desde posición: " + pos + " en dirección: " + dir);
+    
         // Check if the word fits within the board boundaries
         for (int i = word.length() - 1; i >= 0; i--) {
+            System.out.println("Verificando posición válida: " + pos);
             if (!tablero.validPosition(pos)) {
+                System.out.println("Posición inválida: " + pos);
                 return false;
             }
             pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
         }
-
+    
         // Reset position to the starting point
         pos = move.y;
-
+    
         // Check if the word is placed on the center tile
         boolean centerTileCovered = false;
         for (int i = word.length() - 1; i >= 0; i--) {
+            System.out.println("Comprobando si cubre el centro: " + pos);
             if (pos.equals(tablero.getCenter())) {
+                System.out.println("¡Casilla central cubierta!");
                 centerTileCovered = true;
             }
             pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
         }
-
+    
         if (!centerTileCovered) {
+            System.out.println("La palabra no pasa por el centro.");
             return false;
         }
-
+    
         // Check if the word can be formed using the rack
         Map<String, Integer> tempRack = new HashMap<>(rack);
-        for (char c : word.toCharArray()) {
-            String letter = String.valueOf(c).toUpperCase();
-            if (tempRack.containsKey(letter)) {
-                if (tempRack.get(letter) == 1) {
-                    tempRack.remove(letter);
+        for (int i = 0; i < word.length(); i++) {
+            String letter = String.valueOf(word.charAt(i)).toUpperCase();
+            String diletter = "";
+            if (i + 1 < word.length()) {
+                diletter = String.valueOf(word.charAt(i + 1)).toUpperCase();
+            }
+            System.out.println("Verificando letra: " + letter + " (o " + diletter + ") en rack: " + tempRack);
+    
+            if (tempRack.containsKey(letter) || tempRack.containsKey(diletter)) {
+                String key = tempRack.containsKey(letter) ? letter : diletter;
+                System.out.println("Usando ficha: " + key);
+                if (tempRack.get(key) == 1) {
+                    tempRack.remove(key);
                 } else {
-                    tempRack.put(letter, tempRack.get(letter) - 1);
+                    tempRack.put(key, tempRack.get(key) - 1);
                 }
             } else if (tempRack.containsKey("#")) { // Use blank tile
+                System.out.println("Usando comodín para letra: " + letter);
                 if (tempRack.get("#") == 1) {
                     tempRack.remove("#");
                 } else {
                     tempRack.put("#", tempRack.get("#") - 1);
                 }
             } else {
+                System.out.println("Letra no disponible en el rack: " + letter);
                 return false;
             }
         }
-
-        return true;
+    
+        boolean found = this.dawg.search(word);
+        System.out.println("¿Palabra encontrada en diccionario? " + found);
+        return found;
     }
+    
+    /*
+     * Método para mostrar el tablero en la consola.
+     * Este método imprime el tablero en la consola.
+     */
 
     public void mostrarTablero () {
         System.out.println(this.tablero.toString());
     }
 
-    public Triple<String, Tuple<Integer, Integer>, Direction> jugarTurno(boolean isFirst) {
+    /*
+     * Método para realizar un turno de juego.
+     * @param isFirst Indica si es el primer turno del jugador.
+     * @return Triple que contiene la palabra, la posición y la dirección.
+     */
+
+    public Triple<String, Tuple<Integer, Integer>, Direction> jugarTurno(BooleanWrapper pausado) {
         Scanner scanner = new Scanner(System.in);
         String palabra = "";
         // Leer la palabra
-        if (isFirst) {
-            System.out.println("Es tu primer turno, debes colocar una palabra en el centro del tablero.");
-        } else {
-            System.out.print("Introduce la palabra a colocar (o 'p' para pasar): ");
-        }
+
+        System.out.print("Introduce la palabra a colocar (o 'p' para pasar): ");
+        
 
         System.out.println("Coloca una palabra en el tablero.");
-        palabra = scanner.nextLine();
+        palabra = scanner.nextLine().toUpperCase();
         
+        if (palabra.equals("X")) {
+            pausado.value = true;
+            return null;
+        }
         
         // Si el usuario escribe 'p', retornar null
-        if (!isFirst && palabra.equals("p")) {
+        if (palabra.equals("p")) {
             return null;
         }
         
@@ -396,7 +561,7 @@ public class GestorJugada {
         boolean coordenadasValidas = false;
         
         while (!coordenadasValidas) {
-            System.out.print("Introduce la posición de la última letra (X Y): ");
+            System.out.print("Introduce las coordenadas (a b (eje vertical/ eje horizontal)) de la última letra de tu palabra: ");
             try {
                 x = scanner.nextInt();
                 y = scanner.nextInt();
@@ -413,7 +578,7 @@ public class GestorJugada {
         boolean direccionValida = false;
         
         while (!direccionValida) {
-            System.out.print("Introduce la dirección (HORIZONTAL (H) o VERTICAL(V)): ");
+            System.out.print("Introduce la orientación de tu palabra 'H' (horizontal) o 'V' (vertical): ");
             dir = scanner.nextLine().toUpperCase();
             
             if (dir.equals("H") || dir.equals("V")) {

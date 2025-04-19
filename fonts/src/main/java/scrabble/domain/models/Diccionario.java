@@ -168,6 +168,26 @@ public class Diccionario {
     }
 
     /**
+    * Devuelve la lista de nombres de los diccionarios disponibles actualmente en el sistema.
+    * 
+    * @return Lista de nombres de diccionarios disponibles.
+    */
+    public List<String> getDiccionariosDisponibles() {
+        return new ArrayList<>(allDawgs.keySet());
+    }
+    
+    /**
+     * Verifica si un DAWG existe en el diccionario.
+     * 
+     * @param nombre Nombre del idioma
+     * @return true si el DAWG existe, false en caso contrario
+     */
+
+    public boolean existeDawg(String nombre) {
+        return this.allDawgs.containsKey(nombre);
+    }
+
+    /**
      * Obtiene el mapa de puntos por letra para un idioma.
      * 
      * @param nombre Nombre del idioma
@@ -204,4 +224,5 @@ public class Diccionario {
     public Map<String, Map<String, Integer>> getAllAlphabets() {
         return this.allAlphabets;
     }
+
 }

@@ -1,7 +1,8 @@
 package scrabble.domain.models;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import scrabble.helpers.Dificultad;
 
 /**
  * Clase que representa a un jugador controlado por IA en el sistema.
@@ -11,13 +12,7 @@ import java.util.Map;
 public class JugadorIA extends Jugador {
     private static final long serialVersionUID = 1L;
     
-    /**
-     * Niveles de dificultad para la IA
-     */
-    public enum Dificultad {
-        FACIL, 
-        DIFICIL
-    }
+
     
     private Dificultad nivelDificultad;
     private int puntuacionUltimaPartida;

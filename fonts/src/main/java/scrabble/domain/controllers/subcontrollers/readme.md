@@ -8,7 +8,7 @@ Este directorio contiene los controladores específicos que implementan la lógi
 
 ### Controladores Principales
 
-- **ControladorUsuario.java**  
+- **ControladorJugador.java**  
   Gestiona las operaciones relacionadas con los usuarios, incluyendo registro, autenticación, actualización de perfiles y gestión de sesiones. Implementa el patrón Singleton para garantizar una única instancia de gestión de usuarios.
 
 - **ControladorRanking.java**  

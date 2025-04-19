@@ -1,17 +1,15 @@
 package scrabble.domain.models;
-import java.io.File;
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Clase que representa la bolsa de fichas del juego Scrabble.
  * Contiene todas las fichas disponibles y permite sacarlas aleatoriamente.
  */
-public class Bolsa {
+public class Bolsa implements Serializable{
     private List<String> fichas;
 
     /**
@@ -35,7 +33,7 @@ public class Bolsa {
      * @param letra Letra a agregar
      * @param cantidad Cantidad de fichas de esa letra
      */
-    private void agregarFichas(String letra, int cantidad) {
+    public void agregarFichas(String letra, int cantidad) {
         for (int i = 0; i < cantidad; i++) {
             fichas.add(letra);
         }
@@ -59,4 +57,5 @@ public class Bolsa {
     public int getCantidadFichas() {
         return fichas.size();
     }
+
 }

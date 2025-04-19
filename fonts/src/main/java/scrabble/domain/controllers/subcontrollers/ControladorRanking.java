@@ -1,9 +1,14 @@
 package scrabble.domain.controllers.subcontrollers;
 
-import scrabble.domain.models.Ranking;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
 
-import java.io.*;
-import java.util.*;
+import scrabble.domain.models.Ranking;
 
 /**
  * Controlador para la gestión del ranking de jugadores.
@@ -115,6 +120,16 @@ public class ControladorRanking {
         return ranking.existePuntuacion(id, puntuacion);
     }
     
+
+    /**
+     * Verifica si está en el ranking un usuario específico, independientemente de la puntuación.
+     * 
+     * @param id ID del usuario
+     * @return true si existe alguna puntuación, false en caso contrario
+     */
+    public boolean perteneceRanking(String id) {
+        return ranking.perteneceRanking(id);
+    }
     /**
      * Elimina un usuario del ranking.
      * 

@@ -1,9 +1,17 @@
 package scrabble.domain.models;
 
-import scrabble.domain.models.rankingStrategy.*;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import scrabble.domain.models.rankingStrategy.MaximaScoreStrategy;
+import scrabble.domain.models.rankingStrategy.RankingOrderStrategy;
+import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
 
 /**
  * Clase que representa el ranking del juego Scrabble.
@@ -17,7 +25,6 @@ public class Ranking implements Serializable {
     private Map<String, Double> puntuacionMediaPorUsuario;
     private Map<String, Integer> partidasJugadasPorUsuario;
     private Map<String, Integer> victoriasUsuario;
-    
     private RankingOrderStrategy estrategiaActual;
     
     /**
@@ -266,13 +273,22 @@ public class Ranking implements Serializable {
     }
     
     /**
+     * Comprueba si un usuario forma parte del ranking o no.
+     * 
+     * @return true si tiene alguna puntuación, false en caso contrario.
+     */    
+    public boolean perteneceRanking(String username) {
+        return puntuacionesPorUsuario.containsKey(username);
+    }
+
+    /**
      * Elimina todas las puntuaciones de un usuario.
      * 
      * @param username Nombre del usuario
      * @return true si se eliminaron correctamente, false en caso contrario
      */
     public boolean eliminarUsuario(String username) {
-        boolean exists = puntuacionesPorUsuario.containsKey(username);
+        boolean exists = perteneceRanking(username);
         
         if (exists) {
             puntuacionesPorUsuario.remove(username);

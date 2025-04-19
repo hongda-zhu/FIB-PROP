@@ -8,12 +8,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Clase que representa el tablero de juego de Scrabble.
+ * Gestiona la disposición de fichas, bonificaciones especiales y cálculo de puntuaciones.
+ * Permite crear tableros de diferentes tamaños, siendo el estándar de 15x15.
+ */
 public class Tablero {
+    /** Matriz que almacena las letras colocadas en el tablero */
     private String[][] tablero;
+    
+    /** Matriz que almacena los bonus de cada casilla */
     private Bonus[][] bonus;
+    
+    /** Mapa que asocia cada letra con su valor en puntos */
     private Map<Character, Integer> alphabetPoint;
+    
+    /** Tamaño del tablero (NxN) */
     private int N;
 
+    /**
+     * Inicializa el mapa de puntos para cada letra del alfabeto.
+     * Por defecto, asigna puntos incrementales (a=1, b=2, etc).
+     */
     private void inicializarPuntosAlfabeto() {
         alphabetPoint = new HashMap<>();
         String letras = "abcdefghijklmnopqrstuvwxyz";
@@ -22,6 +38,15 @@ public class Tablero {
         }
     }
 
+    /**
+     * Enumeración que define los tipos de bonificación disponibles en el tablero.
+     * N: Normal (sin bonificación)
+     * TW: Triple Word (triplica puntos de la palabra)
+     * TL: Triple Letter (triplica puntos de la letra)
+     * DW: Double Word (duplica puntos de la palabra)
+     * DL: Double Letter (duplica puntos de la letra)
+     * X: Casilla especial (duplica puntos de la letra)
+     */
     public enum Bonus {
         N, TW, TL, DW, DL, X
     }
@@ -52,6 +77,12 @@ public class Tablero {
         }
     }
 
+    /**
+     * Inicializa la matriz de bonificaciones para un tablero estándar de 15x15.
+     * Configura las posiciones de bonificaciones especiales según las reglas de Scrabble.
+     * 
+     * @return Matriz de bonificaciones configurada
+     */
     private Bonus[][] inicializarTablero15x15() {
         Bonus[][] bonusMatrix = new Bonus[N][N];
         // Inicializar todo con N (Normal)
@@ -123,6 +154,7 @@ public class Tablero {
 
     /**
      * Constructor de copia.
+     * Crea un nuevo tablero con el mismo contenido y bonificaciones que el tablero pasado como parámetro.
      * 
      * @param tablero2 Tablero a copiar
      */
@@ -140,6 +172,12 @@ public class Tablero {
         }
     }
 
+    /**
+     * Genera una representación en texto del tablero actual.
+     * Incluye índices de filas y columnas, separadores y el contenido de cada casilla.
+     * 
+     * @return Representación en texto del tablero
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -176,37 +214,77 @@ public class Tablero {
         return sb.toString();
     }
     
-
+    /**
+     * Obtiene la ficha en una posición específica del tablero.
+     * 
+     * @param pos Posición (x,y) a consultar
+     * @return Letra en esa posición o espacio si está vacía
+     */
     public String getTile(Tuple<Integer, Integer> pos) {
         return this.tablero[pos.x][pos.y];
     }
 
+    /**
+     * Coloca una ficha en una posición específica del tablero.
+     * 
+     * @param pos Posición (x,y) donde colocar la ficha
+     * @param letra Letra a colocar
+     */
     public void setTile(Tuple<Integer, Integer> pos, String letra) {
         this.tablero[pos.x][pos.y] = letra;
     }
 
+    /**
+     * Verifica si una posición es válida dentro del tablero.
+     * 
+     * @param pos Posición (x,y) a verificar
+     * @return true si la posición está dentro de los límites del tablero, false en caso contrario
+     */
     public boolean validPosition(Tuple<Integer, Integer> pos) {
         return (pos.x >= 0 && pos.x < N && pos.y >= 0 && pos.y < N);
     }
 
+    /**
+     * Verifica si una posición del tablero está vacía.
+     * 
+     * @param pos Posición (x,y) a verificar
+     * @return true si la posición está vacía, false si contiene una ficha
+     */
     public boolean isEmpty(Tuple<Integer, Integer> pos) {
         return validPosition(pos) && this.getTile(pos).equals(" ");
     }
 
+    /**
+     * Verifica si una posición del tablero está ocupada.
+     * 
+     * @param pos Posición (x,y) a verificar
+     * @return true si la posición contiene una ficha, false si está vacía
+     */
     public boolean isFilled(Tuple<Integer, Integer> pos) {
         return  validPosition(pos) && !this.getTile(pos).equals(" ");
     }
 
+    /**
+     * Obtiene el tamaño del tablero.
+     * 
+     * @return Tamaño N del tablero (NxN)
+     */
     public int getSize() {
         return this.N;
     }
 
+    /**
+     * Obtiene la posición central del tablero.
+     * 
+     * @return Tupla con las coordenadas del centro del tablero
+     */
     public Tuple<Integer, Integer> getCenter() {
         return new Tuple<>(N/2, N/2);
     }
 
     /**
      * Calcula el siguiente punto en una dirección dada.
+     * Utilizado para recorrer posiciones en el tablero durante jugadas.
      * 
      * @param pos Posición actual
      * @param direction Dirección del movimiento
@@ -222,6 +300,7 @@ public class Tablero {
 
     /**
      * Calcula los puntos para una letra en una posición específica.
+     * Tiene en cuenta las bonificaciones de la casilla.
      * 
      * @param letra Letra a colocar
      * @param pos Posición en el tablero
@@ -256,6 +335,7 @@ public class Tablero {
 
     /**
      * Realiza un movimiento en el tablero.
+     * Coloca una palabra completa y calcula los puntos obtenidos.
      *
      * @param lastPos Posición final de la palabra
      * @param word Palabra a colocar

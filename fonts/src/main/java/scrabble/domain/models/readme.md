@@ -46,6 +46,6 @@ Este directorio contiene las clases de modelo que representan las entidades prin
 
 Estas clases implementan la lógica de negocio que es gestionada por los controladores en el paquete `scrabble.domain.controllers`:
 
-- `Jugador`, `JugadorHumano`, `JugadorIA` → `ControladorUsuario`
+- `Jugador`, `JugadorHumano`, `JugadorIA` → `ControladorJugador`
 - `Ranking` → `ControladorRanking`
 - `Tablero`, `Bolsa`, `Diccionario` → `ControladorJuego` y `GestorJugada`

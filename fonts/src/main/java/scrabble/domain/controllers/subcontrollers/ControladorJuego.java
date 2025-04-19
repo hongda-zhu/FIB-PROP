@@ -1,16 +1,28 @@
 package scrabble.domain.controllers.subcontrollers;
 
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.Serializable;
 
 import scrabble.domain.controllers.subcontrollers.managers.GestorJugada;
 import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
 import scrabble.domain.models.Bolsa;
-import scrabble.domain.models.JugadorIA.Dificultad;
 import scrabble.domain.models.Tablero;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
+import scrabble.helpers.Dificultad;
+import scrabble.helpers.BooleanWrapper;
+
 
 /**
  * ControladorJuego es la clase encargada de gestionar el flujo del juego de Scrabble.
@@ -25,7 +37,7 @@ public class ControladorJuego {
     private boolean juegoTerminado = false;
     private boolean juegoIniciado = false;
 
-
+  
     public ControladorJuego() {
         this.gestorJugada = new GestorJugada(new Tablero()) ;
         this.bolsa = null;
@@ -40,6 +52,10 @@ public class ControladorJuego {
     public void iniciarJuego(String languaje) {
         bolsa = new Bolsa();
         bolsa.llenarBolsa(this.gestorJugada.getBag(languaje));
+    }
+
+    public void creaTableroNxN(int N) {
+        gestorJugada.creaTableroNxN(N);
     }
 
     /*
@@ -75,7 +91,26 @@ public class ControladorJuego {
     public void setLenguaje(String nombre) {
         this.gestorJugada.setLenguaje(nombre);
     }
+
+    /*
+     * Método para verificar si un idioma existe en el juego.
+     * Este método permite verificar si un idioma ya ha sido añadido al juego.
+     * @param nombre El nombre del idioma a verificar
+     * @return true si el idioma existe, false en caso contrario
+     */
+
+    public boolean existeLenguaje(String nombre) {
+        return  this.gestorJugada.existeLenguaje(nombre);
+    }
     
+    /**
+    * Devuelve la lista de nombres de los diccionarios disponibles actualmente en el sistema.
+    * 
+    * @return Lista de nombres de diccionarios disponibles.
+    */
+    public List<String> getDiccionariosDisponibles() {
+        return this.gestorJugada.getDiccionariosDisponibles();
+    }
     /* 
      * Método para hacer el primer turno del jugador.
      * Este método permite al jugador realizar su primer movimiento en el juego.
@@ -84,24 +119,23 @@ public class ControladorJuego {
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
-    private Tuple<Map<String, Integer>, Integer> primerTurno(String nombreJugador, Map<String, Integer> rack) {
+    // private Tuple<Map<String, Integer>, Integer> primerTurno(String nombreJugador, Map<String, Integer> rack) {
 
-        Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno(true);
+    //     Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno();
 
-        if (move == null) {
-            // Si el jugador decide pasar su turno, se puede implementar aquí
-            System.out.println(nombreJugador + "no puedes pasar de turno, eres el primero en jugar.");
-            return null;
-        }
-
-        if (move != null && this.gestorJugada.isValidFirstMove(move, rack)) {
-            this.juegoIniciado = true;
-            return new Tuple<Map<String, Integer>, Integer>(this.gestorJugada.makeMove(move, rack), this.gestorJugada.calculateMovePoints(move));
-        } else {
-            System.out.println("La jugada no es válida. Intenta nuevamente.");
-            return primerTurno(nombreJugador, rack); // Verifica si la jugada es válida
-        }
-    }
+    //     if (move == null) {
+    //         // Si el jugador decide pasar su turno, se puede implementar aquí
+    //         System.out.println(nombreJugador + "no puedes pasar de turno, eres el primero en jugar.");
+    //         return null;
+    //     }
+    //     if (this.gestorJugada.isValidFirstMove(move, rack)) {
+    //         this.juegoIniciado = true;
+    //         return new Tuple<Map<String, Integer>, Integer>(this.gestorJugada.makeMove(move, rack), this.gestorJugada.calculateMovePoints(move));
+    //     } else {
+    //         System.out.println("La jugada no es válida. Intenta nuevamente.");
+    //         return primerTurno(nombreJugador, rack); // Verifica si la jugada es válida
+    //     }
+    // }
 
     /*
      * Método para realizar un turno en el juego.
@@ -113,12 +147,12 @@ public class ControladorJuego {
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
-    public Tuple<Map<String, Integer>, Integer> realizarTurno(String nombreJugador, Map<String, Integer> rack,  boolean isIA, Dificultad dificultad) {
+    public Tuple<Map<String, Integer>, Integer> realizarTurno(String nombreJugador, Map<String, Integer> rack,  boolean isIA, Dificultad dificultad, BooleanWrapper pausado) {
         limpiarConsola();
         this.gestorJugada.mostrarTablero();
 
         System.out.println("Tu rack actual es: " + rack);
-        return !juegoIniciado? primerTurno(nombreJugador, rack) : realizarAccion(nombreJugador, rack, isIA, dificultad);
+        return realizarAccion(nombreJugador, rack, isIA, dificultad, juegoIniciado, pausado);
     }
 
     /*
@@ -131,29 +165,30 @@ public class ControladorJuego {
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
-    private Tuple<Map<String, Integer>, Integer> realizarAccion(String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad) {
+    private Tuple<Map<String, Integer>, Integer> realizarAccion(String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst, BooleanWrapper pausado) {
         // El jugador puede colocar palabras, pasar o intercambiar fichas.
         if (!isIA) {
             // El jugador humano puede ingresar una palabra o hacer una acción
             // Aquí implementas la lógica para que el jugador humano haga su jugada.
             System.out.println(nombreJugador + "Es tu turno, coloca una palabra o skip");
 
-            Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno(false);
+            Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno(pausado);
 
             if (move == null) {
                 // Si el jugador decide pasar su turno, se puede implementar aquí
                 System.out.println(nombreJugador + " ha decidido pasar su turno.");
                 return null;
             } else {   
-                if (this.gestorJugada.isValidMove(move, rack)){
+                if (juegoIniciado? this.gestorJugada.isValidMove(move, rack):this.gestorJugada.isValidFirstMove(move, rack)){
+                    this.juegoIniciado = true;
                     return new Tuple<Map<String,Integer>,Integer>(this.gestorJugada.makeMove(move, rack), this.gestorJugada.calculateMovePoints(move));
                 } else {
                     System.out.println("La jugada no es válida. Intenta nuevamente.");
-                    return realizarAccion(nombreJugador, rack, isIA, dificultad);// Verifica si la jugada es válida
+                    return realizarAccion(nombreJugador, rack, isIA, dificultad, isFirst, pausado);// Verifica si la jugada es válida
                 }
             }
         } else {
-            Set<Triple<String,Tuple<Integer, Integer>, Direction>> move = this.gestorJugada.searchAllMoves(rack);
+            Set<Triple<String,Tuple<Integer, Integer>, Direction>> move = this.gestorJugada.searchAllMoves(rack, this.juegoIniciado);
             if (move == null || move.isEmpty()) {
                 System.out.println("El jugador IA no puede hacer una jugada.");
                 return null;
@@ -173,6 +208,7 @@ public class ControladorJuego {
                     }
                 }
                 System.out.println("El jugador IA está haciendo su jugada.");
+                this.juegoIniciado = true;
                 return new Tuple<Map<String,Integer>,Integer>(this.gestorJugada.makeMove(bestMove, rack), bestMovePoints);
             }
         
@@ -240,4 +276,124 @@ public class ControladorJuego {
         }
         return fichas;
     }
+
+    public void meterFichas(Map<String, Integer> fichas) {
+        for (Map.Entry<String, Integer> entry : fichas.entrySet()) {
+            String ficha = entry.getKey();
+            int cantidad = entry.getValue();
+            for (int i = 0; i < cantidad; i++) {
+                this.bolsa.agregarFichas(ficha, cantidad);
+            }
+        }
+    }
+    // MÉTODOS DE JIAHAO, no se si funcionan, no quiero testearlos por la complejidad,
+    // /*
+    //  * Método para verificar si un ID de partida existe.
+    //  * Este método verifica si un ID de partida ya ha sido guardado en el archivo de estado del juego.
+    //  * @param partidaId El ID de la partida a verificar
+    //  * @return true si el ID de la partida existe, false en caso contrario
+    //  */
+
+    // public boolean existeIdPartida(String partidaId) {
+    //     try {
+    //         File archivo = new File("estado_juego.dat");
+    //         if (archivo.exists()) {
+    //             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+    //                 List<Map<String, Object>> historial = (List<Map<String, Object>>) ois.readObject();
+    //                 for (Map<String, Object> estadoJuego : historial) {
+    //                     if (estadoJuego.get("id").equals(partidaId)) {
+    //                         return true;
+    //                     }
+    //                 }
+    //             } catch (EOFException ignored) {}
+    //         }
+    //     } catch (IOException | ClassNotFoundException e) {
+    //         System.err.println("Error al verificar el ID de la partida: " + e.getMessage());
+    //     }
+    //     return false;
+    // }
+
+    // /*
+    //  * Método para guardar el estado de la partida.
+    //  * Este método guarda el estado actual del juego en un archivo, incluyendo el ID de la partida,
+    //  * el gestor de jugadas, la bolsa de fichas y los racks de los jugadores.
+    //  * @param partidaId El ID de la partida a guardar
+    //  * @param racks Un mapa que contiene los racks de los jugadores
+    //  */
+
+    // public void guardarPartida(String partidaId, Map<String, Map<String, Integer>> racks) {
+    //     //ACORDARSE PONER PUNTUACION Y DE QUIEN ES EL TURNO
+    //     try {
+    //         List<Map<String, Object>> historial = new ArrayList<>();
+    
+    //         File archivo = new File("estado_juego.dat");
+    //         if (archivo.exists()) {
+    //             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+    //                 historial = (List<Map<String, Object>>) ois.readObject();
+    //             } catch (EOFException ignored) {}
+    //         }
+
+    //         // Crear nuevo estado
+    //         Map<String, Object> estadoJuego = new HashMap<>();
+    //         estadoJuego.put("id", partidaId); // ID único para la partida
+    //         estadoJuego.put("gestorJugada", this.gestorJugada);
+    //         estadoJuego.put("bolsa", this.bolsa);
+    //         estadoJuego.put("juegoTerminado", this.juegoTerminado);
+    //         estadoJuego.put("juegoIniciado", this.juegoIniciado);
+    //         estadoJuego.put("racks", racks);
+
+    //         // Añadirlo a la lista
+    //         historial.add(estadoJuego);
+
+    //         // Guardar la lista completa
+    //         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("estado_juego.dat"))) {
+    //             oos.writeObject(historial);
+    //             System.out.println("Estado de la partida con ID " + partidaId + " guardado correctamente.");
+    //         } catch (IOException e) {
+    //             System.err.println("Error al guardar el estado del juego: " + e.getMessage());
+    //         }
+    //     } catch (IOException | ClassNotFoundException e) {
+    //         System.err.println("Error al guardar el estado del juego: " + e.getMessage());
+    //     }
+    // }
+    
+    // /*
+    //  * Método para cargar el estado de la partida.
+    //  * Este método carga el estado del juego desde un archivo, restaurando el gestor de jugadas,
+    //  * la bolsa de fichas y los racks de los jugadores.
+    //  * @param partidaId El ID de la partida a cargar
+    //  * @return true si la carga fue exitosa, false en caso contrario
+    //  */
+    
+    // public Map<String, Map<String, Integer>> cargarPartida(String partidaId) {
+    //     // Implementación para cargar el estado del juego desde un archivo usando el ID de la partida
+    //     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("estado_juego.dat"))) {
+    //         List<Map<String, Object>> historial = (List<Map<String, Object>>) ois.readObject();
+
+    //         for (Map<String, Object> estadoJuego : historial) {
+    //             if (estadoJuego.get("id").equals(partidaId)) {
+    //                 // Restaurar el estado del juego
+    //                 this.gestorJugada = (GestorJugada) estadoJuego.get("gestorJugada");
+    //                 this.bolsa = (Bolsa) estadoJuego.get("bolsa");
+    //                 this.juegoTerminado = (boolean) estadoJuego.get("juegoTerminado");
+    //                 this.juegoIniciado = (boolean) estadoJuego.get("juegoIniciado");
+
+    //                 // Restaurar los racks de los jugadores
+    //                 Map<String, Map<String, Integer>> racks = (Map<String, Map<String, Integer>>) estadoJuego.get("racks");
+    //                 if (racks != null) {
+    //                     System.out.println("Racks de los jugadores restaurados: " + racks);
+    //                     return racks;
+    //                 }
+
+    //                 System.out.println("El estado del juego con ID " + partidaId + " se ha cargado correctamente.");
+    //             }
+    //         }
+
+    //         System.out.println("No se encontró una partida con el ID " + partidaId + ".");
+    //     } catch (IOException | ClassNotFoundException e) {
+    //         System.err.println("Error al cargar el estado del juego: " + e.getMessage());
+    //         return null;
+    //     }
+    //     return null; // Si no se encontró la partida o hubo un error
+    // }
 }

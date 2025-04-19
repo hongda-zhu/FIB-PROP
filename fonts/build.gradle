@@ -37,3 +37,19 @@ dependencies {
 test {
     useJUnit()
 }
+
+sourceSets {
+    temp {
+        java.srcDirs = ['src/provisional_testing_folder/java']
+        resources.srcDirs = ['src/temp/resources']
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+task runTemp(type: JavaExec) {
+    classpath = sourceSets.temp.runtimeClasspath
+    mainClass.set(project.hasProperty('mainClass') ? project.getProperty('mainClass') : 'random_tests.Main2')
+    standardInput = System.in
+    jvmArgs = ['-Dfile.encoding=UTF-8'] // Fuerza UTF-8 en la JVM
+}
