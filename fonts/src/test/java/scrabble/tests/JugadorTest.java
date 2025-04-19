@@ -20,8 +20,8 @@ public class JugadorTest {
     
     // Implementación concreta de Jugador para las pruebas
     private static class JugadorConcreto extends Jugador {
-        public JugadorConcreto(String id, String nombre) {
-            super(id, nombre);
+        public JugadorConcreto(String nombre) {
+            super(nombre);
         }
         
         @Override
@@ -35,13 +35,13 @@ public class JugadorTest {
     @Before
     public void setUp() {
         // Inicializar un jugador concreto antes de cada test
-        jugador = new JugadorConcreto("id1", "Jugador Test");
+        jugador = new JugadorConcreto("Jugador Test");
     }
     
     /**
-     * Pre: Se ha creado una instancia de JugadorConcreto con id "id1" y nombre "Jugador Test".
-     * Post: Se verifica que el constructor inicializa correctamente los valores id, nombre, 
-     * puntuación inicial, skip track inicial y rack.
+     * Pre: Se ha creado una instancia de JugadorConcreto con nombre "Jugador Test".
+     * Post: Se verifica que el constructor inicializa correctamente los valores nombre, 
+     * puntuación inicial y skip track inicial.
      * 
      * Verifica que todos los valores iniciales del jugador son los esperados.
      * Aporta validación de la correcta inicialización de la clase base Jugador.
@@ -49,23 +49,11 @@ public class JugadorTest {
     @Test
     public void testConstructor() {
         // Verificar que los valores iniciales son correctos
-        assertEquals("El ID debería ser 'id1'", "id1", jugador.getId());
         assertEquals("El nombre debería ser 'Jugador Test'", "Jugador Test", jugador.getNombre());
         assertEquals("La puntuación inicial debería ser 0", 0, jugador.getPuntuacion());
         assertEquals("El contador de saltos inicial debería ser 0", 0, jugador.getSkipTrack());
-        assertNull("El rack inicialmente debería ser null", jugador.rack);
-    }
-    
-    /**
-     * Pre: Se ha creado una instancia de JugadorConcreto con id "id1".
-     * Post: Se verifica que el método getId() devuelve correctamente el id del jugador.
-     * 
-     * Comprueba la funcionalidad del método getter para el id.
-     * Aporta validación del correcto acceso al identificador del jugador.
-     */
-    @Test
-    public void testGetId() {
-        assertEquals("El ID debería ser 'id1'", "id1", jugador.getId());
+        // Usamos getRack() en lugar de acceder directamente al campo rack
+        assertNull("El rack inicialmente debería ser null", jugador.getRack());
     }
     
     /**
@@ -318,21 +306,18 @@ public class JugadorTest {
         JugadorConcreto mockJugador = Mockito.mock(JugadorConcreto.class);
         
         // Configurar el comportamiento del mock
-        when(mockJugador.getId()).thenReturn("mockId");
         when(mockJugador.getNombre()).thenReturn("Mock Nombre");
         when(mockJugador.getPuntuacion()).thenReturn(200);
         when(mockJugador.getSkipTrack()).thenReturn(3);
         when(mockJugador.esIA()).thenReturn(false);
         
         // Verificar el comportamiento
-        assertEquals("El mock debería devolver 'mockId'", "mockId", mockJugador.getId());
         assertEquals("El mock debería devolver 'Mock Nombre'", "Mock Nombre", mockJugador.getNombre());
         assertEquals("El mock debería devolver 200", 200, mockJugador.getPuntuacion());
         assertEquals("El mock debería devolver 3", 3, mockJugador.getSkipTrack());
         assertFalse("El mock debería devolver false para esIA()", mockJugador.esIA());
         
         // Verificar las llamadas
-        verify(mockJugador).getId();
         verify(mockJugador).getNombre();
         verify(mockJugador).getPuntuacion();
         verify(mockJugador).getSkipTrack();

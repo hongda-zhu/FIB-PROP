@@ -26,8 +26,8 @@ public class Main2 {
         juego.setLenguaje("Esp");
         juego.iniciarJuego("Esp");
 
-        JugadorIA jugadorIA = new JugadorIA("Jugador IA", Dificultad.FACIL);
-        JugadorHumano jugadorHumano = new JugadorHumano("Jugador 1", "Humano-1");
+        JugadorIA jugadorIA = new JugadorIA(Dificultad.FACIL);
+        JugadorHumano jugadorHumano = new JugadorHumano("Jugador 1");
 
         Jugador[] jugadores = {jugadorHumano, jugadorIA};
 

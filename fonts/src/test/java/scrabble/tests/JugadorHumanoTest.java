@@ -21,13 +21,13 @@ public class JugadorHumanoTest {
     @Before
     public void setUp() {
         // Inicializar un nuevo jugador antes de cada test
-        jugador = new JugadorHumano("usuario1", "Usuario Test", "password123");
+        jugador = new JugadorHumano("Usuario Test");
     }
     
     /**
-     * Pre: Se ha creado una instancia de JugadorHumano con id "usuario1", nombre "Usuario Test" y contraseña "password123".
-     * Post: Se verifica que el constructor inicializa correctamente los valores id, nombre, puntuación,
-     * estado en partida, estado de login y contadores de partidas.
+     * Pre: Se ha creado una instancia de JugadorHumano con nombre "Usuario Test".
+     * Post: Se verifica que el constructor inicializa correctamente los valores nombre, puntuación,
+     * estado en partida y contadores de partidas.
      * 
      * Comprueba la correcta inicialización de un jugador humano.
      * Aporta validación de los valores iniciales específicos para jugadores controlados por usuario.
@@ -35,28 +35,11 @@ public class JugadorHumanoTest {
     @Test
     public void testConstructor() {
         // Verificar que los valores iniciales son correctos
-        assertEquals("El ID debería ser 'usuario1'", "usuario1", jugador.getId());
         assertEquals("El nombre debería ser 'Usuario Test'", "Usuario Test", jugador.getNombre());
         assertEquals("La puntuación inicial debería ser 0", 0, jugador.getPuntuacion());
         assertFalse("El jugador no debería estar en partida inicialmente", jugador.isEnPartida());
-        assertFalse("El jugador no debería estar logueado inicialmente", jugador.isLogueado());
         assertEquals("El contador de partidas jugadas debería ser 0", 0, jugador.getPartidasJugadas());
         assertEquals("El contador de partidas ganadas debería ser 0", 0, jugador.getPartidasGanadas());
-    }
-    
-    /**
-     * Pre: Ninguna.
-     * Post: Se verifica que el constructor alternativo inicializa correctamente los valores id y nombre,
-     * usando el id como nombre por defecto.
-     * 
-     * Comprueba la correcta inicialización con el constructor simplificado.
-     * Aporta validación de la inicialización con un conjunto mínimo de parámetros.
-     */
-    @Test
-    public void testConstructorSoloIdYPassword() {
-        JugadorHumano jugador2 = new JugadorHumano("usuario2", "password123");
-        assertEquals("El ID debería ser 'usuario2'", "usuario2", jugador2.getId());
-        assertEquals("El nombre debería ser igual al ID por defecto", "usuario2", jugador2.getNombre());
     }
     
     /**
@@ -76,35 +59,6 @@ public class JugadorHumanoTest {
     }
     
     /**
-     * Pre: Se ha creado una instancia de JugadorHumano con estado inicial no logueado.
-     * Post: Se verifica que el método setLogueado() modifica correctamente el estado de login.
-     * 
-     * Comprueba la funcionalidad para cambiar el estado de autenticación.
-     * Aporta validación de la correcta gestión del estado de sesión del jugador.
-     */
-    @Test
-    public void testSetLogueado() {
-        jugador.setLogueado(true);
-        assertTrue("El jugador debería estar logueado", jugador.isLogueado());
-        
-        jugador.setLogueado(false);
-        assertFalse("El jugador no debería estar logueado", jugador.isLogueado());
-    }
-    
-    /**
-     * Pre: Se ha creado una instancia de JugadorHumano con nombre "Usuario Test".
-     * Post: Se verifica que el método setNombre() modifica correctamente el nombre del jugador.
-     * 
-     * Comprueba la funcionalidad para cambiar el nombre del jugador.
-     * Aporta validación de la correcta modificación de la información personal.
-     */
-    @Test
-    public void testSetNombre() {
-        jugador.setNombre("Nuevo Nombre");
-        assertEquals("El nombre debería ser 'Nuevo Nombre'", "Nuevo Nombre", jugador.getNombre());
-    }
-    
-    /**
      * Pre: Se ha creado una instancia de JugadorHumano con puntuación inicial 0.
      * Post: Se verifica que el método setPuntuacion() modifica correctamente la puntuación.
      * 
@@ -115,39 +69,6 @@ public class JugadorHumanoTest {
     public void testSetPuntuacion() {
         jugador.setPuntuacion(100);
         assertEquals("La puntuación debería ser 100", 100, jugador.getPuntuacion());
-    }
-    
-    /**
-     * Pre: Se ha creado una instancia de JugadorHumano con contraseña "password123".
-     * Post: Se verifica que el método verificarPassword() devuelve true para la contraseña correcta
-     * y false para contraseñas incorrectas.
-     * 
-     * Comprueba la funcionalidad de autenticación mediante contraseña.
-     * Aporta validación de la seguridad básica para acceso a la cuenta.
-     */
-    @Test
-    public void testVerificarPassword() {
-        assertTrue("La verificación de la contraseña correcta debería ser true", 
-                 jugador.verificarPassword("password123"));
-        assertFalse("La verificación de una contraseña incorrecta debería ser false", 
-                  jugador.verificarPassword("contraseñaIncorrecta"));
-    }
-    
-    /**
-     * Pre: Se ha creado una instancia de JugadorHumano con contraseña inicial "password123".
-     * Post: Se verifica que el método setPassword() cambia correctamente la contraseña, permitiendo
-     * la verificación con la nueva y rechazando la antigua.
-     * 
-     * Comprueba la funcionalidad para cambiar la contraseña de acceso.
-     * Aporta validación de la correcta actualización de credenciales de seguridad.
-     */
-    @Test
-    public void testSetPassword() {
-        jugador.setPassword("nuevaPassword");
-        assertTrue("La verificación con la nueva contraseña debería ser true", 
-                 jugador.verificarPassword("nuevaPassword"));
-        assertFalse("La verificación con la contraseña antigua debería ser false", 
-                  jugador.verificarPassword("password123"));
     }
     
     /**
@@ -230,8 +151,10 @@ public class JugadorHumanoTest {
      */
     @Test
     public void testGetFichas() {
-        // Inicialmente no hay fichas
-        assertNull("El rack inicialmente debería ser null", jugador.getFichas());
+        // Inicialmente hay un rack vacío
+        Map<String, Integer> fichasIniciales = jugador.getFichas();
+        assertNotNull("El rack inicialmente no debería ser null", fichasIniciales);
+        assertTrue("El rack inicialmente debería estar vacío", fichasIniciales.isEmpty());
         
         // Inicializar el rack
         Map<String, Integer> rack = new HashMap<>();
@@ -262,7 +185,7 @@ public class JugadorHumanoTest {
     }
     
     /**
-     * Pre: Se ha creado una instancia de JugadorHumano con rack inicial null.
+     * Pre: Se ha creado una instancia de JugadorHumano con rack inicial vacío.
      * Post: Se verifica que el método inicializarRack() establece correctamente el rack.
      * 
      * Comprueba la funcionalidad para inicializar el conjunto de fichas.
@@ -397,17 +320,14 @@ public class JugadorHumanoTest {
     public void testToString() {
         jugador.setPuntuacion(100);
         jugador.setEnPartida(true);
-        jugador.setLogueado(true);
         jugador.incrementarPartidasJugadas();
         jugador.incrementarPartidasGanadas();
         
         String resultado = jugador.toString();
         
-        assertTrue("toString() debería contener el ID", resultado.contains("usuario1"));
         assertTrue("toString() debería contener el nombre", resultado.contains("Usuario Test"));
         assertTrue("toString() debería contener la puntuación", resultado.contains("100"));
         assertTrue("toString() debería contener el estado en partida", resultado.contains("enPartida=true"));
-        assertTrue("toString() debería contener el estado logueado", resultado.contains("logueado=true"));
         assertTrue("toString() debería contener las partidas jugadas", resultado.contains("partidasJugadas=1"));
         assertTrue("toString() debería contener las partidas ganadas", resultado.contains("partidasGanadas=1"));
     }
@@ -424,22 +344,16 @@ public class JugadorHumanoTest {
     public void testIntegracionMockito() {
         JugadorHumano mockJugador = Mockito.mock(JugadorHumano.class);
         
-        when(mockJugador.getId()).thenReturn("mockUsuario");
         when(mockJugador.getNombre()).thenReturn("Mock Nombre");
         when(mockJugador.getPuntuacion()).thenReturn(150);
         when(mockJugador.isEnPartida()).thenReturn(true);
-        when(mockJugador.verificarPassword(anyString())).thenReturn(true);
         
-        assertEquals("El mock debería devolver 'mockUsuario'", "mockUsuario", mockJugador.getId());
         assertEquals("El mock debería devolver 'Mock Nombre'", "Mock Nombre", mockJugador.getNombre());
         assertEquals("El mock debería devolver 150", 150, mockJugador.getPuntuacion());
         assertTrue("El mock debería devolver true para isEnPartida", mockJugador.isEnPartida());
-        assertTrue("El mock debería devolver true para verificarPassword", mockJugador.verificarPassword("cualquier_contraseña"));
         
-        verify(mockJugador).getId();
         verify(mockJugador).getNombre();
         verify(mockJugador).getPuntuacion();
         verify(mockJugador).isEnPartida();
-        verify(mockJugador).verificarPassword(anyString());
     }
 }

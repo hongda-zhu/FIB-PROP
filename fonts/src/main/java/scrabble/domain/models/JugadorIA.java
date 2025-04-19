@@ -1,4 +1,5 @@
 package scrabble.domain.models;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,25 +13,32 @@ import scrabble.helpers.Dificultad;
 public class JugadorIA extends Jugador {
     private static final long serialVersionUID = 1L;
     
-
+    // Contador global para generar nombres únicos para IAs
+    private static int contadorIAs = 0;
     
     private Dificultad nivelDificultad;
     private int puntuacionUltimaPartida;
-    protected Map<String, Integer> rack;
-    protected int skipTrack;
 
-    
     /**
      * Constructor de la clase JugadorIA.
      * 
-     * @param id Identificador único para la IA
+     * @param nombre Nombre para identificar la IA (opcional, se genera uno automáticamente)
      * @param dificultad Nivel de dificultad de la IA
      */
-    public JugadorIA(String id, Dificultad dificultad) {
-        super(id, "IA-" + id);
+    public JugadorIA(String nombre, Dificultad dificultad) {
+        super("IA-" + (contadorIAs++));
         this.nivelDificultad = dificultad;
         this.puntuacionUltimaPartida = 0;
-        this.rack = new HashMap<>(); // Inicialmente no tiene fichas en el rack
+        this.rack = new HashMap<>(); // Inicialmente sin fichas en el rack
+    }
+    
+    /**
+     * Constructor alternativo que utiliza solo la dificultad y genera un nombre automático.
+     * 
+     * @param dificultad Nivel de dificultad de la IA
+     */
+    public JugadorIA(Dificultad dificultad) {
+        this(null, dificultad);
     }
     
     /**
@@ -71,14 +79,23 @@ public class JugadorIA extends Jugador {
         return 1;
     }
 
+    /**
+     * Obtiene la puntuación de la última partida.
+     * 
+     * @return Puntuación de la última partida
+     */
     public int getPuntuacionUltimaPartida() {
         return puntuacionUltimaPartida;
     }
     
+    /**
+     * Establece la puntuación de la última partida.
+     * 
+     * @param puntuacion Nueva puntuación
+     */
     public void setPuntuacionUltimaPartida(int puntuacion) {
         this.puntuacionUltimaPartida = puntuacion;
     }
-
     
     /**
      * Para simular estadísticas en rankings.
@@ -93,38 +110,38 @@ public class JugadorIA extends Jugador {
     public boolean esIA() {
         return true;
     }
-
     
+    /**
+     * Obtiene las fichas del jugador IA.
+     * 
+     * @return Mapa con las fichas del jugador
+     */
     public Map<String, Integer> getFichas() {
         return rack;
     }
 
+    /**
+     * Obtiene el puntaje actual.
+     * 
+     * @return Puntaje actual
+     */
     public int getPuntaje() {
         return puntuacionUltimaPartida;
     }
 
+    /**
+     * Añade puntos al puntaje actual.
+     * 
+     * @param puntos Puntos a añadir
+     */
     public void addPuntaje(int puntos) {
         this.puntuacionUltimaPartida += puntos;
-    }
-
-    
-    public void addSkipTrack() {
-        this.skipTrack += 1;
-    }
-
-    public int getSkipTrack() {
-        return skipTrack;
-    }
-
-    public void setSkipTrack(int skipTrack) {
-        this.skipTrack = skipTrack;
     }
     
     @Override
     public String toString() {
         return "JugadorIA{" +
-               "id='" + id + '\'' +
-               ", nombre='" + nombre + '\'' +
+               "nombre='" + nombre + '\'' +
                ", nivelDificultad=" + nivelDificultad +
                ", puntuacion=" + puntuacion +
                '}';

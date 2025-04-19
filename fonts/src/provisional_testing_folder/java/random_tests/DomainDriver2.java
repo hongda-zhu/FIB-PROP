@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import scrabble.helpers.Tuple;
  * Proporciona una interfaz de línea de comandos para interactuar con las funcionalidades del juego.
  * @author Equipo Scrabble
  */
-
 
 
 public class DomainDriver2 {
@@ -158,7 +158,7 @@ public class DomainDriver2 {
 
     public static void managePartidaIniciar(String nombrePartida, String idiomaSeleccionado, HashMap<String, String> jugadoresSeleccionados, Integer N, String[] dificultad) throws IOException{
         controladorDomain.iniciarPartida(nombrePartida, jugadoresSeleccionados, idiomaSeleccionado, N);
-        // jugadoresSeleccionados mapea nombre -> id
+        // jugadoresSeleccionados ahora mapea nombre -> nombre
         BooleanWrapper pausado = new BooleanWrapper(false);
 
         while (!controladorDomain.isJuegoTerminado()) {
@@ -166,20 +166,20 @@ public class DomainDriver2 {
 
             if (!pausado.value) {
                 for (Map.Entry<String, String> entry : jugadoresSeleccionados.entrySet()) {
-                    String username = entry.getKey();
-                    String id = entry.getValue();
+                    String nombreJugador = entry.getKey();
+                    // Ahora nombreJugador es también el identificador
                     
-                    Tuple<Map<String, Integer>, Integer> result = controladorDomain.realizarTurno(username, id, dificultad[0], pausado);
+                    Tuple<Map<String, Integer>, Integer> result = controladorDomain.realizarTurno(nombreJugador, dificultad[0], pausado);
 
                     
                     if (result == null && !pausado.value) {
-                        System.out.println("El jugador " + username  + " paso la jugada.");
-                        controladorDomain.addSkipTrack(id);
+                        System.out.println("El jugador " + nombreJugador  + " paso la jugada.");
+                        controladorDomain.addSkipTrack(nombreJugador);
                     } else if (result != null && !pausado.value) {
-                        controladorDomain.inicializarRack(id, result.x);
-                        controladorDomain.addPuntuacion(id, result.y);
+                        controladorDomain.inicializarRack(nombreJugador, result.x);
+                        controladorDomain.addPuntuacion(nombreJugador, result.y);
                         
-                        Map<String, Integer> nuevasFicha = controladorDomain.cogerFichas(7 - controladorDomain.getCantidadFichas(id));
+                        Map<String, Integer> nuevasFicha = controladorDomain.cogerFichas(7 - controladorDomain.getCantidadFichas(nombreJugador));
                         
                         if (nuevasFicha == null) {
                             controladorDomain.finalizarJuego();
@@ -189,7 +189,7 @@ public class DomainDriver2 {
                                 String letra = fichas.getKey();
                                 int cantidad = fichas.getValue();
                                 for (int i = 0; i < cantidad; i++) {
-                                    controladorDomain.agregarFicha(id, letra);
+                                    controladorDomain.agregarFicha(nombreJugador, letra);
                                 }   
                             }
                         }
@@ -201,7 +201,8 @@ public class DomainDriver2 {
                 boolean allskiped = true;
 
                 for (Map.Entry<String, String> entry : jugadoresSeleccionados.entrySet()) {
-                    if (controladorDomain.getSkipTrack(entry.getValue()) < 3) {
+                    String nombreJugador = entry.getValue();
+                    if (controladorDomain.getSkipTrack(nombreJugador) < 3) {
                         allskiped = false;
                         break;
                     }
@@ -251,8 +252,9 @@ public class DomainDriver2 {
         // Mostrar estadísticas finales
         System.out.println("Estadísticas finales:");
         for (Map.Entry<String, String> entry : jugadoresSeleccionados.entrySet()) {
-            System.out.println("Jugador: " + entry.getKey());
-            System.out.println("Puntuación: " + controladorDomain.getPuntuacion(entry.getKey()));
+            String nombreJugador = entry.getKey();
+            System.out.println("Jugador: " + nombreJugador);
+            System.out.println("Puntuación: " + controladorDomain.getPuntuacion(nombreJugador));
             System.out.println("-----------------------------");
         }        
         System.out.println("Gracias por jugar :)");        
@@ -263,17 +265,16 @@ public class DomainDriver2 {
         String rutaFichas = "src/provisional_testing_folder/resources/alpha.txt"; // Ruta del archivo de fichas
         String rutaAlphabet = "src/provisional_testing_folder/resources/words.txt"; // Ruta del archivo de fichas    
         if (!controladorDomain.existeLenguaje("Esp")) controladorDomain.anadirLenguaje("Esp", rutaFichas, rutaAlphabet);
-        // controladorDomain.registrarUsuario("admin", "");
-        controladorDomain.iniciarSesion("admin", "");
-        controladorDomain.iniciarSesion("admin2", "");
-
-        // controladorDomain.crearJugadorIA("test", "FACIL");
-
+        
+        // Registrar algunos usuarios por defecto para testing
+        if (!controladorDomain.existeJugador("admin")) controladorDomain.registrarUsuario("admin");
+        if (!controladorDomain.existeJugador("admin2")) controladorDomain.registrarUsuario("admin2");
     }
 
 
 
     public static void initializeMenus() {
+        // 1. Usuarios
         menus.put("bienvenida", """
                                     +------------------------------------------------------------------------------+
                                     | MENÚ DE BIENVENIDA |                                                         |
@@ -318,123 +319,48 @@ public class DomainDriver2 {
         menus.put("usuario", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE USUARIOS |                                                        |
-                                    +------------------------------------------------------------------------------+
-                                    |                  Ejecuta cualquiera de los comandos mostrados.               |
                                     |                                                                              |
-                                    |   [ 1 ] Registrar usuario          - Registra un nuevo usuario en el sistema.|
-                                    |   [ 2 ] Iniciar sesion             - Inicia sesión con un usuario existente. |
-                                    |   [ 3 ] Cerrar sesion              - Cierra sesión de un usuario existente.  |
-                                    |   [ 4 ] Eliminar usuario           - Elimina un usuario existente.           |
-                                    |   [ 5 ] Cambiar nombre             - Cambia nombre a un usuario existente del|
-                                    |                                      del sistema.                            |
-                                    |   [ 6 ] Cambiar contraseña         - Cambia contraseña a un usuario existente|                                                         
-                                    |                                      del sistema.                            |
-                                    |   [ 7 ] Mostrar usuarios           - Muestra todos los usuarios registrados  |                       
+                                    |   [ 1 ] Crear usuario              - Crea un nuevo usuario en el sistema.    |
+                                    |   [ 2 ] Eliminar usuario           - Elimina un usuario existente.           |
+                                    |   [ 3 ] Mostrar usuarios           - Muestra todos los usuarios registrados. |
                                     |   [ 0 ] Volver                     - Vuelve al Menú Principal.               | 
                                     |                                                                              |
                                     +------------------------------------------------------------------------------+
                                     """);
 
-        menus.put("usuarioRegistrar", """
+        menus.put("usuarioCrear", """
                                     +------------------------------------------------------------------------------+
-                                    | GESTIÓN DE USUARIOS > REGISTRAR USUARIO                                      |
-                                    +------------------------------------------------------------------------------+
-                                    |   ¿Cómo registrar un nuevo usuario?                                          |
-                                    |   1. Introduce un nombre de usuario                                          |
-                                    |   2. Introduce una contraseña                                                |                                                                              
+                                    | GESTIÓN DE USUARIOS > CREAR USUARIO                                          |
                                     |                                                                              |
-                                    |   [ 1 ] Comenzar                   - Comienza a introducir datos             |
-                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           | 
+                                    |   ¿Cómo crear un nuevo usuario?                                              |
+                                    |   Introduce un nombre de usuario                                             |
                                     |                                                                              |
-                                    +------------------------------------------------------------------------------+
-                                    """);   
-
-        menus.put("usuarioIniciar", """
-                                    +------------------------------------------------------------------------------+
-                                    | GESTIÓN DE USUARIOS > INICIAR SESIÓN                                         |
-                                    +------------------------------------------------------------------------------+
-                                    |   ¿Cómo iniciar sesión?                                                      |
-                                    |   1. Introduce un nombre de usuario                                          |
-                                    |   2. Introduce una contraseña                                                |                                                                              
-                                    |                                                                              |
-                                    |   [ 1 ] Comenzar                   - Comienza a introducir datos             |
-                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           | 
+                                    |   [ 2 ] Crear usuario              - Crea un nuevo usuario en el sistema.    |
+                                    |   [ 1 ] Ver usuarios               - Muestra la lista de usuarios existentes |
+                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           |
                                     |                                                                              |
                                     +------------------------------------------------------------------------------+
                                     """);
-
-        menus.put("usuarioCerrar", """
-                                    +------------------------------------------------------------------------------+
-                                    | GESTIÓN DE USUARIOS > CERRAR SESIÓN                                          |
-                                    +------------------------------------------------------------------------------+
-                                    |   ¿Cómo cerrar sesión?                                                       |
-                                    |   1. Introduce un nombre de usuario al que quiere cerrar sesión              |
-                                    |                                                                              |
-                                    |   [ 1 ] Comenzar                   - Comienza a introducir datos             |
-                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           | 
-                                    |                                                                              |
-                                    +------------------------------------------------------------------------------+
-                                    """);  
 
         menus.put("usuarioEliminar", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE USUARIOS > ELIMINAR USUARIO                                       |
-                                    +------------------------------------------------------------------------------+
+                                    |                                                                              |
                                     |   ¿Cómo eliminar usuario?                                                    |
-                                    |   1. Introduce un nombre de usuario al que quiere eliminar                   |
+                                    |   Introduce un nombre de usuario al que quiere eliminar                      |
                                     |                                                                              |
-                                    |   [ 1 ] Comenzar                   - Comienza a introducir datos             |
-                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           | 
-                                    |                                                                              |
-                                    +------------------------------------------------------------------------------+
-                                    """);
-
-        menus.put("usuarioNombre", """
-                                    +------------------------------------------------------------------------------+
-                                    | GESTIÓN DE USUARIOS > CAMBIAR NOMBRE DE USUARIO                              |
-                                    +------------------------------------------------------------------------------+
-                                    |   ¿Cómo cambiar de nombre?                                                   |
-                                    |   1. Introduce un nombre de usuario que quiere modificar                     |
-                                    |   2. Introduce el nuevo nombre que desee                                     |
-                                    |                                                                              |
-                                    |   [ 1 ] Comenzar                   - Comienza a introducir datos             |
-                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           | 
+                                    |   [ 2 ] Eliminar usuario           - Elimina un usuario existente.           |
+                                    |   [ 1 ] Ver usuarios               - Muestra la lista de usuarios disponibles|
+                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           |
                                     |                                                                              |
                                     +------------------------------------------------------------------------------+
                                     """);
-
-        menus.put("usuarioContrasena", """
-                                    +------------------------------------------------------------------------------+
-                                    | GESTIÓN DE USUARIOS > CAMBIAR CONTRASEÑA DE USUARIO                          |
-                                    +------------------------------------------------------------------------------+
-                                    |   ¿Cómo cambiar de nombre de usuario?                                        |
-                                    |   1. Introduce el nombre de usuario que quiere modificar su contraseña       |
-                                    |   2. Introduce su antigua contraseña                                         |
-                                    |   3. Introduce su nueva contraseña                                           |
-                                    |                                                                              |
-                                    |   [ 1 ] Comenzar                   - Comienza a introducir datos             |
-                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           | 
-                                    |                                                                              |
-                                    +------------------------------------------------------------------------------+
-                                    """);    
-
-        menus.put("usuarioMostrar", """
-                                    +------------------------------------------------------------------------------+
-                                    | GESTIÓN DE USUARIOS > MOSTRAR USUARIOS                                       |
-                                    +------------------------------------------------------------------------------+
-                                    |    pinga                                                                     |
-                                    |                                                                              |
-                                    |   [ 0 ] Volver                     - Vuelve a Gestión de Usuarios.           | 
-                                    |                                                                              |
-                                    +------------------------------------------------------------------------------+
-                                    """);                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                                    
                                                                                                                                                                                                                           
-        
+        // 2. Diccionarios
         menus.put("diccionario", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE DICCIONARIOS |                                                    |
-                                    +------------------------------------------------------------------------------+
-                                    |                  Ejecuta cualquiera de los comandos mostrados.               |
                                     |                                                                              |
                                     |   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
                                     |   [ 2 ] Importar diccionario       - Importa un diccionario desde un archivo.|
@@ -450,13 +376,13 @@ public class DomainDriver2 {
                             +------------------------------------------------------------------------------+
                             | GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                                  |
                             +------------------------------------------------------------------------------+
-                            |   ¿Cómo crear nuevo diccionario?                                               |
-                            |   1. Seleccione la opción "1"                                                  |
-                            |   2. Introduzca el nombre del nuevo diccionario                                |
-                            |   3. Introduzca la ruta en la que se encuentra el alfabeto                     | 
-                            |   4. Introduzca la ruta en la que se encuentra el diccionario                  | 
+                            |   ¿Cómo crear nuevo diccionario?                                             |
+                            |   Seleccione la opción "1"                                                   |
+                            |   Introduzca el nombre del nuevo diccionario                                 |
+                            |   Introduzca la ruta en la que se encuentra el alfabeto                      | 
+                            |   Introduzca la ruta en la que se encuentra el diccionario                   | 
                             |                                                                              |  
-                            |   Ejemplo:                                                                     |      
+                            |   Ejemplo:                                                                   |      
                             |                                                                              |                                                                                                    |
                             |   [ 1 ] Comenzar                   - Comenzar a introducir datos             |
                             |   [ 0 ] Volver                     - Vuelve a Gestión de Diccionarios.       | 
@@ -469,12 +395,12 @@ public class DomainDriver2 {
                             | GESTIÓN DE DICCIONARIOS > SELECCIONAR DICCIONARIO                            |
                             +------------------------------------------------------------------------------+
                             |   ¿Cómo seleccionar diccionario?                                             |
-                            |   1. Seleccione la opción "1"                                                |
-                            |   2. Introduzca el nombre del nuevo diccionario                              |
-                            |   3. Introduzca la ruta en la que se encuentra el alfabeto                   | 
-                            |   4. Introduzca la ruta en la que se encuentra el diccionario                | 
+                            |   Seleccione la opción "1"                                                   |
+                            |   Introduzca el nombre del nuevo diccionario                                 |
+                            |   Introduzca la ruta en la que se encuentra el alfabeto                      | 
+                            |   Introduzca la ruta en la que se encuentra el diccionario                   | 
                             |                                                                              |  
-                            |   Ejemplo:                                                                     |      
+                            |   Ejemplo:                                                                   |      
                             |                                                                              |                                                                                                    |
                             |   [ 1 ] Comenzar                   - Comenzar a introducir datos             |
                             |   [ 0 ] Volver                     - Vuelve a Gestión de Diccionarios.       | 
@@ -487,23 +413,22 @@ public class DomainDriver2 {
                             | GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                               |
                             +------------------------------------------------------------------------------+
                             | ¿Cómo importar nuevo diccionario?                                            |
-                            | 1. Seleccione la opción "1"                                                  |
-                            | 2. Introduzca el nombre del nuevo diccionario                                |
-                            | 3. Introduzca la ruta en la que se encuentra el alfabeto                     | 
-                            | 4. Introduzca la ruta en la que se encuentra el diccionario                  | 
+                            |   Seleccione la opción "1"                                                   |
+                            |   Introduzca el nombre del nuevo diccionario                                 |
+                            |   Introduzca la ruta en la que se encuentra el alfabeto                      | 
+                            |   Introduzca la ruta en la que se encuentra el diccionario                   | 
                             |                                                                              |  
-                            | Ejemplo:                                                                     |      
+                            |   Ejemplo:                                                                   |      
                             |                                                                              |                                                                                                    |
                             |   [ 1 ] Comenzar                   - Comenzar a introducir datos             |
                             |   [ 0 ] Volver                     - Vuelve a Gestión de Diccionarios.       | 
                             |                                                                              |
                             +------------------------------------------------------------------------------+
-                            """);  
+                            """); 
+        // 3. Partidas
         menus.put("partida", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE PARTIDAS |                                                        |
-                                    +------------------------------------------------------------------------------+
-                                    |                 Ejecuta cualquiera de los comandos mostrados.                |
                                     |                                                                              |
                                     |   [ 1 ] Definir partida nueva      - Configura una nueva partida.            |
                                     |   [ 2 ] Cargar partida             - Carga una partida guardada.             |
@@ -533,7 +458,6 @@ public class DomainDriver2 {
                                     |   modo de juego e indicar un nombre para la partida obligatoriamente.        |                                                                      
                                     |                                                                              |
                                     |   [ 1 ] Iniciar Partida           - Inicia la partida con los ajustes        |
-                                    |                                     definidos.                               |                                                                                                                 
                                     |   [ 2 ] Seleccionar Diccionario   - Selecciona uno de los diccionarios       | 
                                     |                                     disponibles                              |
                                     |   [ 3 ] Definir modo              - Indica qué modo de juego será la partida | 
@@ -546,7 +470,9 @@ public class DomainDriver2 {
                                     |                                                                              |
                                     +------------------------------------------------------------------------------+
                                     """);
-
+        
+                                    
+        
         menus.put("partidaDefinirDiccionario", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE PARTIDAS > DEFINIR PARTIDA NUEVA > SELECCIONAR DICCIONARIO        |
@@ -577,7 +503,7 @@ public class DomainDriver2 {
         menus.put("partidaDefinirModoSolitario", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE PARTIDAS > DEFINIR PARTIDA NUEVA > DEFINIR MODO > MULTIJUGADOR    |
-                                    +------------------------------------------------------------------------------+
+                                    |                                                                              |
                                     |   ¡Puedes jugar contra múltiples bots si así lo deseas!                      |
                                     |   1. Introduce el número de bots totales                                     |
                                     |                                                                              |
@@ -590,7 +516,7 @@ public class DomainDriver2 {
         menus.put("partidaDefinirModoMultijugador", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE PARTIDAS > DEFINIR PARTIDA NUEVA > DEFINIR MODO > MULTIJUGADOR    |
-                                    +------------------------------------------------------------------------------+
+                                    |                                                                              |
                                     |   ¿Cómo definir qué jugadores participarán en la partida multijugador?       |
                                     |   1. Introduce el número de jugadores totales                                |
                                     |   2. Para cada jugador, introduce su nombre de usuario                        |                                                                                                                   
@@ -618,8 +544,6 @@ public class DomainDriver2 {
         menus.put("ranking", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE RANKINGS |                                                        |
-                                    +------------------------------------------------------------------------------+
-                                    |                  Ejecuta cualquiera de los comandos mostrados.               |
                                     |                                                                              |
                                     |   [ 1 ] Ver ranking                - Muestra el ranking de jugadores.        |
                                     |   [ 2 ] Consultar historial        - Consulta el historial de un jugador.    |
@@ -646,7 +570,7 @@ public class DomainDriver2 {
         menus.put("ayuda", """
                                     +------------------------------------------------------------------------------+
                                     | AYUDA | Escribe '0' para volver al menú principal.                           |
-                                    +------------------------------------------------------------------------------+
+                                    |                                                                              |
                                     |  Ejecuta cualquiera de los comandos disponibles escribiéndolos y pulsando    |
                                     |  enter. Después, sigue las instrucciones del comando.                        |
                                     |                                                                              |
@@ -689,21 +613,9 @@ public class DomainDriver2 {
                     manageUserRegistrar();               
                     break;
                 case "2":
-                    manageUserIniciar();                   
-                    break;
-                case "3":
-                    manageUserCerrar();
-                    break;
-                case "4":
                     manageUserEliminar();                   
                     break;
-                case "5":
-                    manageUserCambiarNombre();
-                    break;
-                case "6":
-                    manageUserCambiarContrasena();
-                    break;
-                case "7":
+                case "3":
                     manageUserMostrar();
                     break;                    
                 default:
@@ -717,26 +629,64 @@ public class DomainDriver2 {
      
         boolean volver = false;
         while (!volver) {
-            ShowMenu("usuarioRegistrar");
+            // Usar el menú predefinido en lugar de texto repetido
+            ShowMenu("usuarioCrear");
+            
             String userCommand = readLine().trim();
             String user;
-            String pwd;
+
             switch (userCommand) {
                 case "0":
                     volver = true;
                     System.out.println("Volviendo a Gestión de Usuarios...");
                     break;
                 case "1":
-                    System.out.println("Introduce un nombre de usuario: ");
+                    // Mostrar la lista de usuarios existentes
+                    System.out.println("+------------------------------------------------------------------------------+");
+                    System.out.println("| USUARIOS EXISTENTES                                                         |");
+                    System.out.println("+------------------------------------------------------------------------------+");
+                    mostrarUsuariosFormateados(null);
+                    break;
+                case "2":
+                    // Mostrar panel para introducir nombre de usuario
+                    System.out.println("""
+                        +------------------------------------------------------------------------------+
+                        | GESTIÓN DE USUARIOS > CREAR USUARIO > INTRODUCIR NOMBRE DE USUARIO           |
+                        |                                                                              |
+                        |   Introduce un nombre de usuario:                                            |
+                        |                                                                              |
+                        +------------------------------------------------------------------------------+
+                        """);
+                    
                     user = readLine();
-                    System.out.println("Introduce una contraseña: ");
-                    pwd = readLine();
-                    System.out.println(pwd);
 
                     try {
-                        if(controladorDomain.registrarUsuario(user, pwd)) System.out.println("Se ha registrado correctamente!");  
+                        if(controladorDomain.registrarUsuario(user)) {
+                            // Mostrar usuarios actualizados con el nuevo usuario
+                            System.out.println("+------------------------------------------------------------------------------+");
+                            System.out.println("| USUARIOS REGISTRADOS                                                        |");
+                            System.out.println("+------------------------------------------------------------------------------+");
+                            mostrarUsuariosFormateados(user); // Pasamos el usuario recién creado para destacarlo
+                            
+                            // Mostrar mensaje de éxito después del listado
+                            System.out.println("""
+                                +------------------------------------------------------------------------------+
+                                | GESTIÓN DE USUARIOS > CREAR USUARIO                                          |
+                                |                                                                              |
+                                |   ¡Usuario '%s' creado correctamente!                                        |
+                                |                                                                              |
+                                +------------------------------------------------------------------------------+
+                                """.formatted(user));
+                        }
                     } catch (ExceptionUserExist e) {
-                        System.out.println("Error: El usuario ya existe.");                    
+                        System.out.println("""
+                            +------------------------------------------------------------------------------+
+                            | GESTIÓN DE USUARIOS > CREAR USUARIO                                          |
+                            |                                                                              |
+                            |   Error: El usuario ya existe.                                               |
+                            |                                                                              |
+                            +------------------------------------------------------------------------------+
+                            """);                    
                     }
                   
                     break;    
@@ -747,87 +697,104 @@ public class DomainDriver2 {
         }
     }
 
-    public static void manageUserIniciar() throws IOException{
-     
-        boolean volver = false;
-        while (!volver) {
-            ShowMenu("usuarioIniciar");
-            String userCommand = readLine().trim();
-            String user;
-            String pwd;
-            switch (userCommand) {
-                case "0":
-                    volver = true;
-                    System.out.println("Volviendo a Gestión de Usuarios...");
-                    break;
-                case "1":
-                    System.out.println("Introduce un nombre de usuario: ");
-                    user = readLine();
-                    System.out.println("Introduce una contraseña: ");
-                    pwd = readLine();
-                    System.out.println(pwd);
-                    try {
-                        if (controladorDomain.iniciarSesion(user, pwd)) {
-                            System.out.println("¡Sesión iniciada correctamente!");
-                        }
-                        else System.out.println("¡Contraseña incorrecta!");
-
-                    } catch (ExceptionUserNotExist e) {
-                        System.out.println("Error: El usuario no existe.");
-                    } catch (ExceptionUserEsIA e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }catch (ExceptionUserLoggedIn e) {
-                        System.out.println("Error: " + e.getMessage());
-                    } 
-                    catch (Exception e) {
-                        System.out.println("Error inesperado: " + e.getMessage());
-                    }
-                        break;  
-                default:
-                    System.out.println("¡Introduce alguno de los comandos disponibles!");
-                    break;
+    /**
+     * Muestra la información formateada de todos los usuarios, destacando el usuario recién creado.
+     * @param usuarioNuevo Nombre del usuario recién creado (null si no hay ninguno)
+     */
+    private static void mostrarUsuariosFormateados(String usuarioNuevo) {
+        System.out.println("+------------------------------------------------------------------------------+");
+        System.out.println("| USUARIOS REGISTRADOS                                                        |");
+        System.out.println("+------------------------------------------------------------------------------+");
+        System.out.println("| NOMBRE            | TIPO      | PARTIDAS          | PUNTUACIÓN              |");
+        System.out.println("+-------------------+-----------+-------------------+-------------------------+");
+        
+        // Primero capturamos la salida original en una cadena de texto
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        java.io.PrintStream originalOut = System.out;
+        System.setOut(new java.io.PrintStream(baos));
+        
+        // Llamamos al método que ya existe para mostrar usuarios
+        controladorDomain.mostrarTodosUsuariosDebug();
+        
+        // Restauramos la salida estándar
+        System.setOut(originalOut);
+        
+        // Convertimos la salida capturada a texto
+        String output = baos.toString();
+        String[] lines = output.split("\\r?\\n");
+        
+        List<String> usuarios = new ArrayList<>();
+        List<String> usuariosIA = new ArrayList<>();
+        
+        // Procesamos las líneas obtenidas
+        boolean procesandoUsuarios = false;
+        for (String line : lines) {
+            if (line.contains("=== LISTADO DEBUG DE USUARIOS ===")) {
+                procesandoUsuarios = true;
+                continue;
+            }
+            
+            if (procesandoUsuarios && line.contains("Nombre:")) {
+                if (line.contains("Tipo: IA")) {
+                    usuariosIA.add(line);
+                } else {
+                    usuarios.add(line);
+                }
             }
         }
-    }
-
-    public static void manageUserCerrar() throws IOException{
-     
-        boolean volver = false;
-        while (!volver) {
-            ShowMenu("usuarioCerrar");
-            String userCommand = readLine().trim();
-            String user;
-            String pwd;
-            switch (userCommand) {
-                case "0":
-                    volver = true;
-                    System.out.println("Volviendo a Gestión de Usuarios...");
-                    break;
-                case "1":
-                    System.out.println("Introduce un nombre de usuario: ");
-                    user = readLine();
-                    try {
-                        if(controladorDomain.cerrarSesion(user)) System.out.println("Se ha cerrado correctamente!");                                        
-                    } catch (ExceptionUserNotLoggedIn e) {
-                        System.out.println("Error: El usuario no está logueado.");
-                    } catch (ExceptionUserNotExist e) {
-                        System.out.println("Error: El usuario no existe.");
-                    } catch (ExceptionUserEsIA e) {
-                        System.out.println("Error: El usuario introducido es una IA. ¡Las IAs no necesitan iniciar sesión!");                    
+        
+        // Mostramos los usuarios humanos
+        for (String line : usuarios) {
+            String nombreUsuario = line.substring(line.indexOf("Nombre: ") + 8, line.indexOf(" |")).trim();
+            String partidasInfo = "No hay partidas"; // Valor por defecto
+            
+            if (line.contains("Partidas:")) {
+                String partidasRaw = line.substring(line.indexOf("Partidas: ") + 10).trim();
+                // Extraer solo el número de partidas jugadas
+                if (partidasRaw.contains("/")) {
+                    int numPartidas = Integer.parseInt(partidasRaw.split("/")[1]);
+                    if (numPartidas > 0) {
+                        partidasInfo = numPartidas + " partida" + (numPartidas > 1 ? "s" : "");
                     }
-                    break;  
-                default:
-                    System.out.println("¡Introduce alguno de los comandos disponibles!");
-                    break;
+                }
             }
+            
+            String puntuacionInfo = "Sin puntuación"; // Valor por defecto
+            
+            // Destacar el usuario recién creado
+            String indicadorNuevo = (nombreUsuario.equals(usuarioNuevo)) ? " ★ NUEVO" : "";
+            
+            System.out.printf("| %-17s | %-9s | %-17s | %-23s |%s%n", 
+                            nombreUsuario, "Humano", partidasInfo, puntuacionInfo, indicadorNuevo);
         }
+        
+        // Mostramos los usuarios IA
+        for (String line : usuariosIA) {
+            String nombreUsuario = line.substring(line.indexOf("Nombre: ") + 8, line.indexOf(" |")).trim();
+            String dificultad = "DESCONOCIDA";
+            
+            if (line.contains("Dificultad:")) {
+                dificultad = line.substring(line.lastIndexOf("Dificultad: ") + 12).trim();
+            }
+            
+            System.out.printf("| %-17s | IA-%-7s | %-17s | %-23s |%n", 
+                            nombreUsuario, dificultad, "N/A", "N/A");
+        }
+        
+        System.out.println("+------------------------------------------------------------------------------+");
+        System.out.println("| Total usuarios: " + (usuarios.size() + usuariosIA.size()) + 
+                         " (Humanos: " + usuarios.size() + 
+                         ", IA: " + usuariosIA.size() + ")                           |");
+        System.out.println("+------------------------------------------------------------------------------+");
     }
 
     public static void manageUserEliminar() throws IOException{
      
         boolean volver = false;
         while (!volver) {
+            // Usar el menú predefinido en lugar de texto repetido
             ShowMenu("usuarioEliminar");
+            
             String userCommand = readLine().trim();
             String user;
 
@@ -837,53 +804,85 @@ public class DomainDriver2 {
                     System.out.println("Volviendo a Gestión de Usuarios...");
                     break;
                 case "1":
-                    System.out.println("Introduce un nombre de usuario: ");
-                    user = readLine();
-
-                    try {
-                        if(controladorDomain.eliminarUsuario(user)) System.out.println("Se ha eliminado correctamente!");                                        
-                    } catch (ExceptionUserLoggedIn e) {
-                        System.out.println("Error: El usuario está logueado. Cierra su sesión antes.");
-                    } catch (ExceptionUserNotExist e) {
-                        System.out.println("Error: El usuario no existe.");
-                    } catch (ExceptionRankingOperationFailed e) {
-                        System.out.println("Error: No se ha podido eliminar usuario del ranking.");                    
-                    }
-                    break;  
-                default:
-                    System.out.println("¡Introduce alguno de los comandos disponibles!");
+                    // Mostrar la lista de usuarios existentes
+                    System.out.println("+------------------------------------------------------------------------------+");
+                    System.out.println("| USUARIOS DISPONIBLES PARA ELIMINAR                                          |");
+                    System.out.println("+------------------------------------------------------------------------------+");
+                    mostrarUsuariosFormateados(null);
                     break;
-            }
-        }
-    }
-
-    public static void manageUserCambiarNombre() throws IOException{
-     
-        boolean volver = false;
-
-        while (!volver) {
-            ShowMenu("usuarioNombre");
-            String userCommand = readLine().trim();
-            String user;
-            String new_name;
-
-            switch (userCommand) {
-                case "0":
-                    volver = true;
-                    System.out.println("Volviendo a Gestión de Usuarios...");
-                    break;
-                case "1":
-                    System.out.println("Introduce el nombre de usuario: ");
-                    user = readLine();
-                    System.out.println("Introduce un nuevo nombre de usuario: ");
-                    new_name = readLine();                    
+                case "2":
+                    System.out.println("""
+                        +------------------------------------------------------------------------------+
+                        | GESTIÓN DE USUARIOS > ELIMINAR USUARIO > INTRODUCIR NOMBRE                   |
+                        |                                                                              |
+                        |   Introduce un nombre de usuario a eliminar:                                 |
+                        |                                                                              |
+                        +------------------------------------------------------------------------------+
+                        """);
                     
+                    user = readLine();
+
                     try {
-                        if(controladorDomain.cambiarNombre(user, new_name)) System.out.println("Se ha reestablecido el nombre de usuario correctamente!");                                        
+                        // Verificar si el usuario está en una partida
+                        if (controladorDomain.existeJugador(user)) {
+                            if (controladorDomain.isEnPartida(user)) {
+                                System.out.println("""
+                                    +------------------------------------------------------------------------------+
+                                    | GESTIÓN DE USUARIOS > ELIMINAR USUARIO                                       |
+                                    |                                                                              |
+                                    |   Error: El usuario está actualmente en una partida.                         |
+                                    |   No se puede eliminar mientras esté en una partida activa.                  |
+                                    |                                                                              |
+                                    +------------------------------------------------------------------------------+
+                                    """);
+                                break;
+                            }
+                        }
+                        
+                        if(controladorDomain.eliminarUsuario(user)) {
+                            // Mostrar usuarios restantes
+                            System.out.println("+------------------------------------------------------------------------------+");
+                            System.out.println("| USUARIOS REGISTRADOS                                                        |");
+                            System.out.println("+------------------------------------------------------------------------------+");
+                            mostrarUsuariosFormateados(null);
+                            
+                            // Mostrar mensaje de éxito después del listado
+                            System.out.println("""
+                                +------------------------------------------------------------------------------+
+                                | GESTIÓN DE USUARIOS > ELIMINAR USUARIO                                       |
+                                |                                                                              |
+                                |   ¡Usuario '%s' eliminado correctamente!                                     |
+                                |                                                                              |
+                                +------------------------------------------------------------------------------+
+                                """.formatted(user));
+                        }
+                    } catch (ExceptionUserLoggedIn e) {
+                        System.out.println("""
+                            +------------------------------------------------------------------------------+
+                            | GESTIÓN DE USUARIOS > ELIMINAR USUARIO                                       |
+                            |                                                                              |
+                            |   Error: El usuario está logueado. Cierra su sesión antes.                   |
+                            |                                                                              |
+                            +------------------------------------------------------------------------------+
+                            """);
                     } catch (ExceptionUserNotExist e) {
-                        System.out.println("Error: El usuario no existe.");
-                    } catch (ExceptionUserEsIA e) {
-                        System.out.println("Error: " + e.getMessage());                    
+                        System.out.println("""
+                            +------------------------------------------------------------------------------+
+                            | GESTIÓN DE USUARIOS > ELIMINAR USUARIO                                       |
+                            |                                                                              |
+                            |   Error: El usuario no existe.                                               |
+                            |                                                                              |
+                            +------------------------------------------------------------------------------+
+                            """);
+                    } catch (ExceptionRankingOperationFailed e) {
+                        System.out.println("""
+                            +------------------------------------------------------------------------------+
+                            | GESTIÓN DE USUARIOS > ELIMINAR USUARIO                                       |
+                            |                                                                              |
+                            |   Error: No se ha podido eliminar usuario del ranking.                       |
+                            |                                                                              |
+                            +------------------------------------------------------------------------------+
+                            """);                    
                     }
                     break;  
                 default:
@@ -892,69 +891,21 @@ public class DomainDriver2 {
             }
         }
     }
-    
-    public static void manageUserCambiarContrasena() throws IOException{
-     
-        boolean volver = false;
-
-        while (!volver) {
-            ShowMenu("usuarioContrasena");
-            String userCommand = readLine().trim();
-            String user;
-            String old_pwd;
-            String new_pwd;
-
-            switch (userCommand) {
-                case "0":
-                    volver = true;
-                    System.out.println("Volviendo a Gestión de Usuarios...");
-                    break;
-                case "1":
-                    System.out.println("Introduce el nombre de usuario: ");
-                    user = readLine();
-
-                    System.out.println("Introduce su antigua contraseña: ");
-                    new_pwd = readLine();                    
-
-                    System.out.println("Introduce su nueva contraseña: ");
-                    old_pwd = readLine();                                        
-                    try {
-                        if(controladorDomain.cambiarContrasena(user, new_pwd, old_pwd)) System.out.println("Se ha reestablecido la contraseña correctamente!");    
-                        else System.out.println("Operación fallida...");                                      
-                    } catch (ExceptionUserNotExist e) {
-                        System.out.println("Error: El usuario no existe.");
-                    } catch (ExceptionUserEsIA e) {
-                        System.out.println("Error: El usuario al que intenta cambiar de contraseña es una IA.");
-                    }catch (ExceptionPasswordMismatch e) {
-                        System.out.println("Error: La antigua contraseña introducida no es correcta.");
-                    }
-                    break;  
-                default:
-                    System.out.println("¡Introduce alguno de los comandos disponibles!");
-                    break;
-            }
-        }
-    }            
 
     public static void manageUserMostrar() throws IOException{
-      
-        boolean volver = false;
-        controladorDomain.mostrarTodosUsuariosDebug();
-        while (!volver) {
-            ShowMenu("usuarioMostrar");
-            String userCommand = readLine().trim();
-            String user;
-
-            switch (userCommand) {
-                case "0":
-                    volver = true;
-                    System.out.println("Volviendo a Gestión de Usuarios...");
-                    break; 
-                default:
-                    System.out.println("¡Introduce alguno de los comandos disponibles!");
-                    break;
-            }
-        }
+        // Mostrar usuarios en formato personalizado en lugar del debug
+        // No imprimir encabezado aquí porque mostrarUsuariosFormateados ya lo hace
+        mostrarUsuariosFormateados(null);
+        
+        // Agregar una notificación de operación realizada
+        System.out.println("+------------------------------------------------------------------------------+");
+        System.out.println("| GESTIÓN DE USUARIOS                                                         |");
+        System.out.println("|                                                                              |");
+        System.out.println("| Operación 'Mostrar usuarios' realizada correctamente.                        |");
+        System.out.println("|                                                                              |");
+        System.out.println("+------------------------------------------------------------------------------+");
+        
+        // No se muestra submenú, se regresa directamente al menú principal
     }
 
     public static void manageDiccionaryMenu() throws IOException{
@@ -1032,7 +983,6 @@ public class DomainDriver2 {
         while (!volver) {
             ShowMenu("diccionarioImportar");
             String userCommand = readLine().trim();
-
             switch (userCommand) {
                 case "0":
                     volver = true;
@@ -1253,7 +1203,7 @@ public class DomainDriver2 {
 
     public static void managePartidaDefinirModoMultijugador(HashMap<String, String> jugadoresSeleccionados) throws IOException {
         boolean volver = false;
-         // nombre id
+        // nombre -> nombre (mismo valor como identificador único)
 
         while (!volver) {
             ShowMenu("partidaDefinirModoMultijugador");
@@ -1281,35 +1231,42 @@ public class DomainDriver2 {
                     boolean error = false; // indicates if an exception ocurred while getting usernames, so that user has to repeat the process again.
                     while (contador <= N && !error) {
                         System.out.println("Introduce el nombre de usuario del jugador " + contador + ": ");
-                        String username = readLine();
+                        String nombre = readLine();
 
                         try {
-                            String id = controladorDomain.getIdPorNombre(username);
-                            if (controladorDomain.playerReadyToPlay(id)) {
-                                jugadoresSeleccionados.put(username, id);
+                            if (!controladorDomain.existeJugador(nombre)) {
+                                throw new ExceptionUserNotExist();
                             }
+                            
+                            if (controladorDomain.esIA(nombre)) {
+                                throw new ExceptionUserEsIA();
+                            }
+                            
+                            if (controladorDomain.isEnPartida(nombre)) {
+                                throw new ExceptionUserInGame();
+                            }
+                            
+                            // El nombre es también el ID en el nuevo sistema
+                            jugadoresSeleccionados.put(nombre, nombre);
 
                             System.out.println("Participarán los siguientes jugadores: ");
-                                for (String name : jugadoresSeleccionados.keySet()) {
-                                    System.out.println("-" + name);
+                            for (String name : jugadoresSeleccionados.keySet()) {
+                                System.out.println("-" + name);
                             }                            
                             contador++;
                         } catch (ExceptionUserNotExist e) {
-                            System.out.println("Error: " + e.getMessage());
+                            System.out.println("Error: El usuario no existe.");
                             error = true;
                         } catch (ExceptionUserEsIA e) {
-                            System.out.println("Error: " + e.getMessage());
+                            System.out.println("Error: El usuario es una IA.");
                             error = true;
-                        } catch (ExceptionUserNotLoggedIn e) {
-                            System.out.println("Error: " + e.getMessage());
-                            error = true;                            
-                        } catch (ExceptionUserInGame e ) {
-                            System.out.println("Error: " + e.getMessage());
+                        } catch (ExceptionUserInGame e) {
+                            System.out.println("Error: El usuario ya está en una partida.");
                             error = true;                        
                         }
-                    
                     }
-                    if (contador == N && !error) {
+                    
+                    if (contador > N && !error) {
                         volver = true;                    
                     }
                     break;
@@ -1318,8 +1275,6 @@ public class DomainDriver2 {
                     System.out.println("¡Introduce alguno de los comandos disponibles!");
                     break;                    
             }
-
-
         }
     }
     
@@ -1341,24 +1296,32 @@ public static void managePartidaDefinirModoSolitario(HashMap<String, String> jug
 
                 // Enter human player
                 System.out.println("Introduce el nombre de usuario del jugador: ");
-                String username = readLine();
+                String nombre = readLine();
 
                 try {
-                    String id = controladorDomain.getIdPorNombre(username);
-                    if (controladorDomain.playerReadyToPlay(id)) {
-                        jugadoresSeleccionados.put(username, id);
-                    } else {
-                        System.out.println("El jugador no está listo para jugar.");
-                        break;
+                    if (!controladorDomain.existeJugador(nombre)) {
+                        throw new ExceptionUserNotExist();
                     }
+                    
+                    if (controladorDomain.esIA(nombre)) {
+                        throw new ExceptionUserEsIA();
+                    }
+                    
+                    if (controladorDomain.isEnPartida(nombre)) {
+                        throw new ExceptionUserInGame();
+                    }
+                    
+                    // El nombre es también el ID en el nuevo sistema
+                    jugadoresSeleccionados.put(nombre, nombre);
+                    
                 } catch (ExceptionUserNotExist e) {
-                    System.out.println("Error: " + e.getMessage());
+                    System.out.println("Error: El usuario no existe.");
                     break;
-                } catch (ExceptionUserNotLoggedIn e) {
-                    System.out.println("Error: " + e.getMessage());
-                    break;                
+                } catch (ExceptionUserEsIA e) {
+                    System.out.println("Error: No puedes seleccionar una IA como jugador humano.");
+                    break;
                 } catch (ExceptionUserInGame e) {
-                    System.out.println("Error: " + e.getMessage());
+                    System.out.println("Error: El usuario ya está en una partida.");
                     break;                
                 }
 
@@ -1387,29 +1350,16 @@ public static void managePartidaDefinirModoSolitario(HashMap<String, String> jug
                     break;
                 }
 
-                // Insert bots or generate enough quantity of them (if needed) to satisfy the N number of bots
+                // Crear los bots necesarios
                 try {
-                    List<String> jugadoresIA = controladorDomain.getJugadoresIA();
-                    int botsNeeded = N - jugadoresIA.size();
-
-                    if (botsNeeded > 0) {
-                        int newIdInt = jugadoresIA.isEmpty() ? 0 : Integer.parseInt(jugadoresIA.get(jugadoresIA.size() - 1)) + 1;
-
-                        for (int i = 0; i < botsNeeded; i++) {
-                            String newId = String.valueOf(newIdInt++);
-                            controladorDomain.crearJugadorIA(newId, dificultad[0]);
-                            jugadoresIA.add(newId);
+                    for (int i = 0; i < N; i++) {
+                        String botNombre = controladorDomain.crearJugadorIA(dificultad[0]);
+                        if (botNombre != null) {
+                            jugadoresSeleccionados.put(botNombre, botNombre); // El nombre es también el ID
                         }
                     }
-
-                    for (int i = 0; i < N; i++) {
-                        String botId = jugadoresIA.get(i);
-                        String botName = controladorDomain.getNombrePorId(botId);
-                        jugadoresSeleccionados.put(botName, botId);
-                    }                    
-
-                } catch (ExceptionUserExist e) {
-                    System.out.println("Error: " + e.getMessage());
+                } catch (Exception e) {
+                    System.out.println("Error al crear los bots: " + e.getMessage());
                     break;
                 }
 
@@ -1456,7 +1406,4 @@ public static void managePartidaDefinirModoSolitario(HashMap<String, String> jug
             }
         }
     }
-
-    
-
 }

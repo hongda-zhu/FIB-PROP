@@ -10,24 +10,21 @@ import scrabble.domain.controllers.subcontrollers.ControladorJugador;
 import scrabble.domain.controllers.subcontrollers.ControladorRanking;
 import scrabble.excepciones.ExceptionDiccionarioExist;
 import scrabble.excepciones.ExceptionLanguageNotExist;
-import scrabble.excepciones.ExceptionPasswordMismatch;
-import scrabble.excepciones.ExceptionPuntuacionNotExist;
-import scrabble.excepciones.ExceptionRankingOperationFailed;
 import scrabble.excepciones.ExceptionUserEsIA;
 import scrabble.excepciones.ExceptionUserExist;
 import scrabble.excepciones.ExceptionUserInGame;
-import scrabble.excepciones.ExceptionUserLoggedIn;
 import scrabble.excepciones.ExceptionUserNotExist;
-import scrabble.excepciones.ExceptionUserNotLoggedIn;
+import scrabble.excepciones.ExceptionPuntuacionNotExist;
+import scrabble.excepciones.ExceptionRankingOperationFailed;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.BooleanWrapper;
 
 
-    /**
-    * Constructor del controlador del dominio.
-    * Inicializa todos los subcontroladores necesarios.
-    */
+/**
+* Constructor del controlador del dominio.
+* Inicializa todos los subcontroladores necesarios.
+*/
 public class ControladorDomain {
     private ControladorConfiguracion controladorConfiguracion;
     private ControladorJuego controladorJuego;
@@ -43,38 +40,22 @@ public class ControladorDomain {
     }
 
     /**
-     * Retorna el ID asociado al nombre de usuario proporcionado.
-     * @param username nombre de usuario
-     * @return ID del usuario
-     * @throws ExceptionUserNotExist si el usuario no existe
-     */
-
-    public String getIdPorNombre(String username) {
-        if (!controladorJugador.existeJugador(username)) {
-            throw new ExceptionUserNotExist();
-        }
-        return controladorJugador.getIdPorNombre(username);
-    }
-
-    /**
      * Verifica si un jugador (humano) está listo para jugar.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      * @return true si está listo para jugar
      * @throws ExceptionUserEsIA si el usuario es una IA
-     * @throws ExceptionUserNotLoggedIn si el usuario no ha iniciado sesión
      * @throws ExceptionUserInGame si el usuario ya está en partida
      */
-    public boolean playerReadyToPlay(String id) {
+    public boolean playerReadyToPlay(String nombre) {
+        if (!controladorJugador.existeJugador(nombre)) {
+            throw new ExceptionUserNotExist();
+        }
 
-        if (controladorJugador.esIA(id)) {
+        if (controladorJugador.esIA(nombre)) {
             throw new ExceptionUserEsIA();
         }
 
-        if (!controladorJugador.isLoggedIn(id)) {
-            throw new ExceptionUserNotLoggedIn();
-        }
-
-        if (controladorJugador.isEnPartida(id)) {
+        if (controladorJugador.isEnPartida(nombre)) {
             throw new ExceptionUserInGame();
         }    
         
@@ -82,194 +63,71 @@ public class ControladorDomain {
     }
 
     /**
-     * Inicia sesión con nombre de usuario y contraseña.
-     * @param username nombre de usuario
-     * @param password contraseña
-     * @return true si la autenticación fue exitosa
-     * @throws ExceptionUserNotExist si el usuario no existe
-     * @throws ExceptionUserEsIA si el usuario es una IA
-     * @throws ExceptionPasswordMismatch si la contraseña es incorrecta
-     * @throws ExceptionUserLoggedIn si el usuario ya está autenticado
-     */
-    public boolean  iniciarSesion(String username, String password) {
-
-        String id = getIdPorNombre(username);
-
-        if (!controladorJugador.existeJugador(id)) {
-            throw new ExceptionUserNotExist();
-        }
-
-        if (controladorJugador.esIA(id)) {
-            throw new ExceptionUserEsIA();
-        }
-
-        if (!controladorJugador.verificarPassword(id, password)) {
-            throw new ExceptionPasswordMismatch();
-        }
-        
-        if (controladorJugador.isLoggedIn(id)) {
-            throw new ExceptionUserLoggedIn();
-        } 
-
-        return controladorJugador.autenticar(id, password);
-    }
-
-    /**
      * Registra un nuevo usuario humano.
-     * @param username nombre de usuario
-     * @param password contraseña del usuario
+     * @param nombre nombre de usuario
      * @return true si se registra exitosamente
      * @throws ExceptionUserExist si ya existe un usuario con ese nombre
      */
-    public boolean  registrarUsuario(String username, String password) {
-        // lo pongo así porque me es comodo para debugar, recordar quitar
-
-        if (controladorJugador.existeJugador(username) && !username.equals("admin")) {
+    public boolean registrarUsuario(String nombre) {
+        if (controladorJugador.existeJugador(nombre) && !nombre.equals("admin")) {
             throw new ExceptionUserExist();
         }
 
-
-        return controladorJugador.registrarUsuario(username, password);
+        return controladorJugador.registrarUsuario(nombre);
     }
 
     /**
-     * Cierra la sesión del usuario proporcionado.
-     * @param username nombre de usuario
-     * @return true si se cierra la sesión correctamente
-     * @throws ExceptionUserNotExist si el usuario no existe
-     * @throws ExceptionUserNotLoggedIn si el usuario no ha iniciado sesión
-     * @throws ExceptionUserEsIA si el usuario es una IA
-     */
-    public boolean cerrarSesion(String username) {
-        String id = getIdPorNombre(username);   
-
-        if (!controladorJugador.existeJugador(id)) {
-            throw new ExceptionUserNotExist();
-        }
-        if (!controladorJugador.isLoggedIn(id)) {
-            throw new ExceptionUserNotLoggedIn();
-        }
-        if (controladorJugador.esIA(id)) {
-            throw new ExceptionUserEsIA();
-        }
-
-        return controladorJugador.cerrarSesion(id);
-    }
-
-    /**
-     * Elimina el usuario si no está logueado y su puntuación en el ranking (si existe).
-     * @param username nombre de usuario
+     * Elimina el usuario del sistema y su puntuación en el ranking (si existe).
+     * @param nombre nombre de usuario
      * @return true si la eliminación es exitosa
      * @throws ExceptionUserNotExist si el usuario no existe
-     * @throws ExceptionUserLoggedIn si el usuario está autenticado
      * @throws ExceptionRankingOperationFailed si falla la operación sobre el ranking
      */
-    public boolean eliminarUsuario(String username) {
-        String id = getIdPorNombre(username);
-
-        if (!controladorJugador.existeJugador(id)) {
+    public boolean eliminarUsuario(String nombre) {
+        if (!controladorJugador.existeJugador(nombre)) {
             throw new ExceptionUserNotExist();
-        }
-        if (controladorJugador.isLoggedIn(id)) {
-            throw new ExceptionUserLoggedIn();
         }
 
         // asumo que se puede eliminar una IA
         boolean eliminacionExitosa = true;
-        if (controladorRanking.perteneceRanking(id)) eliminacionExitosa = controladorRanking.eliminarUsuario(id);
+        if (controladorRanking.perteneceRanking(nombre)) {
+            eliminacionExitosa = controladorRanking.eliminarUsuario(nombre);
+        }
 
         if (!eliminacionExitosa) {
             throw new ExceptionRankingOperationFailed();
         }
 
-        return controladorJugador.eliminarUsuario(id) && eliminacionExitosa;
-    }
-
-    /**
-     * Cambia la contraseña de un usuario dado si la anterior coincide.
-     * @param username nombre de usuario
-     * @param oldPass contraseña actual
-     * @param nuevaContrasena nueva contraseña
-     * @return true si se realiza el cambio correctamente
-     * @throws ExceptionUserNotExist si el usuario no existe
-     * @throws ExceptionUserEsIA si el usuario es una IA
-     * @throws ExceptionPasswordMismatch si la contraseña actual no coincide
-     */
-    public boolean cambiarContrasena(String username, String oldPass, String nuevaContrasena) {
-        String id = getIdPorNombre(username);
-
-        if (!controladorJugador.existeJugador(id)) {
-            throw new ExceptionUserNotExist();
-        }
-
-        if (controladorJugador.esIA(id)) {
-            throw new ExceptionUserEsIA();
-        }
-
-        // jugador existe y no es IA, queda verificar la contraseña
-        if (!controladorJugador.verificarPassword(id, oldPass)) {
-            throw new ExceptionPasswordMismatch();
-        }
-
-        // Realizar el cambio de contraseña
-        boolean resultado = controladorJugador.cambiarContrasena(id, oldPass, nuevaContrasena);
-
-
-        return resultado;
-    }
-
-    /**
-     * Cambia el nombre de un usuario humano.
-     * @param antiguoNombre nombre actual del usuario
-     * @param nuevoNombre nuevo nombre a asignar
-     * @return true si se cambia correctamente
-     * @throws ExceptionUserNotExist si el usuario no existe
-     * @throws ExceptionUserEsIA si el usuario es una IA
-     */
-    public boolean cambiarNombre(String antiguoNombre, String nuevoNombre) {
-
-        String id = getIdPorNombre(antiguoNombre);
-
-        if (!controladorJugador.existeJugador(id)) {
-            throw new ExceptionUserNotExist();
-        }
-
-        if (controladorJugador.esIA(id)) {
-            throw new ExceptionUserEsIA();
-        }
-
-        return controladorJugador.cambiarNombre(id, nuevoNombre);
-
+        return controladorJugador.eliminarUsuario(nombre) && eliminacionExitosa;
     }
 
     /**
      * Crea un jugador IA con dificultad especificada.
-     * @param id identificador único del jugador IA
-     * @param dificultadStr dificultad en formato String (EASY, MEDIUM, HARD...)
-     * @throws ExceptionUserExist si el ID ya está registrado
+     * @param dificultadStr dificultad en formato String (FACIL, DIFICIL)
+     * @return el nombre generado para el jugador IA
      */
-    public void crearJugadorIA(String id, String dificultadStr) {
-        // lo pongo así porque me es comodo para debugar
+    public String crearJugadorIA(String dificultadStr) {
         Dificultad dificultad = Dificultad.valueOf(dificultadStr);
-        if (!controladorJugador.existeJugador(id)) controladorJugador.registrarJugadorIA(id, dificultad);
-        else throw new ExceptionUserExist();
+        return controladorJugador.registrarJugadorIA(dificultad) ? 
+            controladorJugador.getJugadoresIA().get(controladorJugador.getJugadoresIA().size() - 1) : 
+            null;
     }
 
     /**
-     * Devuelve la lista de identificadores de jugadores IA registrados.
-     * @return lista de IDs de jugadores IA
+     * Devuelve la lista de nombres de jugadores IA registrados.
+     * @return lista de nombres de jugadores IA
      */
     public List<String> getJugadoresIA() {
         return controladorJugador.getJugadoresIA();
     }
 
     /**
-     * Obtiene el nombre de usuario asociado a un ID.
-     * @param id identificador del jugador
-     * @return nombre del jugador
+     * Obtiene el nombre de un jugador.
+     * @param nombre nombre del jugador
+     * @return nombre del jugador (mismo que parámetro)
      */
-    public String getNombrePorId(String id) {
-        return controladorJugador.getNombre(id);
+    public String getNombre(String nombre) {
+        return controladorJugador.getNombre(nombre);
     }
 
     /**
@@ -348,62 +206,58 @@ public class ControladorDomain {
 
     // MÉTODOS PARA JUGAR 
 
-
-        /**
-        * Realiza el turno de un jugador (independientemente si es humano o no) y devuelve el resultado del turno.
-        *
-        * @param username nombre del usuario que realiza el turno.
-        * @param id identificador único del jugador.
-        * @param dificultadStr nivel de dificultad en formato texto (solo aplicable si el jugador es IA).
-        * @return una tupla que contiene:
-        *         
-        *           ·Un mapa con el rack actualizado del jugador tras el turno.
-        *           ·El puntaje obtenido en el turno.
-        *         
-        * 
-        */    
-    public Tuple<Map<String, Integer>, Integer> realizarTurno(String username, String id, String dificultadStr, BooleanWrapper pausado) {
-
-        Map<String, Integer> rack = controladorJugador.getRack(id);
-        boolean esIA = controladorJugador.esIA(id);
+    /**
+    * Realiza el turno de un jugador (independientemente si es humano o no) y devuelve el resultado del turno.
+    *
+    * @param nombreJugador nombre del jugador que realiza el turno.
+    * @param dificultadStr nivel de dificultad en formato texto (solo aplicable si el jugador es IA).
+    * @return una tupla que contiene:
+    *         
+    *           ·Un mapa con el rack actualizado del jugador tras el turno.
+    *           ·El puntaje obtenido en el turno.
+    *         
+    * 
+    */    
+    public Tuple<Map<String, Integer>, Integer> realizarTurno(String nombreJugador, String dificultadStr, BooleanWrapper pausado) {
+        Map<String, Integer> rack = controladorJugador.getRack(nombreJugador);
+        boolean esIA = controladorJugador.esIA(nombreJugador);
         Dificultad dificultad = dificultadStr.equals("") ? null : Dificultad.valueOf(dificultadStr);
-        return controladorJuego.realizarTurno(username, rack, esIA, dificultad, pausado);
-
+        return controladorJuego.realizarTurno(nombreJugador, rack, esIA, dificultad, pausado);
     }
 
     /**
      * Obtiene el número de turnos consecutivos que un jugador ha pasado.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      * @return número de turnos pasados
      */
-    public int getSkipTrack (String id) {
-        return controladorJugador.getSkipTrack(id);
+    public int getSkipTrack(String nombre) {
+        return controladorJugador.getSkipTrack(nombre);
     }
 
     /**
      * Incrementa el contador de turnos pasados por el jugador.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      */
-    public void addSkipTrack(String id) {
-        controladorJugador.addSkipTrack(id);
+    public void addSkipTrack(String nombre) {
+        controladorJugador.addSkipTrack(nombre);
     }
 
     /**
      * Inicializa el rack del jugador con las fichas proporcionadas.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      * @param rack mapa de letras a cantidades
      */
-    public void inicializarRack(String id, Map<String,Integer> rack) {
-        controladorJugador.inicializarRack(id, rack);
+    public void inicializarRack(String nombre, Map<String,Integer> rack) {
+        controladorJugador.inicializarRack(nombre, rack);
     }
 
     /**
      * Añade puntuación al jugador.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      * @param puntuacion cantidad a sumar
      */
-    public void addPuntuacion(String id, int puntuacion) {
-        controladorJugador.addPuntuacion(id, puntuacion);
+    public void addPuntuacion(String nombre, int puntuacion) {
+        controladorJugador.addPuntuacion(nombre, puntuacion);
     }  
 
     /**
@@ -417,29 +271,29 @@ public class ControladorDomain {
 
     /**
      * Devuelve la cantidad de fichas actuales en el rack del jugador.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      * @return cantidad total de fichas
      */
-    public int getCantidadFichas(String id) {
-        return controladorJugador.getCantidadFichas(id);
+    public int getCantidadFichas(String nombre) {
+        return controladorJugador.getCantidadFichas(nombre);
     }
 
    /**
      * Agrega una ficha al rack del jugador.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      * @param letra letra a agregar
      */
-    public void agregarFicha(String id, String letra) {
-        controladorJugador.agregarFicha(id, letra);
+    public void agregarFicha(String nombre, String letra) {
+        controladorJugador.agregarFicha(nombre, letra);
     }
 
     /**
      * Devuelve la puntuación actual del jugador.
-     * @param id identificador del jugador
+     * @param nombre nombre del jugador
      * @return puntuación del jugador
      */
-    public int getPuntuacion(String id) {
-        return controladorJugador.getPuntuacion(id);
+    public int getPuntuacion(String nombre) {
+        return controladorJugador.getPuntuacion(nombre);
     }
     
     /**
@@ -461,14 +315,12 @@ public class ControladorDomain {
         }
 
         for (Map.Entry<String, String> entry : jugadoresSeleccionados.entrySet()) {
-            String id = entry.getValue();
+            String nombreJugador = entry.getValue(); // Ahora entry.getValue() es directamente el nombre
             Map<String, Integer> rack = controladorJuego.cogerFichas(7);
-            inicializarRack(id, rack);
+            inicializarRack(nombreJugador, rack);
         }
-
     }
 
-    
     /**
      * Devuelve la cantidad de fichas restantes en el pool del juego.
      * @return cantidad de fichas disponibles
@@ -499,38 +351,24 @@ public class ControladorDomain {
         return controladorJuego.isJuegoTerminado();
     }
 
-    // // id (nombre de partida) -> (idjugador -> (ficha -> cantidad)) 
-    // public void guardarPartida(String partidaId, Map<String, Map<String, Integer>> racks) { 
-    //     controladorJuego.guardarPartida(partidaId, racks);
-    // }
-
-    // public Map<String, Map<String, Integer>> cargarPartida(String idPartida) {
-    //     if (!controladorJuego.existeIdPartida(idPartida)) {
-    //         throw new ExceptionPartidaNotExist();
-    //     }
-    //     return controladorJuego.cargarPartida(idPartida);
-    // }
-
-
     // METODOS DE RANKING
 
     public void verRanking() {
         controladorRanking.verRanking();
     }
 
-
-    public boolean actualizarEstadisticasUsuario(String username, boolean esVictoria) {
-        if (!controladorJugador.existeJugador(username)) {
+    public boolean actualizarEstadisticasUsuario(String nombre, boolean esVictoria) {
+        if (!controladorJugador.existeJugador(nombre)) {
             throw new ExceptionUserNotExist();
         }
-        return controladorRanking.actualizarEstadisticasUsuario(username, esVictoria);
+        return controladorRanking.actualizarEstadisticasUsuario(nombre, esVictoria);
     }
 
-    public boolean eliminarPuntuacion(String username, int puntuacion) {
-        if (!controladorRanking.existePuntuacion(username, puntuacion)) {
+    public boolean eliminarPuntuacion(String nombre, int puntuacion) {
+        if (!controladorRanking.existePuntuacion(nombre, puntuacion)) {
             throw new ExceptionPuntuacionNotExist();
         }
-        return controladorRanking.eliminarPuntuacion(username, puntuacion);
+        return controladorRanking.eliminarPuntuacion(nombre, puntuacion);
     }
 
     public void cambiarEstrategia(String criterio) {
@@ -541,20 +379,35 @@ public class ControladorDomain {
         controladorRanking.listarPuntuaciones();
     }
 
-    // public void verPartidasGuardadas(String username) {
-    //     controladorJuego.verPartidasGuardadas(username);
-    // }
-
-
-    // public void eliminarPartidaGuardada(String username, int idPartida) {
-    //     if (!controladorJuego.existePartidaGuardada(username, idPartida)) {
-    //         throw new ExceptionPartidaNotExist();
-    //     }
-    //     if (controladorJuego.existePartidaEnUso(username, idPartida)) {
-    //         throw new ExceptionPartidaInUse();
-    //     }
-    //     controladorJuego.eliminarPartidaGuardada(username, idPartida);
-    // }
+    /**
+     * Verifica si un jugador existe en el sistema.
+     * 
+     * @param nombre Nombre del jugador
+     * @return true si el jugador existe, false en caso contrario
+     */
+    public boolean existeJugador(String nombre) {
+        return controladorJugador.existeJugador(nombre);
+    }
+    
+    /**
+     * Verifica si un jugador es una IA.
+     * 
+     * @param nombre Nombre del jugador
+     * @return true si el jugador es una IA, false si es un jugador humano
+     */
+    public boolean esIA(String nombre) {
+        return controladorJugador.esIA(nombre);
+    }
+    
+    /**
+     * Verifica si un jugador humano está en una partida.
+     * 
+     * @param nombre Nombre del jugador
+     * @return true si está en partida, false en caso contrario
+     */
+    public boolean isEnPartida(String nombre) {
+        return controladorJugador.isEnPartida(nombre);
+    }
 }
 
 

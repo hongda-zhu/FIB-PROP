@@ -5,8 +5,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import scrabble.domain.models.Dawg;
 import scrabble.domain.models.Diccionario;
-
-import java.io.File;
+   
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;

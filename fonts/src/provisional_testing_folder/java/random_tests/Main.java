@@ -1,4 +1,4 @@
-package scrabble.tests;
+// package scrabble.tests;
 // package domain.testing;
 
 // import java.util.Scanner;

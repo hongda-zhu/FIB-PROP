@@ -9,41 +9,22 @@ import java.util.Map;
 public class JugadorHumano extends Jugador {
     private static final long serialVersionUID = 1L;
     private int puntuacionUltimaPartida;
-
-    private String password;
     private int partidasJugadas;
     private int partidasGanadas;
     private boolean enPartida;
-    private boolean logueado;
-    
 
     /**
      * Constructor de la clase JugadorHumano.
      * 
-     * @param id Identificador único del jugador
-     * @param password Contraseña
+     * @param nombre Nombre del jugador, sirve como identificador único
      */
-    public JugadorHumano(String id, String password) {
-        this(id, id, password); // Por defecto, el nombre es igual al ID
+    public JugadorHumano(String nombre) {
+        super(nombre);
         this.puntuacionUltimaPartida = 0;
-        this.enPartida = false;
-        this.rack = new HashMap<>(); // Inicialmente no tiene fichas en el rack
-    }
-    
-    /**
-     * Constructor de la clase JugadorHumano con nombre personalizado.
-     * 
-     * @param id Identificador único del jugador
-     * @param nombre Nombre para mostrar del jugador
-     * @param password Contraseña
-     */
-    public JugadorHumano(String id, String nombre, String password) {
-        super(id, nombre);
-        this.password = password;
         this.partidasJugadas = 0;
         this.partidasGanadas = 0;
         this.enPartida = false;
-        this.logueado = false;
+        this.rack = new HashMap<>(); // Inicialmente sin fichas en el rack
     }
     
     /**
@@ -65,33 +46,6 @@ public class JugadorHumano extends Jugador {
     }
     
     /**
-     * Establece si el jugador está logueado.
-     * 
-     * @param logueado true si está logueado, false en caso contrario
-     */
-    public void setLogueado(boolean logueado) {
-        this.logueado = logueado;
-    }
-    
-    /**
-     * Verifica si el jugador está logueado.
-     * 
-     * @return true si está logueado, false en caso contrario
-     */
-    public boolean isLogueado() {
-        return logueado;
-    }
-    
-    /**
-     * Establece el nombre para mostrar del jugador.
-     * 
-     * @param nombre Nuevo nombre
-     */
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-    
-    /**
      * Establece la puntuación de la última partida jugada.
      * 
      * @param puntuacion Puntuación obtenida
@@ -109,25 +63,6 @@ public class JugadorHumano extends Jugador {
     @Override
     public int getPuntuacion() {
         return puntuacion;
-    }
-    
-    /**
-     * Verifica si la contraseña proporcionada coincide con la del jugador.
-     * 
-     * @param password Contraseña a verificar
-     * @return true si la contraseña coincide, false en caso contrario
-     */
-    public boolean verificarPassword(String passwordToCheck) {
-        return this.password.equals(passwordToCheck);
-    }
-    
-    /**
-     * Establece una nueva contraseña para el jugador.
-     * 
-     * @param password Nueva contraseña
-     */
-    public void setPassword(String password) {
-        this.password = password;
     }
     
     /**
@@ -176,41 +111,41 @@ public class JugadorHumano extends Jugador {
         return false;
     }
 
-
+    /**
+     * Obtiene las fichas del jugador.
+     * 
+     * @return Mapa con las fichas del jugador
+     */
     public Map<String, Integer> getFichas() {
         return rack;
     }
 
+    /**
+     * Obtiene el puntaje de la última partida.
+     * 
+     * @return Puntaje de la última partida
+     */
     public int getPuntaje() {
         return puntuacionUltimaPartida;
     }
 
+    /**
+     * Añade puntos al puntaje de la última partida.
+     * 
+     * @param puntos Puntos a añadir
+     */
     public void addPuntaje(int puntos) {
         this.puntuacionUltimaPartida += puntos;
-    }
-
-    public void addSkipTrack() {
-        this.skipTrack += 1;
-    }
-
-    public int getSkipTrack() {
-        return skipTrack;
-    }
-
-    public void setSkipTrack(int skipTrack) {
-        this.skipTrack = skipTrack;
     }
 
     @Override
     public String toString() {
         return "JugadorHumano{" +
-               "id='" + id + '\'' +
-               ", nombre='" + nombre + '\'' +
+               "nombre='" + nombre + '\'' +
                ", partidasJugadas=" + partidasJugadas +
                ", partidasGanadas=" + partidasGanadas +
                ", puntuacion=" + puntuacion +
                ", enPartida=" + enPartida +
-               ", logueado=" + logueado +
                '}';
     }
 }

@@ -16,21 +16,16 @@ public abstract class Jugador implements Serializable {
      * Mapa que representa el atril de fichas del jugador.
      * Las claves son las letras y los valores son la cantidad de cada letra.
      */
-    public Map<String, Integer> rack; 
+    protected Map<String, Integer> rack; 
     
     /**
      * Contador de turnos que el jugador ha pasado (skip).
      * Se utiliza para controlar el fin de la partida cuando todos los jugadores pasan turnos consecutivamente.
      */
-    public int skipTrack;
+    protected int skipTrack;
     
     /**
-     * Identificador único del jugador
-     */
-    protected String id;
-    
-    /**
-     * Nombre para mostrar del jugador
+     * Nombre del jugador, utilizado como identificador único
      */
     protected String nombre;
     
@@ -42,11 +37,9 @@ public abstract class Jugador implements Serializable {
     /**
      * Constructor para la clase Jugador
      * 
-     * @param id Identificador único del jugador
-     * @param nombre Nombre para mostrar
+     * @param nombre Nombre del jugador, sirve como identificador único
      */
-    public Jugador(String id, String nombre) {
-        this.id = id;
+    public Jugador(String nombre) {
         this.nombre = nombre;
         this.puntuacion = 0;
         this.skipTrack = 0;
@@ -54,16 +47,7 @@ public abstract class Jugador implements Serializable {
     }
     
     /**
-     * Obtiene el ID del jugador.
-     * 
-     * @return ID del jugador
-     */
-    public String getId() {
-        return id;
-    }
-    
-    /**
-     * Obtiene el nombre para mostrar del jugador.
+     * Obtiene el nombre del jugador.
      * 
      * @return Nombre del jugador
      */
@@ -193,4 +177,4 @@ public abstract class Jugador implements Serializable {
      * @return true si es una IA, false si es un jugador humano
      */
     public abstract boolean esIA();
-} 
+}

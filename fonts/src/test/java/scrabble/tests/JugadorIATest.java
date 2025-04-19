@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import scrabble.domain.models.JugadorIA;
+import scrabble.helpers.Dificultad;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +22,12 @@ public class JugadorIATest {
     @Before
     public void setUp() {
         // Inicializar un nuevo jugador IA antes de cada test
-        jugadorIA = new JugadorIA("ia1", JugadorIA.Dificultad.FACIL);
+        jugadorIA = new JugadorIA(Dificultad.FACIL);
     }
     
     /**
-     * Pre: Se ha creado una instancia de JugadorIA con id "ia1" y dificultad FACIL.
-     * Post: Se verifica que el constructor inicializa correctamente los valores id, nombre,
+     * Pre: Se ha creado una instancia de JugadorIA con dificultad FACIL.
+     * Post: Se verifica que el constructor inicializa correctamente los valores nombre,
      * puntuación, dificultad y puntuación de última partida.
      * 
      * Verifica que todos los valores iniciales del jugador IA son los esperados.
@@ -35,10 +36,9 @@ public class JugadorIATest {
     @Test
     public void testConstructor() {
         // Verificar que los valores iniciales son correctos
-        assertEquals("El ID debería ser 'ia1'", "ia1", jugadorIA.getId());
-        assertEquals("El nombre debería ser 'IA-ia1'", "IA-ia1", jugadorIA.getNombre());
+        assertTrue("El nombre debería empezar con 'IA-'", jugadorIA.getNombre().startsWith("IA-"));
         assertEquals("La puntuación inicial debería ser 0", 0, jugadorIA.getPuntuacion());
-        assertEquals("La dificultad debería ser FACIL", JugadorIA.Dificultad.FACIL, jugadorIA.getNivelDificultad());
+        assertEquals("La dificultad debería ser FACIL", Dificultad.FACIL, jugadorIA.getNivelDificultad());
         assertEquals("La puntuación de última partida debería ser 0", 0, jugadorIA.getPuntuacionUltimaPartida());
     }
     
@@ -51,8 +51,8 @@ public class JugadorIATest {
      */
     @Test
     public void testSetNivelDificultad() {
-        jugadorIA.setNivelDificultad(JugadorIA.Dificultad.DIFICIL);
-        assertEquals("La dificultad debería cambiarse a DIFICIL", JugadorIA.Dificultad.DIFICIL, jugadorIA.getNivelDificultad());
+        jugadorIA.setNivelDificultad(Dificultad.DIFICIL);
+        assertEquals("La dificultad debería cambiarse a DIFICIL", Dificultad.DIFICIL, jugadorIA.getNivelDificultad());
     }
     
     /**
@@ -216,12 +216,11 @@ public class JugadorIATest {
     @Test
     public void testToString() {
         jugadorIA.setPuntuacion(100);
-        jugadorIA.setNivelDificultad(JugadorIA.Dificultad.DIFICIL);
+        jugadorIA.setNivelDificultad(Dificultad.DIFICIL);
         
         String resultado = jugadorIA.toString();
         
-        assertTrue("toString() debería contener el ID", resultado.contains("ia1"));
-        assertTrue("toString() debería contener el nombre", resultado.contains("IA-ia1"));
+        assertTrue("toString() debería contener el nombre", resultado.contains(jugadorIA.getNombre()));
         assertTrue("toString() debería contener la puntuación", resultado.contains("100"));
         assertTrue("toString() debería contener la dificultad", resultado.contains("DIFICIL"));
     }
@@ -238,19 +237,16 @@ public class JugadorIATest {
     public void testIntegracionMockito() {
         JugadorIA mockJugadorIA = Mockito.mock(JugadorIA.class);
         
-        when(mockJugadorIA.getId()).thenReturn("mockIA");
         when(mockJugadorIA.getNombre()).thenReturn("IA-Mock");
-        when(mockJugadorIA.getNivelDificultad()).thenReturn(JugadorIA.Dificultad.DIFICIL);
+        when(mockJugadorIA.getNivelDificultad()).thenReturn(Dificultad.DIFICIL);
         when(mockJugadorIA.getPuntuacion()).thenReturn(100);
         when(mockJugadorIA.esIA()).thenReturn(true);
         
-        assertEquals("El mock debería devolver 'mockIA'", "mockIA", mockJugadorIA.getId());
         assertEquals("El mock debería devolver 'IA-Mock'", "IA-Mock", mockJugadorIA.getNombre());
-        assertEquals("El mock debería devolver DIFICIL", JugadorIA.Dificultad.DIFICIL, mockJugadorIA.getNivelDificultad());
+        assertEquals("El mock debería devolver DIFICIL", Dificultad.DIFICIL, mockJugadorIA.getNivelDificultad());
         assertEquals("El mock debería devolver 100", 100, mockJugadorIA.getPuntuacion());
         assertTrue("El mock debería devolver true para esIA()", mockJugadorIA.esIA());
         
-        verify(mockJugadorIA).getId();
         verify(mockJugadorIA).getNombre();
         verify(mockJugadorIA).getNivelDificultad();
         verify(mockJugadorIA).getPuntuacion();
@@ -258,7 +254,7 @@ public class JugadorIATest {
     }
     
     /**
-     * Pre: Se ha creado una instancia de JugadorIA con rack inicial null.
+     * Pre: Se ha creado una instancia de JugadorIA con rack inicial vacío.
      * Post: Se verifica que el método inicializarRack() establece correctamente el rack.
      * 
      * Comprueba la funcionalidad para inicializar el conjunto de fichas.
@@ -342,5 +338,43 @@ public class JugadorIATest {
         
         jugadorIA.sacarFicha("A");
         assertEquals("Debería haber un total de 4 fichas después de sacar una 'A'", 4, jugadorIA.getCantidadFichas());
+    }
+    
+    /**
+     * Pre: Se crean múltiples instancias de JugadorIA.
+     * Post: Se verifica que cada instancia tiene un nombre único con formato "IA-X" 
+     * donde X es un número incremental.
+     * 
+     * Comprueba la generación de nombres únicos para cada instancia.
+     * Aporta validación del correcto funcionamiento del contador global.
+     */
+    @Test
+    public void testNombresUnicosGenerados() {
+        JugadorIA ia1 = new JugadorIA(Dificultad.FACIL);
+        JugadorIA ia2 = new JugadorIA(Dificultad.FACIL);
+        JugadorIA ia3 = new JugadorIA(Dificultad.DIFICIL);
+        
+        String nombre1 = ia1.getNombre();
+        String nombre2 = ia2.getNombre();
+        String nombre3 = ia3.getNombre();
+        
+        assertTrue("Los nombres deberían empezar con 'IA-'", 
+                 nombre1.startsWith("IA-") && nombre2.startsWith("IA-") && nombre3.startsWith("IA-"));
+        
+        assertNotEquals("Los nombres deberían ser diferentes", nombre1, nombre2);
+        assertNotEquals("Los nombres deberían ser diferentes", nombre1, nombre3);
+        assertNotEquals("Los nombres deberían ser diferentes", nombre2, nombre3);
+        
+        // Verificar que son números secuenciales
+        try {
+            int num1 = Integer.parseInt(nombre1.substring(3));
+            int num2 = Integer.parseInt(nombre2.substring(3));
+            int num3 = Integer.parseInt(nombre3.substring(3));
+            
+            assertTrue("Los números deberían ser secuenciales", 
+                     (num2 == num1 + 1) && (num3 == num2 + 1));
+        } catch (NumberFormatException e) {
+            fail("Los sufijos de los nombres deberían ser números enteros");
+        }
     }
 }

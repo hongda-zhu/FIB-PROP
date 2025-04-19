@@ -7,7 +7,6 @@ import scrabble.domain.models.rankingStrategy.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Test unitario para las estrategias de ordenación de ranking
