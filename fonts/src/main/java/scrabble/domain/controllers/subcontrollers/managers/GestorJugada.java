@@ -1,6 +1,7 @@
 package scrabble.domain.controllers.subcontrollers.managers;
 
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,14 +17,14 @@ import scrabble.domain.models.Tablero;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.BooleanWrapper;
+
 /**
  * Clase GestorJugada
  * Esta clase se encarga de gestionar las jugadas en el juego de Scrabble.
- * Permite añadir lenguajes, establecer el lenguaje actual, buscar movimientos válidos,
- * calcular puntos y realizar jugadas en el tablero.
+ * Permite buscar movimientos válidos, calcular puntos y realizar jugadas en el tablero.
  */
 
-public class GestorJugada implements Serializable{
+public class GestorJugada implements Serializable {
 
     public enum Direction {
         HORIZONTAL,
@@ -36,112 +37,103 @@ public class GestorJugada implements Serializable{
     private Direction direction;
     private Map<String, Integer> alphabet;
     private Dawg dawg;
-
+    private String idiomaActual;
 
     public GestorJugada(Tablero tablero) {
         this.tablero = tablero;
         this.lastCrossCheck = null;
         this.direction = null;
         this.diccionario = null;
+        this.idiomaActual = null;
     }
     
     /**
-    * Devuelve la lista de nombres de los diccionarios disponibles actualmente en el sistema.
-    * 
-    * @return Lista de nombres de diccionarios disponibles.
-    */
+     * Establece el diccionario a utilizar por el gestor de jugada.
+     * @param diccionario Diccionario a utilizar
+     */
+    public void setDiccionario(Diccionario diccionario) {
+        this.diccionario = diccionario;
+    }
+    
+    /**
+     * Devuelve la lista de nombres de los diccionarios disponibles actualmente en el sistema.
+     * @return Lista de nombres de diccionarios disponibles.
+     */
     public List<String> getDiccionariosDisponibles() {
+        if (this.diccionario == null) {
+            return List.of();
+        }
         return this.diccionario.getDiccionariosDisponibles();
     }
 
-
+    /**
+     * Crea un tablero de tamaño NxN.
+     * @param N Tamaño del tablero
+     */
     public void creaTableroNxN(int N) {
         this.tablero = new Tablero(N);
     }
-    /*
-     * Método para añadir un nuevo lenguaje al juego.
-     * @param nombre Nombre del lenguaje.
-     * @param rutaArchivoAlpha Ruta del archivo que contiene el alfabeto.
-     * @param rutaArchivoWords Ruta del archivo que contiene las palabras.
-     */
 
-    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) {
-        if (this.diccionario == null) {
-            this.diccionario = new Diccionario();
-        }
-        this.diccionario.addDawg(nombre, rutaArchivoWords);
-        this.diccionario.addAlphabet(nombre, rutaArchivoAlpha);
-    }
-
-    /*
-     * Método para seleccionar un lenguaje existente.
+    /**
+     * Método para seleccionar un lenguaje existente en el diccionario.
      * @param nombre Nombre del lenguaje a seleccionar.
      */
-
     public void setLenguaje(String nombre) {
+        if (this.diccionario == null) {
+            throw new IllegalStateException("No se ha establecido ningún diccionario");
+        }
+        
+        this.idiomaActual = nombre;
         this.dawg = this.diccionario.getDawg(nombre);
         this.alphabet = this.diccionario.getAlphabet(nombre);
     }
 
-    /*
-     * Método para saber si existe un lenguaje en el diccionario.
-     * @param nombre Nombre del lenguaje a verificar.
-     * @return true si el lenguaje existe, false en caso contrario.
-     */
-
-    public boolean existeLenguaje(String nombre) {
-        if(this.diccionario == null) return false;
-        return this.diccionario.existeDawg(nombre);
-    }
-
-    /*
-     * Método para obtener la bolsa de letras 
-     * @param nombre Nombre del lenguaje.
+    /**
+     * Método para obtener la bolsa de letras del idioma actual
+     * @param name Nombre del lenguaje.
      * @return Mapa que representa la bolsa de letras.
      */
-
     public Map<String, Integer> getBag(String name) {
+        if (this.diccionario == null) {
+            throw new IllegalStateException("No se ha establecido ningún diccionario");
+        }
         return this.diccionario.getBag(name);
     }
 
-    /*
+    /**
      * Método before
      * @param pos Posición actual.
      * @return Nueva posición antes de la actual.
      */
-
-    public Tuple<Integer, Integer> before (Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
+    public Tuple<Integer, Integer> before(Tuple<Integer, Integer> pos) {
+        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
     } 
 
-    /* 
+    /**
      * Método after
      * @param pos Posición actual.
      * @return Nueva posición después de la actual.
      */
-
-    public Tuple<Integer, Integer> after (Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y + 1): new Tuple<>(pos.x + 1, pos.y);
+    public Tuple<Integer, Integer> after(Tuple<Integer, Integer> pos) {
+        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y + 1) : new Tuple<>(pos.x + 1, pos.y);
     }
 
-    /*
+    /**
      * Método before_cross
      * @param pos Posición actual.
      * @return Nueva posición antes de la actual en la dirección girada.
      */
-
-    public Tuple<Integer, Integer> before_cross (Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL? new Tuple<>(pos.x - 1, pos.y): new Tuple<>(pos.x, pos.y - 1);
+    public Tuple<Integer, Integer> before_cross(Tuple<Integer, Integer> pos) {
+        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x - 1, pos.y) : new Tuple<>(pos.x, pos.y - 1);
     }
 
-    /*
+    /**
      * Método after_cross
      * @param pos Posición actual.
      * @return Nueva posición después de la actual en la dirección girada.
      */
-
-    public Tuple<Integer, Integer> after_cross (Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL? new Tuple<>(pos.x + 1, pos.y): new Tuple<>(pos.x, pos.y + 1);
+    public Tuple<Integer, Integer> after_cross(Tuple<Integer, Integer> pos) {
+        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x + 1, pos.y) : new Tuple<>(pos.x, pos.y + 1);
     }
 
     /*
@@ -152,7 +144,6 @@ public class GestorJugada implements Serializable{
     public Set<Tuple<Integer, Integer>> find_anchors(boolean juegoIniciado) {
         Set<Tuple<Integer, Integer>> anchors = new HashSet<>();
         if (juegoIniciado) {
-
             for (int i = 0; i < tablero.getSize(); i++) {
                 for (int j = 0; j < tablero.getSize(); j++) {
                     Tuple<Integer, Integer> pos = new Tuple<>(i,j);
@@ -594,7 +585,4 @@ public class GestorJugada implements Serializable{
         // Este return nunca debería alcanzarse, pero es necesario para la compilación
         return null;
     }
-
-
-
  }

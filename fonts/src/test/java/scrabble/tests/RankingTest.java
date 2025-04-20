@@ -4,10 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import scrabble.domain.models.Ranking;
-import scrabble.domain.models.rankingStrategy.MaximaScoreStrategy;
-import scrabble.domain.models.rankingStrategy.MediaScoreStrategy;
-import scrabble.domain.models.rankingStrategy.PartidasJugadasStrategy;
-import scrabble.domain.models.rankingStrategy.RatioVictoriasStrategy;
 
 import java.util.List;
 import java.util.Map;

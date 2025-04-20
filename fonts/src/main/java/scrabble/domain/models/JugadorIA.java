@@ -26,7 +26,8 @@ public class JugadorIA extends Jugador {
      * @param dificultad Nivel de dificultad de la IA
      */
     public JugadorIA(String nombre, Dificultad dificultad) {
-        super("IA-" + (contadorIAs++));
+        // Nombre con formato IA_Dificultad_Num para mejor identificación
+        super(nombre != null ? nombre : generarNombreIA(dificultad));
         this.nivelDificultad = dificultad;
         this.puntuacionUltimaPartida = 0;
         this.rack = new HashMap<>(); // Inicialmente sin fichas en el rack
@@ -39,6 +40,17 @@ public class JugadorIA extends Jugador {
      */
     public JugadorIA(Dificultad dificultad) {
         this(null, dificultad);
+    }
+    
+    /**
+     * Genera un nombre para la IA basado en su dificultad.
+     * 
+     * @param dificultad Nivel de dificultad de la IA
+     * @return Nombre generado
+     */
+    private static String generarNombreIA(Dificultad dificultad) {
+        String dificultadStr = dificultad == Dificultad.FACIL ? "FACIL" : "DIFICIL";
+        return "IA_" + dificultadStr + "_" + (contadorIAs++);
     }
     
     /**

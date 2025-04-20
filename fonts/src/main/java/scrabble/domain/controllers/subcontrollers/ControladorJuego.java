@@ -22,6 +22,8 @@ import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.BooleanWrapper;
+import scrabble.domain.models.Diccionario;
+import scrabble.domain.models.Dawg;
 
 
 /**
@@ -36,22 +38,41 @@ public class ControladorJuego {
     private Bolsa bolsa;
     private boolean juegoTerminado = false;
     private boolean juegoIniciado = false;
+    private ControladorDiccionario controladorDiccionario;
+    private String idiomaActual;
 
   
     public ControladorJuego() {
         this.gestorJugada = new GestorJugada(new Tablero()) ;
         this.bolsa = null;
+        this.controladorDiccionario = ControladorDiccionario.getInstance();
+        this.idiomaActual = null;
     }
 
     /*
      * Método para iniciar el juego.
      * Este método inicializa la bolsa de fichas y carga el diccionario correspondiente al idioma seleccionado.
-     * @param languaje El idioma del juego 
+     * @param idioma El idioma del juego 
      */
 
-    public void iniciarJuego(String languaje) {
-        bolsa = new Bolsa();
-        bolsa.llenarBolsa(this.gestorJugada.getBag(languaje));
+    public void iniciarJuego(String idioma) {
+        this.idiomaActual = idioma;
+        
+        try {
+            // Obtener el diccionario del controlador de diccionarios
+            Diccionario diccionario = this.controladorDiccionario.getDiccionario(idioma);
+            
+            // Inicializar la bolsa con las fichas del diccionario
+            bolsa = new Bolsa();
+            bolsa.llenarBolsa(diccionario.getBag(idioma));
+            
+            // Configurar el GestorJugada con el diccionario adecuado
+            gestorJugada.setDiccionario(diccionario);
+            gestorJugada.setLenguaje(idioma);
+            
+        } catch (Exception e) {
+            System.err.println("Error al iniciar el juego: " + e.getMessage());
+        }
     }
 
     public void creaTableroNxN(int N) {
@@ -76,10 +97,12 @@ public class ControladorJuego {
      * @param nombre El nombre del idioma a añadir
      * @param rutaArchivoAlpha La ruta del archivo con juegos de letras correspondiente al idioma
      * @param rutaArchivoWords La ruta del diccionario correspondiente al idioma
+     * @throws IOException Si hay problemas al leer los archivos.
      */
 
-    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) {
-        this.gestorJugada.anadirLenguaje(nombre, rutaArchivoAlpha, rutaArchivoWords);
+    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws IOException {
+        // Delegar la creación del diccionario al controlador de diccionarios
+        this.controladorDiccionario.crearDiccionario(nombre, rutaArchivoAlpha, rutaArchivoWords);
     }
 
     /*
@@ -89,7 +112,15 @@ public class ControladorJuego {
      */
 
     public void setLenguaje(String nombre) {
-        this.gestorJugada.setLenguaje(nombre);
+        this.idiomaActual = nombre;
+        
+        try {
+            Diccionario diccionario = this.controladorDiccionario.getDiccionario(nombre);
+            gestorJugada.setDiccionario(diccionario);
+            gestorJugada.setLenguaje(nombre);
+        } catch (Exception e) {
+            System.err.println("Error al establecer el idioma: " + e.getMessage());
+        }
     }
 
     /*
@@ -100,7 +131,7 @@ public class ControladorJuego {
      */
 
     public boolean existeLenguaje(String nombre) {
-        return  this.gestorJugada.existeLenguaje(nombre);
+        return this.controladorDiccionario.existeDiccionario(nombre);
     }
     
     /**
@@ -109,7 +140,7 @@ public class ControladorJuego {
     * @return Lista de nombres de diccionarios disponibles.
     */
     public List<String> getDiccionariosDisponibles() {
-        return this.gestorJugada.getDiccionariosDisponibles();
+        return this.controladorDiccionario.getDiccionariosDisponibles();
     }
     /* 
      * Método para hacer el primer turno del jugador.
@@ -144,6 +175,7 @@ public class ControladorJuego {
      * @param rack El rack del jugador, que contiene las letras disponibles para jugar
      * @param isIA Indica si el jugador es una IA o un jugador humano
      * @param dificultad La dificultad de la IA (si aplica)
+     * @param pausado Flag para indicar si la partida se pausa
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
@@ -162,6 +194,8 @@ public class ControladorJuego {
      * @param rack El rack del jugador, que contiene las letras disponibles para jugar
      * @param isIA Indica si el jugador es una IA o un jugador humano
      * @param dificultad La dificultad de la IA (si aplica)
+     * @param isFirst Indica si es el primer turno de la partida
+     * @param pausado Flag para indicar si la partida se pausa
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 

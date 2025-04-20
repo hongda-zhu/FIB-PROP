@@ -63,29 +63,29 @@ public class Ranking implements Serializable {
     /**
      * Agrega una nueva puntuación para un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @param puntuacion Puntuación a agregar
      * @return true si se agregó correctamente, false en caso contrario
      */
-    public boolean agregarPuntuacion(String username, int puntuacion) {
+    public boolean agregarPuntuacion(String nombre, int puntuacion) {
         if (puntuacion < 0) {
             return false; // No se permiten puntuaciones negativas
         }
         
         // Agregar puntuación a la lista de puntuaciones del usuario
-        puntuacionesPorUsuario.computeIfAbsent(username, k -> new ArrayList<>()).add(puntuacion);
+        puntuacionesPorUsuario.computeIfAbsent(nombre, k -> new ArrayList<>()).add(puntuacion);
         
         // Actualizar puntuación máxima
-        puntuacionMaximaPorUsuario.put(username, 
-            Math.max(puntuacionMaximaPorUsuario.getOrDefault(username, 0), puntuacion));
+        puntuacionMaximaPorUsuario.put(nombre, 
+            Math.max(puntuacionMaximaPorUsuario.getOrDefault(nombre, 0), puntuacion));
         
         // Recalcular puntuación media
-        List<Integer> puntuaciones = puntuacionesPorUsuario.get(username);
+        List<Integer> puntuaciones = puntuacionesPorUsuario.get(nombre);
         double media = puntuaciones.stream()
             .mapToInt(Integer::intValue)
             .average()
             .orElse(0.0);
-        puntuacionMediaPorUsuario.put(username, media);
+        puntuacionMediaPorUsuario.put(nombre, media);
         
         return true;
     }
@@ -93,39 +93,39 @@ public class Ranking implements Serializable {
     /**
      * Actualiza los contadores de partidas jugadas y victorias para un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @param esVictoria Indica si es una victoria
      */
-    public void actualizarEstadisticasUsuario(String username, boolean esVictoria) {
+    public void actualizarEstadisticasUsuario(String nombre, boolean esVictoria) {
         // Incrementar contador de partidas jugadas
-        partidasJugadasPorUsuario.put(username, 
-            partidasJugadasPorUsuario.getOrDefault(username, 0) + 1);
+        partidasJugadasPorUsuario.put(nombre, 
+            partidasJugadasPorUsuario.getOrDefault(nombre, 0) + 1);
         
         // Si es victoria, incrementar contador de victorias
         if (esVictoria) {
-            victoriasUsuario.put(username, 
-                victoriasUsuario.getOrDefault(username, 0) + 1);
+            victoriasUsuario.put(nombre, 
+                victoriasUsuario.getOrDefault(nombre, 0) + 1);
         }
     }
     
     /**
      * Elimina una puntuación específica de un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @param puntuacion Puntuación a eliminar
      * @return true si se eliminó correctamente, false en caso contrario
      */
-    public boolean eliminarPuntuacion(String username, int puntuacion) {
-        if (!puntuacionesPorUsuario.containsKey(username)) {
+    public boolean eliminarPuntuacion(String nombre, int puntuacion) {
+        if (!puntuacionesPorUsuario.containsKey(nombre)) {
             return false;
         }
         
-        List<Integer> puntuaciones = puntuacionesPorUsuario.get(username);
+        List<Integer> puntuaciones = puntuacionesPorUsuario.get(nombre);
         boolean removed = puntuaciones.remove(Integer.valueOf(puntuacion));
         
         if (removed) {
             // Recalcular puntuación máxima
-            puntuacionMaximaPorUsuario.put(username, 
+            puntuacionMaximaPorUsuario.put(nombre, 
                 puntuaciones.isEmpty() ? 0 : Collections.max(puntuaciones));
             
             // Recalcular puntuación media
@@ -133,7 +133,7 @@ public class Ranking implements Serializable {
                 .mapToInt(Integer::intValue)
                 .average()
                 .orElse(0.0);
-            puntuacionMediaPorUsuario.put(username, media);
+            puntuacionMediaPorUsuario.put(nombre, media);
             
             return true;
         }
@@ -144,63 +144,63 @@ public class Ranking implements Serializable {
     /**
      * Verifica si existe una puntuación específica para un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @param puntuacion Puntuación a verificar
      * @return true si existe la puntuación, false en caso contrario
      */
-    public boolean existePuntuacion(String username, int puntuacion) {
-        return puntuacionesPorUsuario.containsKey(username) && 
-               puntuacionesPorUsuario.get(username).contains(puntuacion);
+    public boolean existePuntuacion(String nombre, int puntuacion) {
+        return puntuacionesPorUsuario.containsKey(nombre) && 
+               puntuacionesPorUsuario.get(nombre).contains(puntuacion);
     }
     
     /**
      * Obtiene todas las puntuaciones de un usuario específico.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @return Lista de puntuaciones del usuario
      */
-    public List<Integer> getPuntuacionesUsuario(String username) {
-        return puntuacionesPorUsuario.getOrDefault(username, Collections.emptyList());
+    public List<Integer> getPuntuacionesUsuario(String nombre) {
+        return puntuacionesPorUsuario.getOrDefault(nombre, Collections.emptyList());
     }
     
     /**
      * Obtiene la puntuación máxima de un usuario específico.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @return Puntuación máxima del usuario
      */
-    public int getPuntuacionMaxima(String username) {
-        return puntuacionMaximaPorUsuario.getOrDefault(username, 0);
+    public int getPuntuacionMaxima(String nombre) {
+        return puntuacionMaximaPorUsuario.getOrDefault(nombre, 0);
     }
     
     /**
      * Obtiene la puntuación media de un usuario específico.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @return Puntuación media del usuario
      */
-    public double getPuntuacionMedia(String username) {
-        return puntuacionMediaPorUsuario.getOrDefault(username, 0.0);
+    public double getPuntuacionMedia(String nombre) {
+        return puntuacionMediaPorUsuario.getOrDefault(nombre, 0.0);
     }
     
     /**
      * Obtiene el número de partidas jugadas por un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @return Número de partidas jugadas
      */
-    public int getPartidasJugadas(String username) {
-        return partidasJugadasPorUsuario.getOrDefault(username, 0);
+    public int getPartidasJugadas(String nombre) {
+        return partidasJugadasPorUsuario.getOrDefault(nombre, 0);
     }
     
     /**
      * Obtiene el número de victorias de un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @return Número de victorias
      */
-    public int getVictorias(String username) {
-        return victoriasUsuario.getOrDefault(username, 0);
+    public int getVictorias(String nombre) {
+        return victoriasUsuario.getOrDefault(nombre, 0);
     }
     
     /**
@@ -277,25 +277,25 @@ public class Ranking implements Serializable {
      * 
      * @return true si tiene alguna puntuación, false en caso contrario.
      */    
-    public boolean perteneceRanking(String username) {
-        return puntuacionesPorUsuario.containsKey(username);
+    public boolean perteneceRanking(String nombre) {
+        return puntuacionesPorUsuario.containsKey(nombre);
     }
 
     /**
      * Elimina todas las puntuaciones de un usuario.
      * 
-     * @param username Nombre del usuario
+     * @param nombre Nombre del usuario
      * @return true si se eliminaron correctamente, false en caso contrario
      */
-    public boolean eliminarUsuario(String username) {
-        boolean exists = perteneceRanking(username);
+    public boolean eliminarUsuario(String nombre) {
+        boolean exists = perteneceRanking(nombre);
         
         if (exists) {
-            puntuacionesPorUsuario.remove(username);
-            puntuacionMaximaPorUsuario.remove(username);
-            puntuacionMediaPorUsuario.remove(username);
-            partidasJugadasPorUsuario.remove(username);
-            victoriasUsuario.remove(username);
+            puntuacionesPorUsuario.remove(nombre);
+            puntuacionMaximaPorUsuario.remove(nombre);
+            puntuacionMediaPorUsuario.remove(nombre);
+            partidasJugadasPorUsuario.remove(nombre);
+            victoriasUsuario.remove(nombre);
         }
         
         return exists;

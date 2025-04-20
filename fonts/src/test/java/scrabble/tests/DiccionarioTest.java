@@ -61,19 +61,20 @@ public class DiccionarioTest {
      */
     @Test
     public void testConstructor() {
-        // Verificar que el diccionario se crea correctamente
         assertNotNull("El diccionario no debería ser null", diccionario);
+        assertTrue("El mapa de Dawgs debería estar vacío inicialmente", diccionario.getAllDawgs().isEmpty());
+        assertTrue("El mapa de alfabetos debería estar vacío inicialmente", diccionario.getAllAlphabets().isEmpty());
     }
     
     /**
-     * Pre: Se ha creado una instancia de Diccionario y existen archivos de palabras.
+     * Pre: Se ha creado una instancia de Diccionario y existe un archivo de palabras.
      * Post: Se verifica que las palabras se añaden correctamente al Dawg y se pueden recuperar.
      * 
      * Comprueba la funcionalidad para añadir y recuperar Dawgs.
      * Aporta validación de las operaciones fundamentales de gestión de estructura de palabras.
      */
     @Test
-    public void testAddDawgYGetDawg() {
+    public void testAddDawgYGetDawg() throws IOException {
         // Añadir un Dawg y verificar que se puede recuperar
         diccionario.addDawg("español", archivoPalabrasTemp.toString());
         
@@ -99,7 +100,7 @@ public class DiccionarioTest {
      * Aporta validación de las operaciones de gestión de alfabetos y puntuaciones.
      */
     @Test
-    public void testAddAlphabetYGetAlphabet() {
+    public void testAddAlphabetYGetAlphabet() throws IOException {
         // Añadir un alfabeto y verificar que se puede recuperar
         diccionario.addAlphabet("español", archivoAlphabetTemp.toString());
         
@@ -125,7 +126,7 @@ public class DiccionarioTest {
      * Aporta validación de la correcta gestión de frecuencias de letras.
      */
     @Test
-    public void testGetBag() {
+    public void testGetBag() throws IOException {
         // Añadir un alfabeto y verificar que se puede recuperar la bolsa
         diccionario.addAlphabet("español", archivoAlphabetTemp.toString());
         
@@ -151,7 +152,7 @@ public class DiccionarioTest {
      * Aporta validación de la correcta gestión de eliminación de diccionarios.
      */
     @Test
-    public void testDeleteDawg() {
+    public void testDeleteDawg() throws IOException {
         // Añadir un Dawg
         diccionario.addDawg("español", archivoPalabrasTemp.toString());
         
@@ -173,7 +174,7 @@ public class DiccionarioTest {
      * Aporta validación de la correcta gestión de eliminación de alfabetos.
      */
     @Test
-    public void testDeleteAlphabet() {
+    public void testDeleteAlphabet() throws IOException {
         // Añadir un alfabeto
         diccionario.addAlphabet("español", archivoAlphabetTemp.toString());
         
@@ -195,7 +196,7 @@ public class DiccionarioTest {
      * Aporta validación del aislamiento entre diferentes configuraciones lingüísticas.
      */
     @Test
-    public void testMultiplesIdiomasIndependientes() {
+    public void testMultiplesIdiomasIndependientes() throws IOException {
         // Añadir múltiples idiomas
         diccionario.addDawg("español", archivoPalabrasTemp.toString());
         diccionario.addAlphabet("español", archivoAlphabetTemp.toString());
@@ -264,7 +265,7 @@ public class DiccionarioTest {
      * Aporta validación de la correcta gestión de actualización de configuraciones lingüísticas.
      */
     @Test
-    public void testSobreescribirDawgYAlphabet() {
+    public void testSobreescribirDawgYAlphabet() throws IOException {
         // Añadir un Dawg y un alfabeto
         diccionario.addDawg("español", archivoPalabrasTemp.toString());
         diccionario.addAlphabet("español", archivoAlphabetTemp.toString());
@@ -311,7 +312,7 @@ public class DiccionarioTest {
     
     /**
      * Pre: Se ha creado una instancia de Diccionario.
-     * Post: Se verifica que al añadir datos con archivos inexistentes se crean estructuras vacías.
+     * Post: Se verifica que al añadir datos con archivos inexistentes lanza una excepción.
      * 
      * Comprueba el comportamiento con archivos inexistentes.
      * Aporta validación de la robustez ante errores de acceso a archivos.
@@ -320,25 +321,49 @@ public class DiccionarioTest {
     public void testComportamientoConArchivosInexistentes() {
         // Intentar añadir un Dawg con un archivo que no existe
         String rutaInexistente = "ruta/que/no/existe.txt";
-        diccionario.addDawg("español", rutaInexistente);
         
-        // El Dawg debería existir, pero estar vacío
+        // Verificar que se lanza una excepción al intentar añadir un Dawg con archivo inexistente
+        try {
+            diccionario.addDawg("español", rutaInexistente);
+            // Si llegamos aquí es porque no se lanzó excepción, lo que sería inesperado
+            fail("Debería lanzar NoSuchFileException al intentar leer un archivo inexistente");
+        } catch (java.nio.file.NoSuchFileException e) {
+            // Es el comportamiento esperado
+            assertTrue("La excepción debe contener la ruta del archivo inexistente", 
+                      e.getMessage().contains(rutaInexistente));
+        } catch (IOException e) {
+            // Otras excepciones de IO también son aceptables
+            assertTrue("La excepción debe estar relacionada con la inexistencia del archivo", 
+                      e.getMessage().contains("no existe") || e.getMessage().contains("No such file"));
+        }
+        
+        // Verificar que el Dawg no se creó
         Dawg dawg = diccionario.getDawg("español");
-        assertNotNull("El Dawg no debería ser null incluso con archivo inexistente", dawg);
-        assertFalse("El Dawg no debería contener ninguna palabra", dawg.search("CASA"));
+        assertNull("El Dawg debería ser null después de error con archivo inexistente", dawg);
         
-        // Intentar añadir un alfabeto con un archivo que no existe
-        diccionario.addAlphabet("español", rutaInexistente);
+        // Verificar que se lanza una excepción al intentar añadir un alfabeto con archivo inexistente
+        try {
+            diccionario.addAlphabet("español", rutaInexistente);
+            // Si llegamos aquí es porque no se lanzó excepción, lo que sería inesperado
+            fail("Debería lanzar NoSuchFileException al intentar leer un archivo inexistente");
+        } catch (java.nio.file.NoSuchFileException e) {
+            // Es el comportamiento esperado
+            assertTrue("La excepción debe contener la ruta del archivo inexistente", 
+                      e.getMessage().contains(rutaInexistente));
+        } catch (IOException e) {
+            // Otras excepciones de IO también son aceptables
+            assertTrue("La excepción debe estar relacionada con la inexistencia del archivo", 
+                      e.getMessage().contains("no existe") || e.getMessage().contains("No such file"));
+        }
         
-        // El alfabeto debería existir, pero estar vacío
+        // Verificar que el alfabeto no se creó
         Map<String, Integer> alphabet = diccionario.getAlphabet("español");
-        assertNotNull("El alfabeto no debería ser null incluso con archivo inexistente", alphabet);
-        assertTrue("El alfabeto debería estar vacío", alphabet.isEmpty());
+        assertNull("El alfabeto debería ser null después de error con archivo inexistente", alphabet);
     }
     
     /**
      * Pre: Se ha creado una instancia de Diccionario y archivos temporales vacíos.
-     * Post: Se verifica que al añadir datos con archivos vacíos se crean estructuras vacías.
+     * Post: Se verifica que al añadir datos con archivos vacíos lanza una excepción.
      * 
      * Comprueba el comportamiento con archivos vacíos.
      * Aporta validación de la correcta gestión ante la ausencia de datos.
@@ -350,19 +375,30 @@ public class DiccionarioTest {
             Path archivoVacio1 = Files.createTempFile("vacio1", ".txt");
             Path archivoVacio2 = Files.createTempFile("vacio2", ".txt");
             
-            // Añadir un Dawg y un alfabeto con archivos vacíos
-            diccionario.addDawg("español", archivoVacio1.toString());
-            diccionario.addAlphabet("español", archivoVacio2.toString());
+            // El Dawg con archivo vacío debería crearse correctamente (sin palabras)
+            try {
+                diccionario.addDawg("español", archivoVacio1.toString());
+                
+                // Verificar que el Dawg existe, pero está vacío
+                Dawg dawg = diccionario.getDawg("español");
+                assertNotNull("El Dawg no debería ser null con archivo vacío", dawg);
+                assertFalse("El Dawg no debería contener ninguna palabra", dawg.search("CASA"));
+            } catch (IOException e) {
+                fail("No debería lanzar excepción al añadir un Dawg con archivo vacío: " + e.getMessage());
+            }
             
-            // Verificar que el Dawg y el alfabeto existen, pero están vacíos
-            Dawg dawg = diccionario.getDawg("español");
-            Map<String, Integer> alphabet = diccionario.getAlphabet("español");
-            
-            assertNotNull("El Dawg no debería ser null con archivo vacío", dawg);
-            assertNotNull("El alfabeto no debería ser null con archivo vacío", alphabet);
-            
-            assertTrue("El alfabeto debería estar vacío", alphabet.isEmpty());
-            assertFalse("El Dawg no debería contener ninguna palabra", dawg.search("CASA"));
+            // El alfabeto con archivo vacío debería lanzar IllegalArgumentException
+            try {
+                diccionario.addAlphabet("español", archivoVacio2.toString());
+                fail("Debería lanzar IllegalArgumentException al añadir un alfabeto con archivo vacío");
+            } catch (IllegalArgumentException e) {
+                // Es el comportamiento esperado
+                assertTrue("La excepción debe mencionar que el alfabeto está vacío", 
+                           e.getMessage().contains("El alfabeto no puede estar vacío"));
+            } catch (IOException e) {
+                // Cualquier otra excepción es inesperada
+                fail("Debería lanzar IllegalArgumentException, no IOException: " + e.getMessage());
+            }
             
             // Limpiar
             Files.delete(archivoVacio1);
@@ -438,5 +474,31 @@ public class DiccionarioTest {
         verify(mockDiccionario).getDawg("español");
         verify(mockDiccionario).getAlphabet("español");
         verify(mockDiccionario).getBag("español");
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Diccionario y existe un archivo de palabras y un alfabeto.
+     * Post: Se verifica que se puede determinar si una palabra existe en el diccionario.
+     * 
+     * Comprueba la funcionalidad de búsqueda de palabras.
+     * Aporta validación de la correcta integración entre Dawg y operaciones de consulta.
+     */
+    @Test
+    public void testContienePalabra() throws IOException {
+        // Añadir un Dawg y un alfabeto
+        diccionario.addDawg("español", archivoPalabrasTemp.toString());
+        diccionario.addAlphabet("español", archivoAlphabetTemp.toString());
+        
+        // Verificar palabras que existen
+        assertTrue("La palabra 'CASA' debería existir en el diccionario", diccionario.contienePalabra("CASA", "español"));
+        assertTrue("La palabra 'PERRO' debería existir en el diccionario", diccionario.contienePalabra("PERRO", "español"));
+        assertTrue("La palabra 'casa' (en minúsculas) debería existir en el diccionario", diccionario.contienePalabra("casa", "español"));
+        
+        // Verificar palabras que no existen
+        assertFalse("La palabra 'ÁRBOL' no debería existir en el diccionario", diccionario.contienePalabra("ÁRBOL", "español"));
+        assertFalse("La palabra vacía no debería existir en el diccionario", diccionario.contienePalabra("", "español"));
+        
+        // Verificar comportamiento con idioma inexistente
+        assertFalse("Cualquier palabra debería devolver false con un idioma inexistente", diccionario.contienePalabra("CASA", "idiomaInexistente"));
     }
 }

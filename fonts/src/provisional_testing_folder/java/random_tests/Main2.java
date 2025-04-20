@@ -1,4 +1,4 @@
-package random_tests;
+/* package random_tests;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -18,8 +18,8 @@ public class Main2 {
         // Crear instancia del controlador
         ControladorJuego juego = new ControladorJuego();
 
-        String rutaFichas = "src/provisional_testing_folder/resources/alpha.txt"; // Ruta del archivo de fichas
-        String rutaAlphabet = "src/provisional_testing_folder/resources/words.txt"; // Ruta del archivo de fichas
+        String rutaFichas = "src/provisional_testing_folder/resources/ESP/alpha.txt"; // Ruta del archivo de fichas
+        String rutaAlphabet = "src/provisional_testing_folder/resources/ESP/words.txt"; // Ruta del archivo de fichas
 
         // Inicializar el juego
         juego.anadirLenguaje("Esp", rutaFichas, rutaAlphabet);
@@ -104,3 +104,4 @@ public class Main2 {
     }
 }
 
+*/

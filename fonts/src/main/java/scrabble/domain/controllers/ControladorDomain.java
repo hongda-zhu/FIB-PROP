@@ -1,24 +1,19 @@
 package scrabble.domain.controllers;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import scrabble.domain.controllers.subcontrollers.ControladorConfiguracion;
+import scrabble.domain.controllers.subcontrollers.ControladorDiccionario;
 import scrabble.domain.controllers.subcontrollers.ControladorJuego;
 import scrabble.domain.controllers.subcontrollers.ControladorJugador;
 import scrabble.domain.controllers.subcontrollers.ControladorRanking;
-import scrabble.excepciones.ExceptionDiccionarioExist;
-import scrabble.excepciones.ExceptionLanguageNotExist;
-import scrabble.excepciones.ExceptionUserEsIA;
-import scrabble.excepciones.ExceptionUserExist;
-import scrabble.excepciones.ExceptionUserInGame;
-import scrabble.excepciones.ExceptionUserNotExist;
-import scrabble.excepciones.ExceptionPuntuacionNotExist;
-import scrabble.excepciones.ExceptionRankingOperationFailed;
+import scrabble.domain.models.Diccionario;
+import scrabble.excepciones.*;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.BooleanWrapper;
+
 
 
 /**
@@ -30,15 +25,17 @@ public class ControladorDomain {
     private ControladorJuego controladorJuego;
     private ControladorRanking controladorRanking;
     private ControladorJugador controladorJugador;
-
+    private ControladorDiccionario controladorDiccionario;
 
     public ControladorDomain() {
         this.controladorConfiguracion = new ControladorConfiguracion();
         this.controladorJuego = new ControladorJuego();
         this.controladorRanking = ControladorRanking.getInstance();
         this.controladorJugador = ControladorJugador.getInstance();
+        this.controladorDiccionario = ControladorDiccionario.getInstance();
     }
 
+    // METODOS DE USUARIOS
     /**
      * Verifica si un jugador (humano) está listo para jugar.
      * @param nombre nombre del jugador
@@ -156,14 +153,6 @@ public class ControladorDomain {
         controladorConfiguracion.setVolumen(volumen);
     }
 
-    /**
-    * Devuelve la lista de nombres de los diccionarios disponibles en el sistema.
-    *
-    * @return lista de nombres de diccionarios disponibles.
-    */
-    public List<String> getDiccionariosDisponibles () {
-        return controladorJuego.getDiccionariosDisponibles();
-    }
 
     /**
     * Añade un nuevo lenguaje al sistema a partir de los archivos en las rutas proporcionadas.
@@ -172,13 +161,15 @@ public class ControladorDomain {
     * @param rutaArchivoAlpha ruta del archivo con el alfabeto del lenguaje.
     * @param rutaArchivoWords ruta del archivo con las palabras válidas del lenguaje.
     * @throws ExceptionDiccionarioExist si el lenguaje ya existe en el sistema.
+    * @throws IOException Si hay problemas al leer los archivos.
     */
-    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) {
-        if (controladorJuego.existeLenguaje(nombre)) {
+    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws IOException {
+        if (existeLenguaje(nombre)) {
             throw new ExceptionDiccionarioExist();
         }
 
-        controladorJuego.anadirLenguaje(nombre, rutaArchivoAlpha, rutaArchivoWords);
+        // Delegar al controlador de diccionarios
+        controladorDiccionario.crearDiccionario(nombre, rutaArchivoAlpha, rutaArchivoWords);
     }
 
     /**
@@ -188,7 +179,7 @@ public class ControladorDomain {
     * @return true si el lenguaje ya existe; false en caso contrario.
     */
     public boolean existeLenguaje(String nombre) {
-        return controladorJuego.existeLenguaje(nombre); 
+        return controladorDiccionario.existeDiccionario(nombre);
     }
 
     /**
@@ -198,7 +189,7 @@ public class ControladorDomain {
     * @throws ExceptionLanguageNotExist si el lenguaje no existe en el sistema.
     */
     public void setLenguaje(String nombre) {
-        if (!controladorJuego.existeLenguaje(nombre)) {
+        if (!existeLenguaje(nombre)) {
             throw new ExceptionLanguageNotExist();
         }
         controladorJuego.setLenguaje(nombre);
@@ -307,13 +298,21 @@ public class ControladorDomain {
     */  
     public void iniciarPartida(String nombrePartida, HashMap<String, String> jugadoresSeleccionados, String diccionario, int N) {
     
+        // Verificar que el diccionario existe
+        if (!existeLenguaje(diccionario)) {
+            throw new ExceptionLanguageNotExist();
+        }
+        
+        // Configurar el lenguaje y iniciar juego
         controladorJuego.setLenguaje(diccionario);
         controladorJuego.iniciarJuego(diccionario);
         
+        // Configurar tamaño de tablero si es diferente al estándar
         if (N != 15) {
             controladorJuego.creaTableroNxN(N);
         }
 
+        // Inicializar racks para todos los jugadores
         for (Map.Entry<String, String> entry : jugadoresSeleccionados.entrySet()) {
             String nombreJugador = entry.getValue(); // Ahora entry.getValue() es directamente el nombre
             Map<String, Integer> rack = controladorJuego.cogerFichas(7);
@@ -353,31 +352,173 @@ public class ControladorDomain {
 
     // METODOS DE RANKING
 
-    public void verRanking() {
-        controladorRanking.verRanking();
+    /**
+     * Obtiene la lista de usuarios ordenados según la estrategia actual.
+     * @return Lista de usuarios ordenados
+     */
+    public List<String> getRanking() {
+        return controladorRanking.getRanking();
     }
 
-    public boolean actualizarEstadisticasUsuario(String nombre, boolean esVictoria) {
-        if (!controladorJugador.existeJugador(nombre)) {
-            throw new ExceptionUserNotExist();
-        }
-        return controladorRanking.actualizarEstadisticasUsuario(nombre, esVictoria);
+    /**
+     * Obtiene la lista de usuarios ordenados según un criterio específico.
+     * @param criterio Criterio de ordenación
+     * @return Lista de usuarios ordenados
+     */
+    public List<String> getRanking(String criterio) {
+        return controladorRanking.getRanking(criterio);
     }
 
+    /**
+     * Obtiene el nombre de la estrategia actual de ordenación.
+     * @return Nombre de la estrategia
+     */
+    public String getEstrategiaRanking() {
+        return controladorRanking.getEstrategiaActual();
+    }
+
+    /**
+     * Obtiene el criterio actual de ordenación.
+     * @return Criterio actual (maxima, media, partidas, victorias)
+     */
+    public String getEstrategiaActual() {
+        // Convertir el nombre de la estrategia a su identificador
+        String nombreEstrategia = getEstrategiaRanking();
+        
+        if (nombreEstrategia.contains("Máxima")) return "maxima";
+        if (nombreEstrategia.contains("Media")) return "media";
+        if (nombreEstrategia.contains("Partidas")) return "partidas";
+        if (nombreEstrategia.contains("Victorias")) return "victorias";
+        
+        return "maxima"; // Por defecto
+    }
+
+    /**
+     * Cambia la estrategia de ordenación del ranking.
+     * @param criterio Criterio de ordenación
+     */
+    public void cambiarEstrategiaRanking(String criterio) {
+        controladorRanking.setEstrategia(criterio);
+    }
+
+    /**
+     * Obtiene la puntuación máxima de un usuario específico.
+     * @param nombre Nombre del usuario
+     * @return Puntuación máxima
+     */
+    public int getPuntuacionMaxima(String nombre) {
+        return controladorRanking.getPuntuacionMaxima(nombre);
+    }
+
+    /**
+     * Obtiene la puntuación media de un usuario específico.
+     * @param nombre Nombre del usuario
+     * @return Puntuación media
+     */
+    public double getPuntuacionMedia(String nombre) {
+        return controladorRanking.getPuntuacionMedia(nombre);
+    }
+
+    /**
+     * Obtiene el número de partidas jugadas por un usuario específico.
+     * @param nombre Nombre del usuario
+     * @return Número de partidas jugadas
+     */
+    public int getPartidasJugadas(String nombre) {
+        return controladorRanking.getPartidasJugadas(nombre);
+    }
+
+    /**
+     * Obtiene el número de victorias de un usuario específico.
+     * @param nombre Nombre del usuario
+     * @return Número de victorias
+     */
+    public int getVictorias(String nombre) {
+        return controladorRanking.getVictorias(nombre);
+    }
+
+    /**
+     * Obtiene la puntuación total acumulada de un usuario específico.
+     * @param nombre Nombre del usuario
+     * @return Puntuación total acumulada
+     */
+    public int getPuntuacionTotal(String nombre) {
+        return controladorRanking.getPuntuacionTotal(nombre);
+    }
+
+    /**
+     * Obtiene todas las puntuaciones de un usuario específico.
+     * @param nombre Nombre del usuario
+     * @return Lista de puntuaciones
+     */
+    public List<Integer> getPuntuacionesUsuario(String nombre) {
+        return controladorRanking.getPuntuacionesUsuario(nombre);
+    }
+
+    /**
+     * Verifica si un usuario está en el ranking.
+     * @param nombre Nombre del usuario
+     * @return true si el usuario está en el ranking, false en caso contrario
+     */
+    public boolean perteneceRanking(String nombre) {
+        return controladorRanking.perteneceRanking(nombre);
+    }
+
+    /**
+     * Guarda los datos del ranking.
+     */
+    public void guardarRanking() {
+        controladorRanking.guardarDatos();
+    }
+
+    /**
+     * Obtiene la lista de todos los usuarios en el ranking.
+     * @return Lista de usuarios
+     */
+    public List<String> getUsuarios() {
+        return controladorRanking.getUsuarios();
+    }
+
+    /**
+     * Agrega una puntuación a un usuario.
+     * @param nombre Nombre del usuario
+     * @param puntuacion Puntuación a agregar
+     * @return true si se agregó correctamente, false en caso contrario
+     */
+    public boolean agregarPuntuacion(String nombre, int puntuacion) {
+        return controladorRanking.agregarPuntuacion(nombre, puntuacion);
+    }
+
+    /**
+     * Elimina una puntuación de un usuario.
+     * @param nombre Nombre del usuario
+     * @param puntuacion Puntuación a eliminar
+     * @return true si se eliminó correctamente, false en caso contrario
+     */
     public boolean eliminarPuntuacion(String nombre, int puntuacion) {
-        if (!controladorRanking.existePuntuacion(nombre, puntuacion)) {
-            throw new ExceptionPuntuacionNotExist();
-        }
         return controladorRanking.eliminarPuntuacion(nombre, puntuacion);
     }
 
-    public void cambiarEstrategia(String criterio) {
-        controladorRanking.cambiarEstrategia(criterio);
+    /**
+     * Actualiza las estadísticas de victoria de un usuario.
+     * @param nombre Nombre del usuario
+     * @param esVictoria true si el usuario ganó la partida
+     * @return true si se actualizó correctamente, false en caso contrario
+     */
+    public boolean actualizarEstadisticasUsuario(String nombre, boolean esVictoria) {
+        return controladorRanking.actualizarEstadisticasUsuario(nombre, esVictoria);
     }
 
-    public void listarPuntuaciones() {
-        controladorRanking.listarPuntuaciones();
+    /**
+     * Elimina a un usuario del ranking.
+     * @param nombre Nombre del usuario
+     * @return true si se eliminó correctamente, false en caso contrario
+     */
+    public boolean eliminarUsuarioRanking(String nombre) {
+        return controladorRanking.eliminarUsuario(nombre);
     }
+
+    // Metodos de Jugadores
 
     /**
      * Verifica si un jugador existe en el sistema.
@@ -400,6 +541,16 @@ public class ControladorDomain {
     }
     
     /**
+     * Obtiene el nivel de dificultad de un jugador IA.
+     * 
+     * @param nombre Nombre del jugador
+     * @return Dificultad del jugador IA o null si no es una IA
+     */
+    public Dificultad getNivelDificultad(String nombre) {
+        return controladorJugador.getNivelDificultad(nombre);
+    }
+    
+    /**
      * Verifica si un jugador humano está en una partida.
      * 
      * @param nombre Nombre del jugador
@@ -408,6 +559,172 @@ public class ControladorDomain {
     public boolean isEnPartida(String nombre) {
         return controladorJugador.isEnPartida(nombre);
     }
+
+    /**
+     * Método para inicializar a los jugadores al comenzar una partida.
+     * Marca a los jugadores humanos como "en partida" y reinicia puntuaciones.
+     *
+     * @param jugadores Lista de nombres de jugadores en la partida
+     */
+    public void inicializarJugadoresPartida(List<String> jugadores) {
+        ControladorJugador controladorJugador = ControladorJugador.getInstance();
+        
+        for (String nombre : jugadores) {
+            // Solo aplicamos esto a jugadores humanos
+            if (!controladorJugador.esIA(nombre)) {
+                controladorJugador.setEnPartida(nombre, true);
+                controladorJugador.setPuntuacion(nombre, 0);
+            }
+        }
+    }
+
+    /**
+     * Método para actualizar estadísticas de jugadores al finalizar una partida.
+     * Actualiza puntuaciones, incrementa contadores y marca a los jugadores como "fuera de partida".
+     *
+     * @param puntuacionesFinales Mapa con nombres de jugadores y sus puntuaciones finales
+     * @param ganador Nombre del jugador ganador
+     */
+    public void finalizarPartidaJugadores(Map<String, Integer> puntuacionesFinales, String ganador) {
+        List<String> ganadores = new ArrayList<>();
+        ganadores.add(ganador);
+        finalizarPartidaJugadoresMultiple(puntuacionesFinales, ganadores);
+    }
+    
+    /**
+     * Método para actualizar estadísticas de jugadores al finalizar una partida con posibilidad de múltiples ganadores.
+     * Actualiza puntuaciones, incrementa contadores y marca a los jugadores como "fuera de partida".
+     *
+     * @param puntuacionesFinales Mapa con nombres de jugadores y sus puntuaciones finales
+     * @param ganadores Lista de nombres de los jugadores ganadores (para empates)
+     */
+    public void finalizarPartidaJugadoresMultiple(Map<String, Integer> puntuacionesFinales, List<String> ganadores) {
+        ControladorJugador controladorJugador = ControladorJugador.getInstance();
+        
+        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
+            String nombre = entry.getKey();
+            int puntuacion = entry.getValue();
+            
+            // Solo procesamos jugadores humanos
+            if (!controladorJugador.esIA(nombre)) {
+                controladorJugador.setEnPartida(nombre, false);
+                controladorJugador.setPuntuacion(nombre, puntuacion);
+                controladorJugador.incrementarPartidasJugadas(nombre);
+                
+                // Actualizamos la puntuación total acumulada
+                controladorJugador.addPuntuacionTotal(nombre, puntuacion);
+                
+                // Si está en la lista de ganadores, incrementamos las partidas ganadas
+                if (ganadores.contains(nombre)) {
+                    controladorJugador.incrementarPartidasGanadas(nombre);
+                }
+            }
+        }
+    }
+
+    /**
+     * Obtiene la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @return La puntuación total acumulada, o 0 si el jugador no es humano o no existe
+     */
+    public int getPuntuacionTotalDirecta(String nombre) {
+        return controladorJugador.getPuntuacionTotal(nombre);
+    }
+    
+    /**
+     * Establece la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @param puntuacionTotal La nueva puntuación total
+     * @return true si se actualizó correctamente, false en caso contrario
+     */
+    public boolean setPuntuacionTotal(String nombre, int puntuacionTotal) {
+        return controladorJugador.setPuntuacionTotal(nombre, puntuacionTotal);
+    }
+    
+    /**
+     * Añade puntos a la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @param puntos Los puntos a añadir
+     * @return true si se añadieron correctamente, false en caso contrario
+     */
+    public boolean addPuntuacionTotal(String nombre, int puntos) {
+        return controladorJugador.addPuntuacionTotal(nombre, puntos);
+    }
+
+    // --- MÉTODOS DE DICCIONARIO ---
+    
+    /**
+     * Delega la creación de un diccionario al ControladorDiccionario.
+     * 
+     * @param nombre Nombre del diccionario
+     * @param path Ruta al directorio del diccionario
+     * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre
+     * @throws IOException Si hay problemas con los archivos
+     */
+    public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException {
+        controladorDiccionario.crearDiccionario(nombre, path);
+    }
+    
+    /**
+     * Delega la eliminación de un diccionario al ControladorDiccionario.
+     * 
+     * @param nombre Nombre del diccionario a eliminar
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     * @throws IOException Si hay problemas eliminando los archivos
+     */
+    public void eliminarDiccionario(String nombre) throws ExceptionDiccionarioNotExist, IOException {
+        controladorDiccionario.eliminarDiccionario(nombre);
+    }
+    
+    /**
+     * Verifica si existe un diccionario con el nombre especificado.
+     * 
+     * @param nombre Nombre del diccionario
+     * @return true si existe, false en caso contrario
+     */
+    public boolean existeDiccionario(String nombre) {
+        return controladorDiccionario.existeDiccionario(nombre);
+    }
+    
+    /**
+     * Obtiene un diccionario por su nombre.
+     * 
+     * @param nombre Nombre del diccionario
+     * @return El objeto Diccionario
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     */
+    public Diccionario getDiccionario(String nombre) throws ExceptionDiccionarioNotExist {
+        return controladorDiccionario.getDiccionario(nombre);
+    }
+    
+    /**
+     * Obtiene la lista de nombres de diccionarios disponibles.
+     * 
+     * @return Lista de nombres de diccionarios
+     */
+    public List<String> getDiccionariosDisponibles() {
+        return controladorDiccionario.getDiccionariosDisponibles();
+    }
+    
+    /**
+     * Modifica un diccionario añadiendo o eliminando una palabra.
+     * 
+     * @param nombre Nombre del diccionario
+     * @param palabra Palabra a añadir o eliminar
+     * @param anadir true para añadir, false para eliminar
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     * @throws ExceptionPalabraVacia Si la palabra está vacía
+     * @throws ExceptionPalabraInvalida Si la palabra contiene caracteres no válidos
+     * @throws ExceptionPalabraExist Si la palabra ya existe (al añadir)
+     * @throws ExceptionPalabraNotExist Si la palabra no existe (al eliminar)
+     * @throws IOException Si hay problemas con los archivos
+     */
+    public void modificarPalabraDiccionario(String nombre, String palabra, boolean anadir) 
+            throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida, 
+                  ExceptionPalabraExist, ExceptionPalabraNotExist, IOException {
+        controladorDiccionario.modificarPalabraDiccionario(nombre, palabra, anadir);
+    }
 }
-
-

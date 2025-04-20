@@ -445,6 +445,57 @@ public class ControladorJugador {
     }
     
     /**
+     * Obtiene la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @return La puntuación total acumulada, o 0 si el jugador no es humano
+     */
+    public int getPuntuacionTotal(String nombre) {
+        if (!existeJugador(nombre) || esIA(nombre)) {
+            return 0;
+        }
+        
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
+        return jugador.getPuntuacionTotal();
+    }
+    
+    /**
+     * Establece la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @param puntuacionTotal La nueva puntuación total
+     * @return true si se actualizó correctamente, false en caso contrario
+     */
+    public boolean setPuntuacionTotal(String nombre, int puntuacionTotal) {
+        if (!existeJugador(nombre) || esIA(nombre)) {
+            return false;
+        }
+        
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
+        jugador.setPuntuacionTotal(puntuacionTotal);
+        guardarDatos();
+        return true;
+    }
+    
+    /**
+     * Añade puntos a la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @param puntos Los puntos a añadir
+     * @return true si se añadieron correctamente, false en caso contrario
+     */
+    public boolean addPuntuacionTotal(String nombre, int puntos) {
+        if (!existeJugador(nombre) || esIA(nombre)) {
+            return false;
+        }
+        
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
+        jugador.addPuntuacionTotal(puntos);
+        guardarDatos();
+        return true;
+    }
+    
+    /**
      * Guarda los datos de los jugadores en un archivo.
      */
     private void guardarDatos() {
