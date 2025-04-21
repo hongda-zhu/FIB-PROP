@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
  * Controlador para la gestión del ranking de jugadores.
  * Implementa el patrón Singleton para garantizar una única instancia.
  */
-public class ControladorRanking implements Serializable, RankingDataProvider {
+public class ControladorRanking implements RankingDataProvider {
     private static final long serialVersionUID = 1L;
     private static transient ControladorRanking instance;
     

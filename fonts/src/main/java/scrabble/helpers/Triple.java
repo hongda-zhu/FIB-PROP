@@ -1,8 +1,11 @@
 package scrabble.helpers;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Triple<A, B, C> {
+public class Triple<A, B, C> implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     public final A x;
     public final B y;
     public final C z;

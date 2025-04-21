@@ -167,7 +167,6 @@ public class ControladorDomain {
         if (existeLenguaje(nombre)) {
             throw new ExceptionDiccionarioExist();
         }
-
         // Delegar al controlador de diccionarios
         controladorDiccionario.crearDiccionario(nombre, rutaArchivoAlpha, rutaArchivoWords);
     }
@@ -195,11 +194,66 @@ public class ControladorDomain {
     *         
     * 
     */    
-    public Tuple<Map<String, Integer>, Integer> realizarTurno(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, BooleanWrapper pausado) {
+    public Tuple<Map<String, Integer>, Integer> realizarTurno(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador) {
         Map<String, Integer> rack = controladorJugador.getRack(nombreJugador);
         boolean esIA = controladorJugador.esIA(nombreJugador);
         Dificultad dificultad = getNivelDificultad(nombreJugador);
-        return ((move.x == "P" || move.x == "X") && !esIA)? null: controladorJuego.realizarTurno(move, nombreJugador, rack, esIA, dificultad, pausado);
+        return (move != null && move.x == "P" && !esIA)? null: controladorJuego.realizarTurno(move, nombreJugador, rack, esIA, dificultad);
+    }
+
+    public void managePartidaIniciar(String idiomaSeleccionado, Set<String> jugadoresSeleccionados, Integer N) throws IOException{
+        
+        iniciarPartida(jugadoresSeleccionados, idiomaSeleccionado, N);
+
+        // Inicializar racks para todos los jugadores
+        for (String jugador : jugadoresSeleccionados) {
+            Map<String, Integer> rack = controladorJuego.cogerFichas(7);
+            inicializarRack(jugador, rack);
+        }
+        
+        // Inicializar a los jugadores para la partida (marcando que están en partida)
+        List<String> listaJugadores = new ArrayList<>(jugadoresSeleccionados);
+        inicializarJugadoresPartida(listaJugadores);
+    }
+
+    public void realizarTurnoPartida(String nombreJugador, Triple<String, Tuple<Integer, Integer>, Direction> jugada) {
+        
+            Tuple<Map<String, Integer>, Integer> result = realizarTurno(jugada, nombreJugador);
+            if (result == null) {
+                addSkipTrack(nombreJugador);
+            } else {
+                inicializarRack(nombreJugador, result.x);
+                addPuntuacion(nombreJugador, result.y);
+                Map<String, Integer> nuevasFicha = cogerFichas(7 - getCantidadFichas(nombreJugador));
+                
+                if (nuevasFicha == null) {
+                    controladorJuego.finalizarJuego();
+                } else {
+                    for (Map.Entry<String, Integer> fichas : nuevasFicha.entrySet()) {
+                        String letra = fichas.getKey();
+                        int cantidad = fichas.getValue();
+                        for (int i = 0; i < cantidad; i++) {
+                            agregarFicha(nombreJugador, letra);
+                        }   
+                    }
+                }
+            }               
+    }
+
+    public void comprobarFinPartida(Set<String> jugadoresSeleccionados) {
+        boolean allskiped = true;
+
+        for (String entry : jugadoresSeleccionados) {
+            String nombreJugador = entry;
+            if (getSkipTrack(nombreJugador) < 3) {
+                allskiped = false;
+                break;
+            }
+        }
+        if (allskiped) {
+            System.out.println("Los jugadores han pasado mas de 2 veces consecutivas. El juego ha terminado.");
+            controladorJuego.finalizarJuego();
+        }
     }
 
     /**
@@ -219,9 +273,6 @@ public class ControladorDomain {
         controladorJugador.addSkipTrack(nombre);
     }
 
-    public void clearSkipTrack(String nombre) {
-        controladorJugador.clearSkipTrack(nombre);
-    }
 
     /**
      * Inicializa el rack del jugador con las fichas proporcionadas.
@@ -288,7 +339,6 @@ public class ControladorDomain {
     */  
     public void iniciarPartida(Set<String> jugadoresSeleccionados, String nombreDiccionario, int N) {
     
-
         controladorJuego.inicializarJuego(N, jugadoresSeleccionados, nombreDiccionario);
         
         // Inicializar racks para todos los jugadores
@@ -309,18 +359,83 @@ public class ControladorDomain {
     /**
      * Finaliza el juego actual y realiza tareas de limpieza si es necesario.
      */
-    public void finalizarJuego(Set<String> jugadores) {
-        controladorJuego.finalizarJuego();
-        for (String jugador : jugadores) {
+    public String finalizarJuego(Set<String> jugadoresSeleccionados) {
+
+        Map<String, Integer> puntuacionesFinales = new HashMap<>();
+        
+        for (String jugador : jugadoresSeleccionados) {
             controladorJugador.clearSkipTrack(jugador);
         }
-    }
 
-    /**
-     * Reinicia el estado del juego completamente.
-     */
-    public void reiniciarJuego() {
+         // Recopilar las puntuaciones finales
+         for (String nombreJugador : jugadoresSeleccionados) {
+            puntuacionesFinales.put(nombreJugador, getPuntuacion(nombreJugador));
+        }
+        
+        // Determinar el ganador o ganadores (en caso de empate)
+        int maxPuntuacion = -1;
+        List<String> ganadores = new ArrayList<>();
+        
+        // Primero encontramos la puntuación máxima
+        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
+            if (entry.getValue() > maxPuntuacion) {
+                maxPuntuacion = entry.getValue();
+            }
+        }
+        
+        // Luego identificamos todos los jugadores con esa puntuación máxima (pueden ser varios en caso de empate)
+        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
+            if (entry.getValue() == maxPuntuacion) {
+                ganadores.add(entry.getKey());
+            }
+        }
+        
+        // Ahora actualizamos las estadísticas para todos los jugadores, marcando múltiples ganadores si es necesario
+        finalizarPartidaJugadoresMultiple(puntuacionesFinales, ganadores);
+        
+        // Mensaje de resultado
+        StringBuilder mensajeGanadores = new StringBuilder();
+        if (ganadores.size() > 1) {
+            mensajeGanadores.append("""
+            +--------------------------------------+
+            | ¡EMPATE!                             |
+            +--------------------------------------+
+            """);
+            mensajeGanadores.append(String.format("Los jugadores empatados son: %s con una puntuación de: %d puntos.%n",
+            String.join(", ", ganadores), maxPuntuacion));
+        } else if (ganadores.size() == 1) {
+            mensajeGanadores.append("""
+            +--------------------------------------+
+            | ¡FELICIDADES!                        |
+            +--------------------------------------+
+            """);
+            mensajeGanadores.append(String.format("El ganador es: %s con una puntuación de: %d puntos.%n",
+            ganadores.get(0), maxPuntuacion));
+        } else {
+            mensajeGanadores.append("""
+            +--------------------------------------+
+            | SIN GANADORES                        |
+            +--------------------------------------+
+            """);
+            mensajeGanadores.append("No hubo ganadores en esta partida.\n");
+        }
+
+        // Mostrar resultados finales
+        mensajeGanadores.append("+--------------------------------------+\n");
+        mensajeGanadores.append("  RESULTADOS FINALES                    \n");
+        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
+            mensajeGanadores.append(String.format("  %-20s : %4d puntos\n", entry.getKey(), entry.getValue()));
+        }
+        mensajeGanadores.append("+--------------------------------------+\n");
+
+        
         controladorJuego.reiniciarJuego();
+        
+        for (String nombreJugador : jugadoresSeleccionados) {
+            controladorJugador.clearSkipTrack(nombreJugador);
+        }
+        
+        return mensajeGanadores.toString();
     }
 
     /**
@@ -499,7 +614,6 @@ public class ControladorDomain {
      */
     public boolean eliminarUsuarioRanking(String nombre) {
         // Primero, capturar la información antes de eliminar
-        int puntuacionTotalRanking = controladorRanking.getPuntuacionTotal(nombre);
         boolean eliminado = controladorRanking.eliminarUsuario(nombre);
         
         // Si se eliminó correctamente del ranking y existe como jugador humano,
@@ -610,6 +724,7 @@ public class ControladorDomain {
                 
                 // Actualizamos la puntuación total acumulada
                 controladorJugador.addPuntuacionTotal(nombre, puntuacion);
+                
                 
                 // Si está en la lista de ganadores, incrementamos las partidas ganadas
                 if (ganadores.contains(nombre)) {
@@ -825,22 +940,46 @@ public class ControladorDomain {
         return controladorJuego.isJuegoIniciado()?controladorJuego.isValidMove(move, rack):controladorJuego.isValidFirstMove(move, rack);
     }
 
-    public String mostrarTablero() {
-        return this.controladorJuego.mostrarTablero();
-    }
 
     /**
      * Muestra el rack del jugador de forma ordenada y legible.
      * 
      * @param jugador Nombre del jugador
      */
-    public void mostrarRack(String jugador) {
-        System.out.println("\n=== Rack del jugador: " + jugador + " ===");
-        System.out.println("-----------------------------------------");
+    public String mostrarRack(String jugador) {
+        StringBuilder rackInfo = new StringBuilder();
+        rackInfo.append("\n=== Rack del jugador: ").append(jugador).append(" ===\n");
+        rackInfo.append("-----------------------------------------\n");
         this.controladorJugador.getRack(jugador).forEach((letra, cantidad) -> {
-            System.out.printf("Letra: %s | Cantidad: %d%n", letra, cantidad);
+            rackInfo.append(String.format("Letra: %s | Cantidad: %d%n", letra, cantidad));
         });
-        System.out.println("-----------------------------------------\n");
+        rackInfo.append("-----------------------------------------\n");
+        return rackInfo.toString();
+    }
+
+    public Map<String, Integer> getRack(String nombre) {
+        return controladorJugador.getRack(nombre);
+    }
+
+    public String mostrarStatusPartida(String nombreJugador) {
+        return controladorJuego.mostrarStatusPartida(nombreJugador);
+    }
+
+    public void guardarPartida(String nombrePartida) {
+        controladorJuego.guardar(nombrePartida);
+    }
+    public void cargarPartida(String nombrePartida) {
+        controladorJuego.cargarDesdeArchivo(nombrePartida);
+    }
+    public List<String> getPartidasGuardadas() {
+        return controladorJuego.listarArchivosGuardados();
+    }
+    public void eliminarPartidaGuardada(String nombrePartida) {
+        controladorJuego.eliminarArchivoGuardado(nombrePartida);
+    }
+
+    public Set<String> getJugadoresActuales() {
+        return controladorJuego.getJugadoresActuales();
     }
 
     /**

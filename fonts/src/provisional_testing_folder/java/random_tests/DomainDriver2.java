@@ -184,7 +184,7 @@ public class DomainDriver2 {
         String palabra = "";
         // Leer la palabra
 
-        System.out.print("Introduce la palabra a colocar (o 'p' para pasar): ");
+        System.out.print("Introduce la palabra a colocar (o 'p' para pasar, 'x' para el menu): ");
         
 
         System.out.println("Coloca una palabra en el tablero.");
@@ -241,154 +241,82 @@ public class DomainDriver2 {
     }
 
 
-    public static void managePartidaIniciar(String idiomaSeleccionado, Set<String> jugadoresSeleccionados, Integer N) throws IOException{
-        controladorDomain.iniciarPartida(jugadoresSeleccionados, idiomaSeleccionado, N);
-        
-        // Inicializar a los jugadores para la partida (marcando que están en partida)
-        List<String> listaJugadores = new ArrayList<>(jugadoresSeleccionados);
-        controladorDomain.inicializarJugadoresPartida(listaJugadores);
-        
-        // jugadoresSeleccionados ahora mapea nombre -> nombre
-        BooleanWrapper pausado = new BooleanWrapper(false);
-        
-        // Mapa para guardar puntuaciones finales
-        Map<String, Integer> puntuacionesFinales = new HashMap<>();
+    public static void managePartidaIniciar(String idiomaSeleccionado, Set<String> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException{
+        if (!cargado) controladorDomain.managePartidaIniciar(idiomaSeleccionado, jugadoresSeleccionados, N);
 
         while (!controladorDomain.isJuegoTerminado()) {
-            System.out.println("Presiona 'X' para pausar el juego ");
 
-            if (!pausado.value) {
-                for (String entry : jugadoresSeleccionados) {
-                    String nombreJugador = entry;
-                    Triple<String, Tuple<Integer, Integer>, Direction> jugada = new Triple<>(null, null, null);
-                    // Ahora nombreJugador es también el identificador
+            for (String nombreJugador : jugadoresSeleccionados) {
 
-                    System.out.println(controladorDomain.mostrarTablero());
-                    controladorDomain.mostrarRack(nombreJugador);
+                System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
+                System.out.println(controladorDomain.mostrarRack(nombreJugador));
 
-                    if (!controladorDomain.esIA(nombreJugador)) {
-                        jugada = jugarTurno();
-                        while (jugada.x != "X" && jugada.x != "P" && !controladorDomain.isValidMove(jugada, puntuacionesFinales)) jugada = jugarTurno();
+                Triple<String, Tuple<Integer, Integer>, Direction> result = null;
+
+                if (!controladorDomain.esIA(nombreJugador)) {
+                    result = jugarTurno();
+                    while (result.x != "P" && result.x != "X" && !controladorDomain.isValidMove(result, controladorDomain.getRack(nombreJugador))) {
+                        System.out.println("Movimiento inválido. Intenta de nuevo.");
+                        result = jugarTurno();
                     }
                     
-
-                    Tuple<Map<String, Integer>, Integer> result = controladorDomain.realizarTurno(jugada, nombreJugador, pausado);
-
-                    
-                    if (result == null) {
-                        System.out.println("El jugador " + nombreJugador  + " paso la jugada.");
-                        controladorDomain.addSkipTrack(nombreJugador);
-                    } else if (result != null && !pausado.value) {
-                        controladorDomain.inicializarRack(nombreJugador, result.x);
-                        controladorDomain.addPuntuacion(nombreJugador, result.y);
-                        
-                        Map<String, Integer> nuevasFicha = controladorDomain.cogerFichas(7 - controladorDomain.getCantidadFichas(nombreJugador));
-                        
-                        if (nuevasFicha == null) {
-                            controladorDomain.finalizarJuego(jugadoresSeleccionados);
-                            
-                        } else {
-                            for (Map.Entry<String, Integer> fichas : nuevasFicha.entrySet()) {
-                                String letra = fichas.getKey();
-                                int cantidad = fichas.getValue();
-                                for (int i = 0; i < cantidad; i++) {
-                                    controladorDomain.agregarFicha(nombreJugador, letra);
-                                }   
-                            }
+                    if (result.x == "X") {
+                        juegoPausado();
+                        result = jugarTurno();
+                        while (result.x != "P" && result.x != "X" && !controladorDomain.isValidMove(result, controladorDomain.getRack(nombreJugador))) {
+                            System.out.println("Movimiento inválido. Intenta de nuevo.");
+                            result = jugarTurno();
                         }
-                    }                
 
-                    
-                }
-
-                boolean allskiped = true;
-
-                for (String entry : jugadoresSeleccionados) {
-                    String nombreJugador = entry;
-                    System.out.println("Jugador: " + nombreJugador + " - SkipTrack: " + controladorDomain.getSkipTrack(nombreJugador));
-                    if (controladorDomain.getSkipTrack(nombreJugador) < 3) {
-                        allskiped = false;
-                        break;
+                        
+                    } else if (result.x == "P") {
+                        System.out.println("El turno ha sido pasado. El jugador ha decidido no colocar ninguna palabra en este turno.");
                     }
                 }
-                if (allskiped) {
-                    System.out.println("Los jugadores han pasado mas de 2 veces consecutivas. El juego ha terminado.");
-                    controladorDomain.finalizarJuego(jugadoresSeleccionados);
-                }
-            } else {
-                System.out.println("Juego pausado. Presiona Enter para continuar...");
-                readLine();
-                pausado.value = false;
+                
+                controladorDomain.realizarTurnoPartida(nombreJugador, result);
             }
-        }  
-        
-        // Recopilar las puntuaciones finales
-        for (String nombreJugador : jugadoresSeleccionados) {
-            puntuacionesFinales.put(nombreJugador, controladorDomain.getPuntuacion(nombreJugador));
+
+            controladorDomain.comprobarFinPartida(jugadoresSeleccionados);
         }
-        
-        // Determinar el ganador o ganadores (en caso de empate)
-        int maxPuntuacion = -1;
-        List<String> ganadores = new ArrayList<>();
-        
-        // Primero encontramos la puntuación máxima
-        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
-            if (entry.getValue() > maxPuntuacion) {
-                maxPuntuacion = entry.getValue();
+               
+        System.out.println(controladorDomain.finalizarJuego(jugadoresSeleccionados));
+    }  
+
+    public static void juegoPausado() throws IOException {
+        System.out.println("Juego pausado. Selecciona una opción del menú.");
+        ShowMenu("partidapausada");
+        boolean continuar = false;
+        String command = readLine();
+        while(!continuar) {
+            switch (command) {
+                case "1":
+                    System.out.println("Continuando el juego...");
+                    continuar = true;
+                    break;
+                case "2":
+                    System.out.println("Guardando partida...");
+
+
+                    System.out.println("Introduce el nombre de la partida a guardar (sin extensión): ");
+                    String nombrePartida = readLine();
+                    // Añadir la fecha actual al nombre de la partida
+                    String fechaActual = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+                    nombrePartida += "_" + fechaActual;
+                    controladorDomain.guardarPartida("./partidas/"+ nombrePartida + ".dat");
+                    menus();
+                    break;
+                case "3":
+                    System.out.println("Saliendo del juego...");
+                    menus();
+                    break;
+                default:
+                    System.out.println("Opción no válida. Intenta de nuevo.");
             }
-        }
-        
-        // Luego identificamos todos los jugadores con esa puntuación máxima (pueden ser varios en caso de empate)
-        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
-            if (entry.getValue() == maxPuntuacion) {
-                ganadores.add(entry.getKey());
-            }
-        }
-        
-        // Ahora actualizamos las estadísticas para todos los jugadores, marcando múltiples ganadores si es necesario
-        controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesFinales, ganadores);
-        
-        // Mensaje de resultado
-        String mensajeGanadores;
-        if (ganadores.size() > 1) {
-            System.out.println("""
-            +--------------------------------------+
-            | ¡EMPATE!                             |
-            +--------------------------------------+
-            """);
-            System.out.printf("Los jugadores empatados son: %s con una puntuación de: %d puntos.%n",
-                String.join(", ", ganadores), maxPuntuacion);
-        } else if (ganadores.size() == 1) {
-            System.out.println("""
-            +--------------------------------------+
-            | ¡FELICIDADES!                        |
-            +--------------------------------------+
-            """);
-            System.out.printf("El ganador es: %s con una puntuación de: %d puntos.%n",
-                ganadores.get(0), maxPuntuacion);
-        } else {
-            System.out.println("""
-            +--------------------------------------+
-            | SIN GANADORES                        |
-            +--------------------------------------+
-            """);
-            System.out.println("No hubo ganadores en esta partida.");
-        }
-
-        // Mostrar resultados finales
-        System.out.println("+--------------------------------------+");
-        System.out.println("  RESULTADOS FINALES                    ");
-        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
-            System.out.printf("  %-20s : %4d puntos\n", entry.getKey(), entry.getValue());
-        }
-        System.out.println("+--------------------------------------+");
-
-        controladorDomain.reiniciarJuego();
-
-        for (String nombreJugador : jugadoresSeleccionados) {
-            controladorDomain.clearSkipTrack(nombreJugador);
         }
     }
+        
+      
 
     public static void initializeDefaultSettings() {
         String resourcesPath = "src/provisional_testing_folder/resources/";
@@ -685,12 +613,21 @@ public class DomainDriver2 {
                                     |   [ 1 ] Iniciar una nueva partida  - Configura una nueva partida.            |
                                     |   [ 2 ] Cargar partida             - Carga una partida guardada.             |
                                     |   [ 3 ] Eliminar partida           - Eliminar una partida guardada.          |
-                                    |   [ 4 ] Ver las partidas guardadas - Ver todas la partidas guardadas.        |
                                     |   [ 0 ] Volver                     - Vuelve al Menú Principal.               | 
                                     |                                                                              |
                                     +------------------------------------------------------------------------------+
                                     """);
-
+        menus.put("partidapausada", """
+                                        +------------------------------------------------------------------------------+
+                                        | PAUSA |                                                                      |
+                                        +------------------------------------------------------------------------------+
+                                        |                                                                              |
+                                        |   [ 1 ] Continuar jugando          - Continua jugando                        |
+                                        |   [ 2 ] Guardar y salir            - Guardar una partida y salir.            |
+                                        |   [ 3 ] Salir sin guardar          - Salir sin guardar.                      |
+                                        |                                                                              |
+                                        +------------------------------------------------------------------------------+
+                                        """);
         menus.put("partidacargar", """
                                     +------------------------------------------------------------------------------+
                                     | GESTIÓN DE PARTIDAS > CARGAR PARTIDA                                         |
@@ -2432,10 +2369,6 @@ public class DomainDriver2 {
                     System.out.println("Mostrando menu de eliminacion de partidas...");
                     managePartidaEliminar();                
                     break;
-                case "4":
-                    System.out.println("Mostrando todas la partidas guardadas...");
-                    managePartidaEliminar();                
-                    break;
                 default:
                     System.out.println("¡Introduce alguno de los comandos disponibles!");
                     break;
@@ -2443,9 +2376,108 @@ public class DomainDriver2 {
         }    
     }
 
-    private static void managePartidaEliminar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'managePartidaEliminar'");
+    private static void managePartidaEliminar() throws IOException {
+        boolean volver = false;
+
+        while (!volver) {
+            List<String> partidasGuardadas = controladorDomain.getPartidasGuardadas();
+            if (partidasGuardadas.isEmpty()) {
+                System.out.println("+--------------------------------------+");
+                System.out.println("| No hay partidas guardadas disponibles |");
+                System.out.println("+--------------------------------------+");
+
+                return;
+            } else {
+                System.out.println("+--------------------------------------+");
+                System.out.println("| PARTIDAS GUARDADAS                   |");
+                System.out.println("+--------------------------------------+");
+                for (int i = 0; i < partidasGuardadas.size(); i++) {
+                    System.out.printf("| %2d. %-30s |\n", i + 1, partidasGuardadas.get(i));
+                }
+                System.out.println("+--------------------------------------+");
+            }
+
+            System.out.println("Selecciona una partida para eliminar (0 para volver): ");
+            String userCommand = readLine().trim();
+            switch (userCommand) {
+                case "0":
+                    volver = true;
+                    System.out.println("Volviendo a Gestión de Partidas...");
+                    break;
+                default:
+                    int partidaIndex;
+                    try {
+                        partidaIndex = Integer.parseInt(userCommand) - 1;
+                        if (partidaIndex < 0 || partidaIndex >= partidasGuardadas.size()) {
+                            System.out.println("Índice de partida no válido. Intenta de nuevo.");
+                            break;
+                        }
+                        String partidaSeleccionada = partidasGuardadas.get(partidaIndex);
+                        controladorDomain.eliminarPartidaGuardada("./partidas/" + partidaSeleccionada);
+                        System.out.println("Partida '" + partidaSeleccionada + "' eliminada correctamente.");
+                        volver = true;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Entrada no válida. Intenta de nuevo.");
+                        break;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private static void managePartidaCargar() throws IOException {
+        boolean volver = false;
+
+        while (!volver) {
+            List<String> partidasGuardadas = controladorDomain.getPartidasGuardadas();
+            if (partidasGuardadas.isEmpty()) {
+                System.out.println("+--------------------------------------+");
+                System.out.println("| No hay partidas guardadas disponibles |");
+                System.out.println("+--------------------------------------+");
+
+                return;
+            } else {
+                System.out.println("+--------------------------------------+");
+                System.out.println("| PARTIDAS GUARDADAS                   |");
+                System.out.println("+--------------------------------------+");
+                for (int i = 0; i < partidasGuardadas.size(); i++) {
+                    System.out.printf("| %2d. %-30s |\n", i + 1, partidasGuardadas.get(i));
+                }
+                System.out.println("+--------------------------------------+");
+            }
+
+            System.out.println("Selecciona una partida para cargar (0 para volver): ");
+            String userCommand = readLine().trim();
+
+            switch (userCommand) {
+                case "0":
+                    volver = true;
+                    System.out.println("Volviendo a Gestión de Partidas...");
+                    break;
+
+                default:
+                    int partidaIndex;
+                    try {
+                        partidaIndex = Integer.parseInt(userCommand) - 1;
+                        if (partidaIndex < 0 || partidaIndex >= partidasGuardadas.size()) {
+                            System.out.println("Índice de partida no válido. Intenta de nuevo.");
+                            break;
+                        }
+                        String partidaSeleccionada = partidasGuardadas.get(partidaIndex);
+                        controladorDomain.cargarPartida("./partidas/" + partidaSeleccionada);
+                        System.out.println("Partida '" + partidaSeleccionada + "' cargada correctamente.");
+
+                        
+                        managePartidaIniciar(null, controladorDomain.getJugadoresActuales(), null, true);
+                        volver = true;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Entrada no válida. Intenta de nuevo.");
+                        break;
+                    }
+                    System.out.println("¡Introduce alguno de los comandos disponibles!");
+                    break;
+            }
+        }
     }
 
     public static void managePartidaDefinir() throws IOException {
@@ -2489,7 +2521,7 @@ public class DomainDriver2 {
                     }
                     if (!jugadoresSeleccionados.isEmpty() && idiomaSeleccionado != "" && N != -1) {
                         // Iniciar partida con los parámetros seleccionados
-                        managePartidaIniciar(idiomaSeleccionado, jugadoresSeleccionados, N);
+                        managePartidaIniciar(idiomaSeleccionado, jugadoresSeleccionados, N, false);
                         volver = true;
                         System.out.println("+--------------------------------------+");
                         System.out.println("| PARTIDA FINALIZADA                   |");
@@ -2676,7 +2708,7 @@ public class DomainDriver2 {
             }
         }
 
-        return null;
+        return new HashSet<>(); // Devolver un conjunto vacío si no se seleccionan jugadores
     }
 
     public static int managePartidaTablero() throws IOException {
@@ -2816,36 +2848,6 @@ public class DomainDriver2 {
 
 
 
-    public static void managePartidaCargar () throws IOException{
-     
-        boolean volver = false;
-        while (!volver) {
-            ShowMenu("partidaCargar");
-            String userCommand = readLine().trim();
-
-            switch (userCommand) {
-                case "0":
-                    volver = true;
-                    System.out.println("Volviendo a Gestión de Partidas...");
-                    break;
-                case "1":
-                    String nombre;
-
-                    System.out.println("Introduce un nombre para seleccionar la partida deseada: ");
-                    nombre= readLine();
-
-                    try {
-                        // controladorDomain.cargarPartida(nombre);                                       
-                    } catch (ExceptionPartidaNotExist e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    break;
-                default:
-                    System.out.println("¡Introduce alguno de los comandos disponibles!");
-                    break;
-            }
-        }
-    }
     
     /**
      * Gestiona el menú de ranking, permitiendo ver, filtrar o eliminar jugadores del ranking.

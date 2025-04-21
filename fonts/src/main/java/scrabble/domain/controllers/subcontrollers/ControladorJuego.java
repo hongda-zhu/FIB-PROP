@@ -1,10 +1,17 @@
 package scrabble.domain.controllers.subcontrollers;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 import scrabble.domain.models.Bolsa;
@@ -22,12 +29,14 @@ import scrabble.helpers.Dificultad;
 
 public class ControladorJuego implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     public enum Direction {
         HORIZONTAL,
         VERTICAL
     }
 
-    private ControladorDiccionario controladorDiccionario;
+    private transient ControladorDiccionario controladorDiccionario;
     private Tablero tablero;
     private Bolsa bolsa;
 
@@ -36,6 +45,7 @@ public class ControladorJuego implements Serializable {
     private boolean juegoIniciado;
     private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
     private String nombreDiccionario;
+    private Set<String> jugadores;
 
     private Set<String> alfabeto = Set.of(
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
@@ -63,6 +73,7 @@ public class ControladorJuego implements Serializable {
     public void inicializarJuego(int N, Set<String> jugadores, String nombreDiccionario) {
         this.tablero = new Tablero(N);
         this.nombreDiccionario = nombreDiccionario;
+        this.jugadores = jugadores;
         
         Map<String, Integer> fichas = controladorDiccionario.getFichas(nombreDiccionario);
         this.bolsa = new Bolsa();
@@ -521,9 +532,7 @@ public class ControladorJuego implements Serializable {
      * Este método imprime el tablero en la consola.
      */
 
-    public String mostrarTablero () {
-       return this.tablero.toString();
-    }
+
 
     /*
      * Método para realizar un turno de juego.
@@ -544,7 +553,7 @@ public class ControladorJuego implements Serializable {
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
-     private Tuple<Map<String, Integer>, Integer> realizarAccion(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst, BooleanWrapper pausado) {
+     private Tuple<Map<String, Integer>, Integer> realizarAccion(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst) {
         if (!isIA) {
             if (move == null) {
                 return null;
@@ -587,8 +596,8 @@ public class ControladorJuego implements Serializable {
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
-    public Tuple<Map<String, Integer>, Integer> realizarTurno(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack,  boolean isIA, Dificultad dificultad, BooleanWrapper pausado) {
-        return realizarAccion(move, nombreJugador, rack, isIA, dificultad, juegoIniciado, pausado);
+    public Tuple<Map<String, Integer>, Integer> realizarTurno(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack,  boolean isIA, Dificultad dificultad) {
+        return realizarAccion(move, nombreJugador, rack, isIA, dificultad, juegoIniciado);
     }
 
         /*
@@ -624,5 +633,76 @@ public class ControladorJuego implements Serializable {
 
     public boolean isJuegoIniciado() {
         return juegoIniciado;
+    }
+
+    public String mostrarStatusPartida(String nombreJugador) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=====================================\n");
+        sb.append("          ESTADO DE LA PARTIDA       \n");
+        sb.append("=====================================\n");
+        sb.append("Jugador: ").append(nombreJugador).append("\n\n");
+        sb.append("Tablero:\n").append(tablero.toString()).append("\n\n");
+        sb.append("Fichas restantes en la bolsa: ").append(bolsa.getCantidadFichas()).append("\n");
+        return sb.toString();
+    }
+
+
+        // Guarda este objeto en un archivo .dat
+    public void guardar(String nombreArchivo) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(nombreArchivo))) {
+            oos.writeObject(this);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar el archivo: " + nombreArchivo, e);
+        }
+    }
+
+    public void cargarDesdeArchivo(String nombreArchivo) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(nombreArchivo))) {
+            ControladorJuego cargado = (ControladorJuego) ois.readObject();
+    
+            // Sobrescribir campos
+            this.tablero = cargado.tablero;
+            this.bolsa = cargado.bolsa;
+            this.direction = cargado.direction;
+            this.juegoTerminado = cargado.juegoTerminado;
+            this.juegoIniciado = cargado.juegoIniciado;
+            this.lastCrossCheck = cargado.lastCrossCheck;
+            this.nombreDiccionario = cargado.nombreDiccionario;
+            this.alfabeto = cargado.alfabeto;
+            this.jugadores = cargado.jugadores;
+    
+            // No se copia controladorDiccionario porque es transient
+            System.out.println("Datos cargados desde " + nombreArchivo);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        }
+    }
+    
+
+    // Lista todos los archivos .dat en el directorio actual
+    public List<String> listarArchivosGuardados() {
+        File dir = new File("./partidas/");
+        File[] archivos = dir.listFiles((d, name) -> name.endsWith(".dat"));
+        List<String> lista = new ArrayList<>();
+        if (archivos != null) {
+            for (File archivo : archivos) {
+                lista.add(archivo.getName());
+            }
+        }
+        return lista;
+    }
+
+    // Elimina un archivo .dat
+    public boolean eliminarArchivoGuardado(String nombreArchivo) {
+        File archivo = new File(nombreArchivo);
+        if (archivo.exists()) {
+            return archivo.delete();
+        }
+        return false;
+    }
+
+
+    public Set<String> getJugadoresActuales() {
+        return jugadores;
     }
  }

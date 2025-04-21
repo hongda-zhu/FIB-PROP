@@ -2,77 +2,60 @@ package scrabble.tests;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import scrabble.domain.models.rankingStrategy.*;
 
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Test unitario para las estrategias de ordenación de ranking
  */
 public class RankingStrategyTest {
     
-    private List<PlayerRankingStats> playerStats;
+    private RankingDataProvider dataProvider;
     
     @Before
     public void setUp() {
-        // Inicializar los datos para las pruebas con PlayerRankingStats
-        playerStats = new ArrayList<>();
+        // Crear un mock de RankingDataProvider
+        dataProvider = Mockito.mock(RankingDataProvider.class);
         
-        // Crear stats para usuario1
-        PlayerRankingStats stats1 = new PlayerRankingStats("usuario1");
-        stats1.addPuntuacion(100);
-        stats1.addPuntuacion(150);
-        stats1.addPuntuacion(200);
-        // Simular 10 partidas con 8 victorias
-        for (int i = 0; i < 10; i++) {
-            stats1.actualizarEstadisticas(i < 8); // Las primeras 8 son victorias
-        }
-        playerStats.add(stats1);
+        // Configurar el comportamiento del mock para usuario1
+        when(dataProvider.getPuntuacionMaxima("usuario1")).thenReturn(200);  // Máxima puntuación = 200
+        when(dataProvider.getPuntuacionMedia("usuario1")).thenReturn(150.0); // Media = 150.0
+        when(dataProvider.getPartidasJugadas("usuario1")).thenReturn(10);    // 10 partidas jugadas
+        when(dataProvider.getVictorias("usuario1")).thenReturn(8);           // 8 victorias
         
-        // Crear stats para usuario2
-        PlayerRankingStats stats2 = new PlayerRankingStats("usuario2");
-        stats2.addPuntuacion(300);
-        stats2.addPuntuacion(250);
-        // Simular 5 partidas con 4 victorias
-        for (int i = 0; i < 5; i++) {
-            stats2.actualizarEstadisticas(i < 4); // Las primeras 4 son victorias
-        }
-        playerStats.add(stats2);
+        // Configurar el comportamiento del mock para usuario2
+        when(dataProvider.getPuntuacionMaxima("usuario2")).thenReturn(300);  // Máxima puntuación = 300
+        when(dataProvider.getPuntuacionMedia("usuario2")).thenReturn(275.0); // Media = 275.0
+        when(dataProvider.getPartidasJugadas("usuario2")).thenReturn(5);     // 5 partidas jugadas
+        when(dataProvider.getVictorias("usuario2")).thenReturn(4);           // 4 victorias
         
-        // Crear stats para usuario3
-        PlayerRankingStats stats3 = new PlayerRankingStats("usuario3");
-        stats3.addPuntuacion(50);
-        stats3.addPuntuacion(120);
-        stats3.addPuntuacion(180);
-        // Simular 15 partidas con 9 victorias
-        for (int i = 0; i < 15; i++) {
-            stats3.actualizarEstadisticas(i < 9); // Las primeras 9 son victorias
-        }
-        playerStats.add(stats3);
+        // Configurar el comportamiento del mock para usuario3
+        when(dataProvider.getPuntuacionMaxima("usuario3")).thenReturn(180);  // Máxima puntuación = 180
+        when(dataProvider.getPuntuacionMedia("usuario3")).thenReturn(116.6); // Media = 116.6
+        when(dataProvider.getPartidasJugadas("usuario3")).thenReturn(15);    // 15 partidas jugadas
+        when(dataProvider.getVictorias("usuario3")).thenReturn(9);           // 9 victorias
     }
     
     @Test
     public void testMaximaScoreStrategy() {
-        // Crear la estrategia
-        RankingOrderStrategy estrategia = new MaximaScoreStrategy();
+        // Crear la estrategia con el dataProvider mock
+        RankingOrderStrategy estrategia = new MaximaScoreStrategy(dataProvider);
         
-        // Crear una copia de la lista para ordenar
-        List<PlayerRankingStats> statsOrdenados = new ArrayList<>(playerStats);
+        // Lista de usuarios a ordenar
+        List<String> usuarios = Arrays.asList("usuario1", "usuario2", "usuario3");
         
         // Ordenar utilizando la estrategia como Comparator
-        Collections.sort(statsOrdenados, estrategia);
-        
-        // Extraer nombres de usuario ordenados
-        List<String> ranking = statsOrdenados.stream()
-                              .map(PlayerRankingStats::getUsername)
-                              .toList();
+        usuarios.sort(estrategia);
         
         // Verificar que el orden es correcto (por puntuación máxima descendente)
-        assertEquals("El primer lugar debería ser usuario2 (300 puntos)", "usuario2", ranking.get(0));
-        assertEquals("El segundo lugar debería ser usuario1 (200 puntos)", "usuario1", ranking.get(1));
-        assertEquals("El tercer lugar debería ser usuario3 (180 puntos)", "usuario3", ranking.get(2));
+        assertEquals("El primer lugar debería ser usuario2 (300 puntos)", "usuario2", usuarios.get(0));
+        assertEquals("El segundo lugar debería ser usuario1 (200 puntos)", "usuario1", usuarios.get(1));
+        assertEquals("El tercer lugar debería ser usuario3 (180 puntos)", "usuario3", usuarios.get(2));
         
         // Verificar el nombre de la estrategia
         assertEquals("El nombre de la estrategia debería ser 'Puntuación Máxima'", 
@@ -81,24 +64,19 @@ public class RankingStrategyTest {
     
     @Test
     public void testMediaScoreStrategy() {
-        // Crear la estrategia
-        RankingOrderStrategy estrategia = new MediaScoreStrategy();
+        // Crear la estrategia con el dataProvider mock
+        RankingOrderStrategy estrategia = new MediaScoreStrategy(dataProvider);
         
-        // Crear una copia de la lista para ordenar
-        List<PlayerRankingStats> statsOrdenados = new ArrayList<>(playerStats);
+        // Lista de usuarios a ordenar
+        List<String> usuarios = Arrays.asList("usuario1", "usuario2", "usuario3");
         
         // Ordenar utilizando la estrategia como Comparator
-        Collections.sort(statsOrdenados, estrategia);
-        
-        // Extraer nombres de usuario ordenados
-        List<String> ranking = statsOrdenados.stream()
-                              .map(PlayerRankingStats::getUsername)
-                              .toList();
+        usuarios.sort(estrategia);
         
         // Verificar que el orden es correcto (por puntuación media descendente)
-        assertEquals("El primer lugar debería ser usuario2 (275.0 puntos)", "usuario2", ranking.get(0));
-        assertEquals("El segundo lugar debería ser usuario1 (150.0 puntos)", "usuario1", ranking.get(1));
-        assertEquals("El tercer lugar debería ser usuario3 (116.6 puntos)", "usuario3", ranking.get(2));
+        assertEquals("El primer lugar debería ser usuario2 (275.0 puntos)", "usuario2", usuarios.get(0));
+        assertEquals("El segundo lugar debería ser usuario1 (150.0 puntos)", "usuario1", usuarios.get(1));
+        assertEquals("El tercer lugar debería ser usuario3 (116.6 puntos)", "usuario3", usuarios.get(2));
         
         // Verificar el nombre de la estrategia
         assertEquals("El nombre de la estrategia debería ser 'Puntuación Media'", 
@@ -107,24 +85,19 @@ public class RankingStrategyTest {
     
     @Test
     public void testPartidasJugadasStrategy() {
-        // Crear la estrategia
-        RankingOrderStrategy estrategia = new PartidasJugadasStrategy();
+        // Crear la estrategia con el dataProvider mock
+        RankingOrderStrategy estrategia = new PartidasJugadasStrategy(dataProvider);
         
-        // Crear una copia de la lista para ordenar
-        List<PlayerRankingStats> statsOrdenados = new ArrayList<>(playerStats);
+        // Lista de usuarios a ordenar
+        List<String> usuarios = Arrays.asList("usuario1", "usuario2", "usuario3");
         
         // Ordenar utilizando la estrategia como Comparator
-        Collections.sort(statsOrdenados, estrategia);
-        
-        // Extraer nombres de usuario ordenados
-        List<String> ranking = statsOrdenados.stream()
-                              .map(PlayerRankingStats::getUsername)
-                              .toList();
+        usuarios.sort(estrategia);
         
         // Verificar que el orden es correcto (por partidas jugadas descendente)
-        assertEquals("El primer lugar debería ser usuario3 (15 partidas)", "usuario3", ranking.get(0));
-        assertEquals("El segundo lugar debería ser usuario1 (10 partidas)", "usuario1", ranking.get(1));
-        assertEquals("El tercer lugar debería ser usuario2 (5 partidas)", "usuario2", ranking.get(2));
+        assertEquals("El primer lugar debería ser usuario3 (15 partidas)", "usuario3", usuarios.get(0));
+        assertEquals("El segundo lugar debería ser usuario1 (10 partidas)", "usuario1", usuarios.get(1));
+        assertEquals("El tercer lugar debería ser usuario2 (5 partidas)", "usuario2", usuarios.get(2));
         
         // Verificar el nombre de la estrategia
         assertEquals("El nombre de la estrategia debería ser 'Partidas Jugadas'", 
@@ -133,24 +106,19 @@ public class RankingStrategyTest {
     
     @Test
     public void testVictoriasStrategy() {
-        // Crear la estrategia
-        RankingOrderStrategy estrategia = new VictoriasStrategy();
+        // Crear la estrategia con el dataProvider mock
+        RankingOrderStrategy estrategia = new VictoriasStrategy(dataProvider);
         
-        // Crear una copia de la lista para ordenar
-        List<PlayerRankingStats> statsOrdenados = new ArrayList<>(playerStats);
+        // Lista de usuarios a ordenar
+        List<String> usuarios = Arrays.asList("usuario1", "usuario2", "usuario3");
         
         // Ordenar utilizando la estrategia como Comparator
-        Collections.sort(statsOrdenados, estrategia);
-        
-        // Extraer nombres de usuario ordenados
-        List<String> ranking = statsOrdenados.stream()
-                              .map(PlayerRankingStats::getUsername)
-                              .toList();
+        usuarios.sort(estrategia);
         
         // Verificar que el orden es correcto (por total de victorias descendente)
-        assertEquals("El primer lugar debería ser usuario3 (9 victorias)", "usuario3", ranking.get(0));
-        assertEquals("El segundo lugar debería ser usuario1 (8 victorias)", "usuario1", ranking.get(1));
-        assertEquals("El tercer lugar debería ser usuario2 (4 victorias)", "usuario2", ranking.get(2));
+        assertEquals("El primer lugar debería ser usuario3 (9 victorias)", "usuario3", usuarios.get(0));
+        assertEquals("El segundo lugar debería ser usuario1 (8 victorias)", "usuario1", usuarios.get(1));
+        assertEquals("El tercer lugar debería ser usuario2 (4 victorias)", "usuario2", usuarios.get(2));
         
         // Verificar el nombre de la estrategia
         assertEquals("El nombre de la estrategia debería ser 'Victorias'", 
@@ -160,139 +128,118 @@ public class RankingStrategyTest {
     @Test
     public void testRankingOrderStrategyFactory() {
         // Verificar que se crean las estrategias correctas
-        assertNotNull("Debería crearse una estrategia por defecto para null", 
-                    RankingOrderStrategyFactory.createStrategy(null));
+        RankingOrderStrategy defaultStrategy = RankingOrderStrategyFactory.createStrategy(null, dataProvider);
+        assertNotNull("Debería crearse una estrategia por defecto para null", defaultStrategy);
         assertTrue("La estrategia por defecto debería ser MaximaScoreStrategy", 
-                 RankingOrderStrategyFactory.createStrategy(null) instanceof MaximaScoreStrategy);
+                 defaultStrategy instanceof MaximaScoreStrategy);
         
         assertTrue("Para 'maxima' debería crearse MaximaScoreStrategy", 
-                 RankingOrderStrategyFactory.createStrategy("maxima") instanceof MaximaScoreStrategy);
+                 RankingOrderStrategyFactory.createStrategy("maxima", dataProvider) instanceof MaximaScoreStrategy);
         assertTrue("Para 'media' debería crearse MediaScoreStrategy", 
-                 RankingOrderStrategyFactory.createStrategy("media") instanceof MediaScoreStrategy);
+                 RankingOrderStrategyFactory.createStrategy("media", dataProvider) instanceof MediaScoreStrategy);
         assertTrue("Para 'partidas' debería crearse PartidasJugadasStrategy", 
-                 RankingOrderStrategyFactory.createStrategy("partidas") instanceof PartidasJugadasStrategy);
+                 RankingOrderStrategyFactory.createStrategy("partidas", dataProvider) instanceof PartidasJugadasStrategy);
         assertTrue("Para 'victorias' debería crearse VictoriasStrategy", 
-                 RankingOrderStrategyFactory.createStrategy("victorias") instanceof VictoriasStrategy);
+                 RankingOrderStrategyFactory.createStrategy("victorias", dataProvider) instanceof VictoriasStrategy);
         assertTrue("Para 'ratio' debería crearse VictoriasStrategy", 
-                 RankingOrderStrategyFactory.createStrategy("ratio") instanceof VictoriasStrategy);
+                 RankingOrderStrategyFactory.createStrategy("ratio", dataProvider) instanceof VictoriasStrategy);
         
         // Verificar comportamiento con criterio inválido
         assertTrue("Para un criterio inválido debería crearse MaximaScoreStrategy", 
-                 RankingOrderStrategyFactory.createStrategy("criterioinvalido") instanceof MaximaScoreStrategy);
+                 RankingOrderStrategyFactory.createStrategy("criterioinvalido", dataProvider) instanceof MaximaScoreStrategy);
     }
     
-    @Test
-    public void testComportamientoConMapasVacios() {
-        // Crear estrategias
-        RankingOrderStrategy estrategiaMaxima = new MaximaScoreStrategy();
-        RankingOrderStrategy estrategiaMedia = new MediaScoreStrategy();
-        RankingOrderStrategy estrategiaPartidas = new PartidasJugadasStrategy();
-        RankingOrderStrategy estrategiaVictorias = new VictoriasStrategy();
-        
-        // Lista vacía de estadísticas
-        List<PlayerRankingStats> statsVacios = new ArrayList<>();
-        
-        // Extraer listas de nombres a partir de listas vacías
-        List<String> rankingMaxima = statsVacios.stream()
-                                   .sorted(estrategiaMaxima)
-                                   .map(PlayerRankingStats::getUsername)
-                                   .toList();
-        List<String> rankingMedia = statsVacios.stream()
-                                  .sorted(estrategiaMedia)
-                                  .map(PlayerRankingStats::getUsername)
-                                  .toList();
-        List<String> rankingPartidas = statsVacios.stream()
-                                     .sorted(estrategiaPartidas)
-                                     .map(PlayerRankingStats::getUsername)
-                                     .toList();
-        List<String> rankingVictorias = statsVacios.stream()
-                                      .sorted(estrategiaVictorias)
-                                      .map(PlayerRankingStats::getUsername)
-                                      .toList();
-        
-        // Verificar que todas devuelven listas vacías
-        assertTrue("Con lista vacía, MaximaScoreStrategy debería devolver una lista vacía", 
-                 rankingMaxima.isEmpty());
-        assertTrue("Con lista vacía, MediaScoreStrategy debería devolver una lista vacía", 
-                 rankingMedia.isEmpty());
-        assertTrue("Con lista vacía, PartidasJugadasStrategy debería devolver una lista vacía", 
-                 rankingPartidas.isEmpty());
-        assertTrue("Con lista vacía, VictoriasStrategy debería devolver una lista vacía", 
-                 rankingVictorias.isEmpty());
-    }
-    
-    @Test
-    public void testComportamientoConUnSoloUsuario() {
-        // Crear estrategias
-        RankingOrderStrategy estrategiaMaxima = new MaximaScoreStrategy();
-        RankingOrderStrategy estrategiaMedia = new MediaScoreStrategy();
-        RankingOrderStrategy estrategiaPartidas = new PartidasJugadasStrategy();
-        RankingOrderStrategy estrategiaVictorias = new VictoriasStrategy();
-        
-        // Crear lista con un solo usuario
-        List<PlayerRankingStats> statsUnico = new ArrayList<>();
-        PlayerRankingStats statsUsuario = new PlayerRankingStats("usuario1");
-        statsUsuario.addPuntuacion(100);
-        statsUsuario.actualizarEstadisticas(true); // 1 partida, 1 victoria
-        statsUnico.add(statsUsuario);
-        
-        // Extraer listas de nombres (no es necesario ordenar ya que solo hay uno)
-        List<String> rankingMaxima = statsUnico.stream()
-                                   .map(PlayerRankingStats::getUsername)
-                                   .toList();
-        List<String> rankingMedia = statsUnico.stream()
-                                  .map(PlayerRankingStats::getUsername)
-                                  .toList();
-        List<String> rankingPartidas = statsUnico.stream()
-                                     .map(PlayerRankingStats::getUsername)
-                                     .toList();
-        List<String> rankingVictorias = statsUnico.stream()
-                                      .map(PlayerRankingStats::getUsername)
-                                      .toList();
-        
-        // Verificar que todas devuelven listas con un solo usuario
-        assertEquals("Con un solo usuario, todas las estrategias deberían devolverlo", 
-                   1, rankingMaxima.size());
-        assertEquals("Con un solo usuario, todas las estrategias deberían devolverlo", 
-                   1, rankingMedia.size());
-        assertEquals("Con un solo usuario, todas las estrategias deberían devolverlo", 
-                   1, rankingPartidas.size());
-        assertEquals("Con un solo usuario, todas las estrategias deberían devolverlo", 
-                   1, rankingVictorias.size());
-        
-        assertEquals("El único usuario debe ser 'usuario1'", "usuario1", rankingMaxima.get(0));
+    @Test(expected = IllegalArgumentException.class)
+    public void testRankingOrderStrategyFactoryNullDataProvider() {
+        // Debe lanzar IllegalArgumentException si dataProvider es null
+        RankingOrderStrategyFactory.createStrategy("maxima", null);
     }
     
     @Test
     public void testEmpates() {
-        // Crear dos usuarios con estadísticas idénticas para testear empates y orden alfabético
-        List<PlayerRankingStats> statsEmpates = new ArrayList<>();
+        // Se reconfiguran los mocks para simular un empate
+        RankingDataProvider mockProvider = Mockito.mock(RankingDataProvider.class);
         
-        // Usuario A y B tienen la misma puntuación máxima
-        PlayerRankingStats statsA = new PlayerRankingStats("usuarioA");
-        statsA.addPuntuacion(100);
-        statsEmpates.add(statsA);
+        // Ambos usuarios tienen 100 puntos
+        when(mockProvider.getPuntuacionMaxima("usuarioA")).thenReturn(100);
+        when(mockProvider.getPuntuacionMaxima("usuarioB")).thenReturn(100);
         
-        PlayerRankingStats statsB = new PlayerRankingStats("usuarioB");
-        statsB.addPuntuacion(100);
-        statsEmpates.add(statsB);
+        // Crear estrategia con el mock
+        RankingOrderStrategy estrategia = new MaximaScoreStrategy(mockProvider);
         
-        // Estrategia a probar
-        RankingOrderStrategy estrategia = new MaximaScoreStrategy();
+        // Lista con usuarios empatados
+        List<String> usuarios = Arrays.asList("usuarioB", "usuarioA"); // Orden inverso para comprobar que se reordenan
         
-        // Ordenar
-        List<PlayerRankingStats> statsOrdenados = new ArrayList<>(statsEmpates);
-        Collections.sort(statsOrdenados, estrategia);
-        
-        // Extraer nombres
-        List<String> ranking = statsOrdenados.stream()
-                              .map(PlayerRankingStats::getUsername)
-                              .toList();
+        // Ordenar la lista
+        usuarios.sort(estrategia);
         
         // En caso de empate, debería ordenar alfabéticamente
-        assertEquals("En caso de empate, debería ordenar alfabéticamente", 
-                    "usuarioA", ranking.get(0));
-        assertEquals("En caso de empate, debería ordenar alfabéticamente", 
-                    "usuarioB", ranking.get(1));
+        assertEquals("En caso de empate, el primer lugar debe ser usuarioA (orden alfabético)", 
+                   "usuarioA", usuarios.get(0));
+        assertEquals("En caso de empate, el segundo lugar debe ser usuarioB (orden alfabético)", 
+                   "usuarioB", usuarios.get(1));
+    }
+    
+    @Test
+    public void testComportamientoConListaVacia() {
+        // Crear todas las estrategias
+        RankingOrderStrategy estrategiaMaxima = new MaximaScoreStrategy(dataProvider);
+        RankingOrderStrategy estrategiaMedia = new MediaScoreStrategy(dataProvider);
+        RankingOrderStrategy estrategiaPartidas = new PartidasJugadasStrategy(dataProvider);
+        RankingOrderStrategy estrategiaVictorias = new VictoriasStrategy(dataProvider);
+        
+        // Lista vacía de usuarios
+        List<String> usuariosVacios = new ArrayList<>();
+        
+        // Ordenar las listas vacías
+        usuariosVacios.sort(estrategiaMaxima);
+        List<String> listaMaxima = new ArrayList<>(usuariosVacios);
+        
+        usuariosVacios.sort(estrategiaMedia);
+        List<String> listaMedia = new ArrayList<>(usuariosVacios);
+        
+        usuariosVacios.sort(estrategiaPartidas);
+        List<String> listaPartidas = new ArrayList<>(usuariosVacios);
+        
+        usuariosVacios.sort(estrategiaVictorias);
+        List<String> listaVictorias = new ArrayList<>(usuariosVacios);
+        
+        // Verificar que todas siguen vacías
+        assertTrue("Con lista vacía, MaximaScoreStrategy debería mantener la lista vacía", 
+                 listaMaxima.isEmpty());
+        assertTrue("Con lista vacía, MediaScoreStrategy debería mantener la lista vacía", 
+                 listaMedia.isEmpty());
+        assertTrue("Con lista vacía, PartidasJugadasStrategy debería mantener la lista vacía", 
+                 listaPartidas.isEmpty());
+        assertTrue("Con lista vacía, VictoriasStrategy debería mantener la lista vacía", 
+                 listaVictorias.isEmpty());
+    }
+    
+    @Test
+    public void testVerificacionInteraccionConDataProvider() {
+        // Crear las estrategias con el dataProvider
+        RankingOrderStrategy estrategiaMaxima = new MaximaScoreStrategy(dataProvider);
+        RankingOrderStrategy estrategiaMedia = new MediaScoreStrategy(dataProvider);
+        RankingOrderStrategy estrategiaPartidas = new PartidasJugadasStrategy(dataProvider);
+        RankingOrderStrategy estrategiaVictorias = new VictoriasStrategy(dataProvider);
+        
+        // Lista de usuarios a ordenar
+        List<String> usuarios = Arrays.asList("usuario1", "usuario2");
+        
+        // Ordenar utilizando las estrategias
+        usuarios.sort(estrategiaMaxima);
+        usuarios.sort(estrategiaMedia);
+        usuarios.sort(estrategiaPartidas);
+        usuarios.sort(estrategiaVictorias);
+        
+        // Verificar que se llamaron los métodos adecuados del dataProvider para cada estrategia
+        verify(dataProvider, atLeastOnce()).getPuntuacionMaxima("usuario1");
+        verify(dataProvider, atLeastOnce()).getPuntuacionMaxima("usuario2");
+        verify(dataProvider, atLeastOnce()).getPuntuacionMedia("usuario1");
+        verify(dataProvider, atLeastOnce()).getPuntuacionMedia("usuario2");
+        verify(dataProvider, atLeastOnce()).getPartidasJugadas("usuario1");
+        verify(dataProvider, atLeastOnce()).getPartidasJugadas("usuario2");
+        verify(dataProvider, atLeastOnce()).getVictorias("usuario1");
+        verify(dataProvider, atLeastOnce()).getVictorias("usuario2");
     }
 }

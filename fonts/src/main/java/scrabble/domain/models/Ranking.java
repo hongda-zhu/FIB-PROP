@@ -1,6 +1,5 @@
 package scrabble.domain.models;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,9 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import scrabble.domain.models.rankingStrategy.MaximaScoreStrategy;
 import scrabble.domain.models.rankingStrategy.PlayerRankingStats;
 import scrabble.domain.models.rankingStrategy.RankingDataProvider;
 import scrabble.domain.models.rankingStrategy.RankingOrderStrategy;
@@ -20,7 +17,7 @@ import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
  * Clase que representa el ranking del juego Scrabble.
  * Almacena y gestiona las puntuaciones de los usuarios utilizando el patrón Strategy.
  */
-public class Ranking implements Serializable, RankingDataProvider {
+public class Ranking implements RankingDataProvider {
     private static final long serialVersionUID = 1L;
     
     // Estructura simplificada para almacenar las estadísticas de los usuarios

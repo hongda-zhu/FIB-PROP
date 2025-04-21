@@ -3,6 +3,7 @@ package scrabble.domain.models;
 import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.helpers.Tuple;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,8 @@ import java.util.Map;
  * Gestiona la disposición de fichas, bonificaciones especiales y cálculo de puntuaciones.
  * Permite crear tableros de diferentes tamaños, siendo el estándar de 15x15.
  */
-public class Tablero {
+public class Tablero implements Serializable{
+    private static final long serialVersionUID = 1L;
     /** Matriz que almacena las letras colocadas en el tablero */
     private String[][] tablero;
     
