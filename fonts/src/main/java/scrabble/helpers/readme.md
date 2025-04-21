@@ -14,6 +14,9 @@ Este directorio contiene clases auxiliares que proporcionan funcionalidades de s
 - **Triple.java**  
   Extiende el concepto de Tuple para almacenar tres valores relacionados. Se usa principalmente en el gestor de jugadas para representar movimientos (palabra, posición, dirección).
 
+- **JugadorInfoDTO.java**  
+  Record de Java que encapsula la información de un jugador para transferirla a la capa de presentación sin exponer directamente los objetos del dominio. Contiene datos como nombre, puntuación, estadísticas y estado del jugador, proporcionando una solución limpia para la separación de capas.
+
 ### Enumeraciones
 
 - **Idioma.java**  
@@ -21,4 +24,12 @@ Este directorio contiene clases auxiliares que proporcionan funcionalidades de s
 
 - **Tema.java**  
   Define constantes para los diferentes temas o categorías de palabras que pueden utilizarse en el juego.
+
+- **Dificultad.java**  
+  Enumera los niveles de dificultad disponibles para los jugadores IA.
+
+### Utilidades
+
+- **BooleanWrapper.java**  
+  Clase envoltorio que permite pasar valores booleanos por referencia, especialmente útil para comunicación entre capas o componentes.
 

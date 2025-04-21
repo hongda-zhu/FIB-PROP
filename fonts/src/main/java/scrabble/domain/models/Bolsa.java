@@ -12,6 +12,14 @@ import java.util.Map;
 public class Bolsa implements Serializable{
     private List<String> fichas;
 
+
+    /**
+     * Constructor por defecto. Inicializa la bolsa como una lista vacía.
+     */
+    public Bolsa() {
+        fichas = new ArrayList<>();
+    }
+
     /**
      * Llena la bolsa con fichas según las frecuencias especificadas.
      * 

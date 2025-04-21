@@ -312,7 +312,7 @@ public class RankingTest {
         assertEquals("La estrategia debería cambiarse a 'Partidas Jugadas'", 
                    "Partidas Jugadas", ranking.getEstrategiaActual());
         
-        ranking.setEstrategia("victorias");
+        ranking.setEstrategia("ratio");
         assertEquals("La estrategia debería cambiarse a 'Ratio de Victorias'", 
                    "Ratio de Victorias", ranking.getEstrategiaActual());
         
@@ -362,7 +362,7 @@ public class RankingTest {
                    "usuario2", rankingPorPartidasJugadas.get(0));
         
         // Cambiar la estrategia a Ratio de Victorias
-        ranking.setEstrategia("victorias");
+        ranking.setEstrategia("ratio");
         List<String> rankingPorRatioVictorias = ranking.getRanking();
         assertEquals("El primer lugar por ratio de victorias debería ser usuario1", 
                    "usuario1", rankingPorRatioVictorias.get(0));
@@ -392,7 +392,7 @@ public class RankingTest {
         List<String> rankingMaxima = ranking.getRanking("maxima");
         List<String> rankingMedia = ranking.getRanking("media");
         List<String> rankingPartidas = ranking.getRanking("partidas");
-        List<String> rankingVictorias = ranking.getRanking("victorias");
+        List<String> rankingVictorias = ranking.getRanking("ratio");
         
         // Verificar que son diferentes
         assertEquals("El primer lugar por puntuación máxima debería ser usuario2", 

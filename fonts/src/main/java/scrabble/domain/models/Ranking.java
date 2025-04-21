@@ -8,8 +8,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import scrabble.domain.models.rankingStrategy.MaximaScoreStrategy;
+import scrabble.domain.models.rankingStrategy.PlayerRankingStats;
+import scrabble.domain.models.rankingStrategy.RankingDataProvider;
 import scrabble.domain.models.rankingStrategy.RankingOrderStrategy;
 import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
 
@@ -17,14 +20,11 @@ import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
  * Clase que representa el ranking del juego Scrabble.
  * Almacena y gestiona las puntuaciones de los usuarios utilizando el patrón Strategy.
  */
-public class Ranking implements Serializable {
+public class Ranking implements Serializable, RankingDataProvider {
     private static final long serialVersionUID = 1L;
     
-    private Map<String, List<Integer>> puntuacionesPorUsuario;
-    private Map<String, Integer> puntuacionMaximaPorUsuario;
-    private Map<String, Double> puntuacionMediaPorUsuario;
-    private Map<String, Integer> partidasJugadasPorUsuario;
-    private Map<String, Integer> victoriasUsuario;
+    // Estructura simplificada para almacenar las estadísticas de los usuarios
+    private Map<String, PlayerRankingStats> estadisticasUsuarios;
     private RankingOrderStrategy estrategiaActual;
     
     /**
@@ -32,14 +32,10 @@ public class Ranking implements Serializable {
      * Inicializa las estructuras de datos para almacenar puntuaciones.
      */
     public Ranking() {
-        this.puntuacionesPorUsuario = new HashMap<>();
-        this.puntuacionMaximaPorUsuario = new HashMap<>();
-        this.puntuacionMediaPorUsuario = new HashMap<>();
-        this.partidasJugadasPorUsuario = new HashMap<>();
-        this.victoriasUsuario = new HashMap<>();
+        this.estadisticasUsuarios = new HashMap<>();
         
         // Por defecto usamos la estrategia de puntuación máxima
-        this.estrategiaActual = new MaximaScoreStrategy();
+        this.estrategiaActual = RankingOrderStrategyFactory.createStrategy("maxima", this);
     }
     
     /**
@@ -48,7 +44,7 @@ public class Ranking implements Serializable {
      * @param criterio Criterio de ordenación
      */
     public void setEstrategia(String criterio) {
-        this.estrategiaActual = RankingOrderStrategyFactory.createStrategy(criterio);
+        this.estrategiaActual = RankingOrderStrategyFactory.createStrategy(criterio, this);
     }
     
     /**
@@ -72,20 +68,11 @@ public class Ranking implements Serializable {
             return false; // No se permiten puntuaciones negativas
         }
         
-        // Agregar puntuación a la lista de puntuaciones del usuario
-        puntuacionesPorUsuario.computeIfAbsent(nombre, k -> new ArrayList<>()).add(puntuacion);
-        
-        // Actualizar puntuación máxima
-        puntuacionMaximaPorUsuario.put(nombre, 
-            Math.max(puntuacionMaximaPorUsuario.getOrDefault(nombre, 0), puntuacion));
-        
-        // Recalcular puntuación media
-        List<Integer> puntuaciones = puntuacionesPorUsuario.get(nombre);
-        double media = puntuaciones.stream()
-            .mapToInt(Integer::intValue)
-            .average()
-            .orElse(0.0);
-        puntuacionMediaPorUsuario.put(nombre, media);
+        // Obtener o crear estadísticas para este usuario
+        PlayerRankingStats stats = estadisticasUsuarios.computeIfAbsent(nombre, 
+                                                                 PlayerRankingStats::new);
+        // Agregar puntuación
+        stats.addPuntuacion(puntuacion);
         
         return true;
     }
@@ -97,15 +84,11 @@ public class Ranking implements Serializable {
      * @param esVictoria Indica si es una victoria
      */
     public void actualizarEstadisticasUsuario(String nombre, boolean esVictoria) {
-        // Incrementar contador de partidas jugadas
-        partidasJugadasPorUsuario.put(nombre, 
-            partidasJugadasPorUsuario.getOrDefault(nombre, 0) + 1);
-        
-        // Si es victoria, incrementar contador de victorias
-        if (esVictoria) {
-            victoriasUsuario.put(nombre, 
-                victoriasUsuario.getOrDefault(nombre, 0) + 1);
-        }
+        // Obtener o crear estadísticas para este usuario
+        PlayerRankingStats stats = estadisticasUsuarios.computeIfAbsent(nombre, 
+                                                                 PlayerRankingStats::new);
+        // Actualizar estadísticas
+        stats.actualizarEstadisticas(esVictoria);
     }
     
     /**
@@ -116,29 +99,12 @@ public class Ranking implements Serializable {
      * @return true si se eliminó correctamente, false en caso contrario
      */
     public boolean eliminarPuntuacion(String nombre, int puntuacion) {
-        if (!puntuacionesPorUsuario.containsKey(nombre)) {
+        if (!perteneceRanking(nombre)) {
             return false;
         }
         
-        List<Integer> puntuaciones = puntuacionesPorUsuario.get(nombre);
-        boolean removed = puntuaciones.remove(Integer.valueOf(puntuacion));
-        
-        if (removed) {
-            // Recalcular puntuación máxima
-            puntuacionMaximaPorUsuario.put(nombre, 
-                puntuaciones.isEmpty() ? 0 : Collections.max(puntuaciones));
-            
-            // Recalcular puntuación media
-            double media = puntuaciones.isEmpty() ? 0.0 : puntuaciones.stream()
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0.0);
-            puntuacionMediaPorUsuario.put(nombre, media);
-            
-            return true;
-        }
-        
-        return false;
+        // Eliminar puntuación
+        return estadisticasUsuarios.get(nombre).removePuntuacion(puntuacion);
     }
     
     /**
@@ -149,8 +115,8 @@ public class Ranking implements Serializable {
      * @return true si existe la puntuación, false en caso contrario
      */
     public boolean existePuntuacion(String nombre, int puntuacion) {
-        return puntuacionesPorUsuario.containsKey(nombre) && 
-               puntuacionesPorUsuario.get(nombre).contains(puntuacion);
+        return perteneceRanking(nombre) && 
+               estadisticasUsuarios.get(nombre).contienePuntuacion(puntuacion);
     }
     
     /**
@@ -160,7 +126,9 @@ public class Ranking implements Serializable {
      * @return Lista de puntuaciones del usuario
      */
     public List<Integer> getPuntuacionesUsuario(String nombre) {
-        return puntuacionesPorUsuario.getOrDefault(nombre, Collections.emptyList());
+        return perteneceRanking(nombre) ? 
+               estadisticasUsuarios.get(nombre).getPuntuaciones() : 
+               Collections.emptyList();
     }
     
     /**
@@ -169,8 +137,10 @@ public class Ranking implements Serializable {
      * @param nombre Nombre del usuario
      * @return Puntuación máxima del usuario
      */
+    @Override
     public int getPuntuacionMaxima(String nombre) {
-        return puntuacionMaximaPorUsuario.getOrDefault(nombre, 0);
+        return perteneceRanking(nombre) ? 
+               estadisticasUsuarios.get(nombre).getPuntuacionMaxima() : 0;
     }
     
     /**
@@ -179,8 +149,10 @@ public class Ranking implements Serializable {
      * @param nombre Nombre del usuario
      * @return Puntuación media del usuario
      */
+    @Override
     public double getPuntuacionMedia(String nombre) {
-        return puntuacionMediaPorUsuario.getOrDefault(nombre, 0.0);
+        return perteneceRanking(nombre) ? 
+               estadisticasUsuarios.get(nombre).getPuntuacionMedia() : 0.0;
     }
     
     /**
@@ -189,8 +161,10 @@ public class Ranking implements Serializable {
      * @param nombre Nombre del usuario
      * @return Número de partidas jugadas
      */
+    @Override
     public int getPartidasJugadas(String nombre) {
-        return partidasJugadasPorUsuario.getOrDefault(nombre, 0);
+        return perteneceRanking(nombre) ? 
+               estadisticasUsuarios.get(nombre).getPartidasJugadas() : 0;
     }
     
     /**
@@ -199,8 +173,10 @@ public class Ranking implements Serializable {
      * @param nombre Nombre del usuario
      * @return Número de victorias
      */
+    @Override
     public int getVictorias(String nombre) {
-        return victoriasUsuario.getOrDefault(nombre, 0);
+        return perteneceRanking(nombre) ? 
+               estadisticasUsuarios.get(nombre).getVictorias() : 0;
     }
     
     /**
@@ -209,13 +185,13 @@ public class Ranking implements Serializable {
      * @return Lista de usuarios ordenados según la estrategia actual
      */
     public List<String> getRanking() {
-        return estrategiaActual.ordenarRanking(
-            puntuacionesPorUsuario,
-            puntuacionMaximaPorUsuario,
-            puntuacionMediaPorUsuario,
-            partidasJugadasPorUsuario,
-            victoriasUsuario
-        );
+        // Obtener los nombres de usuario
+        List<String> usuarios = new ArrayList<>(estadisticasUsuarios.keySet());
+        
+        // Ordenar la lista usando la estrategia actual como Comparator
+        Collections.sort(usuarios, estrategiaActual);
+        
+        return usuarios;
     }
     
     /**
@@ -225,51 +201,72 @@ public class Ranking implements Serializable {
      * @return Lista de usuarios ordenados según el criterio especificado
      */
     public List<String> getRanking(String criterio) {
-        RankingOrderStrategy estrategia = RankingOrderStrategyFactory.createStrategy(criterio);
+        // Obtener los nombres de usuario
+        List<String> usuarios = new ArrayList<>(estadisticasUsuarios.keySet());
         
-        return estrategia.ordenarRanking(
-            puntuacionesPorUsuario,
-            puntuacionMaximaPorUsuario,
-            puntuacionMediaPorUsuario,
-            partidasJugadasPorUsuario,
-            victoriasUsuario
-        );
+        // Crear la estrategia específica
+        RankingOrderStrategy estrategia = RankingOrderStrategyFactory.createStrategy(criterio, this);
+        
+        // Ordenar la lista usando la estrategia como Comparator
+        Collections.sort(usuarios, estrategia);
+        
+        return usuarios;
     }
     
     /**
      * Obtiene una representación en formato mapa del ranking por puntuación máxima.
+     * Para compatibilidad con código existente.
      * 
      * @return Mapa con usuarios y sus puntuaciones máximas
      */
     public Map<String, Integer> getMapaPuntuacionesMaximas() {
-        return new HashMap<>(puntuacionMaximaPorUsuario);
+        Map<String, Integer> resultado = new HashMap<>();
+        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
+            resultado.put(entry.getKey(), entry.getValue().getPuntuacionMaxima());
+        }
+        return resultado;
     }
     
     /**
      * Obtiene una representación en formato mapa del ranking por puntuación media.
+     * Para compatibilidad con código existente.
      * 
      * @return Mapa con usuarios y sus puntuaciones medias
      */
     public Map<String, Double> getMapaPuntuacionesMedias() {
-        return new HashMap<>(puntuacionMediaPorUsuario);
+        Map<String, Double> resultado = new HashMap<>();
+        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
+            resultado.put(entry.getKey(), entry.getValue().getPuntuacionMedia());
+        }
+        return resultado;
     }
     
     /**
      * Obtiene una representación en formato mapa del ranking por partidas jugadas.
+     * Para compatibilidad con código existente.
      * 
      * @return Mapa con usuarios y su número de partidas jugadas
      */
     public Map<String, Integer> getMapaPartidasJugadas() {
-        return new HashMap<>(partidasJugadasPorUsuario);
+        Map<String, Integer> resultado = new HashMap<>();
+        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
+            resultado.put(entry.getKey(), entry.getValue().getPartidasJugadas());
+        }
+        return resultado;
     }
     
     /**
      * Obtiene una representación en formato mapa del ranking por victorias.
+     * Para compatibilidad con código existente.
      * 
      * @return Mapa con usuarios y su número de victorias
      */
     public Map<String, Integer> getMapaVictorias() {
-        return new HashMap<>(victoriasUsuario);
+        Map<String, Integer> resultado = new HashMap<>();
+        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
+            resultado.put(entry.getKey(), entry.getValue().getVictorias());
+        }
+        return resultado;
     }
     
     /**
@@ -278,7 +275,7 @@ public class Ranking implements Serializable {
      * @return true si tiene alguna puntuación, false en caso contrario.
      */    
     public boolean perteneceRanking(String nombre) {
-        return puntuacionesPorUsuario.containsKey(nombre);
+        return estadisticasUsuarios.containsKey(nombre);
     }
 
     /**
@@ -288,17 +285,7 @@ public class Ranking implements Serializable {
      * @return true si se eliminaron correctamente, false en caso contrario
      */
     public boolean eliminarUsuario(String nombre) {
-        boolean exists = perteneceRanking(nombre);
-        
-        if (exists) {
-            puntuacionesPorUsuario.remove(nombre);
-            puntuacionMaximaPorUsuario.remove(nombre);
-            puntuacionMediaPorUsuario.remove(nombre);
-            partidasJugadasPorUsuario.remove(nombre);
-            victoriasUsuario.remove(nombre);
-        }
-        
-        return exists;
+        return estadisticasUsuarios.remove(nombre) != null;
     }
     
     /**
@@ -307,6 +294,6 @@ public class Ranking implements Serializable {
      * @return Conjunto de nombres de usuario
      */
     public Set<String> getUsuarios() {
-        return new HashSet<>(puntuacionesPorUsuario.keySet());
+        return new HashSet<>(estadisticasUsuarios.keySet());
     }
 }

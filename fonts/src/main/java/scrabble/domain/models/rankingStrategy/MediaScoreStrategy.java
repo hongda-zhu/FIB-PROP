@@ -1,28 +1,36 @@
 package scrabble.domain.models.rankingStrategy;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * Implementación de RankingOrderStrategy que ordena por puntuación media.
  */
 public class MediaScoreStrategy implements RankingOrderStrategy {
     private static final long serialVersionUID = 1L;
+    private final RankingDataProvider dataProvider;
+    
+    /**
+     * Constructor que recibe el proveedor de datos para acceder a las estadísticas.
+     * 
+     * @param dataProvider Proveedor de datos de ranking
+     */
+    public MediaScoreStrategy(RankingDataProvider dataProvider) {
+        this.dataProvider = dataProvider;
+    }
     
     @Override
-    public List<String> ordenarRanking(
-            Map<String, List<Integer>> puntuacionesPorUsuario,
-            Map<String, Integer> puntuacionMaximaPorUsuario,
-            Map<String, Double> puntuacionMediaPorUsuario,
-            Map<String, Integer> partidasJugadasPorUsuario,
-            Map<String, Integer> victoriasUsuario) {
+    public int compare(String username1, String username2) {
+        // Obtener las puntuaciones medias de cada usuario
+        double score1 = dataProvider.getPuntuacionMedia(username1);
+        double score2 = dataProvider.getPuntuacionMedia(username2);
         
-        return puntuacionMediaPorUsuario.entrySet().stream()
-        .sorted(Map.Entry.<String, Double>comparingByValue().reversed()
-        .thenComparing(Map.Entry::getKey))
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toList());
+        // Comparar por puntuación media (orden descendente)
+        int comparacion = Double.compare(score2, score1);
+        
+        // Si las puntuaciones son iguales, ordenar alfabéticamente
+        if (comparacion == 0) {
+            return username1.compareTo(username2);
+        }
+        
+        return comparacion;
     }
     
     @Override

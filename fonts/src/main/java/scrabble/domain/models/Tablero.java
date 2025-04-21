@@ -1,6 +1,6 @@
 package scrabble.domain.models;
 
-import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
+import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.helpers.Tuple;
 
 import java.util.Arrays;
@@ -147,7 +147,7 @@ public class Tablero {
         }
         
         // Centro del tablero
-        bonusMatrix[7][7] = Bonus.N;
+        bonusMatrix[7][7] = Bonus.X;
         
         return bonusMatrix;
     }

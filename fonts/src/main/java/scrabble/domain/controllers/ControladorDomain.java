@@ -2,19 +2,21 @@ package scrabble.domain.controllers;
 
 import java.io.IOException;
 import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import scrabble.domain.controllers.subcontrollers.ControladorConfiguracion;
 import scrabble.domain.controllers.subcontrollers.ControladorDiccionario;
 import scrabble.domain.controllers.subcontrollers.ControladorJuego;
+import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.domain.controllers.subcontrollers.ControladorJugador;
 import scrabble.domain.controllers.subcontrollers.ControladorRanking;
-import scrabble.domain.models.Diccionario;
 import scrabble.excepciones.*;
 import scrabble.helpers.Dificultad;
+import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.BooleanWrapper;
-
-
 
 /**
 * Constructor del controlador del dominio.
@@ -103,11 +105,8 @@ public class ControladorDomain {
      * @param dificultadStr dificultad en formato String (FACIL, DIFICIL)
      * @return el nombre generado para el jugador IA
      */
-    public String crearJugadorIA(String dificultadStr) {
-        Dificultad dificultad = Dificultad.valueOf(dificultadStr);
-        return controladorJugador.registrarJugadorIA(dificultad) ? 
-            controladorJugador.getJugadoresIA().get(controladorJugador.getJugadoresIA().size() - 1) : 
-            null;
+    public void crearJugadorIA(Dificultad dificultad, String nombre) {
+        controladorJugador.registrarJugadorIA(nombre, dificultad);
     }
 
     /**
@@ -162,8 +161,9 @@ public class ControladorDomain {
     * @param rutaArchivoWords ruta del archivo con las palabras válidas del lenguaje.
     * @throws ExceptionDiccionarioExist si el lenguaje ya existe en el sistema.
     * @throws IOException Si hay problemas al leer los archivos.
+    * @throws ExceptionPalabraInvalida Si las palabras contienen caracteres no válidos.
     */
-    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws IOException {
+    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws IOException, ExceptionDiccionarioExist, ExceptionPalabraInvalida {
         if (existeLenguaje(nombre)) {
             throw new ExceptionDiccionarioExist();
         }
@@ -182,21 +182,7 @@ public class ControladorDomain {
         return controladorDiccionario.existeDiccionario(nombre);
     }
 
-    /**
-    * Establece el lenguaje a utilizar en la partida actual.
-    *
-    * @param nombre nombre del lenguaje a configurar.
-    * @throws ExceptionLanguageNotExist si el lenguaje no existe en el sistema.
-    */
-    public void setLenguaje(String nombre) {
-        if (!existeLenguaje(nombre)) {
-            throw new ExceptionLanguageNotExist();
-        }
-        controladorJuego.setLenguaje(nombre);
-    }
-
     // MÉTODOS PARA JUGAR 
-
     /**
     * Realiza el turno de un jugador (independientemente si es humano o no) y devuelve el resultado del turno.
     *
@@ -209,11 +195,11 @@ public class ControladorDomain {
     *         
     * 
     */    
-    public Tuple<Map<String, Integer>, Integer> realizarTurno(String nombreJugador, String dificultadStr, BooleanWrapper pausado) {
+    public Tuple<Map<String, Integer>, Integer> realizarTurno(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, BooleanWrapper pausado) {
         Map<String, Integer> rack = controladorJugador.getRack(nombreJugador);
         boolean esIA = controladorJugador.esIA(nombreJugador);
-        Dificultad dificultad = dificultadStr.equals("") ? null : Dificultad.valueOf(dificultadStr);
-        return controladorJuego.realizarTurno(nombreJugador, rack, esIA, dificultad, pausado);
+        Dificultad dificultad = getNivelDificultad(nombreJugador);
+        return ((move.x == "P" || move.x == "X") && !esIA)? null: controladorJuego.realizarTurno(move, nombreJugador, rack, esIA, dificultad, pausado);
     }
 
     /**
@@ -231,6 +217,10 @@ public class ControladorDomain {
      */
     public void addSkipTrack(String nombre) {
         controladorJugador.addSkipTrack(nombre);
+    }
+
+    public void clearSkipTrack(String nombre) {
+        controladorJugador.clearSkipTrack(nombre);
     }
 
     /**
@@ -296,27 +286,15 @@ public class ControladorDomain {
     * @param N tamaño del tablero; si es distinto de 15, se crea un tablero personalizado de NxN.
     *     
     */  
-    public void iniciarPartida(String nombrePartida, HashMap<String, String> jugadoresSeleccionados, String diccionario, int N) {
+    public void iniciarPartida(Set<String> jugadoresSeleccionados, String nombreDiccionario, int N) {
     
-        // Verificar que el diccionario existe
-        if (!existeLenguaje(diccionario)) {
-            throw new ExceptionLanguageNotExist();
-        }
-        
-        // Configurar el lenguaje y iniciar juego
-        controladorJuego.setLenguaje(diccionario);
-        controladorJuego.iniciarJuego(diccionario);
-        
-        // Configurar tamaño de tablero si es diferente al estándar
-        if (N != 15) {
-            controladorJuego.creaTableroNxN(N);
-        }
 
+        controladorJuego.inicializarJuego(N, jugadoresSeleccionados, nombreDiccionario);
+        
         // Inicializar racks para todos los jugadores
-        for (Map.Entry<String, String> entry : jugadoresSeleccionados.entrySet()) {
-            String nombreJugador = entry.getValue(); // Ahora entry.getValue() es directamente el nombre
+        for (String jugador : jugadoresSeleccionados) {
             Map<String, Integer> rack = controladorJuego.cogerFichas(7);
-            inicializarRack(nombreJugador, rack);
+            inicializarRack(jugador, rack);
         }
     }
 
@@ -331,8 +309,11 @@ public class ControladorDomain {
     /**
      * Finaliza el juego actual y realiza tareas de limpieza si es necesario.
      */
-    public void finalizarJuego() {
+    public void finalizarJuego(Set<String> jugadores) {
         controladorJuego.finalizarJuego();
+        for (String jugador : jugadores) {
+            controladorJugador.clearSkipTrack(jugador);
+        }
     }
 
     /**
@@ -511,11 +492,27 @@ public class ControladorDomain {
 
     /**
      * Elimina a un usuario del ranking.
+     * Además, resetea su puntuación total a cero.
+     * 
      * @param nombre Nombre del usuario
      * @return true si se eliminó correctamente, false en caso contrario
      */
     public boolean eliminarUsuarioRanking(String nombre) {
-        return controladorRanking.eliminarUsuario(nombre);
+        // Primero, capturar la información antes de eliminar
+        int puntuacionTotalRanking = controladorRanking.getPuntuacionTotal(nombre);
+        boolean eliminado = controladorRanking.eliminarUsuario(nombre);
+        
+        // Si se eliminó correctamente del ranking y existe como jugador humano,
+        // sincronizar su puntuación total con la información del ranking (0 después de eliminar)
+        if (eliminado && controladorJugador.existeJugador(nombre) && !controladorJugador.esIA(nombre)) {
+            // Establecer la puntuación total del jugador a 0 o a la puntuación que tenía en el ranking
+            controladorJugador.setPuntuacionTotal(nombre, 0);
+            
+            // También podríamos considerar establecer la puntuación actual a 0
+            controladorJugador.setPuntuacion(nombre, 0);
+        }
+        
+        return eliminado;
     }
 
     // Metodos de Jugadores
@@ -663,8 +660,9 @@ public class ControladorDomain {
      * @param path Ruta al directorio del diccionario
      * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre
      * @throws IOException Si hay problemas con los archivos
+     * @throws ExceptionPalabraInvalida Si las palabras contienen caracteres no válidos.
      */
-    public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException {
+    public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida {
         controladorDiccionario.crearDiccionario(nombre, path);
     }
     
@@ -687,17 +685,6 @@ public class ControladorDomain {
      */
     public boolean existeDiccionario(String nombre) {
         return controladorDiccionario.existeDiccionario(nombre);
-    }
-    
-    /**
-     * Obtiene un diccionario por su nombre.
-     * 
-     * @param nombre Nombre del diccionario
-     * @return El objeto Diccionario
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     */
-    public Diccionario getDiccionario(String nombre) throws ExceptionDiccionarioNotExist {
-        return controladorDiccionario.getDiccionario(nombre);
     }
     
     /**
@@ -726,5 +713,147 @@ public class ControladorDomain {
             throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida, 
                   ExceptionPalabraExist, ExceptionPalabraNotExist, IOException {
         controladorDiccionario.modificarPalabraDiccionario(nombre, palabra, anadir);
+    }
+
+    /**
+     * Modifica una palabra existente en el diccionario por otra nueva.
+     * 
+     * @param nombre Nombre del diccionario
+     * @param palabraOriginal Palabra a modificar
+     * @param palabraNueva Nueva palabra que reemplazará a la original
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     * @throws ExceptionPalabraVacia Si alguna de las palabras está vacía
+     * @throws ExceptionPalabraInvalida Si la nueva palabra contiene caracteres no válidos
+     * @throws ExceptionPalabraNotExist Si la palabra original no existe
+     * @throws ExceptionPalabraExist Si la nueva palabra ya existe en el diccionario
+     * @throws IOException Si hay problemas con los archivos
+     */
+    public void modificarPalabraEnDiccionario(String nombre, String palabraOriginal, String palabraNueva) 
+            throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida, 
+                   ExceptionPalabraNotExist, ExceptionPalabraExist, IOException {
+        controladorDiccionario.modificarPalabra(nombre, palabraOriginal, palabraNueva);
+    }
+
+    /**
+     * Obtiene el conjunto de caracteres válidos del alfabeto de uzn diccionario.
+     * 
+     * @param nombreDiccionario Nombre del diccionario
+     * @return Conjunto de caracteres válidos, o conjunto vacío si hay error
+     */
+    public Set<Character> getCaracteresAlfabeto(String nombreDiccionario) {
+        try {
+            return controladorDiccionario.getCaracteresAlfabeto(nombreDiccionario);
+        } catch (Exception e) {
+            // Si ocurre cualquier error, devolvemos un conjunto vacío
+            System.err.println("Error al obtener caracteres del alfabeto: " + e.getMessage());
+            return new HashSet<>();
+        }
+    }
+
+    /**
+     * Verifica si una palabra existe en el diccionario.
+     * 
+     * @param nombreDiccionario Nombre del diccionario
+     * @param palabra Palabra a verificar
+     * @return true si la palabra existe en el diccionario, false en caso contrario
+     */
+    public boolean existePalabra(String nombreDiccionario, String palabra) {
+        try {
+            return controladorDiccionario.existePalabra(nombreDiccionario, palabra);
+        } catch (Exception e) {
+            System.err.println("Error al verificar palabra: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Verifica si un diccionario configurado sigue siendo válido (sus archivos existen).
+     * 
+     * @param nombreDiccionario Nombre del diccionario a verificar
+     * @return true si el diccionario es válido, false si falta algún archivo necesario
+     */
+    public boolean verificarDiccionarioValido(String nombreDiccionario) {
+        if (!existeDiccionario(nombreDiccionario)) {
+            return false;
+        }
+        return controladorDiccionario.verificarDiccionarioValido(nombreDiccionario);
+    }
+    
+    /**
+     * Verifica si un directorio contiene un diccionario válido (alpha.txt y words.txt).
+     * 
+     * @param rutaDirectorio Ruta del directorio a verificar
+     * @return true si el directorio contiene un diccionario válido
+     */
+    public boolean esDiccionarioValido(String rutaDirectorio) {
+        try {
+            Path dirPath = Paths.get(rutaDirectorio);
+            if (!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
+                return false;
+            }
+            
+            Path alphaPath = dirPath.resolve("alpha.txt");
+            Path wordsPath = dirPath.resolve("words.txt");
+            
+            return Files.exists(alphaPath) && Files.exists(wordsPath);
+        } catch (Exception e) {
+            System.err.println("Error al verificar directorio: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Verifica si un carácter es un comodín en el diccionario especificado.
+     * 
+     * @param nombreDiccionario Nombre del diccionario
+     * @param caracter Carácter a verificar
+     * @return true si es un comodín, false en caso contrario
+     */
+    public boolean esComodin(String nombreDiccionario, String caracter) {
+        try {
+            if (!existeDiccionario(nombreDiccionario)) {
+                return false;
+            }
+            return controladorDiccionario.esComodin(nombreDiccionario, caracter);
+        } catch (Exception e) {
+            System.err.println("Error al verificar comodín: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean isValidMove (Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+        return controladorJuego.isJuegoIniciado()?controladorJuego.isValidMove(move, rack):controladorJuego.isValidFirstMove(move, rack);
+    }
+
+    public String mostrarTablero() {
+        return this.controladorJuego.mostrarTablero();
+    }
+
+    /**
+     * Muestra el rack del jugador de forma ordenada y legible.
+     * 
+     * @param jugador Nombre del jugador
+     */
+    public void mostrarRack(String jugador) {
+        System.out.println("\n=== Rack del jugador: " + jugador + " ===");
+        System.out.println("-----------------------------------------");
+        this.controladorJugador.getRack(jugador).forEach((letra, cantidad) -> {
+            System.out.printf("Letra: %s | Cantidad: %d%n", letra, cantidad);
+        });
+        System.out.println("-----------------------------------------\n");
+    }
+
+    /**
+     * Ordena una lista de usuarios según el criterio de ranking especificado.
+     * Este método encapsula la lógica de ordenación para evitar tenerla en la capa de presentación.
+     * Delega en el ControladorRanking, que utiliza las estrategias definidas.
+     * 
+     * @param usuarios Lista de usuarios a ordenar
+     * @param criterio Criterio de ordenación ("maxima", "media", "partidas", "victorias")
+     * @return Nueva lista ordenada de usuarios
+     */
+    public List<String> ordenarUsuariosPorCriterio(List<String> usuarios, String criterio) {
+        // Delegamos en el ControladorRanking para mantener la separación de responsabilidades
+        return controladorRanking.ordenarUsuariosPorCriterio(usuarios, criterio);
     }
 }

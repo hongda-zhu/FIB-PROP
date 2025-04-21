@@ -1,28 +1,36 @@
 package scrabble.domain.models.rankingStrategy;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * Implementación de RankingOrderStrategy que ordena por número de partidas jugadas.
  */
 public class PartidasJugadasStrategy implements RankingOrderStrategy {
     private static final long serialVersionUID = 1L;
+    private final RankingDataProvider dataProvider;
+    
+    /**
+     * Constructor que recibe el proveedor de datos para acceder a las estadísticas.
+     * 
+     * @param dataProvider Proveedor de datos de ranking
+     */
+    public PartidasJugadasStrategy(RankingDataProvider dataProvider) {
+        this.dataProvider = dataProvider;
+    }
     
     @Override
-    public List<String> ordenarRanking(
-            Map<String, List<Integer>> puntuacionesPorUsuario,
-            Map<String, Integer> puntuacionMaximaPorUsuario,
-            Map<String, Double> puntuacionMediaPorUsuario,
-            Map<String, Integer> partidasJugadasPorUsuario,
-            Map<String, Integer> victoriasUsuario) {
+    public int compare(String username1, String username2) {
+        // Obtener el número de partidas jugadas de cada usuario
+        int partidas1 = dataProvider.getPartidasJugadas(username1);
+        int partidas2 = dataProvider.getPartidasJugadas(username2);
         
-        return partidasJugadasPorUsuario.entrySet().stream()
-        .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()
-        .thenComparing(Map.Entry::getKey))
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toList());
+        // Comparar por número de partidas (orden descendente)
+        int comparacion = Integer.compare(partidas2, partidas1);
+        
+        // Si el número de partidas es igual, ordenar alfabéticamente
+        if (comparacion == 0) {
+            return username1.compareTo(username2);
+        }
+        
+        return comparacion;
     }
     
     @Override

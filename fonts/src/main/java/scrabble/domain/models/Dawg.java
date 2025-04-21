@@ -1,5 +1,7 @@
 package scrabble.domain.models;
 
+import java.util.Set;
+
 /**
  * Clase que implementa un Grafo Acíclico Dirigido para Palabras (DAWG, Directed Acyclic Word Graph).
  * Esta estructura es eficiente para almacenar y buscar palabras en un diccionario.
@@ -69,7 +71,7 @@ public class Dawg {
      */
     public DawgNode getNode(String word) {
         if (word.isEmpty()) {
-            return null;
+            return root;
         }
         
         DawgNode current = root;
@@ -81,4 +83,32 @@ public class Dawg {
         }
         return current;
     }
+
+
+    /**
+     * Obtiene los bordes disponibles desde el nodo actual en función de la palabra parcial proporcionada.
+     *
+     * @param partialword La palabra parcial utilizada para localizar el nodo actual en el DAWG (Directed Acyclic Word Graph).
+     * @return Un conjunto de cadenas que representan los bordes disponibles desde el nodo actual,
+     *         o null si no se encuentra un nodo correspondiente.
+     */
+    public Set<String> getAvailableEdges(String partialword) {
+        DawgNode currentNode = getNode(partialword);
+
+        return currentNode != null ? currentNode.getAllEdges() : null;
+    }
+
+    /**
+     * Verifica si una palabra parcial es final en el DAWG (Directed Acyclic Word Graph).
+     *
+     * @param partialword La palabra parcial que se desea verificar.
+     * @return {true} si el nodo correspondiente a la palabra parcial existe y es final,
+     *         {false} en caso contrario.
+     */
+    public boolean isFinal(String partialword) {
+        DawgNode currentNode = getNode(partialword);
+        return currentNode != null && currentNode.isFinal();
+    }
+
+
 }

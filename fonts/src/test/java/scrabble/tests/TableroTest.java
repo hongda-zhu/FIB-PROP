@@ -2,7 +2,8 @@ package scrabble.tests;
 
 import org.junit.Before;
 import org.junit.Test;
-import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
+
+import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.domain.models.Tablero;
 import scrabble.domain.models.Tablero.Bonus;
 import scrabble.helpers.Tuple;
