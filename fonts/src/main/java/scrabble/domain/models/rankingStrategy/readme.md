@@ -2,44 +2,36 @@
 
 ## Descripción General
 
-Este directorio implementa el patrón de diseño Strategy para proporcionar diferentes algoritmos de ordenación del ranking de jugadores. Estas estrategias permiten clasificar a los jugadores según diversos criterios como puntuación máxima, media, número de partidas o victorias.
+Este directorio implementa el patrón de diseño Strategy para proporcionar diferentes algoritmos de ordenación del ranking de jugadores. Estas estrategias permiten clasificar a los jugadores según diversos criterios como puntuación máxima, media, número de partidas o ratio de victorias.
 
 ## Estructura del Directorio
 
-### Clase de Estadísticas
-
-- **PlayerRankingStats.java**  
-  Encapsula todas las estadísticas de un jugador en una única clase, incluyendo puntuaciones, máximos, medias, partidas y victorias. Centraliza la lógica de actualización de estadísticas y proporciona una interfaz limpia para acceder a los datos.
-
-### Interfaces, Provider y Factory
-
-- **RankingDataProvider.java**  
-  Define la interfaz para los proveedores de datos de ranking, abstrayendo el acceso a las estadísticas de jugadores. Desacopla las estrategias de ordenación de las implementaciones concretas de almacenamiento de datos.
+### Interfaz y Factory
 
 - **RankingOrderStrategy.java**  
-  Define la interfaz común que deben implementar todas las estrategias de ordenación. Extiende `Comparator<String>` para permitir la comparación directa de nombres de usuario según diferentes criterios.
+  Define la interfaz común que deben implementar todas las estrategias de ordenación. Establece el contrato para comparar jugadores según diferentes criterios.
 
 - **RankingOrderStrategyFactory.java**  
-  Implementa el patrón Factory para crear instancias de estrategias concretas según el criterio solicitado. Inyecta un `RankingDataProvider` en las estrategias para que puedan acceder a los datos necesarios.
+  Implementa el patrón Factory para crear instancias de estrategias concretas según el criterio solicitado. Centraliza la creación de estrategias y facilita su extensibilidad.
 
 ### Estrategias Concretas
 
 - **MaximaScoreStrategy.java**  
-  Implementa la ordenación de jugadores según su puntuación máxima obtenida. Usa un `RankingDataProvider` para obtener las puntuaciones necesarias para la comparación.
+  Implementa la ordenación de jugadores según su puntuación máxima obtenida. Prioriza a jugadores que han logrado puntajes altos en partidas individuales.
 
 - **MediaScoreStrategy.java**  
-  Ordena a los jugadores según su puntuación media. Usa un `RankingDataProvider` para obtener las puntuaciones necesarias para la comparación.
+  Ordena a los jugadores según su puntuación media. Favorece a jugadores con rendimiento consistentemente alto a lo largo de múltiples partidas.
 
 - **PartidasJugadasStrategy.java**  
-  Clasifica a los jugadores según el número total de partidas jugadas. Usa un `RankingDataProvider` para obtener las partidas jugadas necesarias para la comparación.
+  Clasifica a los jugadores según el número total de partidas jugadas. Destaca a los jugadores más activos en el sistema.
 
-- **VictoriasStrategy.java**  
-  Ordena a los jugadores según sus victorias totales. Usa un `RankingDataProvider` para obtener las victorias necesarias para la comparación.
+- **RatioVictoriasStrategy.java**  
+  Ordena a los jugadores según su ratio de victorias (victorias/partidas jugadas). Premia la efectividad de los jugadores independientemente del número de partidas.
 
-## Inversión de Dependencias
+## Relación con el Sistema de Ranking
 
-La implementación sigue el principio de inversión de dependencias:
+Estas estrategias son utilizadas por la clase `Ranking` para proporcionar diferentes vistas de clasificación:
 
-1. Las **estrategias** (clases de alto nivel) dependen de una **abstracción** (`RankingDataProvider`), no de detalles concretos.
-2. Tanto `ControladorRanking` como `Ranking` (clases de bajo nivel) implementan la interfaz `RankingDataProvider`.
-3. La inyección del proveedor de datos se realiza a través del constructor de cada estrategia.
+- La clase `Ranking` mantiene una estrategia activa que determina el orden predeterminado
+- El método `setEstrategia()` permite cambiar dinámicamente el criterio de ordenación
+- El método `getRanking()` utiliza la estrategia actual para obtener la lista ordenada

@@ -1,7 +1,6 @@
 package scrabble.domain.controllers.subcontrollers;
 
 import scrabble.domain.models.Configuracion;
-import java.io.File;
 
 /**
  * Controlador para la gestión de la configuración de la aplicación.
@@ -13,12 +12,6 @@ public class ControladorConfiguracion {
      * Instancia de configuración que contiene los valores actuales de la aplicación.
      */
     private Configuracion configuracion;
-    
-    /**
-     * Directorio base para los archivos de persistencia.
-     * Por defecto es el directorio actual, pero puede cambiarse.
-     */
-    private String directorioDataBase = "./data";
 
     /**
      * Constructor para la clase ControladorConfiguracion.
@@ -26,46 +19,6 @@ public class ControladorConfiguracion {
      */
     public ControladorConfiguracion() {
         this.configuracion = new Configuracion();
-        inicializarDirectorioDatos();
-    }
-    
-    /**
-     * Inicializa el directorio de datos si no existe.
-     */
-    private void inicializarDirectorioDatos() {
-        File directorioData = new File(directorioDataBase);
-        if (!directorioData.exists()) {
-            directorioData.mkdirs();
-        }
-    }
-    
-    /**
-     * Obtiene la ruta completa para un archivo de persistencia.
-     * 
-     * @param nombreArchivo Nombre del archivo de persistencia (ej: "jugadores.dat")
-     * @return Ruta completa al archivo
-     */
-    public String getRutaArchivoPersistencia(String nombreArchivo) {
-        return directorioDataBase + File.separator + nombreArchivo;
-    }
-    
-    /**
-     * Establece el directorio base para los archivos de persistencia.
-     * 
-     * @param directorio Nuevo directorio base
-     */
-    public void setDirectorioDataBase(String directorio) {
-        this.directorioDataBase = directorio;
-        inicializarDirectorioDatos();
-    }
-    
-    /**
-     * Obtiene el directorio base actual para los archivos de persistencia.
-     * 
-     * @return Directorio base actual
-     */
-    public String getDirectorioDataBase() {
-        return directorioDataBase;
     }
 
     /**

@@ -144,15 +144,15 @@ public class JugadorHumanoTest {
     
     /**
      * Pre: Se ha creado una instancia de JugadorHumano y se ha inicializado su rack.
-     * Post: Se verifica que el método getRack() devuelve correctamente el rack del jugador.
+     * Post: Se verifica que el método getFichas() devuelve correctamente el rack del jugador.
      * 
      * Comprueba la funcionalidad para acceder a las fichas disponibles del jugador.
      * Aporta validación del correcto acceso al conjunto de fichas.
      */
     @Test
-    public void testGetRack() {
+    public void testGetFichas() {
         // Inicialmente hay un rack vacío
-        Map<String, Integer> fichasIniciales = jugador.getRack();
+        Map<String, Integer> fichasIniciales = jugador.getFichas();
         assertNotNull("El rack inicialmente no debería ser null", fichasIniciales);
         assertTrue("El rack inicialmente debería estar vacío", fichasIniciales.isEmpty());
         
@@ -162,7 +162,7 @@ public class JugadorHumanoTest {
         rack.put("E", 2);
         jugador.inicializarRack(rack);
         
-        Map<String, Integer> fichas = jugador.getRack();
+        Map<String, Integer> fichas = jugador.getFichas();
         assertNotNull("El rack no debería ser null después de inicializarlo", fichas);
         assertEquals("Debería haber 3 fichas 'A'", Integer.valueOf(3), fichas.get("A"));
         assertEquals("Debería haber 2 fichas 'E'", Integer.valueOf(2), fichas.get("E"));
@@ -355,23 +355,5 @@ public class JugadorHumanoTest {
         verify(mockJugador).getNombre();
         verify(mockJugador).getPuntuacion();
         verify(mockJugador).isEnPartida();
-    }
-    
-    /**
-     * Pre: Se ha creado una instancia de JugadorHumano con puntuación total inicial 0.
-     * Post: Se verifica que los métodos de gestión de puntuación total funcionan correctamente.
-     * 
-     * Comprueba la funcionalidad para gestionar la puntuación total acumulada.
-     * Aporta validación del correcto acceso y modificación de la puntuación global.
-     */
-    @Test
-    public void testPuntuacionTotal() {
-        assertEquals("La puntuación total inicial debería ser 0", 0, jugador.getPuntuacionTotal());
-        
-        jugador.setPuntuacionTotal(100);
-        assertEquals("La puntuación total debería ser 100", 100, jugador.getPuntuacionTotal());
-        
-        jugador.addPuntuacionTotal(50);
-        assertEquals("La puntuación total debería ser 150", 150, jugador.getPuntuacionTotal());
     }
 }

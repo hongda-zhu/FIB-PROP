@@ -2,8 +2,7 @@ package scrabble.tests;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
+import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
 import scrabble.domain.models.Tablero;
 import scrabble.domain.models.Tablero.Bonus;
 import scrabble.helpers.Tuple;
@@ -287,7 +286,7 @@ public class TableroTest {
         try {
             tablero.makeMove(new Tuple<>(-1, -1), "TEST", direccion);
             fail("Debería lanzar una excepción al intentar colocar una palabra en una posición inválida");
-        } catch (IllegalArgumentException  e) {
+        } catch (IllegalArgumentException e) {
             // Comportamiento esperado
         }
     }

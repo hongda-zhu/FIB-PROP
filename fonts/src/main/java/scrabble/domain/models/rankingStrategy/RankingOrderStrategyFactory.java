@@ -9,30 +9,24 @@ public class RankingOrderStrategyFactory {
      * Crea una estrategia de ordenación según el criterio especificado.
      * 
      * @param criterio Criterio de ordenación: "maxima", "media", "partidas" o "victorias"
-     * @param dataProvider Proveedor de datos para el acceso a las estadísticas
      * @return Estrategia correspondiente o MaximaScoreStrategy por defecto
      */
-    public static RankingOrderStrategy createStrategy(String criterio, RankingDataProvider dataProvider) {
-        if (dataProvider == null) {
-            throw new IllegalArgumentException ("El proveedor de datos no puede ser null");
-        }
-        
+    public static RankingOrderStrategy createStrategy(String criterio) {
         if (criterio == null) {
-            return new MaximaScoreStrategy(dataProvider); // Default
+            return new MaximaScoreStrategy(); // Default
         }
         
         switch (criterio.toLowerCase()) {
             case "maxima":
-                return new MaximaScoreStrategy(dataProvider);
+                return new MaximaScoreStrategy();
             case "media":
-                return new MediaScoreStrategy(dataProvider);
+                return new MediaScoreStrategy();
             case "partidas":
-                return new PartidasJugadasStrategy(dataProvider);
+                return new PartidasJugadasStrategy();
             case "victorias":
-            case "ratio": // Mantener compatibilidad con código existente
-                return new VictoriasStrategy(dataProvider);
+                return new RatioVictoriasStrategy();
             default:
-                return new MaximaScoreStrategy(dataProvider); // Default
+                return new MaximaScoreStrategy(); // Default
         }
     }
 }

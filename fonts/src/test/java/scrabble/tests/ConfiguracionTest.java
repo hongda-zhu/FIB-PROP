@@ -64,8 +64,8 @@ public class ConfiguracionTest {
 
         try {
             configuracion.setVolumen(-1);
-            fail("Se espera IllegalArgumentException  para volumen negativo"); 
-        } catch (IllegalArgumentException  e) {
+            fail("Se espera IllegalArgumentException para volumen negativo"); 
+        } catch (IllegalArgumentException e) {
             assertEquals("El volumen no puede ser negativo", "El volumen debe ser un valor entre 0 y 100", e.getMessage());
         }
     }
@@ -76,8 +76,8 @@ public class ConfiguracionTest {
 
         try {
             configuracion.setVolumen(101);
-            fail("Se espera IllegalArgumentException  para volumen mayor de 100");
-        } catch (IllegalArgumentException  e) {
+            fail("Se espera IllegalArgumentException para volumen mayor de 100");
+        } catch (IllegalArgumentException e) {
             assertEquals("El volumen no puede ser negativo", "El volumen debe ser un valor entre 0 y 100", e.getMessage());
         }
     }
@@ -87,8 +87,8 @@ public class ConfiguracionTest {
 
         try {
             configuracion.setIdioma("ASDWD");
-            fail("Se espera IllegalArgumentException  para idioma inexistente");
-        } catch (IllegalArgumentException  e) {
+            fail("Se espera IllegalArgumentException para idioma inexistente");
+        } catch (IllegalArgumentException e) {
             assertEquals("El idioma debe existir", "El idioma debe ser: ESPANOL, CATALAN o INGLES", e.getMessage());
         }
     }
@@ -98,8 +98,8 @@ public class ConfiguracionTest {
 
         try {
             configuracion.setTema("ASDWD");
-            fail("Se espera IllegalArgumentException  para tema inexistente");
-        } catch (IllegalArgumentException  e) {
+            fail("Se espera IllegalArgumentException para tema inexistente");
+        } catch (IllegalArgumentException e) {
             assertEquals("El tema debe existir", "El tema deber ser CLARO o OSCURO", e.getMessage());
         }
     }   

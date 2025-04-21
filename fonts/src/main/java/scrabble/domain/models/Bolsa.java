@@ -10,16 +10,7 @@ import java.util.Map;
  * Contiene todas las fichas disponibles y permite sacarlas aleatoriamente.
  */
 public class Bolsa implements Serializable{
-    private static final long serialVersionUID = 1L;
     private List<String> fichas;
-
-
-    /**
-     * Constructor por defecto. Inicializa la bolsa como una lista vacía.
-     */
-    public Bolsa() {
-        fichas = new ArrayList<>();
-    }
 
     /**
      * Llena la bolsa con fichas según las frecuencias especificadas.

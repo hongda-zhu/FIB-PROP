@@ -13,7 +13,7 @@ Este directorio contiene clases auxiliares que proporcionan funcionalidades de s
 
 - **Triple.java**  
   Extiende el concepto de Tuple para almacenar tres valores relacionados. Se usa principalmente en el gestor de jugadas para representar movimientos (palabra, posición, dirección).
-  
+
 ### Enumeraciones
 
 - **Idioma.java**  
@@ -21,7 +21,4 @@ Este directorio contiene clases auxiliares que proporcionan funcionalidades de s
 
 - **Tema.java**  
   Define constantes para los diferentes temas o categorías de palabras que pueden utilizarse en el juego.
-
-- **Dificultad.java**  
-  Enumera los niveles de dificultad disponibles para los jugadores IA.
 

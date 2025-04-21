@@ -1,11 +1,8 @@
 package scrabble.helpers;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class Tuple<X, Y> implements Serializable {
-    private static final long serialVersionUID = 1L;
- 
+public class Tuple<X, Y> { 
     public final X x; 
     public final Y y; 
 

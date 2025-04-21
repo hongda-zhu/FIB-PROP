@@ -1,97 +1,270 @@
 package scrabble.domain.controllers.subcontrollers;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.Serializable;
 
+import scrabble.domain.controllers.subcontrollers.managers.GestorJugada;
+import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
 import scrabble.domain.models.Bolsa;
 import scrabble.domain.models.Tablero;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.Dificultad;
+import scrabble.helpers.BooleanWrapper;
+
 
 /**
- * Clase GestorJugada
- * Esta clase se encarga de gestionar las jugadas en el juego de Scrabble.
- * Permite buscar movimientos válidos, calcular puntos y realizar jugadas en el tablero.
+ * ControladorJuego es la clase encargada de gestionar el flujo del juego de Scrabble.
+ * Esta clase se encarga de iniciar el juego, gestionar los turnos de los jugadores,
+ * validar las jugadas y mantener el estado del juego.
  */
 
-public class ControladorJuego implements Serializable {
+public class ControladorJuego {
 
-    private static final long serialVersionUID = 1L;
-
-    public enum Direction {
-        HORIZONTAL,
-        VERTICAL
-    }
-
-    private transient ControladorDiccionario controladorDiccionario;
-    private Tablero tablero;
+    private GestorJugada gestorJugada;
     private Bolsa bolsa;
+    private boolean juegoTerminado = false;
+    private boolean juegoIniciado = false;
 
-    private Direction direction;
-    private boolean juegoTerminado;
-    private boolean juegoIniciado;
-    private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
-    private String nombreDiccionario;
-    private Set<String> jugadores;
-
-    private Set<String> alfabeto = Set.of(
-        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
-        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
-    );
-
+  
     public ControladorJuego() {
-        this.tablero = null;
-        this.lastCrossCheck = null;
-        this.direction = null;
-        this.juegoIniciado = false;
-        this.juegoTerminado = false;
+        this.gestorJugada = new GestorJugada(new Tablero()) ;
         this.bolsa = null;
-        this.controladorDiccionario = ControladorDiccionario.getInstance();
     }
 
-
-    /**
-     * Inicializa el juego configurando el tablero, diccionario, idioma y bolsa de fichas.
-     *
-     * @param N                Tamaño del tablero (N x N).
-     * @param jugadores        Conjunto de nombres de los jugadores que participan en el juego.
-     * @param nombreDiccionario Nombre del diccionario que se utilizará para el juego.
+    /*
+     * Método para iniciar el juego.
+     * Este método inicializa la bolsa de fichas y carga el diccionario correspondiente al idioma seleccionado.
+     * @param languaje El idioma del juego 
      */
-    public void inicializarJuego(int N, Set<String> jugadores, String nombreDiccionario) {
-        this.tablero = new Tablero(N);
-        this.nombreDiccionario = nombreDiccionario;
-        this.jugadores = jugadores;
-        
-        Map<String, Integer> fichas = controladorDiccionario.getFichas(nombreDiccionario);
-        this.bolsa = new Bolsa();
-        this.bolsa.llenarBolsa(fichas);
+
+    public void iniciarJuego(String languaje) {
+        bolsa = new Bolsa();
+        bolsa.llenarBolsa(this.gestorJugada.getBag(languaje));
     }
 
+    public void creaTableroNxN(int N) {
+        gestorJugada.creaTableroNxN(N);
+    }
+
+    /*
+     * Método para limpiar la consola.
+     * Este método imprime una serie de líneas vacías para simular la limpieza de la consola.
+     */
+
+    private void limpiarConsola() {
+        for (int i = 0; i < 25; i++) {
+            System.out.println();  // Imprimir 50 líneas vacías
+        }
+    }
+
+    /*
+     * Método para añadir un nuevo idioma al juego.
+     * Este método permite añadir un nuevo idioma al juego, especificando el nombre del idioma,
+     * la ruta del archivo con juegos de letras y la ruta del diccionario.
+     * @param nombre El nombre del idioma a añadir
+     * @param rutaArchivoAlpha La ruta del archivo con juegos de letras correspondiente al idioma
+     * @param rutaArchivoWords La ruta del diccionario correspondiente al idioma
+     */
+
+    public void anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) {
+        this.gestorJugada.anadirLenguaje(nombre, rutaArchivoAlpha, rutaArchivoWords);
+    }
+
+    /*
+     * Método para establecer el idioma del juego.
+     * Este método permite establecer el idioma del juego, especificando el nombre del idioma.
+     * @param nombre El nombre del idioma a establecer
+     */
+
+    public void setLenguaje(String nombre) {
+        this.gestorJugada.setLenguaje(nombre);
+    }
+
+    /*
+     * Método para verificar si un idioma existe en el juego.
+     * Este método permite verificar si un idioma ya ha sido añadido al juego.
+     * @param nombre El nombre del idioma a verificar
+     * @return true si el idioma existe, false en caso contrario
+     */
+
+    public boolean existeLenguaje(String nombre) {
+        return  this.gestorJugada.existeLenguaje(nombre);
+    }
     
     /**
-     * Obtiene una cantidad específica de fichas de la bolsa.
-     * 
-     * Este método intenta recuperar la cantidad especificada de fichas de la bolsa.
-     * Si no hay suficientes fichas disponibles, el método devolverá null.
-     * De lo contrario, devuelve un mapa que contiene las fichas y sus respectivas cantidades.
-     * 
-     * @param cantidad La cantidad de fichas a recuperar de la bolsa.
-     * @return Un mapa donde las claves son los identificadores de las fichas (String) y los valores 
-     *         son las cantidades de cada ficha (Integer). Devuelve null si no hay suficientes fichas 
-     *         en la bolsa.
+    * Devuelve la lista de nombres de los diccionarios disponibles actualmente en el sistema.
+    * 
+    * @return Lista de nombres de diccionarios disponibles.
+    */
+    public List<String> getDiccionariosDisponibles() {
+        return this.gestorJugada.getDiccionariosDisponibles();
+    }
+    /* 
+     * Método para hacer el primer turno del jugador.
+     * Este método permite al jugador realizar su primer movimiento en el juego.
+     * @param nombreJugador El nombre del jugador que está realizando el movimiento
+     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
+     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
+
+    // private Tuple<Map<String, Integer>, Integer> primerTurno(String nombreJugador, Map<String, Integer> rack) {
+
+    //     Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno();
+
+    //     if (move == null) {
+    //         // Si el jugador decide pasar su turno, se puede implementar aquí
+    //         System.out.println(nombreJugador + "no puedes pasar de turno, eres el primero en jugar.");
+    //         return null;
+    //     }
+    //     if (this.gestorJugada.isValidFirstMove(move, rack)) {
+    //         this.juegoIniciado = true;
+    //         return new Tuple<Map<String, Integer>, Integer>(this.gestorJugada.makeMove(move, rack), this.gestorJugada.calculateMovePoints(move));
+    //     } else {
+    //         System.out.println("La jugada no es válida. Intenta nuevamente.");
+    //         return primerTurno(nombreJugador, rack); // Verifica si la jugada es válida
+    //     }
+    // }
+
+    /*
+     * Método para realizar un turno en el juego.
+     * Este método permite al jugador realizar su turno, ya sea humano o IA.
+     * @param nombreJugador El nombre del jugador que está realizando el movimiento
+     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
+     * @param isIA Indica si el jugador es una IA o un jugador humano
+     * @param dificultad La dificultad de la IA (si aplica)
+     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
+     */
+
+    public Tuple<Map<String, Integer>, Integer> realizarTurno(String nombreJugador, Map<String, Integer> rack,  boolean isIA, Dificultad dificultad, BooleanWrapper pausado) {
+        limpiarConsola();
+        this.gestorJugada.mostrarTablero();
+
+        System.out.println("Tu rack actual es: " + rack);
+        return realizarAccion(nombreJugador, rack, isIA, dificultad, juegoIniciado, pausado);
+    }
+
+    /*
+     * Método para realizar una acción en el juego.
+     * Este método permite al jugador realizar una acción, ya sea colocar palabras, pasar o intercambiar fichas.
+     * @param nombreJugador El nombre del jugador que está realizando la acción
+     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
+     * @param isIA Indica si el jugador es una IA o un jugador humano
+     * @param dificultad La dificultad de la IA (si aplica)
+     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
+     */
+
+    private Tuple<Map<String, Integer>, Integer> realizarAccion(String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst, BooleanWrapper pausado) {
+        // El jugador puede colocar palabras, pasar o intercambiar fichas.
+        if (!isIA) {
+            // El jugador humano puede ingresar una palabra o hacer una acción
+            // Aquí implementas la lógica para que el jugador humano haga su jugada.
+            System.out.println(nombreJugador + "Es tu turno, coloca una palabra o skip");
+
+            Triple<String,Tuple<Integer, Integer>, Direction> move = this.gestorJugada.jugarTurno(pausado);
+
+            if (move == null) {
+                // Si el jugador decide pasar su turno, se puede implementar aquí
+                System.out.println(nombreJugador + " ha decidido pasar su turno.");
+                return null;
+            } else {   
+                if (juegoIniciado? this.gestorJugada.isValidMove(move, rack):this.gestorJugada.isValidFirstMove(move, rack)){
+                    this.juegoIniciado = true;
+                    return new Tuple<Map<String,Integer>,Integer>(this.gestorJugada.makeMove(move, rack), this.gestorJugada.calculateMovePoints(move));
+                } else {
+                    System.out.println("La jugada no es válida. Intenta nuevamente.");
+                    return realizarAccion(nombreJugador, rack, isIA, dificultad, isFirst, pausado);// Verifica si la jugada es válida
+                }
+            }
+        } else {
+            Set<Triple<String,Tuple<Integer, Integer>, Direction>> move = this.gestorJugada.searchAllMoves(rack, this.juegoIniciado);
+            if (move == null || move.isEmpty()) {
+                System.out.println("El jugador IA no puede hacer una jugada.");
+                return null;
+            } else {
+                Triple<String,Tuple<Integer, Integer>, Direction> bestMove = null;
+                int bestMovePoints = 0;
+                for (Triple<String,Tuple<Integer, Integer>, Direction> m : move) {
+                    int currentMovePoints = this.gestorJugada.calculateMovePoints(m);
+                    if (bestMove == null || currentMovePoints > bestMovePoints) {
+                        bestMove = m;
+                        bestMovePoints = currentMovePoints;
+                    }
+                    if (dificultad == Dificultad.FACIL) {
+                        if (currentMovePoints > 0) {
+                            break; // Si la dificultad es fácil, no es necesario buscar más
+                        }
+                    }
+                }
+                System.out.println("El jugador IA está haciendo su jugada.");
+                this.juegoIniciado = true;
+                return new Tuple<Map<String,Integer>,Integer>(this.gestorJugada.makeMove(bestMove, rack), bestMovePoints);
+            }
+        
+        }
+    }
+
+    /*
+     * Método para obtener la cantidad de fichas restantes en la bolsa.
+     * Este método devuelve la cantidad de fichas restantes en la bolsa.
+     * @return La cantidad de fichas restantes en la bolsa
+     */
+
+    public int getCantidadFichas() {
+        // Verifica si el juego ha terminado (por ejemplo, si la bolsa está vacía o si un jugador ha usado todas sus fichas)
+        return this.bolsa.getCantidadFichas();
+    }
+
+    /*
+     * Método para finalizar el juego.
+     * Este método se llama cuando el juego ha terminado, ya sea porque un jugador ha ganado o porque no hay más fichas en la bolsa.
+     * En este caso, se muestra un mensaje indicando que el juego ha terminado.
+     */
+
+    public void finalizarJuego() {
+        System.out.println("El juego ha terminado.");
+        juegoTerminado = true;
+    }
+
+    /*
+     * Método para reiniciar el juego.
+     * Este método reinicia el juego, restableciendo el estado del juego y la bolsa de fichas.
+     */
+
+    public void reiniciarJuego() {
+        this.gestorJugada = new GestorJugada(new Tablero());
+        juegoTerminado = false;
+        juegoIniciado = false;
+    }
+
+    /*
+     * Método para obtener el estado del juego.
+     * Este método devuelve un booleano que indica si el juego ha terminado o no.
+     * @return true si el juego ha terminado, false en caso contrario
+     */
+
+    public boolean isJuegoTerminado() {
+        return juegoTerminado;
+    }
+
+    /*
+     * Método para coger fichas de la bolsa.
+     * Este método permite al jugador coger una cantidad específica de fichas de la bolsa.
+     * @param cantidad La cantidad de fichas a coger
+     * @return Un mapa que contiene las fichas cogidas y su cantidad
+     */
+    
     public Map<String, Integer> cogerFichas(int cantidad) {
         Map<String, Integer> fichas = new HashMap<>();
 
@@ -104,13 +277,6 @@ public class ControladorJuego implements Serializable {
         return fichas;
     }
 
-    /**
-     * Agrega fichas a la bolsa según el mapa proporcionado.
-     *
-     * @param fichas Un mapa donde las claves son las representaciones de las fichas
-     *               (como cadenas de texto) y los valores son la cantidad de cada ficha
-     *               que se debe agregar a la bolsa.
-     */
     public void meterFichas(Map<String, Integer> fichas) {
         for (Map.Entry<String, Integer> entry : fichas.entrySet()) {
             String ficha = entry.getKey();
@@ -120,672 +286,114 @@ public class ControladorJuego implements Serializable {
             }
         }
     }
+    // MÉTODOS DE JIAHAO, no se si funcionan, no quiero testearlos por la complejidad,
+    // /*
+    //  * Método para verificar si un ID de partida existe.
+    //  * Este método verifica si un ID de partida ya ha sido guardado en el archivo de estado del juego.
+    //  * @param partidaId El ID de la partida a verificar
+    //  * @return true si el ID de la partida existe, false en caso contrario
+    //  */
 
+    // public boolean existeIdPartida(String partidaId) {
+    //     try {
+    //         File archivo = new File("estado_juego.dat");
+    //         if (archivo.exists()) {
+    //             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+    //                 List<Map<String, Object>> historial = (List<Map<String, Object>>) ois.readObject();
+    //                 for (Map<String, Object> estadoJuego : historial) {
+    //                     if (estadoJuego.get("id").equals(partidaId)) {
+    //                         return true;
+    //                     }
+    //                 }
+    //             } catch (EOFException ignored) {}
+    //         }
+    //     } catch (IOException | ClassNotFoundException e) {
+    //         System.err.println("Error al verificar el ID de la partida: " + e.getMessage());
+    //     }
+    //     return false;
+    // }
 
-    /**
-     * Obtiene la cantidad de fichas restantes en la bolsa.
-     * 
-     * @return El número de fichas disponibles en la bolsa.
-     */
-    public int getCantidadFichas() {
-        // Verifica si el juego ha terminado (por ejemplo, si la bolsa está vacía o si un jugador ha usado todas sus fichas)
-        return this.bolsa.getCantidadFichas();
-    }
+    // /*
+    //  * Método para guardar el estado de la partida.
+    //  * Este método guarda el estado actual del juego en un archivo, incluyendo el ID de la partida,
+    //  * el gestor de jugadas, la bolsa de fichas y los racks de los jugadores.
+    //  * @param partidaId El ID de la partida a guardar
+    //  * @param racks Un mapa que contiene los racks de los jugadores
+    //  */
+
+    // public void guardarPartida(String partidaId, Map<String, Map<String, Integer>> racks) {
+    //     //ACORDARSE PONER PUNTUACION Y DE QUIEN ES EL TURNO
+    //     try {
+    //         List<Map<String, Object>> historial = new ArrayList<>();
     
+    //         File archivo = new File("estado_juego.dat");
+    //         if (archivo.exists()) {
+    //             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+    //                 historial = (List<Map<String, Object>>) ois.readObject();
+    //             } catch (EOFException ignored) {}
+    //         }
 
-    /**
-     * Método before
-     * @param pos Posición actual.
-     * @return Nueva posición antes de la actual.
-     */
-    public Tuple<Integer, Integer> before(Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
-    } 
+    //         // Crear nuevo estado
+    //         Map<String, Object> estadoJuego = new HashMap<>();
+    //         estadoJuego.put("id", partidaId); // ID único para la partida
+    //         estadoJuego.put("gestorJugada", this.gestorJugada);
+    //         estadoJuego.put("bolsa", this.bolsa);
+    //         estadoJuego.put("juegoTerminado", this.juegoTerminado);
+    //         estadoJuego.put("juegoIniciado", this.juegoIniciado);
+    //         estadoJuego.put("racks", racks);
 
-    /**
-     * Método after
-     * @param pos Posición actual.
-     * @return Nueva posición después de la actual.
-     */
-    public Tuple<Integer, Integer> after(Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y + 1) : new Tuple<>(pos.x + 1, pos.y);
-    }
+    //         // Añadirlo a la lista
+    //         historial.add(estadoJuego);
 
-    /**
-     * Método before_cross
-     * @param pos Posición actual.
-     * @return Nueva posición antes de la actual en la dirección girada.
-     */
-    public Tuple<Integer, Integer> before_cross(Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x - 1, pos.y) : new Tuple<>(pos.x, pos.y - 1);
-    }
-
-    /**
-     * Método after_cross
-     * @param pos Posición actual.
-     * @return Nueva posición después de la actual en la dirección girada.
-     */
-    public Tuple<Integer, Integer> after_cross(Tuple<Integer, Integer> pos) {
-        return direction == Direction.HORIZONTAL ? new Tuple<>(pos.x + 1, pos.y) : new Tuple<>(pos.x, pos.y + 1);
-    }
-
-    /*
-     * Método para encontrar los anclajes en el tablero.
-     * @return Conjunto de posiciones de anclajes.
-     */
-
-    public Set<Tuple<Integer, Integer>> find_anchors(boolean juegoIniciado) {
-        Set<Tuple<Integer, Integer>> anchors = new HashSet<>();
-        if (juegoIniciado) {
-            for (int i = 0; i < tablero.getSize(); i++) {
-                for (int j = 0; j < tablero.getSize(); j++) {
-                    Tuple<Integer, Integer> pos = new Tuple<>(i,j);
-                    if (tablero.isEmpty(pos)) {
-                        if (tablero.isFilled(before_cross(pos)) || tablero.isFilled(after_cross(pos)) || tablero.isFilled(before(pos)) || tablero.isFilled(after(pos))) {
-                            anchors.add(pos);
-                        }
-                    }
-                }
-            }
-        } else anchors.add(this.tablero.getCenter());
-        return anchors;
-    }
-
-    /*
-     * Método para extender la palabra hacia la izquierda.
-     * @param partialWord Palabra parcial.
-     * @param rack Mapa de letras disponibles.
-     * @param currenNode Nodo actual en el DAWG.
-     * @param nextPos Posición siguiente.
-     * @param limit Límite de letras a usar.
-     * @return Conjunto de palabras extendidas.
-     */
-
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendLeft(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, int limit) {
-        Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
-        words.addAll(extendRight(partialWord, rack, nextPos, false));
-
-        if (limit > 0){
-            for (String c : this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord)) {
-                if (rack.containsKey(c) ||rack.containsKey("#")) {
-                    String newPartialWord = partialWord + c;
-                    Map<String, Integer> newRack = new HashMap<>(rack);
-
-                    if (!rack.containsKey(c)) c = "#";
-
-                    if (newRack.get(c) == 1) {
-                        newRack.remove(c);
-                    } else {
-                        newRack.put(c, newRack.get(c) - 1);
-                    }
-                    words.addAll(extendLeft(newPartialWord, newRack, nextPos, limit - 1));
-                }
-            }
-        }
-        return words;
-    }
-
-    /*
-     * Método para extender la palabra hacia la derecha.
-     * @param partialWord Palabra parcial.
-     * @param rack Mapa de letras disponibles.
-     * @param currenNode Nodo actual en el DAWG.
-     * @param nextPos Posición siguiente.
-     * @param archorFilled Indica si el anclaje está lleno.
-     * @return Conjunto de palabras extendidas.
-     */
-
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
-        Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
-
-        if(!this.tablero.isFilled(nextPos) && this.controladorDiccionario.isFinal(nombreDiccionario, partialWord) && archorFilled) {
-            words.add(new Triple<>(partialWord, before(nextPos), this.direction));
-        }
-        if (this.tablero.validPosition(nextPos)){
-            if (this.tablero.isEmpty(nextPos)) {
-
-                for (String c : this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord)) {
-                    Set<String> allowedChars = this.lastCrossCheck.get(nextPos);
-                    if ((rack.containsKey(c) || rack.containsKey("#")) && allowedChars != null && allowedChars.contains(c)) {
-                        String newPartialWord = partialWord + c;
-                        Map<String, Integer> newRack = new HashMap<>(rack);
-
-                        if (!rack.containsKey(c)) c = "#";
-                        if (newRack.get(c) == 1) {
-                            newRack.remove(c);
-                        } else {
-                            newRack.put(c, newRack.get(c) - 1);
-                        }
-                        words.addAll(extendRight(newPartialWord, newRack, after(nextPos), true));
-                    }
-                }
-            } else {
-                String c = String.valueOf(this.tablero.getTile(nextPos));
-                if (this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord).contains(c)) {
-                    String newPartialWord = partialWord + c;
-                    
-                    words.addAll(extendRight(newPartialWord, rack, after(nextPos), true));
-                }
-            }
-        }
-        return words;
-    }
-
-    /*
-     * Método para realizar una verificación cruzada en el tablero.
-     * @return Mapa de posiciones y conjuntos de palabras posibles.
-     */
-
-    public Map<Tuple<Integer, Integer>, Set<String>> crossCheck() {
-        Map<Tuple<Integer, Integer>, Set<String>> words = new HashMap<>();
-        for (int i = 0; i < tablero.getSize(); i++) {
-            for (int j = 0; j < tablero.getSize(); j++) {
-                Tuple<Integer, Integer> pos = new Tuple<>(i,j);
-                if (tablero.isEmpty(pos)) {
-                    String beforePart = "";
-                    String afterPart = "";
-                    
-                    Tuple<Integer, Integer> up_pos = pos;
-                    while(this.tablero.isFilled(before_cross(up_pos))) {
-                        beforePart = tablero.getTile(before_cross(up_pos)) + beforePart ;
-                        up_pos = before_cross(up_pos);
-                    }
-
-                    Tuple<Integer, Integer> down_pos = pos;
-                    while(this.tablero.isFilled(after_cross(down_pos))) {
-                        afterPart = afterPart + tablero.getTile(after_cross(down_pos));
-                        down_pos = after_cross(down_pos);
-                    }
-                    Set<String> set = new HashSet<>();
-                    if (beforePart.length() == 0 && afterPart.length() == 0) {
-                        set.addAll(alfabeto);
-                    } else {
-                        for (String c : alfabeto) {
-                            String candidateWord = beforePart + c + afterPart;
-                            if (this.controladorDiccionario.existePalabra(nombreDiccionario, candidateWord)) {
-                                set.add(c);
-                            }
-                        }
-                    }
-                    words.put(pos, set);
-                }
-            }
-        }
-        return words;
-    }
-
-    /*
-     * Método para buscar todos los movimientos posibles en el tablero.
-     * @param rack Mapa de letras disponibles.
-     * @return Conjunto de movimientos posibles.
-     */
-
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack, boolean isFirst) {
-        Set<Triple<String,Tuple<Integer, Integer>, Direction>> answers = new HashSet<>();
-        Set<Tuple<Integer, Integer>> anchors = find_anchors(isFirst);
-
-        for (Direction dir : Direction.values()) {
-
-            this.direction = dir;
-
-            this.lastCrossCheck = crossCheck();
-            
-            for (Tuple<Integer, Integer> pos : anchors) {
-                
-                if (this.tablero.isFilled(before(pos))) {
-                    
-                    String partial_word = "";
-                    Tuple<Integer, Integer> before_pos = pos;
-                    
-                while(tablero.isFilled(before(before_pos))) {
-                    partial_word = tablero.getTile(before(before_pos)) + partial_word;
-                    before_pos = before(before_pos);
-                }
-                
-                if (this.controladorDiccionario.nodeExists(nombreDiccionario, partial_word)) {
-                    answers.addAll(this.extendRight(partial_word, rack, pos, false));
-                }
-                } else {
-
-                    Tuple<Integer, Integer> before_pos = pos;
-                    int limit = 0;
-                    while(tablero.isEmpty(before(before_pos)) && !anchors.contains(before(before_pos))) {
-                        limit += 1;
-                        before_pos = before(before_pos);
-                    }
-                    
-                    answers.addAll(extendLeft("", rack, pos, limit)); //areglable
-                    
-                }
-                
-            }
-        }
-        return answers;
-    }
-
-    /*
-     * Método para realizar un movimiento en el tablero.
-     * @param move Movimiento a realizar.
-     * @param rack Mapa de letras disponibles.
-     * @return Mapa actualizado de letras disponibles.
-     */
-
-    public Map<String, Integer> makeMove(Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        String word = move.x.toUpperCase();
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
-
-        Map<String, Integer> newRack = new HashMap<>(rack);
-
-        for (int i = word.length() - 1; i >= 0; i--) {
-            String letter = String.valueOf(word.charAt(i)).toUpperCase();
-            
-            if (newRack.containsKey(letter) && this.tablero.isEmpty(pos)) {
-                if (newRack.get(letter) == 1) {
-                    newRack.remove(letter);
-                } else {
-                    newRack.put(letter, newRack.get(letter) - 1);
-                }
-            }
-            this.tablero.setTile(pos, String.valueOf(letter));
-            if (dir == Direction.HORIZONTAL) {
-                pos = new Tuple<Integer, Integer>(pos.x, pos.y - 1); 
-            } else {
-                pos = new Tuple<Integer, Integer>(pos.x - 1, pos.y);
-            }
-        }
-        return newRack;
-    }
-
-    /*
-     * Método para calcular los puntos de un movimiento.
-     * @param move Movimiento a evaluar.
-     * @return Puntos obtenidos por el movimiento.
-     */
-
-    public int calculateMovePoints(Triple<String,Tuple<Integer, Integer>, Direction> move) {
-
-        int points = 0;
-        int doubleTimes = 0;
-        int tripleTimes = 0;
-        
-        String word = move.x;
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
-
-        for (int i = word.length() - 1; i >= 0; i--) {
-            int letterPoint = controladorDiccionario.getPuntaje(nombreDiccionario, String.valueOf(word.charAt(i)));
-            if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
-                points += letterPoint;
-            } else {
-                switch (this.tablero.getBonus(pos)) {
-                    case TW:
-                        points += letterPoint;
-                        tripleTimes++;
-                        break;
-                    case TL:
-                        points += letterPoint * 3;
-                        break;
-                    case DW:
-                        points += letterPoint;
-                        doubleTimes++;
-                        break;
-                    case DL:
-                        points += letterPoint * 2;
-                        break;
-                    case X:
-                        points += letterPoint * 2;
-                        break;
-                    default:
-                        points += letterPoint;
-                        break;
-                }
-            }
-            pos = dir == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
-        }
-        return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes); 
-    }
-
-    /*
-     * Método para verificar si un movimiento es válido.
-     * @param move Movimiento a evaluar.
-     * @param rack Mapa de letras disponibles.
-     * @return true si el movimiento es válido, false en caso contrario.
-     */
-
-    public boolean isValidMove (Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        Set<Triple<String,Tuple<Integer, Integer>, Direction>> possibleWords = searchAllMoves(rack, true);
-        return possibleWords.contains(move);
-    }
-
-    /*
-     * Método para verificar si es un movimiento válido en el primer turno.
-     * @param move Movimiento a evaluar.
-     * @param rack Mapa de letras disponibles.
-     * @return true si el movimiento es válido, false en caso contrario.
-     */
-
-     public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        String word = move.x;
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
+    //         // Guardar la lista completa
+    //         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("estado_juego.dat"))) {
+    //             oos.writeObject(historial);
+    //             System.out.println("Estado de la partida con ID " + partidaId + " guardado correctamente.");
+    //         } catch (IOException e) {
+    //             System.err.println("Error al guardar el estado del juego: " + e.getMessage());
+    //         }
+    //     } catch (IOException | ClassNotFoundException e) {
+    //         System.err.println("Error al guardar el estado del juego: " + e.getMessage());
+    //     }
+    // }
     
+    // /*
+    //  * Método para cargar el estado de la partida.
+    //  * Este método carga el estado del juego desde un archivo, restaurando el gestor de jugadas,
+    //  * la bolsa de fichas y los racks de los jugadores.
+    //  * @param partidaId El ID de la partida a cargar
+    //  * @return true si la carga fue exitosa, false en caso contrario
+    //  */
     
-        // Check if the word fits within the board boundaries
-        for (int i = word.length() - 1; i >= 0; i--) {
-            if (!tablero.validPosition(pos)) {
-                return false;
-            }
-            pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
-        }
-    
-        // Reset position to the starting point
-        pos = move.y;
-    
-        // Check if the word is placed on the center tile
-        boolean centerTileCovered = false;
-        for (int i = word.length() - 1; i >= 0; i--) {
-            if (pos.equals(tablero.getCenter())) {
-                centerTileCovered = true;
-            }
-            pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
-        }
-    
-        if (!centerTileCovered) {
-            return false;
-        }
-    
-        // Check if the word can be formed using the rack
-        Map<String, Integer> tempRack = new HashMap<>(rack);
-        for (int i = 0; i < word.length(); i++) {
-            String letter = String.valueOf(word.charAt(i)).toUpperCase();
-            String diletter = "";
-            if (i + 1 < word.length()) {
-                diletter = String.valueOf(word.charAt(i + 1)).toUpperCase();
-            }
-    
-            if (tempRack.containsKey(letter) || tempRack.containsKey(diletter)) {
-                String key = tempRack.containsKey(letter) ? letter : diletter;
-                if (tempRack.get(key) == 1) {
-                    tempRack.remove(key);
-                } else {
-                    tempRack.put(key, tempRack.get(key) - 1);
-                }
-            } else if (tempRack.containsKey("#")) { // Use blank tile
-                if (tempRack.get("#") == 1) {
-                    tempRack.remove("#");
-                } else {
-                    tempRack.put("#", tempRack.get("#") - 1);
-                }
-            } else {
-                return false;
-            }
-        }
-    
-        boolean found = this.controladorDiccionario.existePalabra(nombreDiccionario, word);
-        return found;
-    }
-    
-    /*
-     * Método para mostrar el tablero en la consola.
-     * Este método imprime el tablero en la consola.
-     */
+    // public Map<String, Map<String, Integer>> cargarPartida(String partidaId) {
+    //     // Implementación para cargar el estado del juego desde un archivo usando el ID de la partida
+    //     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("estado_juego.dat"))) {
+    //         List<Map<String, Object>> historial = (List<Map<String, Object>>) ois.readObject();
 
+    //         for (Map<String, Object> estadoJuego : historial) {
+    //             if (estadoJuego.get("id").equals(partidaId)) {
+    //                 // Restaurar el estado del juego
+    //                 this.gestorJugada = (GestorJugada) estadoJuego.get("gestorJugada");
+    //                 this.bolsa = (Bolsa) estadoJuego.get("bolsa");
+    //                 this.juegoTerminado = (boolean) estadoJuego.get("juegoTerminado");
+    //                 this.juegoIniciado = (boolean) estadoJuego.get("juegoIniciado");
 
+    //                 // Restaurar los racks de los jugadores
+    //                 Map<String, Map<String, Integer>> racks = (Map<String, Map<String, Integer>>) estadoJuego.get("racks");
+    //                 if (racks != null) {
+    //                     System.out.println("Racks de los jugadores restaurados: " + racks);
+    //                     return racks;
+    //                 }
 
-    /*
-     * Método para realizar un turno de juego.
-     * @param isFirst Indica si es el primer turno del jugador.
-     * @return Triple que contiene la palabra, la posición y la dirección.
-     */
+    //                 System.out.println("El estado del juego con ID " + partidaId + " se ha cargado correctamente.");
+    //             }
+    //         }
 
-    /*
-     * Método para realizar una acción en el juego.
-     * Este método permite al jugador realizar una acción, ya sea colocar palabras, pasar o intercambiar fichas.
-     * @param move El movimiento a realizar, que incluye la palabra, posición y dirección
-     * @param nombreJugador El nombre del jugador que está realizando la acción
-     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
-     * @param isIA Indica si el jugador es una IA o un jugador humano
-     * @param dificultad La dificultad de la IA (si aplica)
-     * @param isFirst Indica si es el primer turno de la partida
-     * @param pausado Flag para indicar si la partida se pausa
-     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
-     */
-
-     private Tuple<Map<String, Integer>, Integer> realizarAccion(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst) {
-        if (!isIA) {
-            if (move == null) {
-                return null;
-            } else {   
-                return new Tuple<Map<String,Integer>,Integer>(this.makeMove(move, rack), this.calculateMovePoints(move));
-            }
-        } else {
-            Set<Triple<String,Tuple<Integer, Integer>, Direction>> moves = this.searchAllMoves(rack, this.juegoIniciado);
-            if (moves == null || moves.isEmpty()) {
-                return null;
-            } else {
-                Triple<String,Tuple<Integer, Integer>, Direction> bestMove = null;
-                int bestMovePoints = 0;
-                for (Triple<String,Tuple<Integer, Integer>, Direction> m : moves) {
-                    int currentMovePoints = this.calculateMovePoints(m);
-                    if (bestMove == null || currentMovePoints > bestMovePoints) {
-                        bestMove = m;
-                        bestMovePoints = currentMovePoints;
-                    }
-                    if (dificultad == Dificultad.FACIL) {
-                        if (currentMovePoints > 0) {
-                            break; // Si la dificultad es fácil, no es necesario buscar más
-                        }
-                    }
-                }
-                this.juegoIniciado = true;
-                return new Tuple<Map<String,Integer>,Integer>(this.makeMove(bestMove, rack), bestMovePoints);
-            }
-        
-        }
-    }
-    /*
-     * Método para realizar un turno en el juego.
-     * Este método permite al jugador realizar su turno, ya sea humano o IA.
-     * @param nombreJugador El nombre del jugador que está realizando el movimiento
-     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
-     * @param isIA Indica si el jugador es una IA o un jugador humano
-     * @param dificultad La dificultad de la IA (si aplica)
-     * @param pausado Flag para indicar si la partida se pausa
-     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
-     */
-
-    public Tuple<Map<String, Integer>, Integer> realizarTurno(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack,  boolean isIA, Dificultad dificultad) {
-        return realizarAccion(move, nombreJugador, rack, isIA, dificultad, juegoIniciado);
-    }
-
-        /*
-     * Método para finalizar el juego.
-     * Este método se llama cuando el juego ha terminado, ya sea porque un jugador ha ganado o porque no hay más fichas en la bolsa.
-     * En este caso, se muestra un mensaje indicando que el juego ha terminado.
-     */
-
-     public void finalizarJuego() {
-        juegoTerminado = true;
-    }
-
-    /*
-     * Método para reiniciar el juego.
-     * Este método reinicia el juego, restableciendo el estado del juego y la bolsa de fichas.
-     */
-
-    public void reiniciarJuego() {
-        
-        juegoTerminado = false;
-        juegoIniciado = false;
-    }
-
-    /**
-     * Comprueba si la partida ha sido marcada como terminada.
-     *
-     * @return {@code true} si la partida ha terminado, {@code false} en caso contrario.
-     */
-    public boolean isJuegoTerminado() {
-        // Asume que existe una variable de instancia boolean juegoTerminado
-        return juegoTerminado;
-    }
-
-    /**
-     * Comprueba si la partida ha sido marcada como iniciada.
-     *
-     * @return {@code true} si la partida ha iniciado, {@code false} en caso contrario.
-     */
-    public boolean isJuegoIniciado() {
-        // Asume que existe una variable de instancia boolean juegoIniciado
-        return juegoIniciado;
-    }
-
-    /**
-     * Genera una cadena de texto que representa el estado actual de la partida,
-     * incluyendo el tablero y la cantidad de fichas restantes.
-     *
-     * @param nombreJugador El nombre del jugador actual (o relevante) para mostrar en el estado.
-     * @return Un {@code String} formateado con el estado de la partida.
-     * @throws NullPointerException si {@code tablero} o {@code bolsa} son null.
-     */
-    public String mostrarStatusPartida(String nombreJugador) {
-        // Asume la existencia de variables de instancia: Tablero tablero, Bolsa bolsa
-        if (tablero == null || bolsa == null) {
-            throw new NullPointerException("El tablero o la bolsa no están inicializados para mostrar el estado.");
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("=====================================\n");
-        sb.append("          ESTADO DE LA PARTIDA         \n"); // Corregido formato
-        sb.append("=====================================\n");
-        sb.append("Jugador: ").append(nombreJugador).append("\n\n");
-        // Asume que Tablero tiene un método toString() adecuado
-        sb.append("Tablero:\n").append(tablero.toString()).append("\n\n");
-        // Asume que Bolsa tiene un método getCantidadFichas() o similar
-        sb.append("Fichas restantes en la bolsa: ").append(bolsa.getCantidadFichas()).append("\n"); // Asume que este método existe en Bolsa
-        return sb.toString();
-    }
-
-
-    /**
-     * Guarda el estado completo del objeto actual (que contiene el estado del juego)
-     * en un archivo especificado usando serialización Java.
-     * IMPORTANTE: La clase que contiene este método y todas las clases de sus
-     * atributos no transitorios deben implementar {@code java.io.Serializable}.
-     *
-     * @param nombreArchivo El nombre (y ruta) del archivo donde se guardará el estado (ej. "partidas/miPartida.dat").
-     * @throws RuntimeException Si ocurre un error de I/O durante el proceso de guardado,
-     * envolviendo la {@code IOException} original.
-     */
-    public void guardar(String nombreArchivo) {
-        // Guarda este objeto (this) en un archivo .dat
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(nombreArchivo))) {
-            oos.writeObject(this); // Serializa el objeto actual
-            System.out.println("Partida guardada exitosamente en " + nombreArchivo); // Mensaje de éxito
-        } catch (IOException e) {
-            // Envuelve la excepción original para no forzar a los llamadores a manejar IOException
-            throw new RuntimeException("Error al guardar el archivo: " + nombreArchivo, e);
-        }
-    }
-
-    /**
-     * Carga el estado del juego desde un archivo serializado previamente con {@code guardar},
-     * sobrescribiendo el estado del objeto actual.
-     *
-     * @param nombreArchivo El nombre (y ruta) del archivo desde el cual cargar el estado (ej. "partidas/miPartida.dat").
-     * @throws RuntimeException Si ocurre un error de I/O o si la clase no se encuentra
-     * durante la deserialización, envolviendo la excepción original
-     * ({@code IOException} o {@code ClassNotFoundException}).
-     */
-    public void cargarDesdeArchivo(String nombreArchivo) {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(nombreArchivo))) {
-            // Lee el objeto completo guardado en el archivo
-            ControladorJuego cargado = (ControladorJuego) ois.readObject(); // Asume que la clase se llama ControladorJuego
-
-            // Copia manualmente los campos relevantes del objeto cargado al objeto actual (this).
-            // Esto es necesario porque simplemente asignar 'this = cargado' no es posible en Java.
-            // Asegúrate de que todos los campos que definen el estado estén aquí.
-            this.tablero = cargado.tablero;
-            this.bolsa = cargado.bolsa;
-            this.direction = cargado.direction; // Asume que estos campos existen en la clase
-            this.juegoTerminado = cargado.juegoTerminado;
-            this.juegoIniciado = cargado.juegoIniciado;
-            this.lastCrossCheck = cargado.lastCrossCheck;
-            this.nombreDiccionario = cargado.nombreDiccionario;
-            this.alfabeto = cargado.alfabeto;
-            this.jugadores = cargado.jugadores;
-            // this.turnoActual = cargado.turnoActual; // Ejemplo: Añadir otros campos si existen
-
-            // No se copia controladorDiccionario porque es 'transient' (no se serializa)
-            // Se necesitará reinicializar o reasignar las dependencias transient después de cargar.
-            // this.controladorDiccionario = ... // Reinicializar si es necesario
-
-            System.out.println("Datos cargados correctamente desde " + nombreArchivo);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
-        } catch (ClassCastException e) {
-            throw new RuntimeException("Error: El archivo " + nombreArchivo + " no contiene un objeto del tipo esperado.", e);
-        }
-    }
-
-
-    /**
-     * Lista todos los archivos de partidas guardadas (con extensión .dat)
-     * que se encuentran en el directorio relativo "./partidas/".
-     *
-     * @return Una {@code List<String>} con los nombres de los archivos .dat encontrados.
-     * La lista estará vacía si el directorio no existe o no contiene archivos .dat.
-     */
-    public List<String> listarArchivosGuardados() {
-        // Define el directorio donde se buscan las partidas guardadas
-        File dir = new File("./partidas/");
-        // Crea un filtro para listar solo archivos que terminen en ".dat"
-        File[] archivos = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".dat"));
-
-        List<String> listaNombres = new ArrayList<>();
-        if (archivos != null) { // listFiles puede devolver null si el directorio no existe o hay un error I/O
-            for (File archivo : archivos) {
-                listaNombres.add(archivo.getName()); // Añade solo el nombre del archivo a la lista
-            }
-        } else {
-            System.err.println("Advertencia: No se pudo listar archivos en el directorio: " + dir.getAbsolutePath());
-            // Opcional: Crear el directorio si no existe
-            // if (!dir.exists()) { dir.mkdirs(); }
-        }
-        return listaNombres;
-    }
-
-    /**
-     * Intenta eliminar un archivo de partida guardada especificado por su nombre.
-     *
-     * @param nombreArchivo El nombre del archivo (incluyendo la ruta relativa, ej., "./partidas/save1.dat") a eliminar.
-     * @return {@code true} si el archivo existía y fue eliminado con éxito,
-     * {@code false} en caso contrario (ej., el archivo no existía o hubo un problema de permisos).
-     */
-    public boolean eliminarArchivoGuardado(String nombreArchivo) {
-        File archivo = new File(nombreArchivo); // Crea un objeto File con la ruta completa
-        if (archivo.exists()) {
-            boolean eliminado = archivo.delete(); // Intenta eliminar el archivo
-            if (eliminado) {
-                System.out.println("Archivo guardado eliminado: " + nombreArchivo);
-            } else {
-                System.err.println("Error: No se pudo eliminar el archivo guardado: " + nombreArchivo);
-            }
-            return eliminado;
-        } else {
-            System.out.println("Información: El archivo a eliminar no existe: " + nombreArchivo);
-            return false; // El archivo no existía
-        }
-    }
-
-
-    /**
-     * Obtiene el conjunto (Set) de nombres de los jugadores actualmente registrados en la partida.
-     *
-     * @return Un {@code Set<String>} que contiene los nombres únicos de los jugadores.
-     * Puede devolver un Set vacío si no hay jugadores.
-     */
-    public Set<String> getJugadoresActuales() {
-        // Asume que existe una variable de instancia Set<String> jugadores
-        return jugadores;
-    }
- }
+    //         System.out.println("No se encontró una partida con el ID " + partidaId + ".");
+    //     } catch (IOException | ClassNotFoundException e) {
+    //         System.err.println("Error al cargar el estado del juego: " + e.getMessage());
+    //         return null;
+    //     }
+    //     return null; // Si no se encontró la partida o hubo un error
+    // }
+}

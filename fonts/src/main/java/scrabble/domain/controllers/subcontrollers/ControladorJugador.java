@@ -25,7 +25,6 @@ public class ControladorJugador {
     private Map<String, Jugador> jugadores; // key: nombre -> value: Jugador 
     
     private static final String JUGADORES_FILE = "jugadores.dat";
-    private ControladorConfiguracion controladorConfiguracion;
     
     /**
      * Constructor privado para implementar el patrón Singleton.
@@ -33,7 +32,6 @@ public class ControladorJugador {
      */
     private ControladorJugador() {
         this.jugadores = new HashMap<>();
-        this.controladorConfiguracion = new ControladorConfiguracion();
         cargarDatos();
     }
     
@@ -47,16 +45,6 @@ public class ControladorJugador {
             instance = new ControladorJugador();
         }
         return instance;
-    }
-    
-    /**
-     * Establece el controlador de configuración para el acceso a rutas.
-     * Método de inyección de dependencias para testing o para usar una configuración compartida.
-     * 
-     * @param controladorConfiguracion Instancia de ControladorConfiguracion
-     */
-    public void setControladorConfiguracion(ControladorConfiguracion controladorConfiguracion) {
-        this.controladorConfiguracion = controladorConfiguracion;
     }
     
     /**
@@ -80,18 +68,6 @@ public class ControladorJugador {
         Jugador j = getJugador(nombre);
         return j.getSkipTrack();
     }
-
-        /**
-     * Zero el contador de turnos que un jugador ha omitido.
-     * 
-     * @param nombre Nombre del jugador
-     * @return El número de turnos omitidos por el jugador
-     */
-    public void clearSkipTrack(String nombre) {
-        Jugador j = getJugador(nombre);
-        j.clearSkipTrack();
-    }
-
 
     /**
      * Agrega una ficha al jugador.
@@ -286,9 +262,9 @@ public class ControladorJugador {
      * @param dificultad Nivel de dificultad
      * @return true si se registró correctamente, false en caso contrario
      */
-    public boolean registrarJugadorIA(Dificultad dificultad, String nombre) {
+    public boolean registrarJugadorIA(Dificultad dificultad) {
         // Para JugadorIA, ahora usamos su constructor que genera un nombre automático
-        JugadorIA nuevoJugadorIA = new JugadorIA(nombre, dificultad);
+        JugadorIA nuevoJugadorIA = new JugadorIA(dificultad);
         
         // El nombre real viene del jugador generado
         String nombreReal = nuevoJugadorIA.getNombre();
@@ -312,7 +288,7 @@ public class ControladorJugador {
      * @return true si se registró correctamente, false en caso contrario
      */
     public boolean registrarJugadorIA(String nombre, Dificultad dificultad) {
-        return registrarJugadorIA(dificultad, nombre);
+        return registrarJugadorIA(dificultad);
     }
     
     /**
@@ -420,7 +396,7 @@ public class ControladorJugador {
      * @param nombre Nombre del jugador
      * @return Jugador encontrado o null si no existe
      */
-    private Jugador getJugador(String nombre) {
+    public Jugador getJugador(String nombre) {
         return jugadores.get(nombre);
     }
     
@@ -435,7 +411,7 @@ public class ControladorJugador {
             return false;
         }
         
-        Jugador jugador = getJugador(nombre);
+        Jugador jugador = jugadores.get(nombre);
         if (jugador.esIA()) {
             return false; // Las IAs no tienen contador de partidas
         }
@@ -457,7 +433,7 @@ public class ControladorJugador {
             return false;
         }
         
-        Jugador jugador = getJugador(nombre);
+        Jugador jugador = jugadores.get(nombre);
         if (jugador.esIA()) {
             return false; // Las IAs no tienen contador de partidas
         }
@@ -469,101 +445,10 @@ public class ControladorJugador {
     }
     
     /**
-     * Obtiene la puntuación total acumulada de un jugador humano.
-     * 
-     * @param nombre Nombre del jugador
-     * @return La puntuación total acumulada, o 0 si el jugador no es humano
-     */
-    public int getPuntuacionTotal(String nombre) {
-        if (!existeJugador(nombre) || esIA(nombre)) {
-            return 0;
-        }
-        
-        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
-        return jugador.getPuntuacionTotal();
-    }
-    
-    /**
-     * Establece la puntuación total acumulada de un jugador humano.
-     * 
-     * @param nombre Nombre del jugador
-     * @param puntuacionTotal La nueva puntuación total
-     * @return true si se actualizó correctamente, false en caso contrario
-     */
-    public boolean setPuntuacionTotal(String nombre, int puntuacionTotal) {
-        if (!existeJugador(nombre) || esIA(nombre)) {
-            return false;
-        }
-        
-        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
-        jugador.setPuntuacionTotal(puntuacionTotal);
-        guardarDatos();
-        return true;
-    }
-    
-    /**
-     * Añade puntos a la puntuación total acumulada de un jugador humano.
-     * 
-     * @param nombre Nombre del jugador
-     * @param puntos Los puntos a añadir
-     * @return true si se añadieron correctamente, false en caso contrario
-     */
-    public boolean addPuntuacionTotal(String nombre, int puntos) {
-        if (!existeJugador(nombre) || esIA(nombre)) {
-            return false;
-        }
-        
-        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
-        jugador.addPuntuacionTotal(puntos);
-        guardarDatos();
-        return true;
-    }
-    
-    /**
-     * Obtiene la información básica de un jugador sin exponer el objeto de dominio.
-     * Actúa como un patrón de transferencia de datos (DTO) improvisado, devolviendo 
-     * solo datos primitivos o inmutables.
-     * 
-     * @param nombre Nombre del jugador
-     * @return Map con la información básica del jugador, o null si no existe
-     */
-    public Map<String, Object> getInfoJugador(String nombre) {
-        if (!existeJugador(nombre)) {
-            return null;
-        }
-        
-        Jugador jugador = getJugador(nombre);
-        Map<String, Object> infoJugador = new HashMap<>();
-        
-        // Información común a todos los jugadores (solo valores primitivos o inmutables)
-        infoJugador.put("nombre", jugador.getNombre());
-        infoJugador.put("puntuacion", jugador.getPuntuacion());
-        infoJugador.put("esIA", jugador.esIA());
-        infoJugador.put("skipTrack", jugador.getSkipTrack());
-        
-        // Información específica según el tipo de jugador
-        if (jugador.esIA()) {
-            JugadorIA jugadorIA = (JugadorIA) jugador;
-            // Convertimos la enumeración a String para no exponer el tipo Dificultad
-            infoJugador.put("nivelDificultad", jugadorIA.getNivelDificultad().toString());
-        } else {
-            JugadorHumano jugadorHumano = (JugadorHumano) jugador;
-            infoJugador.put("partidasJugadas", jugadorHumano.getPartidasJugadas());
-            infoJugador.put("partidasGanadas", jugadorHumano.getPartidasGanadas());
-            infoJugador.put("ratioVictorias", jugadorHumano.getRatioVictorias());
-            infoJugador.put("puntuacionTotal", jugadorHumano.getPuntuacionTotal());
-            infoJugador.put("enPartida", jugadorHumano.isEnPartida());
-        }
-        
-        return infoJugador;
-    }
-    
-    /**
      * Guarda los datos de los jugadores en un archivo.
      */
     private void guardarDatos() {
-        String rutaCompleta = controladorConfiguracion.getRutaArchivoPersistencia(JUGADORES_FILE);
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(rutaCompleta))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(JUGADORES_FILE))) {
             oos.writeObject(jugadores);
         } catch (IOException e) {
             System.err.println("Error al guardar los jugadores: " + e.getMessage());
@@ -575,8 +460,7 @@ public class ControladorJugador {
      */
     @SuppressWarnings("unchecked")
     private void cargarDatos() {
-        String rutaCompleta = controladorConfiguracion.getRutaArchivoPersistencia(JUGADORES_FILE);
-        File jugadoresFile = new File(rutaCompleta);
+        File jugadoresFile = new File(JUGADORES_FILE);
         if (jugadoresFile.exists()) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(jugadoresFile))) {
                 jugadores = (Map<String, Jugador>) ois.readObject();

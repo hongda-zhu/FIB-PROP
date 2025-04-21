@@ -24,6 +24,7 @@ Este directorio contiene el proyecto completo de Scrabble, implementado como una
   
   - **main/**: Código fuente principal de la aplicación
   - **test/**: Pruebas unitarias y de integración
+  - **provisional_testing_folder/**: Pruebas experimentales y temporales
 
 - **build/**  
   Directorio generado por Gradle que contiene los archivos compilados y otros artefactos de construcción.

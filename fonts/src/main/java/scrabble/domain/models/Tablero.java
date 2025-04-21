@@ -1,9 +1,8 @@
 package scrabble.domain.models;
 
-import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
+import scrabble.domain.controllers.subcontrollers.managers.GestorJugada.Direction;
 import scrabble.helpers.Tuple;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +13,7 @@ import java.util.Map;
  * Gestiona la disposición de fichas, bonificaciones especiales y cálculo de puntuaciones.
  * Permite crear tableros de diferentes tamaños, siendo el estándar de 15x15.
  */
-public class Tablero implements Serializable{
-    private static final long serialVersionUID = 1L;
+public class Tablero {
     /** Matriz que almacena las letras colocadas en el tablero */
     private String[][] tablero;
     
@@ -149,7 +147,7 @@ public class Tablero implements Serializable{
         }
         
         // Centro del tablero
-        bonusMatrix[7][7] = Bonus.X;
+        bonusMatrix[7][7] = Bonus.N;
         
         return bonusMatrix;
     }
@@ -346,7 +344,7 @@ public class Tablero implements Serializable{
      */
     public int makeMove(Tuple<Integer, Integer> lastPos, String word, Direction direction) {
         if (!validPosition(lastPos)) {
-            throw new IllegalArgumentException ("Posición inválida en el tablero.");
+            throw new IllegalArgumentException("Posición inválida en el tablero.");
         }
         
         int puntosTotales = 0;

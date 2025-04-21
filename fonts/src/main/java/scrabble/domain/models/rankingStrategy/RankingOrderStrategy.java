@@ -1,24 +1,30 @@
 package scrabble.domain.models.rankingStrategy;
 
 import java.io.Serializable;
-import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Interfaz que define la estrategia para ordenar el ranking de jugadores.
- * Actúa como un Comparator especializado para nombres de usuario (String).
  */
-public interface RankingOrderStrategy extends Serializable, Comparator<String> {
+public interface RankingOrderStrategy extends Serializable {
     /**
-     * Compara dos nombres de usuario según la estrategia específica.
-     * Implementación del método compare de Comparator.
+     * Ordena la lista de usuarios según la estrategia específica.
      * 
-     * @param username1 Nombre del primer jugador
-     * @param username2 Nombre del segundo jugador
-     * @return un valor negativo si username1 va antes que username2, cero si son iguales,
-     *         un valor positivo si username1 va después que username2
+     * @param puntuacionesPorUsuario Mapa con las puntuaciones de cada usuario
+     * @param puntuacionMaximaPorUsuario Mapa con la puntuación máxima de cada usuario
+     * @param puntuacionMediaPorUsuario Mapa con la puntuación media de cada usuario
+     * @param partidasJugadasPorUsuario Mapa con el número de partidas jugadas por cada usuario
+     * @param victoriasUsuario Mapa con el número de victorias de cada usuario
+     * @return Lista ordenada de nombres de usuario según la estrategia
      */
-    @Override
-    int compare(String username1, String username2);
+    List<String> ordenarRanking(
+        Map<String, List<Integer>> puntuacionesPorUsuario,
+        Map<String, Integer> puntuacionMaximaPorUsuario,
+        Map<String, Double> puntuacionMediaPorUsuario,
+        Map<String, Integer> partidasJugadasPorUsuario,
+        Map<String, Integer> victoriasUsuario
+    );
     
     /**
      * Devuelve el nombre de la estrategia.

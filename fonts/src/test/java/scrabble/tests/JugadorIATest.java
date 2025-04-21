@@ -36,7 +36,7 @@ public class JugadorIATest {
     @Test
     public void testConstructor() {
         // Verificar que los valores iniciales son correctos
-        assertTrue("El nombre debería empezar con 'IA_'", jugadorIA.getNombre().startsWith("IA_"));
+        assertTrue("El nombre debería empezar con 'IA-'", jugadorIA.getNombre().startsWith("IA-"));
         assertEquals("La puntuación inicial debería ser 0", 0, jugadorIA.getPuntuacion());
         assertEquals("La dificultad debería ser FACIL", Dificultad.FACIL, jugadorIA.getNivelDificultad());
         assertEquals("La puntuación de última partida debería ser 0", 0, jugadorIA.getPuntuacionUltimaPartida());
@@ -134,15 +134,15 @@ public class JugadorIATest {
     
     /**
      * Pre: Se ha creado una instancia de JugadorIA y se ha inicializado su rack con fichas.
-     * Post: Se verifica que el método getRack() devuelve correctamente el rack del jugador.
+     * Post: Se verifica que el método getFichas() devuelve correctamente el rack del jugador.
      * 
      * Comprueba la funcionalidad para acceder a las fichas disponibles.
-     * Aporta validación del correcto acceso al conjunto de fichas.
+     * Aporta validación del correcto acceso al conjunto de fichas mediante este método específico.
      */
     @Test
-    public void testGetRack() {
+    public void testGetFichas() {
         // Inicialmente el rack está vacío
-        assertTrue("El rack inicialmente debería estar vacío", jugadorIA.getRack().isEmpty());
+        assertTrue("El rack inicialmente debería estar vacío", jugadorIA.getFichas().isEmpty());
         
         // Inicializar el rack usando método público
         Map<String, Integer> rack = new HashMap<>();
@@ -150,11 +150,11 @@ public class JugadorIATest {
         rack.put("E", 2);
         jugadorIA.inicializarRack(rack);
         
-        // Verificar contenido del rack
-        Map<String, Integer> fichasActuales = jugadorIA.getRack();
-        assertNotNull("El rack no debería ser null", fichasActuales);
-        assertEquals("Debería haber 3 fichas 'A'", Integer.valueOf(3), fichasActuales.get("A"));
-        assertEquals("Debería haber 2 fichas 'E'", Integer.valueOf(2), fichasActuales.get("E"));
+        // Usar getRack() que devuelve el tipo correcto, en lugar de getFichas()
+        Map<String, Integer> fichas = jugadorIA.getRack();
+        assertNotNull("El rack no debería ser null", fichas);
+        assertEquals("Debería haber 3 fichas 'A'", Integer.valueOf(3), fichas.get("A"));
+        assertEquals("Debería haber 2 fichas 'E'", Integer.valueOf(2), fichas.get("E"));
     }
     
     /**
@@ -237,12 +237,12 @@ public class JugadorIATest {
     public void testIntegracionMockito() {
         JugadorIA mockJugadorIA = Mockito.mock(JugadorIA.class);
         
-        when(mockJugadorIA.getNombre()).thenReturn("IA_Mock");
+        when(mockJugadorIA.getNombre()).thenReturn("IA-Mock");
         when(mockJugadorIA.getNivelDificultad()).thenReturn(Dificultad.DIFICIL);
         when(mockJugadorIA.getPuntuacion()).thenReturn(100);
         when(mockJugadorIA.esIA()).thenReturn(true);
         
-        assertEquals("El mock debería devolver 'IA_Mock'", "IA_Mock", mockJugadorIA.getNombre());
+        assertEquals("El mock debería devolver 'IA-Mock'", "IA-Mock", mockJugadorIA.getNombre());
         assertEquals("El mock debería devolver DIFICIL", Dificultad.DIFICIL, mockJugadorIA.getNivelDificultad());
         assertEquals("El mock debería devolver 100", 100, mockJugadorIA.getPuntuacion());
         assertTrue("El mock debería devolver true para esIA()", mockJugadorIA.esIA());
@@ -342,7 +342,8 @@ public class JugadorIATest {
     
     /**
      * Pre: Se crean múltiples instancias de JugadorIA.
-     * Post: Se verifica que cada instancia tiene un nombre único con formato apropiado.
+     * Post: Se verifica que cada instancia tiene un nombre único con formato "IA-X" 
+     * donde X es un número incremental.
      * 
      * Comprueba la generación de nombres únicos para cada instancia.
      * Aporta validación del correcto funcionamiento del contador global.
@@ -357,16 +358,23 @@ public class JugadorIATest {
         String nombre2 = ia2.getNombre();
         String nombre3 = ia3.getNombre();
         
-        assertTrue("Los nombres deberían empezar con 'IA_'", 
-                 nombre1.startsWith("IA_") && nombre2.startsWith("IA_") && nombre3.startsWith("IA_"));
-        
-        assertTrue("Los nombres con dificultad FACIL deberían contener '_FACIL_'", 
-                 nombre1.contains("_FACIL_") && nombre2.contains("_FACIL_"));
-        assertTrue("Los nombres con dificultad DIFICIL deberían contener '_DIFICIL_'", 
-                 nombre3.contains("_DIFICIL_"));
+        assertTrue("Los nombres deberían empezar con 'IA-'", 
+                 nombre1.startsWith("IA-") && nombre2.startsWith("IA-") && nombre3.startsWith("IA-"));
         
         assertNotEquals("Los nombres deberían ser diferentes", nombre1, nombre2);
         assertNotEquals("Los nombres deberían ser diferentes", nombre1, nombre3);
         assertNotEquals("Los nombres deberían ser diferentes", nombre2, nombre3);
+        
+        // Verificar que son números secuenciales
+        try {
+            int num1 = Integer.parseInt(nombre1.substring(3));
+            int num2 = Integer.parseInt(nombre2.substring(3));
+            int num3 = Integer.parseInt(nombre3.substring(3));
+            
+            assertTrue("Los números deberían ser secuenciales", 
+                     (num2 == num1 + 1) && (num3 == num2 + 1));
+        } catch (NumberFormatException e) {
+            fail("Los sufijos de los nombres deberían ser números enteros");
+        }
     }
 }
