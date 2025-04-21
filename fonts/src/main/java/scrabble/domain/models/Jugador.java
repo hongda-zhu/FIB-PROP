@@ -177,4 +177,8 @@ public abstract class Jugador implements Serializable {
      * @return true si es una IA, false si es un jugador humano
      */
     public abstract boolean esIA();
+
+    public void clearSkipTrack() {
+        setSkipTrack(0);
+    }
 }

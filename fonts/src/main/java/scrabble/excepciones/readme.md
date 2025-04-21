@@ -1,52 +1,33 @@
-# Directorio de Excepciones
+# Directorio de Excepciones (`excepciones`)
 
 ## Descripción General
 
-Este directorio contiene las clases de excepciones personalizadas que se utilizan en toda la aplicación para manejar situaciones de error específicas del dominio. Estas excepciones proporcionan información detallada sobre los problemas y facilitan un manejo consistente de errores.
+Este directorio (`scrabble.excepciones`) contiene las clases de excepciones personalizadas que se utilizan en toda la aplicación para manejar situaciones de error específicas del dominio. Estas excepciones heredan generalmente de `Exception` o `RuntimeException` y proporcionan información detallada sobre los problemas encontrados, facilitando un manejo de errores más robusto y específico que el uso de excepciones genéricas.
 
 ## Estructura del Directorio
 
-### Excepciones de Usuario
+### Excepciones de Usuario y Autenticación
 
-- **ExceptionUserExist.java**  
-  Lanzada cuando se intenta crear un usuario que ya existe en el sistema.
+-   **`ExceptionUserExist.java`**: Lanzada cuando se intenta crear/registrar un usuario que ya existe.
+-   **`ExceptionUserNotExist.java`**: Lanzada cuando se intenta operar con un usuario que no existe.
+-   **`ExceptionUserInGame.java`**: Lanzada cuando se intenta realizar una operación incompatible con un usuario que ya está en una partida (potencialmente para futuras funcionalidades).
+-   **`ExceptionUserEsIA.java`**: Lanzada al intentar realizar una operación no permitida para un jugador de tipo IA (ej. intentar loguear una IA).
 
-- **ExceptionUserNotExist.java**  
-  Lanzada cuando se intenta operar con un usuario que no existe en el sistema.
+### Excepciones de Partida y Jugabilidad
 
-- **ExceptionUserLoggedIn.java**  
-  Lanzada cuando se realiza una operación que requiere que el usuario no tenga sesión iniciada.
+-   **`ExceptionNotEnoughTiles.java`**: Lanzada cuando la bolsa no tiene suficientes fichas para una operación (robar, cambiar).
+-   **`ExceptionPalabraInvalida.java`**: Lanzada cuando una palabra no es válida según las reglas del juego (no en diccionario, mala colocación, etc.). Es una excepción clave en la jugabilidad.
+-   **`ExceptionPalabraExist.java`**: Lanzada al intentar añadir una palabra que ya existe (ej. en la gestión de diccionarios).
+-   **`ExceptionPalabraNotExist.java`**: Lanzada al intentar operar con una palabra que no existe (ej. eliminarla de un diccionario).
+-   **`ExceptionPalabraVacia.java`**: Lanzada si se intenta validar o colocar una palabra vacía.
 
-- **ExceptionUserNotLoggedIn.java**  
-  Lanzada cuando se intenta realizar una operación que requiere sesión iniciada.
+### Excepciones de Gestión (Diccionarios, Idiomas, Config.)
 
-- **ExceptionUserInGame.java**  
-  Lanzada cuando se intenta realizar una operación incompatible con un usuario ya en partida.
+-   **`ExceptionDiccionarioExist.java`**: Lanzada al intentar crear/importar un diccionario con un nombre que ya existe.
+-   **`ExceptionDiccionarioNotExist.java`**: Lanzada al intentar operar (eliminar, usar) con un diccionario que no existe.
+-   **`ExceptionLanguageNotExist.java`**: Lanzada al intentar usar/referenciar un idioma no existente.
 
-- **ExceptionInvalidCredentials.java** y **ExceptionPasswordMismatch.java**  
-  Lanzadas cuando hay problemas con la autenticación de usuarios.
+### Excepciones de Ranking y Puntuaciones
 
-### Excepciones de Partida
-
-- **ExceptionPartidaExist.java**  
-  Lanzada cuando se intenta crear una partida con un identificador ya existente.
-
-- **ExceptionPartidaNotExist.java**  
-  Lanzada cuando se intenta operar con una partida inexistente.
-
-### Excepciones de Contenido
-
-- **ExceptionDiccionarioExist.java** y **ExceptionDiccionarioNotExist.java**  
-  Lanzadas al gestionar diccionarios con identificadores duplicados o inexistentes.
-
-- **ExceptionIdiomaNotExists.java** y **ExceptionTemaNotExists.java**  
-  Lanzadas cuando se intenta usar un idioma o tema no configurado en el sistema.
-
-### Excepciones de Ranking
-
-- **ExceptionRankingOperationFailed.java**  
-  Lanzada cuando una operación sobre el ranking no puede completarse.
-
-- **ExceptionPuntuacionNotExist.java** y **ExceptionInvalidScore.java**  
-  Lanzadas cuando hay problemas con las puntuaciones de los usuarios.
-
+-   **`ExceptionRankingOperationFailed.java`**: Lanzada cuando una operación general sobre el ranking (ej. guardado, carga) falla.
+-   **`ExceptionInvalidScore.java`**: Lanzada si se intenta registrar o usar una puntuación con un valor inválido (ej. negativo donde no debe serlo).

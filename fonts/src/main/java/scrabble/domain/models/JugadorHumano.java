@@ -9,6 +9,7 @@ import java.util.Map;
 public class JugadorHumano extends Jugador {
     private static final long serialVersionUID = 1L;
     private int puntuacionUltimaPartida;
+    private int puntuacionTotal;
     private int partidasJugadas;
     private int partidasGanadas;
     private boolean enPartida;
@@ -21,6 +22,7 @@ public class JugadorHumano extends Jugador {
     public JugadorHumano(String nombre) {
         super(nombre);
         this.puntuacionUltimaPartida = 0;
+        this.puntuacionTotal = 0;
         this.partidasJugadas = 0;
         this.partidasGanadas = 0;
         this.enPartida = false;
@@ -138,6 +140,33 @@ public class JugadorHumano extends Jugador {
         this.puntuacionUltimaPartida += puntos;
     }
 
+    /**
+     * Obtiene la puntuación total acumulada de todas las partidas.
+     * 
+     * @return Puntuación total acumulada
+     */
+    public int getPuntuacionTotal() {
+        return puntuacionTotal;
+    }
+    
+    /**
+     * Establece la puntuación total acumulada.
+     * 
+     * @param puntuacionTotal Nueva puntuación total
+     */
+    public void setPuntuacionTotal(int puntuacionTotal) {
+        this.puntuacionTotal = puntuacionTotal;
+    }
+    
+    /**
+     * Añade puntos a la puntuación total acumulada.
+     * 
+     * @param puntos Puntos a añadir
+     */
+    public void addPuntuacionTotal(int puntos) {
+        this.puntuacionTotal += puntos;
+    }
+
     @Override
     public String toString() {
         return "JugadorHumano{" +
@@ -145,6 +174,7 @@ public class JugadorHumano extends Jugador {
                ", partidasJugadas=" + partidasJugadas +
                ", partidasGanadas=" + partidasGanadas +
                ", puntuacion=" + puntuacion +
+               ", puntuacionTotal=" + puntuacionTotal +
                ", enPartida=" + enPartida +
                '}';
     }

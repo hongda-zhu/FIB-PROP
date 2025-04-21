@@ -1,93 +1,58 @@
 package scrabble.domain.models;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Clase que implementa un diccionario de palabras para el juego de Scrabble.
- * Gestiona múltiples idiomas con sus respectivos DAWG (Directed Acyclic Word Graph),
- * alfabetos y configuraciones de fichas.
+ * Gestiona un solo conjunto de palabras con su alfabeto y configuración de fichas.
  */
-public class Diccionario {
+public class Diccionario implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
-     * Mapa que almacena todos los DAWG disponibles, indexados por nombre de idioma.
+     * Estructura DAWG que almacena las palabras del diccionario.
      */
-    private Map<String, Dawg> allDawgs;
+    private Dawg dawg;
     
     /**
-     * Mapa que almacena los alfabetos con sus valores de puntos, indexados por nombre de idioma.
+     * Mapa que almacena los valores de puntos para cada letra del alfabeto.
      */
-    private Map<String, Map<String, Integer>> allAlphabets;
+    private Map<String, Integer> alphabet;
     
     /**
-     * Mapa que almacena la configuración de frecuencia de fichas para cada idioma.
+     * Mapa que almacena la configuración de frecuencia de fichas.
      */
-    private Map<String, Map<String, Integer>> allBag;
+    private Map<String, Integer> bag;
+    
+    /**
+     * Conjunto que almacena los caracteres comodín del alfabeto.
+     */
+    private Set<String> comodines;
 
     /**
      * Constructor por defecto que inicializa las estructuras de datos.
      */
     public Diccionario() {
-        this.allDawgs = new HashMap<>();
-        this.allAlphabets = new HashMap<>();
-        this.allBag = new HashMap<>();
+        this.dawg = new Dawg();
+        this.alphabet = new HashMap<>();
+        this.bag = new HashMap<>();
+        this.comodines = new HashSet<>();
     }
 
     /**
-     * Añade un nuevo DAWG (estructura de palabras) al diccionario.
+     * Inicializa el DAWG (estructura de palabras) del diccionario.
      * 
-     * @param name Nombre del idioma o conjunto de palabras
-     * @param filePath Ruta del archivo que contiene las palabras. Si es null o vacío, permite entrada manual
+     * @param palabras Lista de palabras para insertar en el DAWG
      */
-    public void addDawg(String name, String filePath) {
-
-        Dawg dawg = new Dawg();
-        if (filePath == null || filePath.isEmpty()) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Introduce palabras separadas por enter. Escribe 'FIN' para terminar:");
-        
-            List<String> palabras = new ArrayList<>();
-            while (true) {
-                String palabra = scanner.nextLine();
-                if (palabra.equalsIgnoreCase("FIN")) {
-                    break;
-                }
-                palabras.add(palabra);
-            }
-            inicializarDawg(dawg, palabras);
-        } else {
-            // Si se proporciona una ruta de archivo, inicializa el Dawg desde el archivo
-            List<String> palabras = leerArchivoLineaPorLinea(filePath);
-            inicializarDawg(dawg, palabras);
-        }
-        this.allDawgs.put(name, dawg);
-    }
-
-    /**
-     * Lee un archivo línea por línea y devuelve su contenido como una lista de strings.
-     * 
-     * @param rutaArchivo Ruta del archivo a leer
-     * @return Lista de líneas no vacías del archivo
-     */
-    public List<String> leerArchivoLineaPorLinea(String rutaArchivo) {
-        List<String> lineas = new ArrayList<>();
-        try (Scanner scanner = new Scanner(new File(rutaArchivo))) {
-            while (scanner.hasNextLine()) {
-                String linea = scanner.nextLine().trim();
-                if (!linea.isEmpty()) { 
-                    lineas.add(linea);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo: " + e.getMessage());
-        }
-        return lineas;
+    public void setDawg(List<String> palabras) {
+        Dawg newDawg = new Dawg();
+        inicializarDawg(newDawg, palabras);
+        this.dawg = newDawg;
     }
 
     /**
@@ -103,98 +68,150 @@ public class Diccionario {
     }
 
     /**
-     * Añade un nuevo alfabeto al diccionario desde un archivo.
-     * El archivo debe tener el formato: "letra frecuencia puntos" por línea.
+     * Configura el alfabeto y la bolsa del diccionario a partir de líneas de texto.
+     * Cada línea debe tener el formato: "letra frecuencia puntos"
+     * Los comodines se identifican con símbolos especiales (ej: "#") y tienen valor 0.
      * 
-     * @param name Nombre del idioma o conjunto de caracteres
-     * @param rutaArchivo Ruta del archivo que contiene la configuración del alfabeto
+     * @param lineas Lista de líneas con el formato indicado
+     * @throws IllegalArgumentException  Si hay problemas con el formato de las líneas
      */
-    public void addAlphabet(String name, String rutaArchivo) {
+    public void setAlphabet(List<String> lineas) {
+        Map<String, Integer> newAlphabet = new HashMap<>();
+        Map<String, Integer> newBag = new HashMap<>();
+        Set<String> newComodines = new HashSet<>();
 
-        if (this.allAlphabets == null) {
-            this.allAlphabets = new HashMap<>();
-        }
-        Map<String, Integer> alphabet = new HashMap<>();
-        Map<String, Integer> bag = new HashMap<>();
-
-        List<String> lineas = leerArchivoLineaPorLinea(rutaArchivo);
         for (String linea : lineas) {
-                String[] partes = linea.split(" ");
-                if (partes.length == 3) {
+            String[] partes = linea.split(" ");
+            if (partes.length == 3) {
+                try {
                     String caracter = partes[0];
                     int frecuencia = Integer.parseInt(partes[1]); 
                     int puntos = Integer.parseInt(partes[2]);
-                    alphabet.put(caracter, puntos);
-                    bag.put(caracter, frecuencia);                     
-                }
-                else {
-                    System.out.println("Línea con formato incorrecto: " + linea);                
-                }
+                    
+                    if (frecuencia < 1) {
+                        throw new IllegalArgumentException ("La frecuencia no puede menor que 1: " + linea);
+                    }
+                    
+                    if (puntos < 0) {
+                        throw new IllegalArgumentException ("Los puntos no pueden ser negativos: " + linea);
+                    }
+                    
+                    // Si el valor es 0, podría ser un comodín
+                    if (puntos == 0 && caracter.equals("#")) {
+                        newComodines.add(caracter);
+                    }
+                    
+                    newAlphabet.put(caracter, puntos);
+                    newBag.put(caracter, frecuencia);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException ("Formato incorrecto en línea: " + linea + ". Los valores de frecuencia y puntos deben ser números.");
+                }                     
+            }
+            else {
+                throw new IllegalArgumentException ("Línea con formato incorrecto: " + linea + ". Formato esperado: LETRA FRECUENCIA PUNTOS");                
+            }
         }
-        this.allAlphabets.put(name, alphabet);
-        this.allBag.put(name, bag);
-    }
-
-    /**
-     * Elimina un DAWG del diccionario.
-     * 
-     * @param name Nombre del idioma o conjunto de palabras a eliminar
-     */
-    public void deleteDawg(String name) {
-        if (this.allDawgs != null) {
-            this.allDawgs.remove(name);
+        
+        if (newAlphabet.isEmpty()) {
+            throw new IllegalArgumentException ("El alfabeto no puede estar vacío. Debe especificar al menos una letra.");
         }
+        
+        this.alphabet = newAlphabet;
+        this.bag = newBag;
+        this.comodines = newComodines;
     }
 
     /**
-     * Elimina un alfabeto del diccionario.
+     * Obtiene el DAWG del diccionario.
      * 
-     * @param name Nombre del idioma o conjunto de caracteres a eliminar
+     * @return Estructura DAWG
      */
-    public void deleteAlphabet(String name) {
-        if (this.allAlphabets != null) {
-            this.allAlphabets.remove(name);
-        }
-    }
-
-    /**
-     * Obtiene el DAWG asociado a un idioma.
-     * 
-     * @param nombre Nombre del idioma
-     * @return Estructura DAWG correspondiente o null si no existe
-     */
-    public Dawg getDawg(String nombre) {
-        return this.allDawgs.get(nombre);
-    }
-
-    /**
-    * Devuelve la lista de nombres de los diccionarios disponibles actualmente en el sistema.
-    * 
-    * @return Lista de nombres de diccionarios disponibles.
-    */
-    public List<String> getDiccionariosDisponibles() {
-        return new ArrayList<>(allDawgs.keySet());
+    public Dawg getDawg() {
+        return this.dawg;
     }
     
     /**
-     * Verifica si un DAWG existe en el diccionario.
+     * Obtiene el mapa de puntos por letra del alfabeto.
      * 
-     * @param nombre Nombre del idioma
-     * @return true si el DAWG existe, false en caso contrario
+     * @return Mapa que asocia cada letra con su valor en puntos
      */
-
-    public boolean existeDawg(String nombre) {
-        return this.allDawgs.containsKey(nombre);
+    public Map<String, Integer> getAlphabet() {
+        return this.alphabet;
     }
 
     /**
-     * Obtiene el mapa de puntos por letra para un idioma.
+     * Obtiene el mapa de frecuencias de fichas.
      * 
-     * @param nombre Nombre del idioma
-     * @return Mapa que asocia cada letra con su valor en puntos
+     * @return Mapa que asocia cada letra con su frecuencia de aparición en el juego
      */
-    public Map<String, Integer> getAlphabet(String nombre) {
-        return this.allAlphabets.get(nombre);
+    public Map<String, Integer> getBag() {
+        return this.bag;
+    }
+    
+    /**
+     * Obtiene el conjunto de caracteres comodín.
+     * 
+     * @return Conjunto de caracteres comodín
+     */
+    public Set<String> getComodines() {
+        return this.comodines;
+    }
+    
+    /**
+     * Verifica si un carácter es un comodín.
+     * 
+     * @param caracter Carácter a verificar
+     * @return true si es un comodín, false en caso contrario
+     */
+    public boolean esComodin(String caracter) {
+        return this.comodines.contains(caracter);
+    }
+    
+    /**
+     * Verifica si una palabra existe en el diccionario.
+     * 
+     * @param palabra Palabra a verificar
+     * @return true si la palabra existe, false en caso contrario
+     */
+    public boolean contienePalabra(String palabra) {
+        if (dawg == null) return false;
+        return dawg.search(palabra.toUpperCase());
+    }
+    
+    /**
+     * Obtiene los caracteres del alfabeto.
+     * 
+     * @return Conjunto de caracteres válidos del alfabeto
+     */
+    public Set<Character> getAlphabetChars() {
+        if (alphabet == null) return new HashSet<>();
+        
+        Set<Character> chars = new HashSet<>();
+        for (String key : alphabet.keySet()) {
+            for (char c : key.toCharArray()) {
+                chars.add(Character.toUpperCase(c));
+            }
+        }
+        return chars;
+    }
+
+    /**
+     * Verifica si una palabra contiene solo caracteres válidos.
+     * 
+     * @param palabra Palabra a verificar
+     * @param validChars Conjunto de caracteres válidos
+     * @return true si la palabra es válida, false en caso contrario
+     */
+    public boolean isValidWordSyntax(String palabra, Set<Character> validChars) {
+        if (palabra == null || palabra.isEmpty()) {
+            return false; 
+        }
+        for (char c : palabra.toCharArray()) {
+            if (!validChars.contains(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -203,26 +220,41 @@ public class Diccionario {
      * @param nombre Nombre del idioma
      * @return Mapa que asocia cada letra con su frecuencia de aparición en el juego
      */
-    public Map<String, Integer> getBag(String nombre) {
-        return this.allBag.get(nombre);
+    public Map<String, Integer> getFichas() {
+        Map<String, Integer> bag = getBag();
+        if (bag == null) return null;
+        
+        return bag;
     }
 
     /**
-     * Obtiene todos los DAWG disponibles en el diccionario.
-     * 
-     * @return Mapa con todos los DAWG indexados por nombre de idioma
+     * Obtiene el puntaje asociado a un carácter dado.
+     *
+     * Este método recupera el puntaje del carácter especificado `c` del mapa del alfabeto.
+     * Si el mapa del alfabeto es nulo o el carácter no se encuentra en el mapa, devuelve 0.
+     *
+     * @param c El carácter cuyo puntaje se desea obtener.
+     * @return El puntaje del carácter si existe en el mapa del alfabeto; de lo contrario, 0.
      */
-    public Map<String, Dawg> getAllDawgs() {
-        return this.allDawgs;
+    public int getPuntaje(String c) {
+        Map<String, Integer> alphabet = getAlphabet();
+        if (alphabet == null) return 0;
+        
+        return alphabet.containsKey(c)? alphabet.get(c) : 0;
     }
 
-    /**
-     * Obtiene todos los alfabetos disponibles en el diccionario.
-     * 
-     * @return Mapa con todos los alfabetos indexados por nombre de idioma
-     */
-    public Map<String, Map<String, Integer>> getAllAlphabets() {
-        return this.allAlphabets;
+    public Set<String> getAvailableEdges(String palabraParcial) {
+        return dawg.getAvailableEdges(palabraParcial);
     }
+
+    public boolean isFinal(String palabraParcial) {
+        return dawg.isFinal(palabraParcial);
+    }
+
+    public boolean nodeExists(String palabraParcial) {
+        return dawg.getNode(palabraParcial) != null;
+    }
+
+
 
 }

@@ -69,6 +69,18 @@ public class ControladorJugador {
         return j.getSkipTrack();
     }
 
+        /**
+     * Zero el contador de turnos que un jugador ha omitido.
+     * 
+     * @param nombre Nombre del jugador
+     * @return El número de turnos omitidos por el jugador
+     */
+    public void clearSkipTrack(String nombre) {
+        Jugador j = getJugador(nombre);
+        j.clearSkipTrack();
+    }
+
+
     /**
      * Agrega una ficha al jugador.
      * 
@@ -262,9 +274,9 @@ public class ControladorJugador {
      * @param dificultad Nivel de dificultad
      * @return true si se registró correctamente, false en caso contrario
      */
-    public boolean registrarJugadorIA(Dificultad dificultad) {
+    public boolean registrarJugadorIA(Dificultad dificultad, String nombre) {
         // Para JugadorIA, ahora usamos su constructor que genera un nombre automático
-        JugadorIA nuevoJugadorIA = new JugadorIA(dificultad);
+        JugadorIA nuevoJugadorIA = new JugadorIA(nombre, dificultad);
         
         // El nombre real viene del jugador generado
         String nombreReal = nuevoJugadorIA.getNombre();
@@ -288,7 +300,7 @@ public class ControladorJugador {
      * @return true si se registró correctamente, false en caso contrario
      */
     public boolean registrarJugadorIA(String nombre, Dificultad dificultad) {
-        return registrarJugadorIA(dificultad);
+        return registrarJugadorIA(dificultad, nombre);
     }
     
     /**
@@ -396,7 +408,7 @@ public class ControladorJugador {
      * @param nombre Nombre del jugador
      * @return Jugador encontrado o null si no existe
      */
-    public Jugador getJugador(String nombre) {
+    private Jugador getJugador(String nombre) {
         return jugadores.get(nombre);
     }
     
@@ -411,7 +423,7 @@ public class ControladorJugador {
             return false;
         }
         
-        Jugador jugador = jugadores.get(nombre);
+        Jugador jugador = getJugador(nombre);
         if (jugador.esIA()) {
             return false; // Las IAs no tienen contador de partidas
         }
@@ -433,7 +445,7 @@ public class ControladorJugador {
             return false;
         }
         
-        Jugador jugador = jugadores.get(nombre);
+        Jugador jugador = getJugador(nombre);
         if (jugador.esIA()) {
             return false; // Las IAs no tienen contador de partidas
         }
@@ -442,6 +454,96 @@ public class ControladorJugador {
         
         guardarDatos();
         return true;
+    }
+    
+    /**
+     * Obtiene la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @return La puntuación total acumulada, o 0 si el jugador no es humano
+     */
+    public int getPuntuacionTotal(String nombre) {
+        if (!existeJugador(nombre) || esIA(nombre)) {
+            return 0;
+        }
+        
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
+        return jugador.getPuntuacionTotal();
+    }
+    
+    /**
+     * Establece la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @param puntuacionTotal La nueva puntuación total
+     * @return true si se actualizó correctamente, false en caso contrario
+     */
+    public boolean setPuntuacionTotal(String nombre, int puntuacionTotal) {
+        if (!existeJugador(nombre) || esIA(nombre)) {
+            return false;
+        }
+        
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
+        jugador.setPuntuacionTotal(puntuacionTotal);
+        guardarDatos();
+        return true;
+    }
+    
+    /**
+     * Añade puntos a la puntuación total acumulada de un jugador humano.
+     * 
+     * @param nombre Nombre del jugador
+     * @param puntos Los puntos a añadir
+     * @return true si se añadieron correctamente, false en caso contrario
+     */
+    public boolean addPuntuacionTotal(String nombre, int puntos) {
+        if (!existeJugador(nombre) || esIA(nombre)) {
+            return false;
+        }
+        
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
+        jugador.addPuntuacionTotal(puntos);
+        guardarDatos();
+        return true;
+    }
+    
+    /**
+     * Obtiene la información básica de un jugador sin exponer el objeto de dominio.
+     * Actúa como un patrón de transferencia de datos (DTO) improvisado, devolviendo 
+     * solo datos primitivos o inmutables.
+     * 
+     * @param nombre Nombre del jugador
+     * @return Map con la información básica del jugador, o null si no existe
+     */
+    public Map<String, Object> getInfoJugador(String nombre) {
+        if (!existeJugador(nombre)) {
+            return null;
+        }
+        
+        Jugador jugador = getJugador(nombre);
+        Map<String, Object> infoJugador = new HashMap<>();
+        
+        // Información común a todos los jugadores (solo valores primitivos o inmutables)
+        infoJugador.put("nombre", jugador.getNombre());
+        infoJugador.put("puntuacion", jugador.getPuntuacion());
+        infoJugador.put("esIA", jugador.esIA());
+        infoJugador.put("skipTrack", jugador.getSkipTrack());
+        
+        // Información específica según el tipo de jugador
+        if (jugador.esIA()) {
+            JugadorIA jugadorIA = (JugadorIA) jugador;
+            // Convertimos la enumeración a String para no exponer el tipo Dificultad
+            infoJugador.put("nivelDificultad", jugadorIA.getNivelDificultad().toString());
+        } else {
+            JugadorHumano jugadorHumano = (JugadorHumano) jugador;
+            infoJugador.put("partidasJugadas", jugadorHumano.getPartidasJugadas());
+            infoJugador.put("partidasGanadas", jugadorHumano.getPartidasGanadas());
+            infoJugador.put("ratioVictorias", jugadorHumano.getRatioVictorias());
+            infoJugador.put("puntuacionTotal", jugadorHumano.getPuntuacionTotal());
+            infoJugador.put("enPartida", jugadorHumano.isEnPartida());
+        }
+        
+        return infoJugador;
     }
     
     /**

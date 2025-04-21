@@ -28,11 +28,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.code.gson:gson:2.8.9'
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.reflections:reflections:0.9.12'
 }
 
 test {
@@ -41,8 +38,8 @@ test {
 
 sourceSets {
     temp {
-        java.srcDirs = ['src/provisional_testing_folder/java']
-        resources.srcDirs = ['src/temp/resources']
+        java.srcDirs = ['src/main/java']
+        resources.srcDirs = ['src/java/resources']
         compileClasspath += sourceSets.main.output
         runtimeClasspath += output + compileClasspath
     }
@@ -50,7 +47,7 @@ sourceSets {
 
 task runTemp(type: JavaExec) {
     classpath = sourceSets.temp.runtimeClasspath
-    mainClass.set(project.hasProperty('mainClass') ? project.getProperty('mainClass') : 'random_tests.Main2')
+    mainClass.set(project.hasProperty('mainClass') ? project.getProperty('mainClass') : 'scrabble.DomainDriver')
     standardInput = System.in
     jvmArgs = ['-Dfile.encoding=UTF-8'] // Fuerza UTF-8 en la JVM
 }
