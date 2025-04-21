@@ -149,9 +149,9 @@ public class RankingStrategyTest {
                  RankingOrderStrategyFactory.createStrategy("criterioinvalido", dataProvider) instanceof MaximaScoreStrategy);
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException .class)
     public void testRankingOrderStrategyFactoryNullDataProvider() {
-        // Debe lanzar IllegalArgumentException si dataProvider es null
+        // Debe lanzar IllegalArgumentException  si dataProvider es null
         RankingOrderStrategyFactory.createStrategy("maxima", null);
     }
     

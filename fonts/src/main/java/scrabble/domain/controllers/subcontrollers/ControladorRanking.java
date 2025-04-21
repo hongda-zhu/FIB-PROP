@@ -33,6 +33,7 @@ public class ControladorRanking implements RankingDataProvider {
     private String estrategiaActual;
     
     private static final String RANKING_FILE = "ranking.dat";
+    private transient ControladorConfiguracion controladorConfiguracion;
     
     /**
      * Constructor privado para implementar el patrón Singleton.
@@ -41,6 +42,7 @@ public class ControladorRanking implements RankingDataProvider {
     private ControladorRanking() {
         this.estadisticasUsuarios = new HashMap<>();
         this.estrategiaActual = "maxima"; // Estrategia por defecto
+        this.controladorConfiguracion = new ControladorConfiguracion();
         
         cargarDatos();
     }
@@ -55,6 +57,16 @@ public class ControladorRanking implements RankingDataProvider {
             instance = new ControladorRanking();
         }
         return instance;
+    }
+    
+    /**
+     * Establece el controlador de configuración para el acceso a rutas.
+     * Método de inyección de dependencias para testing o para usar una configuración compartida.
+     * 
+     * @param controladorConfiguracion Instancia de ControladorConfiguracion
+     */
+    public void setControladorConfiguracion(ControladorConfiguracion controladorConfiguracion) {
+        this.controladorConfiguracion = controladorConfiguracion;
     }
     
     /**
@@ -345,7 +357,8 @@ public class ControladorRanking implements RankingDataProvider {
      */
     public void guardarDatos() {
         try {
-            FileOutputStream fos = new FileOutputStream(RANKING_FILE);
+            String rutaCompleta = controladorConfiguracion.getRutaArchivoPersistencia(RANKING_FILE);
+            FileOutputStream fos = new FileOutputStream(rutaCompleta);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(this);
             oos.close();
@@ -359,10 +372,11 @@ public class ControladorRanking implements RankingDataProvider {
      * Carga los datos del ranking desde un archivo serializado.
      */
     private void cargarDatos() {
-        File rankingFile = new File(RANKING_FILE);
+        String rutaCompleta = controladorConfiguracion.getRutaArchivoPersistencia(RANKING_FILE);
+        File rankingFile = new File(rutaCompleta);
         if (rankingFile.exists()) {
             try {
-                FileInputStream fis = new FileInputStream(RANKING_FILE);
+                FileInputStream fis = new FileInputStream(rutaCompleta);
                 ObjectInputStream ois = new ObjectInputStream(fis);
                 ControladorRanking loaded = (ControladorRanking) ois.readObject();
                 ois.close();

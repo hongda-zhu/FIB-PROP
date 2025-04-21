@@ -18,7 +18,6 @@ import scrabble.domain.models.Bolsa;
 import scrabble.domain.models.Tablero;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
-import scrabble.helpers.BooleanWrapper;
 import scrabble.helpers.Dificultad;
 
 /**
@@ -621,88 +620,172 @@ public class ControladorJuego implements Serializable {
         juegoIniciado = false;
     }
 
-    /*
-     * Método para obtener el estado del juego.
-     * Este método devuelve un booleano que indica si el juego ha terminado o no.
-     * @return true si el juego ha terminado, false en caso contrario
+    /**
+     * Comprueba si la partida ha sido marcada como terminada.
+     *
+     * @return {@code true} si la partida ha terminado, {@code false} en caso contrario.
      */
-
     public boolean isJuegoTerminado() {
+        // Asume que existe una variable de instancia boolean juegoTerminado
         return juegoTerminado;
     }
 
+    /**
+     * Comprueba si la partida ha sido marcada como iniciada.
+     *
+     * @return {@code true} si la partida ha iniciado, {@code false} en caso contrario.
+     */
     public boolean isJuegoIniciado() {
+        // Asume que existe una variable de instancia boolean juegoIniciado
         return juegoIniciado;
     }
 
+    /**
+     * Genera una cadena de texto que representa el estado actual de la partida,
+     * incluyendo el tablero y la cantidad de fichas restantes.
+     *
+     * @param nombreJugador El nombre del jugador actual (o relevante) para mostrar en el estado.
+     * @return Un {@code String} formateado con el estado de la partida.
+     * @throws NullPointerException si {@code tablero} o {@code bolsa} son null.
+     */
     public String mostrarStatusPartida(String nombreJugador) {
+        // Asume la existencia de variables de instancia: Tablero tablero, Bolsa bolsa
+        if (tablero == null || bolsa == null) {
+            throw new NullPointerException("El tablero o la bolsa no están inicializados para mostrar el estado.");
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("=====================================\n");
-        sb.append("          ESTADO DE LA PARTIDA       \n");
+        sb.append("          ESTADO DE LA PARTIDA         \n"); // Corregido formato
         sb.append("=====================================\n");
         sb.append("Jugador: ").append(nombreJugador).append("\n\n");
+        // Asume que Tablero tiene un método toString() adecuado
         sb.append("Tablero:\n").append(tablero.toString()).append("\n\n");
-        sb.append("Fichas restantes en la bolsa: ").append(bolsa.getCantidadFichas()).append("\n");
+        // Asume que Bolsa tiene un método getCantidadFichas() o similar
+        sb.append("Fichas restantes en la bolsa: ").append(bolsa.getCantidadFichas()).append("\n"); // Asume que este método existe en Bolsa
         return sb.toString();
     }
 
 
-        // Guarda este objeto en un archivo .dat
+    /**
+     * Guarda el estado completo del objeto actual (que contiene el estado del juego)
+     * en un archivo especificado usando serialización Java.
+     * IMPORTANTE: La clase que contiene este método y todas las clases de sus
+     * atributos no transitorios deben implementar {@code java.io.Serializable}.
+     *
+     * @param nombreArchivo El nombre (y ruta) del archivo donde se guardará el estado (ej. "partidas/miPartida.dat").
+     * @throws RuntimeException Si ocurre un error de I/O durante el proceso de guardado,
+     * envolviendo la {@code IOException} original.
+     */
     public void guardar(String nombreArchivo) {
+        // Guarda este objeto (this) en un archivo .dat
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(nombreArchivo))) {
-            oos.writeObject(this);
+            oos.writeObject(this); // Serializa el objeto actual
+            System.out.println("Partida guardada exitosamente en " + nombreArchivo); // Mensaje de éxito
         } catch (IOException e) {
+            // Envuelve la excepción original para no forzar a los llamadores a manejar IOException
             throw new RuntimeException("Error al guardar el archivo: " + nombreArchivo, e);
         }
     }
 
+    /**
+     * Carga el estado del juego desde un archivo serializado previamente con {@code guardar},
+     * sobrescribiendo el estado del objeto actual.
+     *
+     * @param nombreArchivo El nombre (y ruta) del archivo desde el cual cargar el estado (ej. "partidas/miPartida.dat").
+     * @throws RuntimeException Si ocurre un error de I/O o si la clase no se encuentra
+     * durante la deserialización, envolviendo la excepción original
+     * ({@code IOException} o {@code ClassNotFoundException}).
+     */
     public void cargarDesdeArchivo(String nombreArchivo) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(nombreArchivo))) {
-            ControladorJuego cargado = (ControladorJuego) ois.readObject();
-    
-            // Sobrescribir campos
+            // Lee el objeto completo guardado en el archivo
+            ControladorJuego cargado = (ControladorJuego) ois.readObject(); // Asume que la clase se llama ControladorJuego
+
+            // Copia manualmente los campos relevantes del objeto cargado al objeto actual (this).
+            // Esto es necesario porque simplemente asignar 'this = cargado' no es posible en Java.
+            // Asegúrate de que todos los campos que definen el estado estén aquí.
             this.tablero = cargado.tablero;
             this.bolsa = cargado.bolsa;
-            this.direction = cargado.direction;
+            this.direction = cargado.direction; // Asume que estos campos existen en la clase
             this.juegoTerminado = cargado.juegoTerminado;
             this.juegoIniciado = cargado.juegoIniciado;
             this.lastCrossCheck = cargado.lastCrossCheck;
             this.nombreDiccionario = cargado.nombreDiccionario;
             this.alfabeto = cargado.alfabeto;
             this.jugadores = cargado.jugadores;
-    
-            // No se copia controladorDiccionario porque es transient
-            System.out.println("Datos cargados desde " + nombreArchivo);
+            // this.turnoActual = cargado.turnoActual; // Ejemplo: Añadir otros campos si existen
+
+            // No se copia controladorDiccionario porque es 'transient' (no se serializa)
+            // Se necesitará reinicializar o reasignar las dependencias transient después de cargar.
+            // this.controladorDiccionario = ... // Reinicializar si es necesario
+
+            System.out.println("Datos cargados correctamente desde " + nombreArchivo);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        } catch (ClassCastException e) {
+            throw new RuntimeException("Error: El archivo " + nombreArchivo + " no contiene un objeto del tipo esperado.", e);
         }
     }
-    
 
-    // Lista todos los archivos .dat en el directorio actual
+
+    /**
+     * Lista todos los archivos de partidas guardadas (con extensión .dat)
+     * que se encuentran en el directorio relativo "./partidas/".
+     *
+     * @return Una {@code List<String>} con los nombres de los archivos .dat encontrados.
+     * La lista estará vacía si el directorio no existe o no contiene archivos .dat.
+     */
     public List<String> listarArchivosGuardados() {
+        // Define el directorio donde se buscan las partidas guardadas
         File dir = new File("./partidas/");
-        File[] archivos = dir.listFiles((d, name) -> name.endsWith(".dat"));
-        List<String> lista = new ArrayList<>();
-        if (archivos != null) {
+        // Crea un filtro para listar solo archivos que terminen en ".dat"
+        File[] archivos = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".dat"));
+
+        List<String> listaNombres = new ArrayList<>();
+        if (archivos != null) { // listFiles puede devolver null si el directorio no existe o hay un error I/O
             for (File archivo : archivos) {
-                lista.add(archivo.getName());
+                listaNombres.add(archivo.getName()); // Añade solo el nombre del archivo a la lista
             }
+        } else {
+            System.err.println("Advertencia: No se pudo listar archivos en el directorio: " + dir.getAbsolutePath());
+            // Opcional: Crear el directorio si no existe
+            // if (!dir.exists()) { dir.mkdirs(); }
         }
-        return lista;
+        return listaNombres;
     }
 
-    // Elimina un archivo .dat
+    /**
+     * Intenta eliminar un archivo de partida guardada especificado por su nombre.
+     *
+     * @param nombreArchivo El nombre del archivo (incluyendo la ruta relativa, ej., "./partidas/save1.dat") a eliminar.
+     * @return {@code true} si el archivo existía y fue eliminado con éxito,
+     * {@code false} en caso contrario (ej., el archivo no existía o hubo un problema de permisos).
+     */
     public boolean eliminarArchivoGuardado(String nombreArchivo) {
-        File archivo = new File(nombreArchivo);
+        File archivo = new File(nombreArchivo); // Crea un objeto File con la ruta completa
         if (archivo.exists()) {
-            return archivo.delete();
+            boolean eliminado = archivo.delete(); // Intenta eliminar el archivo
+            if (eliminado) {
+                System.out.println("Archivo guardado eliminado: " + nombreArchivo);
+            } else {
+                System.err.println("Error: No se pudo eliminar el archivo guardado: " + nombreArchivo);
+            }
+            return eliminado;
+        } else {
+            System.out.println("Información: El archivo a eliminar no existe: " + nombreArchivo);
+            return false; // El archivo no existía
         }
-        return false;
     }
 
 
+    /**
+     * Obtiene el conjunto (Set) de nombres de los jugadores actualmente registrados en la partida.
+     *
+     * @return Un {@code Set<String>} que contiene los nombres únicos de los jugadores.
+     * Puede devolver un Set vacío si no hay jugadores.
+     */
     public Set<String> getJugadoresActuales() {
+        // Asume que existe una variable de instancia Set<String> jugadores
         return jugadores;
     }
  }

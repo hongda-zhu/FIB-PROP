@@ -14,7 +14,7 @@ public class RankingOrderStrategyFactory {
      */
     public static RankingOrderStrategy createStrategy(String criterio, RankingDataProvider dataProvider) {
         if (dataProvider == null) {
-            throw new IllegalArgumentException("El proveedor de datos no puede ser null");
+            throw new IllegalArgumentException ("El proveedor de datos no puede ser null");
         }
         
         if (criterio == null) {

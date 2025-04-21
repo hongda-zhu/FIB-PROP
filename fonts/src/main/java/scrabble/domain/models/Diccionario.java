@@ -73,7 +73,7 @@ public class Diccionario implements Serializable {
      * Los comodines se identifican con símbolos especiales (ej: "#") y tienen valor 0.
      * 
      * @param lineas Lista de líneas con el formato indicado
-     * @throws IllegalArgumentException Si hay problemas con el formato de las líneas
+     * @throws IllegalArgumentException  Si hay problemas con el formato de las líneas
      */
     public void setAlphabet(List<String> lineas) {
         Map<String, Integer> newAlphabet = new HashMap<>();
@@ -89,11 +89,11 @@ public class Diccionario implements Serializable {
                     int puntos = Integer.parseInt(partes[2]);
                     
                     if (frecuencia < 1) {
-                        throw new IllegalArgumentException("La frecuencia no puede menor que 1: " + linea);
+                        throw new IllegalArgumentException ("La frecuencia no puede menor que 1: " + linea);
                     }
                     
                     if (puntos < 0) {
-                        throw new IllegalArgumentException("Los puntos no pueden ser negativos: " + linea);
+                        throw new IllegalArgumentException ("Los puntos no pueden ser negativos: " + linea);
                     }
                     
                     // Si el valor es 0, podría ser un comodín
@@ -104,16 +104,16 @@ public class Diccionario implements Serializable {
                     newAlphabet.put(caracter, puntos);
                     newBag.put(caracter, frecuencia);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Formato incorrecto en línea: " + linea + ". Los valores de frecuencia y puntos deben ser números.");
+                    throw new IllegalArgumentException ("Formato incorrecto en línea: " + linea + ". Los valores de frecuencia y puntos deben ser números.");
                 }                     
             }
             else {
-                throw new IllegalArgumentException("Línea con formato incorrecto: " + linea + ". Formato esperado: LETRA FRECUENCIA PUNTOS");                
+                throw new IllegalArgumentException ("Línea con formato incorrecto: " + linea + ". Formato esperado: LETRA FRECUENCIA PUNTOS");                
             }
         }
         
         if (newAlphabet.isEmpty()) {
-            throw new IllegalArgumentException("El alfabeto no puede estar vacío. Debe especificar al menos una letra.");
+            throw new IllegalArgumentException ("El alfabeto no puede estar vacío. Debe especificar al menos una letra.");
         }
         
         this.alphabet = newAlphabet;
@@ -203,6 +203,9 @@ public class Diccionario implements Serializable {
      * @return true si la palabra es válida, false en caso contrario
      */
     public boolean isValidWordSyntax(String palabra, Set<Character> validChars) {
+        if (palabra == null || palabra.isEmpty()) {
+            return false; 
+        }
         for (char c : palabra.toCharArray()) {
             if (!validChars.contains(c)) {
                 return false;

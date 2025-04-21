@@ -43,19 +43,3 @@ La implementación sigue el principio de inversión de dependencias:
 1. Las **estrategias** (clases de alto nivel) dependen de una **abstracción** (`RankingDataProvider`), no de detalles concretos.
 2. Tanto `ControladorRanking` como `Ranking` (clases de bajo nivel) implementan la interfaz `RankingDataProvider`.
 3. La inyección del proveedor de datos se realiza a través del constructor de cada estrategia.
-
-Este enfoque:
-- Elimina dependencias circulares
-- Facilita los tests unitarios mediante mocks
-- Permite la reutilización de las estrategias con diferentes proveedores de datos
-
-## Ventajas de la Implementación
-
-Esta implementación ofrece varias ventajas:
-
-- **Desacoplamiento**: Las estrategias no dependen de implementaciones concretas de almacenamiento de datos, solo de la interfaz `RankingDataProvider`.
-- **Inversión de dependencias**: Las dependencias fluyen desde las capas externas hacia las abstracciones, no hacia implementaciones concretas.
-- **Cohesión mejorada**: Cada componente tiene una responsabilidad clara y bien definida.
-- **Facilidad de extensión**: Añadir nuevas estrategias o proveedores de datos es sencillo gracias a las interfaces.
-- **Testabilidad**: Las estrategias pueden probarse con proveedores de datos ficticios (mocks).
-- **Compatibilidad con Java**: El uso de `Comparator<String>` permite aprovechar directamente las funcionalidades de ordenación de Java.

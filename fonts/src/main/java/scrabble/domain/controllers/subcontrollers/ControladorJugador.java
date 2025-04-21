@@ -25,6 +25,7 @@ public class ControladorJugador {
     private Map<String, Jugador> jugadores; // key: nombre -> value: Jugador 
     
     private static final String JUGADORES_FILE = "jugadores.dat";
+    private ControladorConfiguracion controladorConfiguracion;
     
     /**
      * Constructor privado para implementar el patrón Singleton.
@@ -32,6 +33,7 @@ public class ControladorJugador {
      */
     private ControladorJugador() {
         this.jugadores = new HashMap<>();
+        this.controladorConfiguracion = new ControladorConfiguracion();
         cargarDatos();
     }
     
@@ -45,6 +47,16 @@ public class ControladorJugador {
             instance = new ControladorJugador();
         }
         return instance;
+    }
+    
+    /**
+     * Establece el controlador de configuración para el acceso a rutas.
+     * Método de inyección de dependencias para testing o para usar una configuración compartida.
+     * 
+     * @param controladorConfiguracion Instancia de ControladorConfiguracion
+     */
+    public void setControladorConfiguracion(ControladorConfiguracion controladorConfiguracion) {
+        this.controladorConfiguracion = controladorConfiguracion;
     }
     
     /**
@@ -550,7 +562,8 @@ public class ControladorJugador {
      * Guarda los datos de los jugadores en un archivo.
      */
     private void guardarDatos() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(JUGADORES_FILE))) {
+        String rutaCompleta = controladorConfiguracion.getRutaArchivoPersistencia(JUGADORES_FILE);
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(rutaCompleta))) {
             oos.writeObject(jugadores);
         } catch (IOException e) {
             System.err.println("Error al guardar los jugadores: " + e.getMessage());
@@ -562,7 +575,8 @@ public class ControladorJugador {
      */
     @SuppressWarnings("unchecked")
     private void cargarDatos() {
-        File jugadoresFile = new File(JUGADORES_FILE);
+        String rutaCompleta = controladorConfiguracion.getRutaArchivoPersistencia(JUGADORES_FILE);
+        File jugadoresFile = new File(rutaCompleta);
         if (jugadoresFile.exists()) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(jugadoresFile))) {
                 jugadores = (Map<String, Jugador>) ois.readObject();

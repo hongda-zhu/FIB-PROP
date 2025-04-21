@@ -346,7 +346,7 @@ public class Tablero implements Serializable{
      */
     public int makeMove(Tuple<Integer, Integer> lastPos, String word, Direction direction) {
         if (!validPosition(lastPos)) {
-            throw new IllegalArgumentException("Posición inválida en el tablero.");
+            throw new IllegalArgumentException ("Posición inválida en el tablero.");
         }
         
         int puntosTotales = 0;

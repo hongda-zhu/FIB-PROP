@@ -287,7 +287,7 @@ public class TableroTest {
         try {
             tablero.makeMove(new Tuple<>(-1, -1), "TEST", direccion);
             fail("Debería lanzar una excepción al intentar colocar una palabra en una posición inválida");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException  e) {
             // Comportamiento esperado
         }
     }

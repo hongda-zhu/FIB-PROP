@@ -16,7 +16,6 @@ import scrabble.excepciones.*;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
-import scrabble.helpers.BooleanWrapper;
 
 /**
 * Constructor del controlador del dominio.
