@@ -1,0 +1,333 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :compileTempJava UP-TO-DATE
+> Task :processTempResources UP-TO-DATE
+> Task :tempClasses UP-TO-DATE
+
+> Task :runTemp
+
+Bienvenido al Driver del Dominio.
+Escriba 'help' para ver los comandos disponibles
+Escriba 'quit' para salir
++------------------------------------------------------------------------------+
+| MENÚ PRINCIPAL |                                                             |
++------------------------------------------------------------------------------+
+|                 Selecciona un menú o ejecuta un comando.                     |
+|                                                                              |
+|                           [ 1 ] Gestión de Jugadores                         |
+|                           [ 2 ] Gestión de Diccionarios                      |
+|                           [ 3 ] Gestión de Partidas                          |
+|                           [ 4 ] Gestión de Rankings                          |
+|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 6 ] Ejecutar Archivo                             |
+|                           [ 0 ] Salir                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES |                                                       |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 3 ] Mostrar jugadores          - Muestra todos los jugadores registrados.|
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¿Cómo crear un nuevo jugador?                                              |
+|   Introduce un nombre de jugador                                             |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR > INTRODUCIR NOMBRE                     |
+|                                                                              |
+|   Introduce un nombre de jugador:                                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| JUGADORES REGISTRADOS                                                        |
++------------------------------------------------------------------------------+
+| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
++-------------------+-----------+-------------+--------------------------------+
+| test1             | Humano    | 0/0         | 0 pts                         | ★ NUEVO
++------------------------------------------------------------------------------+
+| Total jugadores: 1 (Humanos: 1)                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¡Jugador 'test1' creado correctamente!                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¿Cómo crear un nuevo jugador?                                              |
+|   Introduce un nombre de jugador                                             |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR > INTRODUCIR NOMBRE                     |
+|                                                                              |
+|   Introduce un nombre de jugador:                                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| JUGADORES REGISTRADOS                                                        |
++------------------------------------------------------------------------------+
+| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
++-------------------+-----------+-------------+--------------------------------+
+| test2             | Humano    | 0/0         | 0 pts                         | ★ NUEVO
+| test1             | Humano    | 0/0         | 0 pts                         | (sin ranking)
++------------------------------------------------------------------------------+
+| Total jugadores: 2 (Humanos: 2)                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¡Jugador 'test2' creado correctamente!                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¿Cómo crear un nuevo jugador?                                              |
+|   Introduce un nombre de jugador                                             |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| JUGADORES REGISTRADOS                                                        |
++------------------------------------------------------------------------------+
+| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
++-------------------+-----------+-------------+--------------------------------+
+| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| test1             | Humano    | 0/0         | 0 pts                         | (sin ranking)
++------------------------------------------------------------------------------+
+| Total jugadores: 2 (Humanos: 2)                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¿Cómo crear un nuevo jugador?                                              |
+|   Introduce un nombre de jugador                                             |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR > INTRODUCIR NOMBRE                     |
+|                                                                              |
+|   Introduce un nombre de jugador:                                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   Error: El jugador ya existe.                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¿Cómo crear un nuevo jugador?                                              |
+|   Introduce un nombre de jugador                                             |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| JUGADORES REGISTRADOS                                                        |
++------------------------------------------------------------------------------+
+| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
++-------------------+-----------+-------------+--------------------------------+
+| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| test1             | Humano    | 0/0         | 0 pts                         | (sin ranking)
++------------------------------------------------------------------------------+
+| Total jugadores: 2 (Humanos: 2)                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
+|                                                                              |
+|   ¿Cómo crear un nuevo jugador?                                              |
+|   Introduce un nombre de jugador                                             |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
+Volviendo a Gestión de Jugadores...
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES |                                                       |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 3 ] Mostrar jugadores          - Muestra todos los jugadores registrados.|
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
+|                                                                              |
+|   ¿Cómo eliminar jugador?                                                    |
+|   Introduce un nombre de jugador al que quiere eliminar                      |
+|                                                                              |
+|   [ 1 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 2 ] Ver jugadores              - Lista los jugadores disponibles.        |
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR > INTRODUCIR NOMBRE                  |
+|                                                                              |
+|   Introduce un nombre de jugador a eliminar:                                 |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| JUGADORES REGISTRADOS                                                        |
++------------------------------------------------------------------------------+
+| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
++-------------------+-----------+-------------+--------------------------------+
+| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
++------------------------------------------------------------------------------+
+| Total jugadores: 1 (Humanos: 1)                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
+|                                                                              |
+|   ¡Jugador 'test1' eliminado correctamente!                                     |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
+|                                                                              |
+|   ¿Cómo eliminar jugador?                                                    |
+|   Introduce un nombre de jugador al que quiere eliminar                      |
+|                                                                              |
+|   [ 1 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 2 ] Ver jugadores              - Lista los jugadores disponibles.        |
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR > INTRODUCIR NOMBRE                  |
+|                                                                              |
+|   Introduce un nombre de jugador a eliminar:                                 |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
+|                                                                              |
+|   Error: El jugador no existe.                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
+|                                                                              |
+|   ¿Cómo eliminar jugador?                                                    |
+|   Introduce un nombre de jugador al que quiere eliminar                      |
+|                                                                              |
+|   [ 1 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 2 ] Ver jugadores              - Lista los jugadores disponibles.        |
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| JUGADORES REGISTRADOS                                                        |
++------------------------------------------------------------------------------+
+| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
++-------------------+-----------+-------------+--------------------------------+
+| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
++------------------------------------------------------------------------------+
+| Total jugadores: 1 (Humanos: 1)                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
+|                                                                              |
+|   ¿Cómo eliminar jugador?                                                    |
+|   Introduce un nombre de jugador al que quiere eliminar                      |
+|                                                                              |
+|   [ 1 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 2 ] Ver jugadores              - Lista los jugadores disponibles.        |
+|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
+|                                                                              |
++------------------------------------------------------------------------------+
+Volviendo a Gestión de Jugadores...
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES |                                                       |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 3 ] Mostrar jugadores          - Muestra todos los jugadores registrados.|
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| JUGADORES REGISTRADOS                                                        |
++------------------------------------------------------------------------------+
+| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
++-------------------+-----------+-------------+--------------------------------+
+| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
++------------------------------------------------------------------------------+
+| Total jugadores: 1 (Humanos: 1)                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES                                                         |
+|                                                                              |
+| Operación 'Mostrar jugadores' realizada correctamente.                       |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES |                                                       |
+|                                                                              |
+|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
+|   [ 2 ] Eliminar jugador           - Elimina un jugador existente.           |
+|   [ 3 ] Mostrar jugadores          - Muestra todos los jugadores registrados.|
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| MENÚ PRINCIPAL |                                                             |
++------------------------------------------------------------------------------+
+|                 Selecciona un menú o ejecuta un comando.                     |
+|                                                                              |
+|                           [ 1 ] Gestión de Jugadores                         |
+|                           [ 2 ] Gestión de Diccionarios                      |
+|                           [ 3 ] Gestión de Partidas                          |
+|                           [ 4 ] Gestión de Rankings                          |
+|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 6 ] Ejecutar Archivo                             |
+|                           [ 0 ] Salir                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
+
+BUILD SUCCESSFUL in 1s
+4 actionable tasks: 1 executed, 3 up-to-date

@@ -1,0 +1,1 @@
+  Para ejecutar las pruebas que sean tipo "run_X_test.bat (para windows)" o "run_X_test.sh (para Linux)". Ves al directorio donde se encuentra esos archivos y ejecuta ".\run_X_test.bat" o "./run_X_test.sh".
