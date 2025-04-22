@@ -1,0 +1,981 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileTempJava UP-TO-DATE
+> Task :processTempResources UP-TO-DATE
+> Task :tempClasses UP-TO-DATE
+
+> Task :runTemp
+
+Bienvenido al Driver del Dominio.
+Escriba 'help' para ver los comandos disponibles
+Escriba 'quit' para salir
+
++------------------------------------------------------------------------------+
+| MENÚ PRINCIPAL |                                                             |
++------------------------------------------------------------------------------+
+|                 Selecciona un menú o ejecuta un comando.                     |
+|                                                                              |
+|                           [ 1 ] Gestión de Jugadores                         |
+|                           [ 2 ] Gestión de Diccionarios                      |
+|                           [ 3 ] Gestión de Partidas                          |
+|                           [ 4 ] Gestión de Rankings                          |
+|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 6 ] Ejecutar Archivo                             |
+|                           [ 0 ] Salir                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Ingrese el nombre del nuevo diccionario (será el nombre de la             |
+|    carpeta):                                                                 |
+|    Presione Enter para continuar después de cada entrada.                    |
+|    Para cancelar en cualquier momento, ingrese '-1'.                         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Ingrese los caracteres del alfabeto (formato: LETRA FRECUENCIA            |
+|    PUNTOS), uno por línea.                                                   |
+|    Ejemplo: A 9 1,  CH 1 5 o  en formato comodín # 2 0 (comodín)             |
+|    Para terminar, introduzca una línea vacía o ingrese '-1' o                |
+|    Presione Enter después de cada entrada.                                   |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ✓ Formato correcto. Letra 'A' añadida al alfabeto.                        |
+|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    La letra 'A' ya existe en el alfabeto con configuración: A 9 1            |
+|    Nuevo valor propuesto: A 9 2                                              |
+|    ¿Desea sobrescribir los valores existentes con los nuevos? (s/n)          |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ✓ Valores actualizados para la letra 'A'.                                 |
+|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Error: Formato incorrecto. Debe ser 'LETRA FRECUENCIA PUNTOS'.            |
+|    Ejemplo: A 9 1,  CH 1 5 o  en formato comodín # 2 0 (comodín)             |
+|    Ingrese un valor válido o presione enter vacío para volver al menú o      |
+|    -1 para cancelar.                                                         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Error: Formato incorrecto. Debe ser 'LETRA FRECUENCIA PUNTOS'.            |
+|    Ejemplo: A 9 1,  CH 1 5 o  en formato comodín # 2 0 (comodín)             |
+|    Ingrese un valor válido o presione enter vacío para volver al menú o      |
+|    -1 para cancelar.                                                         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ✓ Formato correcto. Letra 'B' añadida al alfabeto.                        |
+|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    La letra 'B' ya existe en el alfabeto con configuración: B 2 3            |
+|    Nuevo valor propuesto: B 2 4                                              |
+|    ¿Desea sobrescribir los valores existentes con los nuevos? (s/n)          |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Se mantienen los valores originales para la letra 'B'.                    |
+|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Archivo alpha.txt creado correctamente.                                   |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Ingrese las palabras válidas, una por línea.                              |
+|    Para terminar, introduzca una línea vacía o ingrese '-1'.                 |
+|    El alfabeto actual contiene las letras: [A, B]                            |
+|    Presione Enter después de cada palabra.                                   |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ✓ Palabra 'BA' añadida al diccionario.                                    |
+|    Ingrese otra palabra o deje vacío para terminar.                          |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Error: La palabra 'BA' ya existe en el diccionario.                       |
+|    Presione Enter e ingrese una palabra diferente.                           |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Error: La palabra 'CA' contiene caracteres no definidos en el             |
+|    alfabeto.                                                                 |
+|    Caracteres inválidos: C                                                   |
+|    Alfabeto actual: [A, B]                                                   |
+|    Presione Enter e intente de nuevo.                                        |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'dicc' creado correctamente.
++------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ¡Diccionario 'dicc' creado exitosamente!                                  |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   Seleccione el diccionario a eliminar (¡esto borrará sus archivos!):        |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¿Está seguro de eliminar 'dicc' y todos sus archivos?                      |
+|                                                                              |
+|   Ingrese 's' para confirmar o 'n' para cancelar.                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   Operación cancelada.                                                       |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   Seleccione el diccionario a eliminar (¡esto borrará sus archivos!):        |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¿Está seguro de eliminar 'dicc' y todos sus archivos?                      |
+|                                                                              |
+|   Ingrese 's' para confirmar o 'n' para cancelar.                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'dicc' y sus archivos eliminados correctamente.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¡Diccionario 'dicc' eliminado correctamente!                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   Indique la ruta del directorio que contiene el diccionario a importar:     |
+|   (El directorio debe contener los archivos alpha.txt y words.txt)           |
+|   Ejemplos: 'nombre_diccionario' => 'src/nombre_diccionario'                 |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   Error: El directorio especificado no es válido o no contiene los           |
+|   archivos necesarios.                                                       |
+|   Verifique que la ruta 'www' exista y contenga los archivos alpha.txt y     |
+|   words.txt.                                                                 |
+|   Asegúrese de que alpha.txt contiene el formato: 'LETRA FRECUENCIA          |
+|   PUNTOS' por línea.                                                         |
+|   y que words.txt contiene una palabra válida por línea.                     |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MOSTRAR DICCIONARIOS                              |
+|                                                                              |
+|   No hay diccionarios cargados en el sistema.                                |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Ingrese el nombre del nuevo diccionario (será el nombre de la             |
+|    carpeta):                                                                 |
+|    Presione Enter para continuar después de cada entrada.                    |
+|    Para cancelar en cualquier momento, ingrese '-1'.                         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Ingrese los caracteres del alfabeto (formato: LETRA FRECUENCIA            |
+|    PUNTOS), uno por línea.                                                   |
+|    Ejemplo: A 9 1,  CH 1 5 o  en formato comodín # 2 0 (comodín)             |
+|    Para terminar, introduzca una línea vacía o ingrese '-1' o                |
+|    Presione Enter después de cada entrada.                                   |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ✓ Formato correcto. Letra 'A' añadida al alfabeto.                        |
+|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Archivo alpha.txt creado correctamente.                                   |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    Ingrese las palabras válidas, una por línea.                              |
+|    Para terminar, introduzca una línea vacía o ingrese '-1'.                 |
+|    El alfabeto actual contiene las letras: [A]                               |
+|    Presione Enter después de cada palabra.                                   |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ✓ Palabra 'A' añadida al diccionario.                                     |
+|    Ingrese otra palabra o deje vacío para terminar.                          |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'dicc' creado correctamente.
++------------------------------------------------------------------------------+
+|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
+|                                                                              |
+|    ¡Diccionario 'dicc' creado exitosamente!                                  |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MOSTRAR DICCIONARIOS                              |
+|                                                                              |
+|   Diccionarios disponibles:                                                  |
+|   1. dicc                                                                    |
+|                                                                              |
+|   Se han mostrado 1 diccionario(s) disponible(s).                            |
+|                                                                              |
+|   Escriba el número del diccionario para ver sus valores de alpha.txt        |
+|   o pulse Enter para volver al menú anterior.                                |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MOSTRAR VALORES ALPHA                             |
+|                                                                              |
+|   Valores del archivo alpha.txt del diccionario 'dicc':                      |
+|                                                                              |
+|   LETRA      FRECUENCIA PUNTOS                                               |
+|   ----------------------------------------                                   |
+|   A          2          1                                                    |
+|                                                                              |
+|   Total de letras: 1                                                         |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MOSTRAR DICCIONARIOS                              |
+|                                                                              |
+|   Diccionarios disponibles:                                                  |
+|   1. dicc                                                                    |
+|                                                                              |
+|   Se han mostrado 1 diccionario(s) disponible(s).                            |
+|                                                                              |
+|   Escriba el número del diccionario para ver sus valores de alpha.txt        |
+|   o pulse Enter para volver al menú anterior.                                |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   Indique la ruta del directorio que contiene el diccionario a importar:     |
+|   (El directorio debe contener los archivos alpha.txt y words.txt)           |
+|   Ejemplos: 'nombre_diccionario' => 'src/nombre_diccionario'                 |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   Nombre detectado para el diccionario: 'ESP'                                |
+|   ¿Desea utilizar este nombre o especificar uno diferente?                   |
+|     [1] Usar nombre detectado ('ESP')                                        |
+|     [2] Especificar un nombre diferente                                      |
+|     [0] Volver / Cancelar operación                                          |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'ESP' creado correctamente.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   ¡Diccionario 'ESP' importado y cargado exitosamente desde:                 |
+|   src/main/resources/ESP                                                     |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MOSTRAR DICCIONARIOS                              |
+|                                                                              |
+|   Diccionarios disponibles:                                                  |
+|   1. ESP                                                                     |
+|   2. dicc                                                                    |
+|                                                                              |
+|   Se han mostrado 2 diccionario(s) disponible(s).                            |
+|                                                                              |
+|   Escriba el número del diccionario para ver sus valores de alpha.txt        |
+|   o pulse Enter para volver al menú anterior.                                |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   Indique la ruta del directorio que contiene el diccionario a importar:     |
+|   (El directorio debe contener los archivos alpha.txt y words.txt)           |
+|   Ejemplos: 'nombre_diccionario' => 'src/nombre_diccionario'                 |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   Nombre detectado para el diccionario: 'ESP'                                |
+|   ¿Desea utilizar este nombre o especificar uno diferente?                   |
+|     [1] Usar nombre detectado ('ESP')                                        |
+|     [2] Especificar un nombre diferente                                      |
+|     [0] Volver / Cancelar operación                                          |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   Ingrese el nombre para el diccionario:                                     |
+|   (Use solo letras, números, guiones o guiones bajos)                        |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'E' creado correctamente.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO                              |
+|                                                                              |
+|   ¡Diccionario 'E' importado y cargado exitosamente desde:                   |
+|   src/main/resources/ESP                                                     |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MOSTRAR DICCIONARIOS                              |
+|                                                                              |
+|   Diccionarios disponibles:                                                  |
+|   1. ESP                                                                     |
+|   2. E                                                                       |
+|   3. dicc                                                                    |
+|                                                                              |
+|   Se han mostrado 3 diccionario(s) disponible(s).                            |
+|                                                                              |
+|   Escriba el número del diccionario para ver sus valores de alpha.txt        |
+|   o pulse Enter para volver al menú anterior.                                |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   Seleccione el diccionario a eliminar (¡esto borrará sus archivos!):        |
+|                                                                              |
+|     [1] ESP                                                                  |
+|     [2] E                                                                    |
+|     [3] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¿Está seguro de eliminar 'ESP' y todos sus archivos?                       |
+|                                                                              |
+|   Ingrese 's' para confirmar o 'n' para cancelar.                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'ESP' y sus archivos eliminados correctamente.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¡Diccionario 'ESP' eliminado correctamente!                                |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   Seleccione el diccionario a eliminar (¡esto borrará sus archivos!):        |
+|                                                                              |
+|     [1] E                                                                    |
+|     [2] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¿Está seguro de eliminar 'E' y todos sus archivos?                         |
+|                                                                              |
+|   Ingrese 's' para confirmar o 'n' para cancelar.                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+> El directorio del diccionario ya no existe en la ruta esperada: src/main/resources/ESP
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¡Diccionario 'E' eliminado correctamente!                                  |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione el diccionario a modificar:                                     |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione la operación para el diccionario 'dicc':                        |
+|                                                                              |
+|     [1] Añadir palabra                                                       |
+|     [2] Modificar palabra                                                    |
+|     [3] Eliminar palabra                                                     |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Ingrese la palabra a añadir al diccionario 'dicc':                         |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'dicc' modificado correctamente.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Palabra 'AA' añadida correctamente al diccionario 'dicc'.                  |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione el diccionario a modificar:                                     |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione la operación para el diccionario 'dicc':                        |
+|                                                                              |
+|     [1] Añadir palabra                                                       |
+|     [2] Modificar palabra                                                    |
+|     [3] Eliminar palabra                                                     |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Ingrese la palabra a añadir al diccionario 'dicc':                         |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Error al añadir la palabra: La palabra 'B' contiene caracteres no          |
+|   válidos para el diccionario 'dicc'.                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione el diccionario a modificar:                                     |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione la operación para el diccionario 'dicc':                        |
+|                                                                              |
+|     [1] Añadir palabra                                                       |
+|     [2] Modificar palabra                                                    |
+|     [3] Eliminar palabra                                                     |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO  > MODIFICAR PALABRA        |
+|                                                                              |
+|   Ingrese la palabra que desea modificar del diccionario 'dicc':             |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO  > MODIFICAR PALABRA        |
+|                                                                              |
+|   La palabra 'A' existe en el diccionario.                                   |
+|                                                                              |
+|   Alfabeto disponible: [A]                                                   |
+|   Solo se permiten palabras con estos caracteres.                            |
+|                                                                              |
+|   Ingrese la nueva palabra que reemplazará a 'A':                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Palabra 'A' modificada a 'AAA' en el diccionario 'dicc'.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Palabra 'A' modificada correctamente a 'AAA' en el diccionario 'dicc'.     |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione el diccionario a modificar:                                     |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione la operación para el diccionario 'dicc':                        |
+|                                                                              |
+|     [1] Añadir palabra                                                       |
+|     [2] Modificar palabra                                                    |
+|     [3] Eliminar palabra                                                     |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO  > MODIFICAR PALABRA        |
+|                                                                              |
+|   Ingrese la palabra que desea modificar del diccionario 'dicc':             |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   La palabra 'A' no existe en el diccionario 'dicc'.                         |
+|   Operación cancelada.                                                       |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione el diccionario a modificar:                                     |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione la operación para el diccionario 'dicc':                        |
+|                                                                              |
+|     [1] Añadir palabra                                                       |
+|     [2] Modificar palabra                                                    |
+|     [3] Eliminar palabra                                                     |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Ingrese la palabra a eliminar del diccionario 'dicc':                      |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'dicc' modificado correctamente.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Palabra 'AA' eliminada correctamente del diccionario 'dicc'.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione el diccionario a modificar:                                     |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Seleccione la operación para el diccionario 'dicc':                        |
+|                                                                              |
+|     [1] Añadir palabra                                                       |
+|     [2] Modificar palabra                                                    |
+|     [3] Eliminar palabra                                                     |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Ingrese la palabra a eliminar del diccionario 'dicc':                      |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO                             |
+|                                                                              |
+|   Error al eliminar la palabra: La palabra 'AA' no existe en el              |
+|   diccionario.                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   Seleccione el diccionario a eliminar (¡esto borrará sus archivos!):        |
+|                                                                              |
+|     [1] dicc                                                                 |
+|     [0] Volver                                                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+> +------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¿Está seguro de eliminar 'dicc' y todos sus archivos?                      |
+|                                                                              |
+|   Ingrese 's' para confirmar o 'n' para cancelar.                            |
+|                                                                              |
++------------------------------------------------------------------------------+
+> Diccionario 'dicc' y sus archivos eliminados correctamente.
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS > ELIMINAR DICCIONARIO                              |
+|                                                                              |
+|   ¡Diccionario 'dicc' eliminado correctamente!                               |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE DICCIONARIOS |                                                    |
+|                                                                              |
+|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
+|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
+|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
+|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
+|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
+|                                                                              |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| MENÚ PRINCIPAL |                                                             |
++------------------------------------------------------------------------------+
+|                 Selecciona un menú o ejecuta un comando.                     |
+|                                                                              |
+|                           [ 1 ] Gestión de Jugadores                         |
+|                           [ 2 ] Gestión de Diccionarios                      |
+|                           [ 3 ] Gestión de Partidas                          |
+|                           [ 4 ] Gestión de Rankings                          |
+|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 6 ] Ejecutar Archivo                             |
+|                           [ 0 ] Salir                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
+
+BUILD SUCCESSFUL in 4s
+5 actionable tasks: 1 executed, 4 up-to-date
