@@ -31,7 +31,7 @@ public class JugadorIA extends Jugador {
         // Nombre con formato IA_Dificultad_Num para mejor identificación
         super(nombre != null ? nombre : generarNombreIA(dificultad));
         this.nivelDificultad = dificultad;
-        this.rack = new HashMap<>(); // Inicialmente sin fichas en el rack
+        setRackInterno(new HashMap<>()); // Inicialmente sin fichas en el rack
     }
     
     /**
@@ -115,7 +115,7 @@ public class JugadorIA extends Jugador {
      * @post Se devuelve el rack actual de fichas del jugador IA
      */
     public Map<String, Integer> getFichas() {
-        return rack;
+        return getRackInterno();
     }
     
     /**
@@ -128,7 +128,7 @@ public class JugadorIA extends Jugador {
     @Override
     public String toString() {
         return "JugadorIA{" +
-               "nombre='" + nombre + '\'' +
+               "nombre='" + getNombreInterno() + '\'' +
                ", nivelDificultad=" + nivelDificultad +
                '}';
     }

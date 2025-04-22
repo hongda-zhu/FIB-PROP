@@ -24,7 +24,7 @@ public class JugadorHumano extends Jugador {
         super(nombre);
         this.enPartida = false;
         this.nombrePartidaActual = ""; // Inicialmente sin partida asignada
-        this.rack = new HashMap<>(); // Inicialmente sin fichas en el rack
+        setRackInterno(new HashMap<>()); // Inicialmente sin fichas en el rack
     }
     
     /**
@@ -99,7 +99,7 @@ public class JugadorHumano extends Jugador {
      * @post Se devuelve un mapa con las fichas del jugador actualmente en su rack.
      */
     public Map<String, Integer> getFichas() {
-        return rack;
+        return getRackInterno();
     }
 
     /**
@@ -112,7 +112,7 @@ public class JugadorHumano extends Jugador {
     @Override
     public String toString() {
         return "JugadorHumano{" +
-               "nombre='" + nombre + '\'' +
+               "nombre='" + getNombreInterno() + '\'' +
                ", enPartida=" + enPartida +
                ", nombrePartidaActual='" + nombrePartidaActual + '\'' +
                '}';

@@ -1,92 +1,103 @@
-
-> Task :compileJava
-
-> Task :processResources
-> Task :classes
-
-> Task :compileTempJava
-
-> Task :processTempResources
-> Task :tempClasses
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileTempJava UP-TO-DATE
+> Task :processTempResources UP-TO-DATE
+> Task :tempClasses UP-TO-DATE
 
 > Task :runTemp
-Diccionario 'asdad' creado correctamente.
-Diccionario 'ESP' creado correctamente.
-Diccionario 'SA' creado correctamente.
 
 Bienvenido al Driver del Dominio.
 Escriba 'help' para ver los comandos disponibles
 Escriba 'quit' para salir
 
 +------------------------------------------------------------------------------+
-| MENÚ PRINCIPAL |                                                             |
+| MEN� PRINCIPAL |                                                             |
 +------------------------------------------------------------------------------+
-|                 Selecciona un menú o ejecuta un comando.                     |
+|                 Selecciona un men� o ejecuta un comando.                     |
 |                                                                              |
-|                           [ 1 ] Gestión de Jugadores                         |
-|                           [ 2 ] Gestión de Diccionarios                      |
-|                           [ 3 ] Gestión de Partidas                          |
-|                           [ 4 ] Gestión de Rankings                          |
-|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 1 ] Gesti�n de Jugadores                         |
+|                           [ 2 ] Gesti�n de Diccionarios                      |
+|                           [ 3 ] Gesti�n de Partidas                          |
+|                           [ 4 ] Gesti�n de Rankings                          |
+|                           [ 5 ] Gesti�n de Configuraci�n                     |
 |                           [ 6 ] Ejecutar Archivo                             |
 |                           [ 0 ] Salir                                        |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING                                                           |
+| GESTI�N DE RANKING                                                           |
 +------------------------------------------------------------------------------+
 |                                                                              |
 | [ 1 ] Ver ranking                - Muestra el ranking de jugadores.          |
 | [ 2 ] Ver historial              - Historial de puntuaciones por jugador.    |
-| [ 3 ] Filtrar ranking            - Filtra el ranking según criterios.        |
+| [ 3 ] Filtrar ranking            - Filtra el ranking seg�n criterios.        |
 | [ 4 ] Eliminar jugador           - Elimina un jugador del ranking.           |
-| [ 0 ] Volver                     - Vuelve al menú principal.                 |
+| [ 0 ] Volver                     - Vuelve al men� principal.                 |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +--------------------------------------------------------------------------------------------+
 |                               RANKING DE JUGADORES (P.TOTAL)                               |
 +--------------------------------------------------------------------------------------------+
-| Posición | Jugador        | P. Total    | P. Máxima   | P. Media    | Partidas | Victorias |
+| Posici�n | Jugador        | P. Total    | P. M�xima   | P. Media    | Partidas | Victorias |
 +----------+----------------+-------------+-------------+-------------+----------+-----------+
-| 1        | admin          | 20090       | 590         | 502.25      | 40       | 20        |
-| 2        | jiahao         | 16210       | 550         | 540.33      | 30       | 27        |
-| 3        | xdxd           | 10050       | 450         | 402.00      | 25       | 5         |
-| 4        | admin2         | 7000        | 350         | 350.00      | 20       | 0         |
+| 1        | DummyHardCore  | 0           | 9999        | 9999,00     | 1        | 1         |
+| 2        | test11         | 0           | 14          | 9,50        | 10       | 5         |
+| 3        | test10         | 0           | 0           | 0,00        | 10       | 0         |
+| 4        | test1          | 0           | 2000        | 356,67      | 30       | 20        |
+| 5        | test4          | 0           | 250         | 250,00      | 20       | 20        |
+| 6        | test5          | 0           | 100         | 99,90       | 10       | 0         |
+| 7        | test2          | 0           | 401         | 400,03      | 40       | 30        |
+| 8        | test3          | 0           | 2000        | 356,67      | 30       | 20        |
+| 9        | test8          | 0           | 100         | 100,00      | 625      | 586       |
+| 10       | test9          | 0           | 0           | 0,00        | 1        | 1         |
+| 11       | test6          | 0           | 100         | 99,80       | 10       | 0         |
+| 12       | test7          | 0           | 100         | 100,00      | 16       | 15        |
+| 13       | DummyEZ        | 0           | 9999        | 9999,00     | 1        | 1         |
 +--------------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > VER RANKING                                                   |
-| OPCIONES DE ORDENACIÓN                                                             |
+| GESTI�N DE RANKING > VER RANKING                                                   |
+| OPCIONES DE ORDENACI�N                                                             |
 |                                                                                    |
-|   [ 1 ] Ordenar por puntuación máxima                                              |
-|   [ 2 ] Ordenar por puntuación media                                               |
+|   [ 1 ] Ordenar por puntuaci�n m�xima                                              |
+|   [ 2 ] Ordenar por puntuaci�n media                                               |
 |   [ 3 ] Ordenar por partidas jugadas                                               |
 |   [ 4 ] Ordenar por victorias                                                      |
-|   [ 5 ] Ordenar por puntuación total                                               |
+|   [ 5 ] Ordenar por puntuaci�n total                                               |
 |   [ 0 ] Volver                                                                     |
 |                                                                                    |
 +------------------------------------------------------------------------------------+
 
 
 +--------------------------------------------------------------------------------------------+
-|                               RANKING DE JUGADORES (P.MÁXIMA)                              |
+|                               RANKING DE JUGADORES (P.M�XIMA)                              |
 +--------------------------------------------------------------------------------------------+
-| Posición | Jugador        | P. Total    | P. Máxima   | P. Media    | Partidas | Victorias |
+| Posici�n | Jugador        | P. Total    | P. M�xima   | P. Media    | Partidas | Victorias |
 +----------+----------------+-------------+-------------+-------------+----------+-----------+
-| 1        | admin          | 20090       | 590         | 502.25      | 40       | 20        |
-| 2        | jiahao         | 16210       | 550         | 540.33      | 30       | 27        |
-| 3        | xdxd           | 10050       | 450         | 402.00      | 25       | 5         |
-| 4        | admin2         | 7000        | 350         | 350.00      | 20       | 0         |
+| 1        | DummyEZ        | 0           | 9999        | 9999,00     | 1        | 1         |
+| 2        | DummyHardCore  | 0           | 9999        | 9999,00     | 1        | 1         |
+| 3        | test1          | 0           | 2000        | 356,67      | 30       | 20        |
+| 4        | test3          | 0           | 2000        | 356,67      | 30       | 20        |
+| 5        | test2          | 0           | 401         | 400,03      | 40       | 30        |
+| 6        | test4          | 0           | 250         | 250,00      | 20       | 20        |
+| 7        | test5          | 0           | 100         | 99,90       | 10       | 0         |
+| 8        | test6          | 0           | 100         | 99,80       | 10       | 0         |
+| 9        | test7          | 0           | 100         | 100,00      | 16       | 15        |
+| 10       | test8          | 0           | 100         | 100,00      | 625      | 586       |
+| 11       | test11         | 0           | 14          | 9,50        | 10       | 5         |
+| 12       | test10         | 0           | 0           | 0,00        | 10       | 0         |
+| 13       | test9          | 0           | 0           | 0,00        | 1        | 1         |
 +--------------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > VER RANKING                                                   |
-| OPCIONES DE ORDENACIÓN                                                             |
+| GESTI�N DE RANKING > VER RANKING                                                   |
+| OPCIONES DE ORDENACI�N                                                             |
 |                                                                                    |
-|   [ 1 ] Ordenar por puntuación máxima                                              |
-|   [ 2 ] Ordenar por puntuación media                                               |
+|   [ 1 ] Ordenar por puntuaci�n m�xima                                              |
+|   [ 2 ] Ordenar por puntuaci�n media                                               |
 |   [ 3 ] Ordenar por partidas jugadas                                               |
 |   [ 4 ] Ordenar por victorias                                                      |
-|   [ 5 ] Ordenar por puntuación total                                               |
+|   [ 5 ] Ordenar por puntuaci�n total                                               |
 |   [ 0 ] Volver                                                                     |
 |                                                                                    |
 +------------------------------------------------------------------------------------+
@@ -95,22 +106,31 @@ Escriba 'quit' para salir
 +--------------------------------------------------------------------------------------------+
 |                               RANKING DE JUGADORES (P.MEDIA)                               |
 +--------------------------------------------------------------------------------------------+
-| Posición | Jugador        | P. Total    | P. Máxima   | P. Media    | Partidas | Victorias |
+| Posici�n | Jugador        | P. Total    | P. M�xima   | P. Media    | Partidas | Victorias |
 +----------+----------------+-------------+-------------+-------------+----------+-----------+
-| 1        | jiahao         | 16210       | 550         | 540.33      | 30       | 27        |
-| 2        | admin          | 20090       | 590         | 502.25      | 40       | 20        |
-| 3        | xdxd           | 10050       | 450         | 402.00      | 25       | 5         |
-| 4        | admin2         | 7000        | 350         | 350.00      | 20       | 0         |
+| 1        | DummyEZ        | 0           | 9999        | 9999,00     | 1        | 1         |
+| 2        | DummyHardCore  | 0           | 9999        | 9999,00     | 1        | 1         |
+| 3        | test2          | 0           | 401         | 400,03      | 40       | 30        |
+| 4        | test1          | 0           | 2000        | 356,67      | 30       | 20        |
+| 5        | test3          | 0           | 2000        | 356,67      | 30       | 20        |
+| 6        | test4          | 0           | 250         | 250,00      | 20       | 20        |
+| 7        | test7          | 0           | 100         | 100,00      | 16       | 15        |
+| 8        | test8          | 0           | 100         | 100,00      | 625      | 586       |
+| 9        | test5          | 0           | 100         | 99,90       | 10       | 0         |
+| 10       | test6          | 0           | 100         | 99,80       | 10       | 0         |
+| 11       | test11         | 0           | 14          | 9,50        | 10       | 5         |
+| 12       | test10         | 0           | 0           | 0,00        | 10       | 0         |
+| 13       | test9          | 0           | 0           | 0,00        | 1        | 1         |
 +--------------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > VER RANKING                                                   |
-| OPCIONES DE ORDENACIÓN                                                             |
+| GESTI�N DE RANKING > VER RANKING                                                   |
+| OPCIONES DE ORDENACI�N                                                             |
 |                                                                                    |
-|   [ 1 ] Ordenar por puntuación máxima                                              |
-|   [ 2 ] Ordenar por puntuación media                                               |
+|   [ 1 ] Ordenar por puntuaci�n m�xima                                              |
+|   [ 2 ] Ordenar por puntuaci�n media                                               |
 |   [ 3 ] Ordenar por partidas jugadas                                               |
 |   [ 4 ] Ordenar por victorias                                                      |
-|   [ 5 ] Ordenar por puntuación total                                               |
+|   [ 5 ] Ordenar por puntuaci�n total                                               |
 |   [ 0 ] Volver                                                                     |
 |                                                                                    |
 +------------------------------------------------------------------------------------+
@@ -119,22 +139,31 @@ Escriba 'quit' para salir
 +--------------------------------------------------------------------------------------------+
 |                               RANKING DE JUGADORES (PARTIDAS)                              |
 +--------------------------------------------------------------------------------------------+
-| Posición | Jugador        | P. Total    | P. Máxima   | P. Media    | Partidas | Victorias |
+| Posici�n | Jugador        | P. Total    | P. M�xima   | P. Media    | Partidas | Victorias |
 +----------+----------------+-------------+-------------+-------------+----------+-----------+
-| 1        | admin          | 20090       | 590         | 502.25      | 40       | 20        |
-| 2        | jiahao         | 16210       | 550         | 540.33      | 30       | 27        |
-| 3        | xdxd           | 10050       | 450         | 402.00      | 25       | 5         |
-| 4        | admin2         | 7000        | 350         | 350.00      | 20       | 0         |
+| 1        | test8          | 0           | 100         | 100,00      | 625      | 586       |
+| 2        | test2          | 0           | 401         | 400,03      | 40       | 30        |
+| 3        | test1          | 0           | 2000        | 356,67      | 30       | 20        |
+| 4        | test3          | 0           | 2000        | 356,67      | 30       | 20        |
+| 5        | test4          | 0           | 250         | 250,00      | 20       | 20        |
+| 6        | test7          | 0           | 100         | 100,00      | 16       | 15        |
+| 7        | test10         | 0           | 0           | 0,00        | 10       | 0         |
+| 8        | test11         | 0           | 14          | 9,50        | 10       | 5         |
+| 9        | test5          | 0           | 100         | 99,90       | 10       | 0         |
+| 10       | test6          | 0           | 100         | 99,80       | 10       | 0         |
+| 11       | DummyEZ        | 0           | 9999        | 9999,00     | 1        | 1         |
+| 12       | DummyHardCore  | 0           | 9999        | 9999,00     | 1        | 1         |
+| 13       | test9          | 0           | 0           | 0,00        | 1        | 1         |
 +--------------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > VER RANKING                                                   |
-| OPCIONES DE ORDENACIÓN                                                             |
+| GESTI�N DE RANKING > VER RANKING                                                   |
+| OPCIONES DE ORDENACI�N                                                             |
 |                                                                                    |
-|   [ 1 ] Ordenar por puntuación máxima                                              |
-|   [ 2 ] Ordenar por puntuación media                                               |
+|   [ 1 ] Ordenar por puntuaci�n m�xima                                              |
+|   [ 2 ] Ordenar por puntuaci�n media                                               |
 |   [ 3 ] Ordenar por partidas jugadas                                               |
 |   [ 4 ] Ordenar por victorias                                                      |
-|   [ 5 ] Ordenar por puntuación total                                               |
+|   [ 5 ] Ordenar por puntuaci�n total                                               |
 |   [ 0 ] Volver                                                                     |
 |                                                                                    |
 +------------------------------------------------------------------------------------+
@@ -143,34 +172,43 @@ Escriba 'quit' para salir
 +--------------------------------------------------------------------------------------------+
 |                              RANKING DE JUGADORES (VICTORIAS)                              |
 +--------------------------------------------------------------------------------------------+
-| Posición | Jugador        | P. Total    | P. Máxima   | P. Media    | Partidas | Victorias |
+| Posici�n | Jugador        | P. Total    | P. M�xima   | P. Media    | Partidas | Victorias |
 +----------+----------------+-------------+-------------+-------------+----------+-----------+
-| 1        | jiahao         | 16210       | 550         | 540.33      | 30       | 27        |
-| 2        | admin          | 20090       | 590         | 502.25      | 40       | 20        |
-| 3        | xdxd           | 10050       | 450         | 402.00      | 25       | 5         |
-| 4        | admin2         | 7000        | 350         | 350.00      | 20       | 0         |
+| 1        | test8          | 0           | 100         | 100,00      | 625      | 586       |
+| 2        | test2          | 0           | 401         | 400,03      | 40       | 30        |
+| 3        | test1          | 0           | 2000        | 356,67      | 30       | 20        |
+| 4        | test3          | 0           | 2000        | 356,67      | 30       | 20        |
+| 5        | test4          | 0           | 250         | 250,00      | 20       | 20        |
+| 6        | test7          | 0           | 100         | 100,00      | 16       | 15        |
+| 7        | test11         | 0           | 14          | 9,50        | 10       | 5         |
+| 8        | DummyEZ        | 0           | 9999        | 9999,00     | 1        | 1         |
+| 9        | DummyHardCore  | 0           | 9999        | 9999,00     | 1        | 1         |
+| 10       | test9          | 0           | 0           | 0,00        | 1        | 1         |
+| 11       | test10         | 0           | 0           | 0,00        | 10       | 0         |
+| 12       | test5          | 0           | 100         | 99,90       | 10       | 0         |
+| 13       | test6          | 0           | 100         | 99,80       | 10       | 0         |
 +--------------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > VER RANKING                                                   |
-| OPCIONES DE ORDENACIÓN                                                             |
+| GESTI�N DE RANKING > VER RANKING                                                   |
+| OPCIONES DE ORDENACI�N                                                             |
 |                                                                                    |
-|   [ 1 ] Ordenar por puntuación máxima                                              |
-|   [ 2 ] Ordenar por puntuación media                                               |
+|   [ 1 ] Ordenar por puntuaci�n m�xima                                              |
+|   [ 2 ] Ordenar por puntuaci�n media                                               |
 |   [ 3 ] Ordenar por partidas jugadas                                               |
 |   [ 4 ] Ordenar por victorias                                                      |
-|   [ 5 ] Ordenar por puntuación total                                               |
+|   [ 5 ] Ordenar por puntuaci�n total                                               |
 |   [ 0 ] Volver                                                                     |
 |                                                                                    |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING                                                           |
+| GESTI�N DE RANKING                                                           |
 +------------------------------------------------------------------------------+
 |                                                                              |
 | [ 1 ] Ver ranking                - Muestra el ranking de jugadores.          |
 | [ 2 ] Ver historial              - Historial de puntuaciones por jugador.    |
-| [ 3 ] Filtrar ranking            - Filtra el ranking según criterios.        |
+| [ 3 ] Filtrar ranking            - Filtra el ranking seg�n criterios.        |
 | [ 4 ] Eliminar jugador           - Elimina un jugador del ranking.           |
-| [ 0 ] Volver                     - Vuelve al menú principal.                 |
+| [ 0 ] Volver                     - Vuelve al men� principal.                 |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
@@ -182,13 +220,50 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test1' no está en el ranking.                           |
-|                                                                              |
+| HISTORIAL DEL JUGADOR: test1                                                         |
 +------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 2000
+| - Puntuaci�n media: 356,67
+| - Partidas jugadas: 30
+| - Victorias: 20
+| - Ratio de victorias: 66,67%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 300 puntos
+| Partida 2: 300 puntos
+| Partida 3: 300 puntos
+| Partida 4: 300 puntos
+| Partida 5: 300 puntos
+| Partida 6: 300 puntos
+| Partida 7: 300 puntos
+| Partida 8: 300 puntos
+| Partida 9: 300 puntos
+| Partida 10: 300 puntos
+| Partida 11: 300 puntos
+| Partida 12: 300 puntos
+| Partida 13: 300 puntos
+| Partida 14: 300 puntos
+| Partida 15: 300 puntos
+| Partida 16: 300 puntos
+| Partida 17: 300 puntos
+| Partida 18: 300 puntos
+| Partida 19: 300 puntos
+| Partida 20: 2000 puntos
+| Partida 21: 300 puntos
+| Partida 22: 300 puntos
+| Partida 23: 300 puntos
+| Partida 24: 300 puntos
+| Partida 25: 300 puntos
+| Partida 26: 300 puntos
+| Partida 27: 300 puntos
+| Partida 28: 300 puntos
+| Partida 29: 300 puntos
+| Partida 30: 300 puntos
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
+| INFORMACI�N                                                                  |
 |                                                                              |
 | Presiona Enter para continuar...                                             |
 |                                                                              |
@@ -201,70 +276,60 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test2' no está en el ranking.                           |
-|                                                                              |
+| HISTORIAL DEL JUGADOR: test2                                                         |
 +------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 401
+| - Puntuaci�n media: 400,03
+| - Partidas jugadas: 40
+| - Victorias: 30
+| - Ratio de victorias: 75,00%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 400 puntos
+| Partida 2: 400 puntos
+| Partida 3: 400 puntos
+| Partida 4: 400 puntos
+| Partida 5: 400 puntos
+| Partida 6: 400 puntos
+| Partida 7: 400 puntos
+| Partida 8: 400 puntos
+| Partida 9: 400 puntos
+| Partida 10: 400 puntos
+| Partida 11: 400 puntos
+| Partida 12: 400 puntos
+| Partida 13: 400 puntos
+| Partida 14: 400 puntos
+| Partida 15: 400 puntos
+| Partida 16: 400 puntos
+| Partida 17: 400 puntos
+| Partida 18: 400 puntos
+| Partida 19: 400 puntos
+| Partida 20: 400 puntos
+| Partida 21: 401 puntos
+| Partida 22: 400 puntos
+| Partida 23: 400 puntos
+| Partida 24: 400 puntos
+| Partida 25: 400 puntos
+| Partida 26: 400 puntos
+| Partida 27: 400 puntos
+| Partida 28: 400 puntos
+| Partida 29: 400 puntos
+| Partida 30: 400 puntos
+| Partida 31: 400 puntos
+| Partida 32: 400 puntos
+| Partida 33: 400 puntos
+| Partida 34: 400 puntos
+| Partida 35: 400 puntos
+| Partida 36: 400 puntos
+| Partida 37: 400 puntos
+| Partida 38: 400 puntos
+| Partida 39: 400 puntos
+| Partida 40: 400 puntos
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| Presiona Enter para continuar...                                             |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| CONSULTAR HISTORIAL DE JUGADOR                                               |
-|                                                                              |
-|   Introduce el nombre del jugador (o '0' para volver):                       |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test3' no está en el ranking.                           |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| Presiona Enter para continuar...                                             |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| CONSULTAR HISTORIAL DE JUGADOR                                               |
-|                                                                              |
-|   Introduce el nombre del jugador (o '0' para volver):                       |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test7' no está en el ranking.                           |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| Presiona Enter para continuar...                                             |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| CONSULTAR HISTORIAL DE JUGADOR                                               |
-|                                                                              |
-|   Introduce el nombre del jugador (o '0' para volver):                       |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test8' no está en el ranking.                           |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
+| INFORMACI�N                                                                  |
 |                                                                              |
 | Presiona Enter para continuar...                                             |
 |                                                                              |
@@ -277,70 +342,50 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test9' no está en el ranking.                           |
-|                                                                              |
+| HISTORIAL DEL JUGADOR: test3                                                         |
 +------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 2000
+| - Puntuaci�n media: 356,67
+| - Partidas jugadas: 30
+| - Victorias: 20
+| - Ratio de victorias: 66,67%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 300 puntos
+| Partida 2: 300 puntos
+| Partida 3: 300 puntos
+| Partida 4: 300 puntos
+| Partida 5: 300 puntos
+| Partida 6: 300 puntos
+| Partida 7: 300 puntos
+| Partida 8: 300 puntos
+| Partida 9: 300 puntos
+| Partida 10: 300 puntos
+| Partida 11: 300 puntos
+| Partida 12: 300 puntos
+| Partida 13: 300 puntos
+| Partida 14: 300 puntos
+| Partida 15: 300 puntos
+| Partida 16: 300 puntos
+| Partida 17: 300 puntos
+| Partida 18: 300 puntos
+| Partida 19: 300 puntos
+| Partida 20: 2000 puntos
+| Partida 21: 300 puntos
+| Partida 22: 300 puntos
+| Partida 23: 300 puntos
+| Partida 24: 300 puntos
+| Partida 25: 300 puntos
+| Partida 26: 300 puntos
+| Partida 27: 300 puntos
+| Partida 28: 300 puntos
+| Partida 29: 300 puntos
+| Partida 30: 300 puntos
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| Presiona Enter para continuar...                                             |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| CONSULTAR HISTORIAL DE JUGADOR                                               |
-|                                                                              |
-|   Introduce el nombre del jugador (o '0' para volver):                       |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test10' no está en el ranking.                           |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| Presiona Enter para continuar...                                             |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| CONSULTAR HISTORIAL DE JUGADOR                                               |
-|                                                                              |
-|   Introduce el nombre del jugador (o '0' para volver):                       |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'test11' no está en el ranking.                           |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| Presiona Enter para continuar...                                             |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| CONSULTAR HISTORIAL DE JUGADOR                                               |
-|                                                                              |
-|   Introduce el nombre del jugador (o '0' para volver):                       |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'DummyEZ' no está en el ranking.                           |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
+| INFORMACI�N                                                                  |
 |                                                                              |
 | Presiona Enter para continuar...                                             |
 |                                                                              |
@@ -353,13 +398,36 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| El usuario 'DummyHardCore' no está en el ranking.                           |
-|                                                                              |
+| HISTORIAL DEL JUGADOR: test7                                                         |
 +------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 100
+| - Puntuaci�n media: 100,00
+| - Partidas jugadas: 16
+| - Victorias: 15
+| - Ratio de victorias: 93,75%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 100 puntos
+| Partida 2: 100 puntos
+| Partida 3: 100 puntos
+| Partida 4: 100 puntos
+| Partida 5: 100 puntos
+| Partida 6: 100 puntos
+| Partida 7: 100 puntos
+| Partida 8: 100 puntos
+| Partida 9: 100 puntos
+| Partida 10: 100 puntos
+| Partida 11: 100 puntos
+| Partida 12: 100 puntos
+| Partida 13: 100 puntos
+| Partida 14: 100 puntos
+| Partida 15: 100 puntos
+| Partida 16: 100 puntos
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
+| INFORMACI�N                                                                  |
 |                                                                              |
 | Presiona Enter para continuar...                                             |
 |                                                                              |
@@ -372,45 +440,857 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING                                                           |
+| HISTORIAL DEL JUGADOR: test8                                                         |
++------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 100
+| - Puntuaci�n media: 100,00
+| - Partidas jugadas: 625
+| - Victorias: 586
+| - Ratio de victorias: 93,76%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 100 puntos
+| Partida 2: 100 puntos
+| Partida 3: 100 puntos
+| Partida 4: 100 puntos
+| Partida 5: 100 puntos
+| Partida 6: 100 puntos
+| Partida 7: 100 puntos
+| Partida 8: 100 puntos
+| Partida 9: 100 puntos
+| Partida 10: 100 puntos
+| Partida 11: 100 puntos
+| Partida 12: 100 puntos
+| Partida 13: 100 puntos
+| Partida 14: 100 puntos
+| Partida 15: 100 puntos
+| Partida 16: 100 puntos
+| Partida 17: 100 puntos
+| Partida 18: 100 puntos
+| Partida 19: 100 puntos
+| Partida 20: 100 puntos
+| Partida 21: 100 puntos
+| Partida 22: 100 puntos
+| Partida 23: 100 puntos
+| Partida 24: 100 puntos
+| Partida 25: 100 puntos
+| Partida 26: 100 puntos
+| Partida 27: 100 puntos
+| Partida 28: 100 puntos
+| Partida 29: 100 puntos
+| Partida 30: 100 puntos
+| Partida 31: 100 puntos
+| Partida 32: 100 puntos
+| Partida 33: 100 puntos
+| Partida 34: 100 puntos
+| Partida 35: 100 puntos
+| Partida 36: 100 puntos
+| Partida 37: 100 puntos
+| Partida 38: 100 puntos
+| Partida 39: 100 puntos
+| Partida 40: 100 puntos
+| Partida 41: 100 puntos
+| Partida 42: 100 puntos
+| Partida 43: 100 puntos
+| Partida 44: 100 puntos
+| Partida 45: 100 puntos
+| Partida 46: 100 puntos
+| Partida 47: 100 puntos
+| Partida 48: 100 puntos
+| Partida 49: 100 puntos
+| Partida 50: 100 puntos
+| Partida 51: 100 puntos
+| Partida 52: 100 puntos
+| Partida 53: 100 puntos
+| Partida 54: 100 puntos
+| Partida 55: 100 puntos
+| Partida 56: 100 puntos
+| Partida 57: 100 puntos
+| Partida 58: 100 puntos
+| Partida 59: 100 puntos
+| Partida 60: 100 puntos
+| Partida 61: 100 puntos
+| Partida 62: 100 puntos
+| Partida 63: 100 puntos
+| Partida 64: 100 puntos
+| Partida 65: 100 puntos
+| Partida 66: 100 puntos
+| Partida 67: 100 puntos
+| Partida 68: 100 puntos
+| Partida 69: 100 puntos
+| Partida 70: 100 puntos
+| Partida 71: 100 puntos
+| Partida 72: 100 puntos
+| Partida 73: 100 puntos
+| Partida 74: 100 puntos
+| Partida 75: 100 puntos
+| Partida 76: 100 puntos
+| Partida 77: 100 puntos
+| Partida 78: 100 puntos
+| Partida 79: 100 puntos
+| Partida 80: 100 puntos
+| Partida 81: 100 puntos
+| Partida 82: 100 puntos
+| Partida 83: 100 puntos
+| Partida 84: 100 puntos
+| Partida 85: 100 puntos
+| Partida 86: 100 puntos
+| Partida 87: 100 puntos
+| Partida 88: 100 puntos
+| Partida 89: 100 puntos
+| Partida 90: 100 puntos
+| Partida 91: 100 puntos
+| Partida 92: 100 puntos
+| Partida 93: 100 puntos
+| Partida 94: 100 puntos
+| Partida 95: 100 puntos
+| Partida 96: 100 puntos
+| Partida 97: 100 puntos
+| Partida 98: 100 puntos
+| Partida 99: 100 puntos
+| Partida 100: 100 puntos
+| Partida 101: 100 puntos
+| Partida 102: 100 puntos
+| Partida 103: 100 puntos
+| Partida 104: 100 puntos
+| Partida 105: 100 puntos
+| Partida 106: 100 puntos
+| Partida 107: 100 puntos
+| Partida 108: 100 puntos
+| Partida 109: 100 puntos
+| Partida 110: 100 puntos
+| Partida 111: 100 puntos
+| Partida 112: 100 puntos
+| Partida 113: 100 puntos
+| Partida 114: 100 puntos
+| Partida 115: 100 puntos
+| Partida 116: 100 puntos
+| Partida 117: 100 puntos
+| Partida 118: 100 puntos
+| Partida 119: 100 puntos
+| Partida 120: 100 puntos
+| Partida 121: 100 puntos
+| Partida 122: 100 puntos
+| Partida 123: 100 puntos
+| Partida 124: 100 puntos
+| Partida 125: 100 puntos
+| Partida 126: 100 puntos
+| Partida 127: 100 puntos
+| Partida 128: 100 puntos
+| Partida 129: 100 puntos
+| Partida 130: 100 puntos
+| Partida 131: 100 puntos
+| Partida 132: 100 puntos
+| Partida 133: 100 puntos
+| Partida 134: 100 puntos
+| Partida 135: 100 puntos
+| Partida 136: 100 puntos
+| Partida 137: 100 puntos
+| Partida 138: 100 puntos
+| Partida 139: 100 puntos
+| Partida 140: 100 puntos
+| Partida 141: 100 puntos
+| Partida 142: 100 puntos
+| Partida 143: 100 puntos
+| Partida 144: 100 puntos
+| Partida 145: 100 puntos
+| Partida 146: 100 puntos
+| Partida 147: 100 puntos
+| Partida 148: 100 puntos
+| Partida 149: 100 puntos
+| Partida 150: 100 puntos
+| Partida 151: 100 puntos
+| Partida 152: 100 puntos
+| Partida 153: 100 puntos
+| Partida 154: 100 puntos
+| Partida 155: 100 puntos
+| Partida 156: 100 puntos
+| Partida 157: 100 puntos
+| Partida 158: 100 puntos
+| Partida 159: 100 puntos
+| Partida 160: 100 puntos
+| Partida 161: 100 puntos
+| Partida 162: 100 puntos
+| Partida 163: 100 puntos
+| Partida 164: 100 puntos
+| Partida 165: 100 puntos
+| Partida 166: 100 puntos
+| Partida 167: 100 puntos
+| Partida 168: 100 puntos
+| Partida 169: 100 puntos
+| Partida 170: 100 puntos
+| Partida 171: 100 puntos
+| Partida 172: 100 puntos
+| Partida 173: 100 puntos
+| Partida 174: 100 puntos
+| Partida 175: 100 puntos
+| Partida 176: 100 puntos
+| Partida 177: 100 puntos
+| Partida 178: 100 puntos
+| Partida 179: 100 puntos
+| Partida 180: 100 puntos
+| Partida 181: 100 puntos
+| Partida 182: 100 puntos
+| Partida 183: 100 puntos
+| Partida 184: 100 puntos
+| Partida 185: 100 puntos
+| Partida 186: 100 puntos
+| Partida 187: 100 puntos
+| Partida 188: 100 puntos
+| Partida 189: 100 puntos
+| Partida 190: 100 puntos
+| Partida 191: 100 puntos
+| Partida 192: 100 puntos
+| Partida 193: 100 puntos
+| Partida 194: 100 puntos
+| Partida 195: 100 puntos
+| Partida 196: 100 puntos
+| Partida 197: 100 puntos
+| Partida 198: 100 puntos
+| Partida 199: 100 puntos
+| Partida 200: 100 puntos
+| Partida 201: 100 puntos
+| Partida 202: 100 puntos
+| Partida 203: 100 puntos
+| Partida 204: 100 puntos
+| Partida 205: 100 puntos
+| Partida 206: 100 puntos
+| Partida 207: 100 puntos
+| Partida 208: 100 puntos
+| Partida 209: 100 puntos
+| Partida 210: 100 puntos
+| Partida 211: 100 puntos
+| Partida 212: 100 puntos
+| Partida 213: 100 puntos
+| Partida 214: 100 puntos
+| Partida 215: 100 puntos
+| Partida 216: 100 puntos
+| Partida 217: 100 puntos
+| Partida 218: 100 puntos
+| Partida 219: 100 puntos
+| Partida 220: 100 puntos
+| Partida 221: 100 puntos
+| Partida 222: 100 puntos
+| Partida 223: 100 puntos
+| Partida 224: 100 puntos
+| Partida 225: 100 puntos
+| Partida 226: 100 puntos
+| Partida 227: 100 puntos
+| Partida 228: 100 puntos
+| Partida 229: 100 puntos
+| Partida 230: 100 puntos
+| Partida 231: 100 puntos
+| Partida 232: 100 puntos
+| Partida 233: 100 puntos
+| Partida 234: 100 puntos
+| Partida 235: 100 puntos
+| Partida 236: 100 puntos
+| Partida 237: 100 puntos
+| Partida 238: 100 puntos
+| Partida 239: 100 puntos
+| Partida 240: 100 puntos
+| Partida 241: 100 puntos
+| Partida 242: 100 puntos
+| Partida 243: 100 puntos
+| Partida 244: 100 puntos
+| Partida 245: 100 puntos
+| Partida 246: 100 puntos
+| Partida 247: 100 puntos
+| Partida 248: 100 puntos
+| Partida 249: 100 puntos
+| Partida 250: 100 puntos
+| Partida 251: 100 puntos
+| Partida 252: 100 puntos
+| Partida 253: 100 puntos
+| Partida 254: 100 puntos
+| Partida 255: 100 puntos
+| Partida 256: 100 puntos
+| Partida 257: 100 puntos
+| Partida 258: 100 puntos
+| Partida 259: 100 puntos
+| Partida 260: 100 puntos
+| Partida 261: 100 puntos
+| Partida 262: 100 puntos
+| Partida 263: 100 puntos
+| Partida 264: 100 puntos
+| Partida 265: 100 puntos
+| Partida 266: 100 puntos
+| Partida 267: 100 puntos
+| Partida 268: 100 puntos
+| Partida 269: 100 puntos
+| Partida 270: 100 puntos
+| Partida 271: 100 puntos
+| Partida 272: 100 puntos
+| Partida 273: 100 puntos
+| Partida 274: 100 puntos
+| Partida 275: 100 puntos
+| Partida 276: 100 puntos
+| Partida 277: 100 puntos
+| Partida 278: 100 puntos
+| Partida 279: 100 puntos
+| Partida 280: 100 puntos
+| Partida 281: 100 puntos
+| Partida 282: 100 puntos
+| Partida 283: 100 puntos
+| Partida 284: 100 puntos
+| Partida 285: 100 puntos
+| Partida 286: 100 puntos
+| Partida 287: 100 puntos
+| Partida 288: 100 puntos
+| Partida 289: 100 puntos
+| Partida 290: 100 puntos
+| Partida 291: 100 puntos
+| Partida 292: 100 puntos
+| Partida 293: 100 puntos
+| Partida 294: 100 puntos
+| Partida 295: 100 puntos
+| Partida 296: 100 puntos
+| Partida 297: 100 puntos
+| Partida 298: 100 puntos
+| Partida 299: 100 puntos
+| Partida 300: 100 puntos
+| Partida 301: 100 puntos
+| Partida 302: 100 puntos
+| Partida 303: 100 puntos
+| Partida 304: 100 puntos
+| Partida 305: 100 puntos
+| Partida 306: 100 puntos
+| Partida 307: 100 puntos
+| Partida 308: 100 puntos
+| Partida 309: 100 puntos
+| Partida 310: 100 puntos
+| Partida 311: 100 puntos
+| Partida 312: 100 puntos
+| Partida 313: 100 puntos
+| Partida 314: 100 puntos
+| Partida 315: 100 puntos
+| Partida 316: 100 puntos
+| Partida 317: 100 puntos
+| Partida 318: 100 puntos
+| Partida 319: 100 puntos
+| Partida 320: 100 puntos
+| Partida 321: 100 puntos
+| Partida 322: 100 puntos
+| Partida 323: 100 puntos
+| Partida 324: 100 puntos
+| Partida 325: 100 puntos
+| Partida 326: 100 puntos
+| Partida 327: 100 puntos
+| Partida 328: 100 puntos
+| Partida 329: 100 puntos
+| Partida 330: 100 puntos
+| Partida 331: 100 puntos
+| Partida 332: 100 puntos
+| Partida 333: 100 puntos
+| Partida 334: 100 puntos
+| Partida 335: 100 puntos
+| Partida 336: 100 puntos
+| Partida 337: 100 puntos
+| Partida 338: 100 puntos
+| Partida 339: 100 puntos
+| Partida 340: 100 puntos
+| Partida 341: 100 puntos
+| Partida 342: 100 puntos
+| Partida 343: 100 puntos
+| Partida 344: 100 puntos
+| Partida 345: 100 puntos
+| Partida 346: 100 puntos
+| Partida 347: 100 puntos
+| Partida 348: 100 puntos
+| Partida 349: 100 puntos
+| Partida 350: 100 puntos
+| Partida 351: 100 puntos
+| Partida 352: 100 puntos
+| Partida 353: 100 puntos
+| Partida 354: 100 puntos
+| Partida 355: 100 puntos
+| Partida 356: 100 puntos
+| Partida 357: 100 puntos
+| Partida 358: 100 puntos
+| Partida 359: 100 puntos
+| Partida 360: 100 puntos
+| Partida 361: 100 puntos
+| Partida 362: 100 puntos
+| Partida 363: 100 puntos
+| Partida 364: 100 puntos
+| Partida 365: 100 puntos
+| Partida 366: 100 puntos
+| Partida 367: 100 puntos
+| Partida 368: 100 puntos
+| Partida 369: 100 puntos
+| Partida 370: 100 puntos
+| Partida 371: 100 puntos
+| Partida 372: 100 puntos
+| Partida 373: 100 puntos
+| Partida 374: 100 puntos
+| Partida 375: 100 puntos
+| Partida 376: 100 puntos
+| Partida 377: 100 puntos
+| Partida 378: 100 puntos
+| Partida 379: 100 puntos
+| Partida 380: 100 puntos
+| Partida 381: 100 puntos
+| Partida 382: 100 puntos
+| Partida 383: 100 puntos
+| Partida 384: 100 puntos
+| Partida 385: 100 puntos
+| Partida 386: 100 puntos
+| Partida 387: 100 puntos
+| Partida 388: 100 puntos
+| Partida 389: 100 puntos
+| Partida 390: 100 puntos
+| Partida 391: 100 puntos
+| Partida 392: 100 puntos
+| Partida 393: 100 puntos
+| Partida 394: 100 puntos
+| Partida 395: 100 puntos
+| Partida 396: 100 puntos
+| Partida 397: 100 puntos
+| Partida 398: 100 puntos
+| Partida 399: 100 puntos
+| Partida 400: 100 puntos
+| Partida 401: 100 puntos
+| Partida 402: 100 puntos
+| Partida 403: 100 puntos
+| Partida 404: 100 puntos
+| Partida 405: 100 puntos
+| Partida 406: 100 puntos
+| Partida 407: 100 puntos
+| Partida 408: 100 puntos
+| Partida 409: 100 puntos
+| Partida 410: 100 puntos
+| Partida 411: 100 puntos
+| Partida 412: 100 puntos
+| Partida 413: 100 puntos
+| Partida 414: 100 puntos
+| Partida 415: 100 puntos
+| Partida 416: 100 puntos
+| Partida 417: 100 puntos
+| Partida 418: 100 puntos
+| Partida 419: 100 puntos
+| Partida 420: 100 puntos
+| Partida 421: 100 puntos
+| Partida 422: 100 puntos
+| Partida 423: 100 puntos
+| Partida 424: 100 puntos
+| Partida 425: 100 puntos
+| Partida 426: 100 puntos
+| Partida 427: 100 puntos
+| Partida 428: 100 puntos
+| Partida 429: 100 puntos
+| Partida 430: 100 puntos
+| Partida 431: 100 puntos
+| Partida 432: 100 puntos
+| Partida 433: 100 puntos
+| Partida 434: 100 puntos
+| Partida 435: 100 puntos
+| Partida 436: 100 puntos
+| Partida 437: 100 puntos
+| Partida 438: 100 puntos
+| Partida 439: 100 puntos
+| Partida 440: 100 puntos
+| Partida 441: 100 puntos
+| Partida 442: 100 puntos
+| Partida 443: 100 puntos
+| Partida 444: 100 puntos
+| Partida 445: 100 puntos
+| Partida 446: 100 puntos
+| Partida 447: 100 puntos
+| Partida 448: 100 puntos
+| Partida 449: 100 puntos
+| Partida 450: 100 puntos
+| Partida 451: 100 puntos
+| Partida 452: 100 puntos
+| Partida 453: 100 puntos
+| Partida 454: 100 puntos
+| Partida 455: 100 puntos
+| Partida 456: 100 puntos
+| Partida 457: 100 puntos
+| Partida 458: 100 puntos
+| Partida 459: 100 puntos
+| Partida 460: 100 puntos
+| Partida 461: 100 puntos
+| Partida 462: 100 puntos
+| Partida 463: 100 puntos
+| Partida 464: 100 puntos
+| Partida 465: 100 puntos
+| Partida 466: 100 puntos
+| Partida 467: 100 puntos
+| Partida 468: 100 puntos
+| Partida 469: 100 puntos
+| Partida 470: 100 puntos
+| Partida 471: 100 puntos
+| Partida 472: 100 puntos
+| Partida 473: 100 puntos
+| Partida 474: 100 puntos
+| Partida 475: 100 puntos
+| Partida 476: 100 puntos
+| Partida 477: 100 puntos
+| Partida 478: 100 puntos
+| Partida 479: 100 puntos
+| Partida 480: 100 puntos
+| Partida 481: 100 puntos
+| Partida 482: 100 puntos
+| Partida 483: 100 puntos
+| Partida 484: 100 puntos
+| Partida 485: 100 puntos
+| Partida 486: 100 puntos
+| Partida 487: 100 puntos
+| Partida 488: 100 puntos
+| Partida 489: 100 puntos
+| Partida 490: 100 puntos
+| Partida 491: 100 puntos
+| Partida 492: 100 puntos
+| Partida 493: 100 puntos
+| Partida 494: 100 puntos
+| Partida 495: 100 puntos
+| Partida 496: 100 puntos
+| Partida 497: 100 puntos
+| Partida 498: 100 puntos
+| Partida 499: 100 puntos
+| Partida 500: 100 puntos
+| Partida 501: 100 puntos
+| Partida 502: 100 puntos
+| Partida 503: 100 puntos
+| Partida 504: 100 puntos
+| Partida 505: 100 puntos
+| Partida 506: 100 puntos
+| Partida 507: 100 puntos
+| Partida 508: 100 puntos
+| Partida 509: 100 puntos
+| Partida 510: 100 puntos
+| Partida 511: 100 puntos
+| Partida 512: 100 puntos
+| Partida 513: 100 puntos
+| Partida 514: 100 puntos
+| Partida 515: 100 puntos
+| Partida 516: 100 puntos
+| Partida 517: 100 puntos
+| Partida 518: 100 puntos
+| Partida 519: 100 puntos
+| Partida 520: 100 puntos
+| Partida 521: 100 puntos
+| Partida 522: 100 puntos
+| Partida 523: 100 puntos
+| Partida 524: 100 puntos
+| Partida 525: 100 puntos
+| Partida 526: 100 puntos
+| Partida 527: 100 puntos
+| Partida 528: 100 puntos
+| Partida 529: 100 puntos
+| Partida 530: 100 puntos
+| Partida 531: 100 puntos
+| Partida 532: 100 puntos
+| Partida 533: 100 puntos
+| Partida 534: 100 puntos
+| Partida 535: 100 puntos
+| Partida 536: 100 puntos
+| Partida 537: 100 puntos
+| Partida 538: 100 puntos
+| Partida 539: 100 puntos
+| Partida 540: 100 puntos
+| Partida 541: 100 puntos
+| Partida 542: 100 puntos
+| Partida 543: 100 puntos
+| Partida 544: 100 puntos
+| Partida 545: 100 puntos
+| Partida 546: 100 puntos
+| Partida 547: 100 puntos
+| Partida 548: 100 puntos
+| Partida 549: 100 puntos
+| Partida 550: 100 puntos
+| Partida 551: 100 puntos
+| Partida 552: 100 puntos
+| Partida 553: 100 puntos
+| Partida 554: 100 puntos
+| Partida 555: 100 puntos
+| Partida 556: 100 puntos
+| Partida 557: 100 puntos
+| Partida 558: 100 puntos
+| Partida 559: 100 puntos
+| Partida 560: 100 puntos
+| Partida 561: 100 puntos
+| Partida 562: 100 puntos
+| Partida 563: 100 puntos
+| Partida 564: 100 puntos
+| Partida 565: 100 puntos
+| Partida 566: 100 puntos
+| Partida 567: 100 puntos
+| Partida 568: 100 puntos
+| Partida 569: 100 puntos
+| Partida 570: 100 puntos
+| Partida 571: 100 puntos
+| Partida 572: 100 puntos
+| Partida 573: 100 puntos
+| Partida 574: 100 puntos
+| Partida 575: 100 puntos
+| Partida 576: 100 puntos
+| Partida 577: 100 puntos
+| Partida 578: 100 puntos
+| Partida 579: 100 puntos
+| Partida 580: 100 puntos
+| Partida 581: 100 puntos
+| Partida 582: 100 puntos
+| Partida 583: 100 puntos
+| Partida 584: 100 puntos
+| Partida 585: 100 puntos
+| Partida 586: 100 puntos
+| Partida 587: 100 puntos
+| Partida 588: 100 puntos
+| Partida 589: 100 puntos
+| Partida 590: 100 puntos
+| Partida 591: 100 puntos
+| Partida 592: 100 puntos
+| Partida 593: 100 puntos
+| Partida 594: 100 puntos
+| Partida 595: 100 puntos
+| Partida 596: 100 puntos
+| Partida 597: 100 puntos
+| Partida 598: 100 puntos
+| Partida 599: 100 puntos
+| Partida 600: 100 puntos
+| Partida 601: 100 puntos
+| Partida 602: 100 puntos
+| Partida 603: 100 puntos
+| Partida 604: 100 puntos
+| Partida 605: 100 puntos
+| Partida 606: 100 puntos
+| Partida 607: 100 puntos
+| Partida 608: 100 puntos
+| Partida 609: 100 puntos
+| Partida 610: 100 puntos
+| Partida 611: 100 puntos
+| Partida 612: 100 puntos
+| Partida 613: 100 puntos
+| Partida 614: 100 puntos
+| Partida 615: 100 puntos
+| Partida 616: 100 puntos
+| Partida 617: 100 puntos
+| Partida 618: 100 puntos
+| Partida 619: 100 puntos
+| Partida 620: 100 puntos
+| Partida 621: 100 puntos
+| Partida 622: 100 puntos
+| Partida 623: 100 puntos
+| Partida 624: 100 puntos
+| Partida 625: 100 puntos
++------------------------------------------------------------------------------+
+| INFORMACI�N                                                                  |
+|                                                                              |
+| Presiona Enter para continuar...                                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| CONSULTAR HISTORIAL DE JUGADOR                                               |
+|                                                                              |
+|   Introduce el nombre del jugador (o '0' para volver):                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| HISTORIAL DEL JUGADOR: test9                                                         |
++------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 0
+| - Puntuaci�n media: 0,00
+| - Partidas jugadas: 1
+| - Victorias: 1
+| - Ratio de victorias: 100,00%
+| 
+| Historial de puntuaciones:
+| No hay puntuaciones registradas.
++------------------------------------------------------------------------------+
+| INFORMACI�N                                                                  |
+|                                                                              |
+| Presiona Enter para continuar...                                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| CONSULTAR HISTORIAL DE JUGADOR                                               |
+|                                                                              |
+|   Introduce el nombre del jugador (o '0' para volver):                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| HISTORIAL DEL JUGADOR: test10                                                        |
++------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 0
+| - Puntuaci�n media: 0,00
+| - Partidas jugadas: 10
+| - Victorias: 0
+| - Ratio de victorias: 0,00%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 0 puntos
+| Partida 2: 0 puntos
+| Partida 3: 0 puntos
+| Partida 4: 0 puntos
+| Partida 5: 0 puntos
+| Partida 6: 0 puntos
+| Partida 7: 0 puntos
+| Partida 8: 0 puntos
+| Partida 9: 0 puntos
+| Partida 10: 0 puntos
++------------------------------------------------------------------------------+
+| INFORMACI�N                                                                  |
+|                                                                              |
+| Presiona Enter para continuar...                                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| CONSULTAR HISTORIAL DE JUGADOR                                               |
+|                                                                              |
+|   Introduce el nombre del jugador (o '0' para volver):                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| HISTORIAL DEL JUGADOR: test11                                                        |
++------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 14
+| - Puntuaci�n media: 9,50
+| - Partidas jugadas: 10
+| - Victorias: 5
+| - Ratio de victorias: 50,00%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 5 puntos
+| Partida 2: 6 puntos
+| Partida 3: 7 puntos
+| Partida 4: 8 puntos
+| Partida 5: 9 puntos
+| Partida 6: 10 puntos
+| Partida 7: 11 puntos
+| Partida 8: 12 puntos
+| Partida 9: 13 puntos
+| Partida 10: 14 puntos
++------------------------------------------------------------------------------+
+| INFORMACI�N                                                                  |
+|                                                                              |
+| Presiona Enter para continuar...                                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| CONSULTAR HISTORIAL DE JUGADOR                                               |
+|                                                                              |
+|   Introduce el nombre del jugador (o '0' para volver):                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| HISTORIAL DEL JUGADOR: DummyEZ                                                       |
++------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 9999
+| - Puntuaci�n media: 9999,00
+| - Partidas jugadas: 1
+| - Victorias: 1
+| - Ratio de victorias: 100,00%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 9999 puntos
++------------------------------------------------------------------------------+
+| INFORMACI�N                                                                  |
+|                                                                              |
+| Presiona Enter para continuar...                                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| CONSULTAR HISTORIAL DE JUGADOR                                               |
+|                                                                              |
+|   Introduce el nombre del jugador (o '0' para volver):                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| HISTORIAL DEL JUGADOR: DummyHardCore                                                 |
++------------------------------------------------------------------------------+
+| Estad�sticas generales:
+| - Puntuaci�n total acumulada: 0
+| - Puntuaci�n m�xima: 9999
+| - Puntuaci�n media: 9999,00
+| - Partidas jugadas: 1
+| - Victorias: 1
+| - Ratio de victorias: 100,00%
+| 
+| Historial de puntuaciones:
+| 
+| Partida 1: 9999 puntos
++------------------------------------------------------------------------------+
+| INFORMACI�N                                                                  |
+|                                                                              |
+| Presiona Enter para continuar...                                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| CONSULTAR HISTORIAL DE JUGADOR                                               |
+|                                                                              |
+|   Introduce el nombre del jugador (o '0' para volver):                       |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| GESTI�N DE RANKING                                                           |
 +------------------------------------------------------------------------------+
 |                                                                              |
 | [ 1 ] Ver ranking                - Muestra el ranking de jugadores.          |
 | [ 2 ] Ver historial              - Historial de puntuaciones por jugador.    |
-| [ 3 ] Filtrar ranking            - Filtra el ranking según criterios.        |
+| [ 3 ] Filtrar ranking            - Filtra el ranking seg�n criterios.        |
 | [ 4 ] Eliminar jugador           - Elimina un jugador del ranking.           |
-| [ 0 ] Volver                     - Vuelve al menú principal.                 |
+| [ 0 ] Volver                     - Vuelve al men� principal.                 |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR PUNTUACIÓN MÍNIMA                                                |
+| FILTRAR POR PUNTUACI�N M�NIMA                                                |
 |                                                                              |
-| Introduce la puntuación mínima:                                              |
+| Introduce la puntuaci�n m�nima:                                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| RANKING FILTRADO - Puntuación mínima: -1                                        |
+| RANKING FILTRADO - Puntuaci�n m�nima: -1                                        |
 +------------------------------------------------------------------------------------+
-| Posición | Usuario             | Punt. Máxima | Punt. Media | Partidas | Victorias |
+| Posici�n | Usuario             | Punt. M�xima | Punt. Media | Partidas | Victorias |
 +----------+---------------------+--------------+-------------+----------+-----------+
-| 1        | jiahao              | 550          | 540.33      | 30       | 27        |
-| 2        | admin               | 590          | 502.25      | 40       | 20        |
-| 3        | xdxd                | 450          | 402.00      | 25       | 5         |
-| 4        | admin2              | 350          | 350.00      | 20       | 0         |
+| 1        | test8               | 100          | 100,00      | 625      | 586       |
+| 2        | test2               | 401          | 400,03      | 40       | 30        |
+| 3        | test1               | 2000         | 356,67      | 30       | 20        |
+| 4        | test3               | 2000         | 356,67      | 30       | 20        |
+| 5        | test4               | 250          | 250,00      | 20       | 20        |
+| 6        | test7               | 100          | 100,00      | 16       | 15        |
+| 7        | test11              | 14           | 9,50        | 10       | 5         |
+| 8        | DummyEZ             | 9999         | 9999,00     | 1        | 1         |
+| 9        | DummyHardCore       | 9999         | 9999,00     | 1        | 1         |
+| 10       | test9               | 0            | 0,00        | 1        | 1         |
+| 11       | test10              | 0            | 0,00        | 10       | 0         |
+| 12       | test5               | 100          | 99,90       | 10       | 0         |
+| 13       | test6               | 100          | 99,80       | 10       | 0         |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                        |
+| INFORMACI�N                                                                        |
 |                                                                                    |
 | Presiona Enter para continuar...                                                   |
 |                                                                                    |
@@ -418,32 +1298,34 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR PUNTUACIÓN MÍNIMA                                                |
+| FILTRAR POR PUNTUACI�N M�NIMA                                                |
 |                                                                              |
-| Introduce la puntuación mínima:                                              |
+| Introduce la puntuaci�n m�nima:                                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| RANKING FILTRADO - Puntuación mínima: 400                                        |
+| RANKING FILTRADO - Puntuaci�n m�nima: 400                                        |
 +------------------------------------------------------------------------------------+
-| Posición | Usuario             | Punt. Máxima | Punt. Media | Partidas | Victorias |
+| Posici�n | Usuario             | Punt. M�xima | Punt. Media | Partidas | Victorias |
 +----------+---------------------+--------------+-------------+----------+-----------+
-| 1        | jiahao              | 550          | 540.33      | 30       | 27        |
-| 2        | admin               | 590          | 502.25      | 40       | 20        |
-| 3        | xdxd                | 450          | 402.00      | 25       | 5         |
+| 1        | test2               | 401          | 400,03      | 40       | 30        |
+| 2        | test1               | 2000         | 356,67      | 30       | 20        |
+| 3        | test3               | 2000         | 356,67      | 30       | 20        |
+| 4        | DummyEZ             | 9999         | 9999,00     | 1        | 1         |
+| 5        | DummyHardCore       | 9999         | 9999,00     | 1        | 1         |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                        |
+| INFORMACI�N                                                                        |
 |                                                                                    |
 | Presiona Enter para continuar...                                                   |
 |                                                                                    |
@@ -451,29 +1333,29 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR PUNTUACIÓN MÍNIMA                                                |
+| FILTRAR POR PUNTUACI�N M�NIMA                                                |
 |                                                                              |
-| Introduce la puntuación mínima:                                              |
+| Introduce la puntuaci�n m�nima:                                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | ERROR                                                                        |
 |                                                                              |
-| Introduce un número válido.                                                  |
+| Introduce un n�mero v�lido.                                                  |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
+| INFORMACI�N                                                                  |
 |                                                                              |
 | Presiona Enter para continuar...                                             |
 |                                                                              |
@@ -481,30 +1363,30 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR PUNTUACIÓN MÍNIMA                                                |
+| FILTRAR POR PUNTUACI�N M�NIMA                                                |
 |                                                                              |
-| Introduce la puntuación mínima:                                              |
+| Introduce la puntuaci�n m�nima:                                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| RANKING FILTRADO - Puntuación mínima: 10000                                        |
+| RANKING FILTRADO - Puntuaci�n m�nima: 10000                                        |
 +------------------------------------------------------------------------------------+
-| Posición | Usuario             | Punt. Máxima | Punt. Media | Partidas | Victorias |
+| Posici�n | Usuario             | Punt. M�xima | Punt. Media | Partidas | Victorias |
 +----------+---------------------+--------------+-------------+----------+-----------+
 | No hay usuarios que cumplan con el criterio de filtrado.                      |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                        |
+| INFORMACI�N                                                                        |
 |                                                                                    |
 | Presiona Enter para continuar...                                                   |
 |                                                                                    |
@@ -512,33 +1394,42 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR PARTIDAS MÍNIMAS                                                 |
+| FILTRAR POR PARTIDAS M�NIMAS                                                 |
 |                                                                              |
-| Introduce el número mínimo de partidas jugadas:                              |
+| Introduce el n�mero m�nimo de partidas jugadas:                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| RANKING FILTRADO - Partidas mínimas jugadas: -1                                        |
+| RANKING FILTRADO - Partidas m�nimas jugadas: -1                                        |
 +------------------------------------------------------------------------------------+
-| Posición | Usuario             | Punt. Máxima | Punt. Media | Partidas | Victorias |
+| Posici�n | Usuario             | Punt. M�xima | Punt. Media | Partidas | Victorias |
 +----------+---------------------+--------------+-------------+----------+-----------+
-| 1        | jiahao              | 550          | 540.33      | 30       | 27        |
-| 2        | admin               | 590          | 502.25      | 40       | 20        |
-| 3        | xdxd                | 450          | 402.00      | 25       | 5         |
-| 4        | admin2              | 350          | 350.00      | 20       | 0         |
+| 1        | test8               | 100          | 100,00      | 625      | 586       |
+| 2        | test2               | 401          | 400,03      | 40       | 30        |
+| 3        | test1               | 2000         | 356,67      | 30       | 20        |
+| 4        | test3               | 2000         | 356,67      | 30       | 20        |
+| 5        | test4               | 250          | 250,00      | 20       | 20        |
+| 6        | test7               | 100          | 100,00      | 16       | 15        |
+| 7        | test11              | 14           | 9,50        | 10       | 5         |
+| 8        | DummyEZ             | 9999         | 9999,00     | 1        | 1         |
+| 9        | DummyHardCore       | 9999         | 9999,00     | 1        | 1         |
+| 10       | test9               | 0            | 0,00        | 1        | 1         |
+| 11       | test10              | 0            | 0,00        | 10       | 0         |
+| 12       | test5               | 100          | 99,90       | 10       | 0         |
+| 13       | test6               | 100          | 99,80       | 10       | 0         |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                        |
+| INFORMACI�N                                                                        |
 |                                                                                    |
 | Presiona Enter para continuar...                                                   |
 |                                                                                    |
@@ -546,29 +1437,29 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR PARTIDAS MÍNIMAS                                                 |
+| FILTRAR POR PARTIDAS M�NIMAS                                                 |
 |                                                                              |
-| Introduce el número mínimo de partidas jugadas:                              |
+| Introduce el n�mero m�nimo de partidas jugadas:                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | ERROR                                                                        |
 |                                                                              |
-| Introduce un número válido.                                                  |
+| Introduce un n�mero v�lido.                                                  |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
+| INFORMACI�N                                                                  |
 |                                                                              |
 | Presiona Enter para continuar...                                             |
 |                                                                              |
@@ -576,30 +1467,30 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR PARTIDAS MÍNIMAS                                                 |
+| FILTRAR POR PARTIDAS M�NIMAS                                                 |
 |                                                                              |
-| Introduce el número mínimo de partidas jugadas:                              |
+| Introduce el n�mero m�nimo de partidas jugadas:                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| RANKING FILTRADO - Partidas mínimas jugadas: 10000                                        |
+| RANKING FILTRADO - Partidas m�nimas jugadas: 10000                                        |
 +------------------------------------------------------------------------------------+
-| Posición | Usuario             | Punt. Máxima | Punt. Media | Partidas | Victorias |
+| Posici�n | Usuario             | Punt. M�xima | Punt. Media | Partidas | Victorias |
 +----------+---------------------+--------------+-------------+----------+-----------+
 | No hay usuarios que cumplan con el criterio de filtrado.                      |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                        |
+| INFORMACI�N                                                                        |
 |                                                                                    |
 | Presiona Enter para continuar...                                                   |
 |                                                                                    |
@@ -607,33 +1498,42 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR VICTORIAS MÍNIMAS                                                |
+| FILTRAR POR VICTORIAS M�NIMAS                                                |
 |                                                                              |
-| Introduce el número mínimo de victorias:                                     |
+| Introduce el n�mero m�nimo de victorias:                                     |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| RANKING FILTRADO - Victorias mínimas: -1                                        |
+| RANKING FILTRADO - Victorias m�nimas: -1                                        |
 +------------------------------------------------------------------------------------+
-| Posición | Usuario             | Punt. Máxima | Punt. Media | Partidas | Victorias |
+| Posici�n | Usuario             | Punt. M�xima | Punt. Media | Partidas | Victorias |
 +----------+---------------------+--------------+-------------+----------+-----------+
-| 1        | jiahao              | 550          | 540.33      | 30       | 27        |
-| 2        | admin               | 590          | 502.25      | 40       | 20        |
-| 3        | xdxd                | 450          | 402.00      | 25       | 5         |
-| 4        | admin2              | 350          | 350.00      | 20       | 0         |
+| 1        | test8               | 100          | 100,00      | 625      | 586       |
+| 2        | test2               | 401          | 400,03      | 40       | 30        |
+| 3        | test1               | 2000         | 356,67      | 30       | 20        |
+| 4        | test3               | 2000         | 356,67      | 30       | 20        |
+| 5        | test4               | 250          | 250,00      | 20       | 20        |
+| 6        | test7               | 100          | 100,00      | 16       | 15        |
+| 7        | test11              | 14           | 9,50        | 10       | 5         |
+| 8        | DummyEZ             | 9999         | 9999,00     | 1        | 1         |
+| 9        | DummyHardCore       | 9999         | 9999,00     | 1        | 1         |
+| 10       | test9               | 0            | 0,00        | 1        | 1         |
+| 11       | test10              | 0            | 0,00        | 10       | 0         |
+| 12       | test5               | 100          | 99,90       | 10       | 0         |
+| 13       | test6               | 100          | 99,80       | 10       | 0         |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                        |
+| INFORMACI�N                                                                        |
 |                                                                                    |
 | Presiona Enter para continuar...                                                   |
 |                                                                                    |
@@ -641,29 +1541,29 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR VICTORIAS MÍNIMAS                                                |
+| FILTRAR POR VICTORIAS M�NIMAS                                                |
 |                                                                              |
-| Introduce el número mínimo de victorias:                                     |
+| Introduce el n�mero m�nimo de victorias:                                     |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | ERROR                                                                        |
 |                                                                              |
-| Introduce un número válido.                                                  |
+| Introduce un n�mero v�lido.                                                  |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
+| INFORMACI�N                                                                  |
 |                                                                              |
 | Presiona Enter para continuar...                                             |
 |                                                                              |
@@ -671,32 +1571,39 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| FILTRAR POR VICTORIAS MÍNIMAS                                                |
+| FILTRAR POR VICTORIAS M�NIMAS                                                |
 |                                                                              |
-| Introduce el número mínimo de victorias:                                     |
+| Introduce el n�mero m�nimo de victorias:                                     |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| RANKING FILTRADO - Victorias mínimas: 1                                        |
+| RANKING FILTRADO - Victorias m�nimas: 1                                        |
 +------------------------------------------------------------------------------------+
-| Posición | Usuario             | Punt. Máxima | Punt. Media | Partidas | Victorias |
+| Posici�n | Usuario             | Punt. M�xima | Punt. Media | Partidas | Victorias |
 +----------+---------------------+--------------+-------------+----------+-----------+
-| 1        | jiahao              | 550          | 540.33      | 30       | 27        |
-| 2        | admin               | 590          | 502.25      | 40       | 20        |
-| 3        | xdxd                | 450          | 402.00      | 25       | 5         |
+| 1        | test8               | 100          | 100,00      | 625      | 586       |
+| 2        | test2               | 401          | 400,03      | 40       | 30        |
+| 3        | test1               | 2000         | 356,67      | 30       | 20        |
+| 4        | test3               | 2000         | 356,67      | 30       | 20        |
+| 5        | test4               | 250          | 250,00      | 20       | 20        |
+| 6        | test7               | 100          | 100,00      | 16       | 15        |
+| 7        | test11              | 14           | 9,50        | 10       | 5         |
+| 8        | DummyEZ             | 9999         | 9999,00     | 1        | 1         |
+| 9        | DummyHardCore       | 9999         | 9999,00     | 1        | 1         |
+| 10       | test9               | 0            | 0,00        | 1        | 1         |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                        |
+| INFORMACI�N                                                                        |
 |                                                                                    |
 | Presiona Enter para continuar...                                                   |
 |                                                                                    |
@@ -704,111 +1611,127 @@ Escriba 'quit' para salir
 
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > FILTRAR RANKING                                         |
+| GESTI�N DE RANKING > FILTRAR RANKING                                         |
 |                                                                              |
-|   [ 1 ] Filtrar por puntuación mínima                                        |
-|   [ 2 ] Filtrar por partidas jugadas mínimas                                 |
-|   [ 3 ] Filtrar por victorias mínimas                                        |
+|   [ 1 ] Filtrar por puntuaci�n m�nima                                        |
+|   [ 2 ] Filtrar por partidas jugadas m�nimas                                 |
+|   [ 3 ] Filtrar por victorias m�nimas                                        |
 |   [ 0 ] Volver                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING                                                           |
+| GESTI�N DE RANKING                                                           |
 +------------------------------------------------------------------------------+
 |                                                                              |
 | [ 1 ] Ver ranking                - Muestra el ranking de jugadores.          |
 | [ 2 ] Ver historial              - Historial de puntuaciones por jugador.    |
-| [ 3 ] Filtrar ranking            - Filtra el ranking según criterios.        |
+| [ 3 ] Filtrar ranking            - Filtra el ranking seg�n criterios.        |
 | [ 4 ] Eliminar jugador           - Elimina un jugador del ranking.           |
-| [ 0 ] Volver                     - Vuelve al menú principal.                 |
+| [ 0 ] Volver                     - Vuelve al men� principal.                 |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +-------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > ELIMINAR JUGADOR DEL RANKING                             |
+| GESTI�N DE RANKING > ELIMINAR JUGADOR DEL RANKING                             |
 +-------------------------------------------------------------------------------+
-| Esta acción eliminará al jugador del ranking, pero seguirá registrado         |
-| en el sistema. Si desea eliminar completamente un jugador, use la opción      |
-| de 'Eliminar jugador' en el menú de Gestión de Jugadores.                     |
+| Esta acci�n eliminar� al jugador del ranking, pero seguir� registrado         |
+| en el sistema. Si desea eliminar completamente un jugador, use la opci�n      |
+| de 'Eliminar jugador' en el men� de Gesti�n de Jugadores.                     |
 +-------------------------------------------------------------------------------+
 +-------------------------------------------------------------------------------+
 | JUGADORES EN EL RANKING                                                       |
 +-------------------------------------------------------------------------------+
-| 1 . xdxd                                                                      |
-| 2 . jiahao                                                                    |
-| 3 . admin2                                                                    |
-| 4 . admin                                                                     |
+| 1 . DummyHardCore                                                             |
+| 2 . test11                                                                    |
+| 3 . test10                                                                    |
+| 4 . test1                                                                     |
+| 5 . test4                                                                     |
+| 6 . test5                                                                     |
+| 7 . test2                                                                     |
+| 8 . test3                                                                     |
+| 9 . test8                                                                     |
+| 10. test9                                                                     |
+| 11. test6                                                                     |
+| 12. test7                                                                     |
+| 13. DummyEZ                                                                   |
 +-------------------------------------------------------------------------------+
 +-------------------------------------------------------------------------------+
-| Seleccione el número del jugador a eliminar (0 para cancelar):                |
+| Seleccione el n�mero del jugador a eliminar (0 para cancelar):                |
 +-------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | Error                                                                       |
 |                                                                              |
-|   Debe introducir un número válido.                                          |
+|   Debe introducir un n�mero v�lido.                                          |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING                                                           |
+| GESTI�N DE RANKING                                                           |
 +------------------------------------------------------------------------------+
 |                                                                              |
 | [ 1 ] Ver ranking                - Muestra el ranking de jugadores.          |
 | [ 2 ] Ver historial              - Historial de puntuaciones por jugador.    |
-| [ 3 ] Filtrar ranking            - Filtra el ranking según criterios.        |
+| [ 3 ] Filtrar ranking            - Filtra el ranking seg�n criterios.        |
 | [ 4 ] Eliminar jugador           - Elimina un jugador del ranking.           |
-| [ 0 ] Volver                     - Vuelve al menú principal.                 |
+| [ 0 ] Volver                     - Vuelve al men� principal.                 |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
 +--------------------------------------------------------------------------------------------+
 |                               RANKING DE JUGADORES (P.TOTAL)                               |
 +--------------------------------------------------------------------------------------------+
-| Posición | Jugador        | P. Total    | P. Máxima   | P. Media    | Partidas | Victorias |
+| Posici�n | Jugador        | P. Total    | P. M�xima   | P. Media    | Partidas | Victorias |
 +----------+----------------+-------------+-------------+-------------+----------+-----------+
-| 1        | admin          | 20090       | 590         | 502.25      | 40       | 20        |
-| 2        | jiahao         | 16210       | 550         | 540.33      | 30       | 27        |
-| 3        | xdxd           | 10050       | 450         | 402.00      | 25       | 5         |
-| 4        | admin2         | 7000        | 350         | 350.00      | 20       | 0         |
+| 1        | DummyHardCore  | 0           | 9999        | 9999,00     | 1        | 1         |
+| 2        | test11         | 0           | 14          | 9,50        | 10       | 5         |
+| 3        | test10         | 0           | 0           | 0,00        | 10       | 0         |
+| 4        | test1          | 0           | 2000        | 356,67      | 30       | 20        |
+| 5        | test4          | 0           | 250         | 250,00      | 20       | 20        |
+| 6        | test5          | 0           | 100         | 99,90       | 10       | 0         |
+| 7        | test2          | 0           | 401         | 400,03      | 40       | 30        |
+| 8        | test3          | 0           | 2000        | 356,67      | 30       | 20        |
+| 9        | test8          | 0           | 100         | 100,00      | 625      | 586       |
+| 10       | test9          | 0           | 0           | 0,00        | 1        | 1         |
+| 11       | test6          | 0           | 100         | 99,80       | 10       | 0         |
+| 12       | test7          | 0           | 100         | 100,00      | 16       | 15        |
+| 13       | DummyEZ        | 0           | 9999        | 9999,00     | 1        | 1         |
 +--------------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING > VER RANKING                                                   |
-| OPCIONES DE ORDENACIÓN                                                             |
+| GESTI�N DE RANKING > VER RANKING                                                   |
+| OPCIONES DE ORDENACI�N                                                             |
 |                                                                                    |
-|   [ 1 ] Ordenar por puntuación máxima                                              |
-|   [ 2 ] Ordenar por puntuación media                                               |
+|   [ 1 ] Ordenar por puntuaci�n m�xima                                              |
+|   [ 2 ] Ordenar por puntuaci�n media                                               |
 |   [ 3 ] Ordenar por partidas jugadas                                               |
 |   [ 4 ] Ordenar por victorias                                                      |
-|   [ 5 ] Ordenar por puntuación total                                               |
+|   [ 5 ] Ordenar por puntuaci�n total                                               |
 |   [ 0 ] Volver                                                                     |
 |                                                                                    |
 +------------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| GESTIÓN DE RANKING                                                           |
+| GESTI�N DE RANKING                                                           |
 +------------------------------------------------------------------------------+
 |                                                                              |
 | [ 1 ] Ver ranking                - Muestra el ranking de jugadores.          |
 | [ 2 ] Ver historial              - Historial de puntuaciones por jugador.    |
-| [ 3 ] Filtrar ranking            - Filtra el ranking según criterios.        |
+| [ 3 ] Filtrar ranking            - Filtra el ranking seg�n criterios.        |
 | [ 4 ] Eliminar jugador           - Elimina un jugador del ranking.           |
-| [ 0 ] Volver                     - Vuelve al menú principal.                 |
+| [ 0 ] Volver                     - Vuelve al men� principal.                 |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
-| MENÚ PRINCIPAL |                                                             |
+| MEN� PRINCIPAL |                                                             |
 +------------------------------------------------------------------------------+
-|                 Selecciona un menú o ejecuta un comando.                     |
+|                 Selecciona un men� o ejecuta un comando.                     |
 |                                                                              |
-|                           [ 1 ] Gestión de Jugadores                         |
-|                           [ 2 ] Gestión de Diccionarios                      |
-|                           [ 3 ] Gestión de Partidas                          |
-|                           [ 4 ] Gestión de Rankings                          |
-|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 1 ] Gesti�n de Jugadores                         |
+|                           [ 2 ] Gesti�n de Diccionarios                      |
+|                           [ 3 ] Gesti�n de Partidas                          |
+|                           [ 4 ] Gesti�n de Rankings                          |
+|                           [ 5 ] Gesti�n de Configuraci�n                     |
 |                           [ 6 ] Ejecutar Archivo                             |
 |                           [ 0 ] Salir                                        |
 |                                                                              |
 +------------------------------------------------------------------------------+
 
-[Incubating] Problems report is available at: file:///home/shenghao/university/PROP/subgrup-prop41.1/fonts/build/reports/problems/problems-report.html
-
-BUILD SUCCESSFUL in 11s
-5 actionable tasks: 5 executed
+BUILD SUCCESSFUL in 1s
+5 actionable tasks: 1 executed, 4 up-to-date

@@ -1,15 +1,20 @@
 > Task :compileJava UP-TO-DATE
-> Task :processResources NO-SOURCE
-> Task :classes UP-TO-DATE
+> Task :processResources
+> Task :classes
 > Task :compileTempJava UP-TO-DATE
-> Task :processTempResources UP-TO-DATE
-> Task :tempClasses UP-TO-DATE
+> Task :processTempResources
+> Task :tempClasses
 
 > Task :runTemp
+Diccionario 'test' creado correctamente.
+Diccionario 'CAT' creado correctamente.
+Inicializando datos de ranking para demostración...
+Datos de ranking inicializados correctamente.
 
 Bienvenido al Driver del Dominio.
 Escriba 'help' para ver los comandos disponibles
 Escriba 'quit' para salir
+
 +------------------------------------------------------------------------------+
 | MENÚ PRINCIPAL |                                                             |
 +------------------------------------------------------------------------------+
@@ -54,11 +59,16 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 | JUGADORES REGISTRADOS                                                        |
 +------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
-+-------------------+-----------+-------------+--------------------------------+
-| test1             | Humano    | 0/0         | 0 pts                         | ★ NUEVO
+| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
++-------------------+-----------+---------+-------------------+----------------+
+| jiahao            | Humano    | No      | -                 | 16210 pts      |
+| admin             | Humano    | No      | -                 | 20090 pts      |
+| hongda            | Humano    | No      | -                 | 25850 pts      |
+| test1             | Humano    | No      | -                 | No en ranking  | ★
+| xuanyi            | Humano    | No      | -                 | 10050 pts      |
+| songhe            | Humano    | No      | -                 | 7000 pts       |
 +------------------------------------------------------------------------------+
-| Total jugadores: 1 (Humanos: 1)                                              |
+| Total jugadores: 6 (Humanos: 6)                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
@@ -88,12 +98,17 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 | JUGADORES REGISTRADOS                                                        |
 +------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
-+-------------------+-----------+-------------+--------------------------------+
-| test2             | Humano    | 0/0         | 0 pts                         | ★ NUEVO
-| test1             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
++-------------------+-----------+---------+-------------------+----------------+
+| test2             | Humano    | No      | -                 | No en ranking  | ★
+| jiahao            | Humano    | No      | -                 | 16210 pts      |
+| admin             | Humano    | No      | -                 | 20090 pts      |
+| hongda            | Humano    | No      | -                 | 25850 pts      |
+| test1             | Humano    | No      | -                 | No en ranking  |
+| xuanyi            | Humano    | No      | -                 | 10050 pts      |
+| songhe            | Humano    | No      | -                 | 7000 pts       |
 +------------------------------------------------------------------------------+
-| Total jugadores: 2 (Humanos: 2)                                              |
+| Total jugadores: 7 (Humanos: 7)                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
@@ -116,12 +131,17 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 | JUGADORES REGISTRADOS                                                        |
 +------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
-+-------------------+-----------+-------------+--------------------------------+
-| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
-| test1             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
++-------------------+-----------+---------+-------------------+----------------+
+| test2             | Humano    | No      | -                 | No en ranking  |
+| jiahao            | Humano    | No      | -                 | 16210 pts      |
+| admin             | Humano    | No      | -                 | 20090 pts      |
+| hongda            | Humano    | No      | -                 | 25850 pts      |
+| test1             | Humano    | No      | -                 | No en ranking  |
+| xuanyi            | Humano    | No      | -                 | 10050 pts      |
+| songhe            | Humano    | No      | -                 | 7000 pts       |
 +------------------------------------------------------------------------------+
-| Total jugadores: 2 (Humanos: 2)                                              |
+| Total jugadores: 7 (Humanos: 7)                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
@@ -162,12 +182,17 @@ Escriba 'quit' para salir
 +------------------------------------------------------------------------------+
 | JUGADORES REGISTRADOS                                                        |
 +------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
-+-------------------+-----------+-------------+--------------------------------+
-| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
-| test1             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
++-------------------+-----------+---------+-------------------+----------------+
+| test2             | Humano    | No      | -                 | No en ranking  |
+| jiahao            | Humano    | No      | -                 | 16210 pts      |
+| admin             | Humano    | No      | -                 | 20090 pts      |
+| hongda            | Humano    | No      | -                 | 25850 pts      |
+| test1             | Humano    | No      | -                 | No en ranking  |
+| xuanyi            | Humano    | No      | -                 | 10050 pts      |
+| songhe            | Humano    | No      | -                 | 7000 pts       |
 +------------------------------------------------------------------------------+
-| Total jugadores: 2 (Humanos: 2)                                              |
+| Total jugadores: 7 (Humanos: 7)                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
@@ -211,11 +236,16 @@ Volviendo a Gestión de Jugadores...
 +------------------------------------------------------------------------------+
 | JUGADORES REGISTRADOS                                                        |
 +------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
-+-------------------+-----------+-------------+--------------------------------+
-| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
++-------------------+-----------+---------+-------------------+----------------+
+| test2             | Humano    | No      | -                 | No en ranking  |
+| jiahao            | Humano    | No      | -                 | 16210 pts      |
+| admin             | Humano    | No      | -                 | 20090 pts      |
+| hongda            | Humano    | No      | -                 | 25850 pts      |
+| xuanyi            | Humano    | No      | -                 | 10050 pts      |
+| songhe            | Humano    | No      | -                 | 7000 pts       |
 +------------------------------------------------------------------------------+
-| Total jugadores: 1 (Humanos: 1)                                              |
+| Total jugadores: 6 (Humanos: 6)                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
@@ -263,11 +293,16 @@ Volviendo a Gestión de Jugadores...
 +------------------------------------------------------------------------------+
 | JUGADORES REGISTRADOS                                                        |
 +------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
-+-------------------+-----------+-------------+--------------------------------+
-| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
++-------------------+-----------+---------+-------------------+----------------+
+| test2             | Humano    | No      | -                 | No en ranking  |
+| jiahao            | Humano    | No      | -                 | 16210 pts      |
+| admin             | Humano    | No      | -                 | 20090 pts      |
+| hongda            | Humano    | No      | -                 | 25850 pts      |
+| xuanyi            | Humano    | No      | -                 | 10050 pts      |
+| songhe            | Humano    | No      | -                 | 7000 pts       |
 +------------------------------------------------------------------------------+
-| Total jugadores: 1 (Humanos: 1)                                              |
+| Total jugadores: 6 (Humanos: 6)                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
@@ -293,11 +328,16 @@ Volviendo a Gestión de Jugadores...
 +------------------------------------------------------------------------------+
 | JUGADORES REGISTRADOS                                                        |
 +------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | PARTIDAS    | PUNT. TOTAL                    |
-+-------------------+-----------+-------------+--------------------------------+
-| test2             | Humano    | 0/0         | 0 pts                         | (sin ranking)
+| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
++-------------------+-----------+---------+-------------------+----------------+
+| test2             | Humano    | No      | -                 | No en ranking  |
+| jiahao            | Humano    | No      | -                 | 16210 pts      |
+| admin             | Humano    | No      | -                 | 20090 pts      |
+| hongda            | Humano    | No      | -                 | 25850 pts      |
+| xuanyi            | Humano    | No      | -                 | 10050 pts      |
+| songhe            | Humano    | No      | -                 | 7000 pts       |
 +------------------------------------------------------------------------------+
-| Total jugadores: 1 (Humanos: 1)                                              |
+| Total jugadores: 6 (Humanos: 6)                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES                                                         |
@@ -314,6 +354,7 @@ Volviendo a Gestión de Jugadores...
 |   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
 |                                                                              |
 +------------------------------------------------------------------------------+
+
 +------------------------------------------------------------------------------+
 | MENÚ PRINCIPAL |                                                             |
 +------------------------------------------------------------------------------+
@@ -329,5 +370,5 @@ Volviendo a Gestión de Jugadores...
 |                                                                              |
 +------------------------------------------------------------------------------+
 
-BUILD SUCCESSFUL in 1s
-4 actionable tasks: 1 executed, 3 up-to-date
+BUILD SUCCESSFUL in 2s
+5 actionable tasks: 3 executed, 2 up-to-date

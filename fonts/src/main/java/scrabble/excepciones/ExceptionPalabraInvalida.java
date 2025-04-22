@@ -1,11 +1,9 @@
 package scrabble.excepciones;
 
-import java.io.Serializable;
-
 /**
  * Excepción que se lanza cuando una palabra contiene caracteres no válidos para el diccionario.
  */
-public class ExceptionPalabraInvalida extends Exception implements Serializable {
+public class ExceptionPalabraInvalida extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**

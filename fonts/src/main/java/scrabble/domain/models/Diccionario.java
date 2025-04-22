@@ -54,6 +54,10 @@ public class Diccionario implements Serializable {
      * @param palabras Lista de palabras para insertar en el DAWG
      * @post Se crea e inicializa un nuevo DAWG con las palabras especificadas.
      * @throws NullPointerException si la lista de palabras es null
+     * 
+     * @apiNote Este método está diseñado principalmente para uso interno del controlador.
+     *          Para manipular palabras individuales, considere usar los métodos
+     *          {@link #addWord(String)} y {@link #removeWord(String)}
      */
     public void setDawg(List<String> palabras) {
         if (palabras == null) {
@@ -247,22 +251,31 @@ public class Diccionario implements Serializable {
     }
 
     /**
+     * Obtiene las claves (tokens) completas del alfabeto.
+     * A diferencia de getAlphabetChars(), este método preserva tokens multicarácter como "CH" o "RR".
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Conjunto de tokens/claves del alfabeto (como A, B, CH, RR, etc.)
+     * @post Se devuelve un conjunto con todas las claves presentes en el alfabeto.
+     *       Si el alfabeto es null, se devuelve un conjunto vacío.
+     */
+    public Set<String> getAlphabetKeys() {
+        if (alphabet == null) return new HashSet<>();
+        return new HashSet<>(alphabet.keySet());
+    }
+
+    /**
      * Verifica si una palabra contiene solo caracteres válidos.
      * 
-     * @pre La palabra y el conjunto de caracteres válidos no deben ser null.
+     * @pre No hay precondiciones específicas fuertes.
      * @param palabra Palabra a verificar
      * @param validChars Conjunto de caracteres válidos
      * @return true si la palabra es válida, false en caso contrario
      * @post Se devuelve true si la palabra no es vacía y contiene solo caracteres válidos, false en caso contrario.
-     * @throws NullPointerException si palabra o validChars son null
      */
     public boolean isValidWordSyntax(String palabra, Set<Character> validChars) {
-        if (palabra == null) {
-            throw new NullPointerException("La palabra no puede ser null");
-        }
-        
-        if (validChars == null) {
-            throw new NullPointerException("El conjunto de caracteres válidos no puede ser null");
+        if (palabra == null || validChars == null) {
+            return false;
         }
         
         if (palabra.isEmpty()) {
@@ -294,15 +307,14 @@ public class Diccionario implements Serializable {
     /**
      * Obtiene el puntaje asociado a un carácter dado.
      *
-     * @pre El carácter no debe ser null.
+     * @pre No hay precondiciones específicas fuertes.
      * @param c El carácter cuyo puntaje se desea obtener.
      * @return El puntaje del carácter si existe en el mapa del alfabeto; de lo contrario, 0.
-     * @post Se devuelve el valor de puntos asociado al carácter o 0 si no existe en el alfabeto o el alfabeto es null.
-     * @throws NullPointerException si c es null
+     * @post Se devuelve el valor de puntos asociado al carácter o 0 si el carácter es null, no existe en el alfabeto, o el alfabeto es null.
      */
     public int getPuntaje(String c) {
         if (c == null) {
-            throw new NullPointerException("El carácter no puede ser null");
+            return 0;
         }
         
         Map<String, Integer> alphabet = getAlphabet();
@@ -361,5 +373,72 @@ public class Diccionario implements Serializable {
         }
         
         return dawg.getNode(palabraParcial) != null;
+    }
+
+    /**
+     * Añade una palabra al diccionario.
+     * 
+     * @pre La palabra no debe ser null o vacía.
+     * @param palabra Palabra a añadir
+     * @return true si la palabra fue añadida, false si ya existía
+     * @post La palabra se añade al DAWG si no existía previamente.
+     * @throws NullPointerException si palabra es null
+     * @throws IllegalArgumentException si palabra está vacía
+     */
+    public boolean addWord(String palabra) {
+        if (palabra == null) {
+            throw new NullPointerException("La palabra no puede ser null");
+        }
+        
+        palabra = palabra.trim().toUpperCase();
+        if (palabra.isEmpty()) {
+            throw new IllegalArgumentException("La palabra no puede estar vacía");
+        }
+        
+        if (contienePalabra(palabra)) {
+            return false; // La palabra ya existe
+        }
+        
+        dawg.insert(palabra);
+        return true;
+    }
+
+    /**
+     * Elimina una palabra del diccionario.
+     * 
+     * @pre La palabra no debe ser null o vacía.
+     * @param palabra Palabra a eliminar
+     * @return true si la palabra fue eliminada, false si no existía
+     * @post La palabra se elimina del DAWG si existía previamente.
+     * @throws NullPointerException si palabra es null
+     * @throws IllegalArgumentException si palabra está vacía
+     * 
+     * @apiNote Esta operación puede ser costosa ya que requiere reconstruir el DAWG.
+     */
+    public boolean removeWord(String palabra) {
+        if (palabra == null) {
+            throw new NullPointerException("La palabra no puede ser null");
+        }
+        
+        palabra = palabra.trim().toUpperCase();
+        if (palabra.isEmpty()) {
+            throw new IllegalArgumentException("La palabra no puede estar vacía");
+        }
+        
+        if (!contienePalabra(palabra)) {
+            return false; // La palabra no existe
+        }
+        
+        // Para eliminar una palabra necesitamos reconstruir el DAWG
+        // Obtenemos todas las palabras excepto la que queremos eliminar
+        List<String> palabras = dawg.getAllWords();
+        palabras.remove(palabra);
+        
+        // Reconstruimos el DAWG
+        Dawg newDawg = new Dawg();
+        inicializarDawg(newDawg, palabras);
+        this.dawg = newDawg;
+        
+        return true;
     }
 }

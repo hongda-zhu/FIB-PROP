@@ -68,10 +68,11 @@ public class ControladorDiccionario {
      * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre
      * @throws IOException Si hay problemas con la lectura/escritura de archivos
      * @throws ExceptionPalabraInvalida Si alguna palabra contiene caracteres no válidos
+     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la creación
      * @post Si no ocurre ninguna excepción, un nuevo diccionario es creado y cargado en memoria.
      * @throws NullPointerException Si alguno de los parámetros es null.
      */
-    public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida {
+    public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida, ExceptionDiccionarioOperacionFallida {
         if (diccionarios.containsKey(nombre)) {
             throw new ExceptionDiccionarioExist("Ya existe un diccionario con el nombre: " + nombre);
         }
@@ -127,10 +128,9 @@ public class ControladorDiccionario {
             diccionarios.put(nombre, dict);
             diccionarioPaths.put(nombre, path);
             
-            System.out.println("Diccionario '" + nombre + "' creado correctamente.");
+            // Mensaje informativo movido a la capa de presentación
         } catch (IOException e) {
-            System.err.println("Error al crear el diccionario: " + e.getMessage());
-            throw e;
+            throw new ExceptionDiccionarioOperacionFallida("Error al crear el diccionario: " + e.getMessage(), "creación");
         }
     }
     
@@ -145,10 +145,11 @@ public class ControladorDiccionario {
      * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre
      * @throws IOException Si hay problemas con la lectura/escritura de archivos
      * @throws ExceptionPalabraInvalida Si alguna palabra contiene caracteres no válidos
+     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la creación
      * @post Si no ocurre ninguna excepción, un nuevo diccionario es creado y cargado en memoria.
      * @throws NullPointerException Si alguno de los parámetros es null.
      */
-    public void crearDiccionario(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida {
+    public void crearDiccionario(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida, ExceptionDiccionarioOperacionFallida {
         if (diccionarios.containsKey(nombre)) {
             throw new ExceptionDiccionarioExist("Ya existe un diccionario con el nombre: " + nombre);
         }
@@ -204,10 +205,9 @@ public class ControladorDiccionario {
             
             diccionarioPaths.put(nombre, parentDir);
             
-            System.out.println("Diccionario '" + nombre + "' creado correctamente.");
+            // Mensaje informativo movido a la capa de presentación
         } catch (IOException e) {
-            System.err.println("Error al crear el diccionario: " + e.getMessage());
-            throw e;
+            throw new ExceptionDiccionarioOperacionFallida("Error al crear el diccionario: " + e.getMessage(), "creación");
         }
     }
     
@@ -218,10 +218,11 @@ public class ControladorDiccionario {
      * @param nombre Nombre del diccionario a eliminar
      * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
      * @throws IOException Si hay problemas eliminando los archivos
+     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la eliminación
      * @post Si no ocurre ninguna excepción, el diccionario es eliminado de memoria y su directorio eliminado del sistema de archivos.
      * @throws NullPointerException Si el parámetro nombre es null.
      */
-    public void eliminarDiccionario(String nombre) throws ExceptionDiccionarioNotExist, IOException {
+    public void eliminarDiccionario(String nombre) throws ExceptionDiccionarioNotExist, IOException, ExceptionDiccionarioOperacionFallida {
         if (!diccionarios.containsKey(nombre)) {
             throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
         }
@@ -246,13 +247,12 @@ public class ControladorDiccionario {
                     .map(Path::toFile)
                     .forEach(java.io.File::delete);
                 
-                System.out.println("Diccionario '" + nombre + "' y sus archivos eliminados correctamente.");
+                // Mensaje informativo movido a la capa de presentación
             } catch (IOException e) {
-                System.err.println("Error al eliminar los archivos del diccionario: " + e.getMessage());
-                throw e;
+                throw new ExceptionDiccionarioOperacionFallida("Error al eliminar los archivos del diccionario: " + e.getMessage(), "eliminación");
             }
         } else {
-            System.out.println("El directorio del diccionario ya no existe en la ruta esperada: " + path);
+            throw new ExceptionLoggingOperacion("El directorio del diccionario ya no existe en la ruta esperada: " + path, "eliminación");
         }
     }
     
@@ -269,22 +269,6 @@ public class ControladorDiccionario {
         return diccionarios.containsKey(nombre);
     }
     
-    /**
-     * Obtiene el diccionario con el nombre especificado.
-     * 
-     * @pre El diccionario con el nombre especificado debe existir.
-     * @param nombre Nombre del diccionario
-     * @return El objeto Diccionario
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @post Si no ocurre ninguna excepción, se devuelve el objeto Diccionario asociado al nombre.
-     * @throws NullPointerException Si el parámetro nombre es null.
-     */
-    public Diccionario getDiccionario(String nombre) throws ExceptionDiccionarioNotExist {
-        if (!diccionarios.containsKey(nombre)) {
-            throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
-        }
-        return diccionarios.get(nombre);
-    }
     
     /**
      * Obtiene la lista de nombres de diccionarios disponibles.
@@ -340,42 +324,112 @@ public class ControladorDiccionario {
         
         // Validar sintaxis si es añadir
         if (anadir) {
-            // Validar contra los caracteres del alfabeto
-            Set<Character> validChars = getAlphabetChars(nombre);
-            if (!isValidWordSyntax(palabra, validChars)) {
-                throw new ExceptionPalabraInvalida("La palabra '" + palabra + "' contiene caracteres no válidos para el diccionario '" + nombre + "'.");
+            // Validar si la palabra puede formarse con los tokens del alfabeto
+            Set<String> validTokens = getTokensAlfabeto(nombre);
+            if (!isValidWordWithTokens(palabra, validTokens)) {
+                throw new ExceptionPalabraInvalida("La palabra '" + palabra + "' no puede formarse con los tokens disponibles en el alfabeto '" + nombre + "'.");
             }
         }
         
-        // Leer words.txt
-        List<String> words = leerArchivoLineaPorLinea(wordsPath.toString());
-        Set<String> wordSet = new HashSet<>(words);
+        Diccionario dict = getDiccionario(nombre);
+        boolean modificado;
         
-        boolean modificado = false;
+        // Añadir o eliminar la palabra usando los nuevos métodos
         if (anadir) {
-            modificado = wordSet.add(palabra);
+            modificado = dict.addWord(palabra);
             if (!modificado) {
                 throw new ExceptionPalabraExist("La palabra '" + palabra + "' ya existe en el diccionario.");
             }
         } else {
-            modificado = wordSet.remove(palabra);
+            modificado = dict.removeWord(palabra);
             if (!modificado) {
                 throw new ExceptionPalabraNotExist("La palabra '" + palabra + "' no existe en el diccionario.");
             }
         }
         
-        // Si hubo modificación, actualizar archivo y DAWG
-        List<String> wordList = new ArrayList<>(wordSet);
+        // Si hubo modificación, actualizar archivo
+        List<String> wordList = dict.getDawg().getAllWords();
         Collections.sort(wordList); // Ordenar para mantener orden lexicográfico
         
         // Escribir al archivo
         Files.write(wordsPath, wordList, StandardCharsets.UTF_8);
         
-        // Actualizar el DAWG
-        Diccionario dict = diccionarios.get(nombre);
-        dict.setDawg(wordList);
+        throw new ExceptionLoggingOperacion("Diccionario '" + nombre + "' modificado correctamente.", "modificación");
+    }
+    
+    /**
+     * Modifica una palabra existente en el diccionario.
+     * 
+     * @pre El diccionario debe existir, la palabra original debe existir en el diccionario, y la palabra nueva no debe existir.
+     * @param nombre Nombre del diccionario
+     * @param palabraOriginal Palabra a modificar
+     * @param palabraNueva Nueva palabra que reemplazará a la original
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     * @throws ExceptionPalabraVacia Si alguna de las palabras está vacía
+     * @throws ExceptionPalabraInvalida Si la nueva palabra contiene caracteres no válidos
+     * @throws ExceptionPalabraNotExist Si la palabra original no existe
+     * @throws ExceptionPalabraExist Si la nueva palabra ya existe en el diccionario
+     * @throws IOException Si hay problemas con la lectura/escritura de archivos
+     * @post Si no ocurre ninguna excepción, la palabra original es reemplazada por la nueva en el diccionario y los cambios se persisten.
+     * @throws NullPointerException Si alguno de los parámetros es null.
+     */
+    public void modificarPalabra(String nombre, String palabraOriginal, String palabraNueva) 
+            throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida,
+                   ExceptionPalabraNotExist, ExceptionPalabraExist, IOException {
         
-        System.out.println("Diccionario '" + nombre + "' modificado correctamente.");
+        // Normalizar palabras
+        palabraOriginal = palabraOriginal.trim().toUpperCase();
+        palabraNueva = palabraNueva.trim().toUpperCase();
+        
+        if (palabraOriginal.isEmpty() || palabraNueva.isEmpty()) {
+            throw new ExceptionPalabraVacia("Las palabras no pueden estar vacías.");
+        }
+        
+        // Verificar que el diccionario existe
+        if (!diccionarios.containsKey(nombre)) {
+            throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
+        }
+        
+        String path = diccionarioPaths.get(nombre);
+        if (path == null) {
+            throw new IllegalStateException("Error interno: Path no encontrado para el diccionario '" + nombre + "'.");
+        }
+        
+        Path wordsPath = Paths.get(path, "words.txt");
+        if (!Files.exists(wordsPath)) {
+            throw new IOException("No se encuentra el archivo words.txt para el diccionario '" + nombre + "'.");
+        }
+        
+        Diccionario dict = getDiccionario(nombre);
+        
+        // Verificar que la palabra original existe
+        if (!dict.contienePalabra(palabraOriginal)) {
+            throw new ExceptionPalabraNotExist("La palabra '" + palabraOriginal + "' no existe en el diccionario.");
+        }
+        
+        // Verificar que la palabra nueva no existe
+        if (dict.contienePalabra(palabraNueva)) {
+            throw new ExceptionPalabraExist("La palabra '" + palabraNueva + "' ya existe en el diccionario.");
+        }
+        
+        // Validar que la nueva palabra puede formarse con los tokens del alfabeto
+        Set<String> validTokens = getTokensAlfabeto(nombre);
+        if (!isValidWordWithTokens(palabraNueva, validTokens)) {
+            throw new ExceptionPalabraInvalida("La palabra '" + palabraNueva + "' no puede formarse con los tokens disponibles en el alfabeto '" + nombre + "'.");
+        }
+        
+        // Eliminar palabra original y añadir la nueva usando los nuevos métodos
+        dict.removeWord(palabraOriginal);
+        dict.addWord(palabraNueva);
+        
+        // Actualizar el archivo
+        List<String> wordList = dict.getDawg().getAllWords();
+        Collections.sort(wordList); // Ordenar para mantener orden lexicográfico
+        
+        // Escribir al archivo
+        Files.write(wordsPath, wordList, StandardCharsets.UTF_8);
+        
+        throw new ExceptionLoggingOperacion("Palabra '" + palabraOriginal + "' modificada a '" + palabraNueva + "' en el diccionario '" + nombre + "'.", "modificación");
     }
     
     /**
@@ -453,6 +507,53 @@ public class ControladorDiccionario {
     }
     
     /**
+     * Verifica si una palabra puede formarse utilizando exclusivamente los tokens completos
+     * definidos en el alfabeto. Por ejemplo, si solo tenemos el token "CC" en el alfabeto,
+     * solo se pueden formar palabras como "CC", "CCCC", "CCCCCC", etc.
+     * 
+     * @param palabra Palabra a verificar
+     * @param validTokens Conjunto de tokens válidos del alfabeto
+     * @return true si la palabra puede formarse con los tokens del alfabeto, false en caso contrario
+     */
+    private boolean isValidWordWithTokens(String palabra, Set<String> validTokens) {
+        if (palabra == null || palabra.isEmpty()) {
+            return false;
+        }
+        
+        // El comodín "#" no se permite en palabras del diccionario
+        if (palabra.contains("#")) {
+            return false;
+        }
+        
+        String palabraPendiente = palabra;
+        
+        // Ordenar tokens por longitud (descendente) para intentar consumir primero los tokens más largos
+        List<String> tokensPorLongitud = new ArrayList<>(validTokens);
+        tokensPorLongitud.sort((t1, t2) -> Integer.compare(t2.length(), t1.length()));
+        
+        // Intentar consumir la palabra token por token
+        while (!palabraPendiente.isEmpty()) {
+            boolean consumido = false;
+            
+            for (String token : tokensPorLongitud) {
+                if (palabraPendiente.startsWith(token)) {
+                    palabraPendiente = palabraPendiente.substring(token.length());
+                    consumido = true;
+                    break;
+                }
+            }
+            
+            // Si no pudimos consumir ningún token en esta iteración, la palabra no es válida
+            if (!consumido) {
+                return false;
+            }
+        }
+        
+        // Si hemos consumido toda la palabra, es válida
+        return true;
+    }
+    
+    /**
      * Obtiene el conjunto de caracteres válidos del alfabeto de un diccionario.
      * Método público para ser usado por otros controladores.
      * 
@@ -469,6 +570,25 @@ public class ControladorDiccionario {
     }
     
     /**
+     * Obtiene el conjunto de tokens (letras, incluyendo multicarácter como CH, RR) del alfabeto de un diccionario.
+     * 
+     * @pre El diccionario especificado debe existir.
+     * @param nombre Nombre del diccionario
+     * @return Conjunto de tokens del alfabeto (ejemplo: A, B, CH, RR)
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     * @post Si no ocurre ninguna excepción, se devuelve un conjunto no nulo con los tokens del alfabeto.
+     * @throws NullPointerException Si el parámetro nombre es null.
+     */
+    public Set<String> getTokensAlfabeto(String nombre) throws ExceptionDiccionarioNotExist {
+        if (!diccionarios.containsKey(nombre)) {
+            throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
+        }
+        
+        Diccionario diccionario = getDiccionario(nombre);
+        return diccionario.getAlphabetKeys();
+    }
+    
+    /**
      * Verifica si una palabra existe en el diccionario.
      * 
      * @pre No hay precondiciones específicas fuertes, pero el nombre del diccionario y la palabra no deberían ser null.
@@ -478,97 +598,16 @@ public class ControladorDiccionario {
      * @post Se devuelve un valor booleano indicando si la palabra existe en el diccionario.
      */
     public boolean existePalabra(String nombre, String palabra) {
-        try {
-            if (!diccionarios.containsKey(nombre)) {
-                return false;
-            }
-            Diccionario diccionario = diccionarios.get(nombre);
-            return diccionario.contienePalabra(palabra);
-        } catch (Exception e) {
-            System.err.println("Error al verificar palabra: " + e.getMessage());
+        if (!diccionarios.containsKey(nombre)) {
             return false;
         }
-    }
-    
-    /**
-     * Modifica una palabra existente en el diccionario.
-     * 
-     * @pre El diccionario debe existir, la palabra original debe existir en el diccionario, y la palabra nueva no debe existir.
-     * @param nombre Nombre del diccionario
-     * @param palabraOriginal Palabra a modificar
-     * @param palabraNueva Nueva palabra que reemplazará a la original
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws ExceptionPalabraVacia Si alguna de las palabras está vacía
-     * @throws ExceptionPalabraInvalida Si la nueva palabra contiene caracteres no válidos
-     * @throws ExceptionPalabraNotExist Si la palabra original no existe
-     * @throws ExceptionPalabraExist Si la nueva palabra ya existe en el diccionario
-     * @throws IOException Si hay problemas con la lectura/escritura de archivos
-     * @post Si no ocurre ninguna excepción, la palabra original es reemplazada por la nueva en el diccionario y los cambios se persisten.
-     * @throws NullPointerException Si alguno de los parámetros es null.
-     */
-    public void modificarPalabra(String nombre, String palabraOriginal, String palabraNueva) 
-            throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida,
-                   ExceptionPalabraNotExist, ExceptionPalabraExist, IOException {
-        
-        // Normalizar palabras
-        palabraOriginal = palabraOriginal.trim().toUpperCase();
-        palabraNueva = palabraNueva.trim().toUpperCase();
-        
-        if (palabraOriginal.isEmpty() || palabraNueva.isEmpty()) {
-            throw new ExceptionPalabraVacia("Las palabras no pueden estar vacías.");
+        try {
+            Diccionario diccionario = getDiccionario(nombre);
+            return diccionario.contienePalabra(palabra);
+        } catch (ExceptionDiccionarioNotExist e) {
+            // No debería ocurrir ya que verificamos existencia previamente
+            return false;
         }
-        
-        // Verificar que el diccionario existe
-        if (!diccionarios.containsKey(nombre)) {
-            throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
-        }
-        
-        String path = diccionarioPaths.get(nombre);
-        if (path == null) {
-            throw new IllegalStateException("Error interno: Path no encontrado para el diccionario '" + nombre + "'.");
-        }
-        
-        Path wordsPath = Paths.get(path, "words.txt");
-        if (!Files.exists(wordsPath)) {
-            throw new IOException("No se encuentra el archivo words.txt para el diccionario '" + nombre + "'.");
-        }
-        
-        // Verificar que la palabra original existe
-        if (!existePalabra(nombre, palabraOriginal)) {
-            throw new ExceptionPalabraNotExist("La palabra '" + palabraOriginal + "' no existe en el diccionario.");
-        }
-        
-        // Verificar que la palabra nueva no existe
-        if (existePalabra(nombre, palabraNueva)) {
-            throw new ExceptionPalabraExist("La palabra '" + palabraNueva + "' ya existe en el diccionario.");
-        }
-        
-        // Validar que la nueva palabra respeta la sintaxis del alfabeto
-        Set<Character> validChars = getCaracteresAlfabeto(nombre);
-        if (!isValidWordSyntax(palabraNueva, validChars)) {
-            throw new ExceptionPalabraInvalida("La palabra '" + palabraNueva + "' contiene caracteres no válidos para el diccionario '" + nombre + "'.");
-        }
-        
-        // Leer words.txt
-        List<String> words = leerArchivoLineaPorLinea(wordsPath.toString());
-        Set<String> wordSet = new HashSet<>(words);
-        
-        // Eliminar palabra original y añadir la nueva
-        wordSet.remove(palabraOriginal);
-        wordSet.add(palabraNueva);
-        
-        // Actualizar el archivo
-        List<String> wordList = new ArrayList<>(wordSet);
-        Collections.sort(wordList); // Ordenar para mantener orden lexicográfico
-        
-        // Escribir al archivo
-        Files.write(wordsPath, wordList, StandardCharsets.UTF_8);
-        
-        // Actualizar el DAWG
-        Diccionario dict = diccionarios.get(nombre);
-        dict.setDawg(wordList);
-        
-        System.out.println("Palabra '" + palabraOriginal + "' modificada a '" + palabraNueva + "' en el diccionario '" + nombre + "'.");
     }
     
     /**
@@ -597,6 +636,7 @@ public class ControladorDiccionario {
     /**
      * Verifica todos los diccionarios y elimina aquellos que ya no son válidos.
      * Se ejecuta al iniciar el controlador.
+     * @throws ExceptionLoggingOperacion Con información sobre los diccionarios eliminados
      */
     private void verificarTodosDiccionarios() {
         List<String> diccionariosInvalidos = new ArrayList<>();
@@ -610,9 +650,10 @@ public class ControladorDiccionario {
         
         // Eliminar diccionarios inválidos
         for (String nombre : diccionariosInvalidos) {
-            System.out.println("Eliminando diccionario inválido: " + nombre + " (archivos no encontrados)");
+            // Mensaje de log transformado a excepción informativa
             diccionarios.remove(nombre);
             diccionarioPaths.remove(nombre);
+            throw new ExceptionLoggingOperacion("Eliminando diccionario inválido: " + nombre + " (archivos no encontrados)", "verificación");
         }
     }
     
@@ -632,7 +673,7 @@ public class ControladorDiccionario {
             throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
         }
         
-        Diccionario diccionario = diccionarios.get(nombre);
+        Diccionario diccionario = getDiccionario(nombre);
         return diccionario.esComodin(caracter);
     }
 
@@ -651,8 +692,13 @@ public class ControladorDiccionario {
             return null;
         }
         
-        Diccionario diccionario = diccionarios.get(nombreDiccionario);
-        return diccionario.getFichas();
+        try {
+            Diccionario diccionario = getDiccionario(nombreDiccionario);
+            return diccionario.getFichas();
+        } catch (ExceptionDiccionarioNotExist e) {
+            // No debería ocurrir ya que verificamos existencia previamente
+            return null;
+        }
     }
 
     /**
@@ -671,8 +717,13 @@ public class ControladorDiccionario {
             return 0;
         }
         
-        Diccionario diccionario = diccionarios.get(nombreDiccionario);
-        return diccionario.getPuntaje(valueOf);
+        try {
+            Diccionario diccionario = getDiccionario(nombreDiccionario);
+            return diccionario.getPuntaje(valueOf);
+        } catch (ExceptionDiccionarioNotExist e) {
+            // No debería ocurrir ya que verificamos existencia previamente
+            return 0;
+        }
     }
 
     /**
@@ -692,8 +743,13 @@ public class ControladorDiccionario {
             return null;
         }
         
-        Diccionario diccionario = diccionarios.get(nombreDiccionario);
-        return diccionario.getAvailableEdges(palabraParcial);
+        try {
+            Diccionario diccionario = getDiccionario(nombreDiccionario);
+            return diccionario.getAvailableEdges(palabraParcial);
+        } catch (ExceptionDiccionarioNotExist e) {
+            // No debería ocurrir ya que verificamos existencia previamente
+            return null;
+        }
     }
 
     /**
@@ -712,8 +768,13 @@ public class ControladorDiccionario {
             return false;
         }
         
-        Diccionario diccionario = diccionarios.get(nombreDiccionario);
-        return diccionario.isFinal(palabraParcial);
+        try {
+            Diccionario diccionario = getDiccionario(nombreDiccionario);
+            return diccionario.isFinal(palabraParcial);
+        } catch (ExceptionDiccionarioNotExist e) {
+            // No debería ocurrir ya que verificamos existencia previamente
+            return false;
+        }
     }
 
     /**
@@ -733,8 +794,30 @@ public class ControladorDiccionario {
             return false;
         }
         
-        Diccionario diccionario = diccionarios.get(nombreDiccionario);
-        return diccionario.nodeExists(palabraParcial);
+        try {
+            Diccionario diccionario = getDiccionario(nombreDiccionario);
+            return diccionario.nodeExists(palabraParcial);
+        } catch (ExceptionDiccionarioNotExist e) {
+            // No debería ocurrir ya que verificamos existencia previamente
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene un diccionario por su nombre.
+     * 
+     * @pre No hay precondiciones específicas fuertes.
+     * @param nombre Nombre del diccionario
+     * @return El objeto Diccionario correspondiente
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     * @post Si el diccionario existe, devuelve una referencia al objeto Diccionario; en caso contrario, lanza una excepción.
+     * @throws NullPointerException Si el parámetro nombre es null.
+     */
+    public Diccionario getDiccionario(String nombre) throws ExceptionDiccionarioNotExist {
+        if (!diccionarios.containsKey(nombre)) {
+            throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
+        }
+        return diccionarios.get(nombre);
     }
 
 }

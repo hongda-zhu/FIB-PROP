@@ -1,0 +1,559 @@
+---
+config:
+  layout: elk
+  theme: neo-dark
+---
+classDiagram
+    direction TB
+    class ControladorDomain {
+        <<Facade>>
+        -ControladorConfiguracion controladorConfiguracion
+        -ControladorJuego controladorJuego
+        -ControladorRanking controladorRanking
+        -ControladorJugador controladorJugador
+        -ControladorDiccionario controladorDiccionario
+        +ControladorDomain()
+        +playerReadyToPlay(String nombre) boolean
+        +registrarUsuario(String nombre) boolean
+        +eliminarUsuario(String nombre) boolean
+        +crearJugadorIA(Dificultad dificultad, String nombre) void
+        +getJugadoresIA() List~String~
+        +getNombre(String nombre) String
+        +mostrarTodosUsuariosDebug() void
+        +setIdioma(String idioma) void
+        +setTema(String tema) void
+        +setVolumen(int volumen) void
+        +anadirLenguaje(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) void
+        +existeLenguaje(String nombre) boolean
+        +realizarTurno(Triple~String,Tuple~Integer,Integer~,Direction~ move, String nombreJugador) Tuple~Map~String,Integer~,Integer~
+        +managePartidaIniciar(String idiomaSeleccionado, Set~String~ jugadoresSeleccionados, Integer N) void
+        +realizarTurnoPartida(String nombreJugador, Triple~String,Tuple~Integer,Integer~,Direction~ jugada) void
+        +comprobarFinPartida(Set~String~ jugadoresSeleccionados) void
+        +getSkipTrack(String nombre) int
+        +addSkipTrack(String nombre) void
+        +inicializarRack(String nombre, Map~String,Integer~ rack) void
+        +addPuntuacion(String nombre, int puntuacion) void
+        +cogerFichas(int cantidad) Map~String,Integer~
+        +getCantidadFichas(String nombre) int
+        +agregarFicha(String nombre, String letra) void
+        +getPuntuacion(String nombre) int
+        +iniciarPartida(Set~String~ jugadoresSeleccionados, String nombreDiccionario, int N) void
+        +getCantidadFichasRestantes() int
+        +finalizarJuego(Set~String~ jugadoresSeleccionados) String
+        +isJuegoTerminado() boolean
+        +getRanking() List~String~
+        +getRanking(String criterio) List~String~
+        +getEstrategiaRanking() String
+        +getEstrategiaActual() String
+        +cambiarEstrategiaRanking(String criterio) void
+        +getPuntuacionMaxima(String nombre) int
+        +getPuntuacionMedia(String nombre) double
+        +getPartidasJugadas(String nombre) int
+        +getVictorias(String nombre) int
+        +getPuntuacionTotal(String nombre) int
+        +getPuntuacionesUsuario(String nombre) List~Integer~
+        +perteneceRanking(String nombre) boolean
+        +guardarRanking() void
+        +getUsuariosRanking() List~String~
+        +getUsuariosHumanos() List~String~
+        +agregarPuntuacion(String nombre, int puntuacion) boolean
+        +eliminarPuntuacion(String nombre, int puntuacion) boolean
+        +actualizarEstadisticasUsuario(String nombre, boolean esVictoria) boolean
+        +eliminarUsuarioRanking(String nombre) boolean
+        +existeJugador(String nombre) boolean
+        +esIA(String nombre) boolean
+        +getNivelDificultad(String nombre) Dificultad
+        +isEnPartida(String nombre) boolean
+        +inicializarJugadoresPartida(List~String~ jugadores) void
+        +finalizarPartidaJugadoresMultiple(Map~String,Integer~ puntuacionesFinales, List~String~ ganadores) void
+        +getPuntuacionTotalDirecta(String nombre) int
+        +setPuntuacionTotal(String nombreUsuario, int puntuacionTotal) boolean
+        +addPuntuacionTotal(String nombre, int puntos) boolean
+        +crearDiccionario(String nombre, String path) void
+        +eliminarDiccionario(String nombre) void
+        +existeDiccionario(String nombre) boolean
+        +getDiccionariosDisponibles() List~String~
+        +modificarPalabraDiccionario(String nombre, String palabra, boolean anadir) void
+        +modificarPalabraEnDiccionario(String nombre, String palabraOriginal, String palabraNueva) void
+        +getCaracteresAlfabeto(String nombreDiccionario) Set~Character~
+        +existePalabra(String nombreDiccionario, String palabra) boolean
+        +verificarDiccionarioValido(String nombreDiccionario) boolean
+        +esDiccionarioValido(String rutaDirectorio) boolean
+        +esComodin(String nombreDiccionario, String caracter) boolean
+        +isValidMove(Triple~String,Tuple~Integer,Integer~,Direction~ move, Map~String,Integer~ rack) boolean
+        +mostrarRack(String jugador) String
+        +getRack(String nombre) Map~String,Integer~
+        +mostrarStatusPartida(String nombreJugador) String
+        +guardarPartida() boolean
+        +cargarPartida(Integer nombrePartida) void
+        +getPartidasGuardadas() List~Integer~
+        +eliminarPartidaGuardada(Integer nombrePartida) boolean
+        +aliberarJugadoresActuales() void
+        +getJugadoresActuales() Set~String~
+        +ordenarUsuariosPorCriterio(List~String~ usuarios, String criterio) List~String~
+        +getPartidasJugadasDirecta(String nombre) int
+        +getPartidasGanadasDirecta(String nombre) int
+        +finalizarPartidaJugadores(Map~String,Integer~ puntuacionesFinales, String ganador) void
+        +getNombrePartidaActual(String nombre) String
+        +setNombrePartidaActual(String nombre, String nombrePartida) boolean
+        +intercambiarFichas(String nombre, List<String> letras) boolean
+    }
+    class ControladorConfiguracion {
+        -configuracion : Configuracion
+        +ControladorConfiguracion()
+        +obteneridioma() : String
+        +obtenerTema() : String
+        +obtenerVolumen() : int
+        +setIdioma(String i) : void
+        +setTema(String t) : void
+        +setVolumen(int v) : void
+    }
+    class ControladorJuego {
+        -serialVersionUID$ : long
+        -idPartida : int
+        -controladorDiccionario : ControladorDiccionario
+        -tablero : Tablero
+        -bolsa : Bolsa
+        -direction : Direction
+        -juegoTerminado : boolean
+        -juegoIniciado : boolean
+        -lastCrossCheck : Map~Tuple~Integer,Integer~,Set~String~~
+        -nombreDiccionario : String
+        -jugadores : Set~String~
+        -alfabeto$ : Set~String~
+        +ControladorJuego()
+        +inicializarJuego(int N, Set~String~ jugadores, String nombreDiccionario) : void
+        +cogerFichas(int cantidad) : Map~String,Integer~
+        +meterFichas(Map~String,Integer~ fichas) : void
+        +getCantidadFichas() : int
+        +before(Tuple~Integer,Integer~ pos) : Tuple~Integer,Integer~
+        +after(Tuple~Integer,Integer~ pos) : Tuple~Integer,Integer~
+        +before_cross(Tuple~Integer,Integer~ pos) : Tuple~Integer,Integer~
+        +after_cross(Tuple~Integer,Integer~ pos) : Tuple~Integer,Integer~
+        +find_anchors(boolean juegoIniciado) : Set~Tuple~Integer,Integer~~
+        +extendLeft(String partialWord, Map~String,Integer~ rack, Tuple~Integer,Integer~ nextPos, int limit) : Set~Triple~String,Tuple~Integer,Integer~,Direction~~
+        +extendRight(String partialWord, Map~String,Integer~ rack, Tuple~Integer,Integer~ nextPos, boolean archorFilled) : Set~Triple~String,Tuple~Integer,Integer~,Direction~~
+        +crossCheck() : Map~Tuple~Integer,Integer~,Set~String~~
+        +searchAllMoves(Map~String,Integer~ rack, boolean isFirst) : Set~Triple~String,Tuple~Integer,Integer~,Direction~~
+        +makeMove(Triple~String,Tuple~Integer,Integer~,Direction~ move, Map~String,Integer~ rack) : Map~String,Integer~
+        +calculateMovePoints(Triple~String,Tuple~Integer,Integer~,Direction~ move) : int
+        +isValidMove(Triple~String,Tuple~Integer,Integer~,Direction~ move, Map~String,Integer~ rack) : boolean
+        +isValidFirstMove(Triple~String,Tuple~Integer,Integer~,Direction~ move, Map~String,Integer~ rack) : boolean
+        -realizarAccion(Triple~String,Tuple~Integer,Integer~,Direction~ move, String nombreJugador, Map~String,Integer~ rack, boolean isIA, Dificultad dificultad, boolean isFirst) : Tuple~Map~String,Integer~,Integer~
+        +realizarTurno(Triple~String,Tuple~Integer,Integer~,Direction~ move, String nombreJugador, Map~String,Integer~ rack, boolean isIA, Dificultad dificultad) : Tuple~Map~String,Integer~,Integer~
+        +finalizarJuego() : void
+        +reiniciarJuego() : void
+        +isJuegoTerminado() : boolean
+        +isJuegoIniciado() : boolean
+        +mostrarStatusPartida(String nombreJugador) : String
+        +guardar() : boolean
+        +cargarDesdeArchivo(int idPartida) : void
+        +listarArchivosGuardados$() : List~Integer~
+        +eliminarArchivoGuardado$(int idPartida) : boolean
+        +getJugadoresPorId$(int idPartida) : Set~String~
+        +getJugadoresActuales() : Set~String~
+    }
+    class ControladorJugador {
+        <<Singleton>>
+        -instance$ : ControladorJugador
+        -jugadores : Map~String,Jugador~
+        -JUGADORES_FILE$ : String
+        -ControladorJugador()
+        +getInstance$() : ControladorJugador
+        +getSkipTrack(String nombre) : int
+        +clearSkipTrack(String nombre) : void
+        +agregarFicha(String nombre, String letra) : void
+        +getCantidadFichas(String nombre) : int
+        +addPuntuacion(String nombre, int puntuacion) : void
+        +getRack(String nombre) : Map~String,Integer~
+        +getNivelDificultad(String nombre) : Dificultad
+        +inicializarRack(String nombre, Map~String,Integer~ rack) : void
+        +getNombre(String nombre) : String
+        +addSkipTrack(String nombre) : void
+        +getTodosUsuariosDebug() : List~String~
+        +esIA(String nombre) : boolean
+        +existeJugador(String nombre) : boolean
+        +isEnPartida(String nombre) : boolean
+        +registrarUsuario(String nombre) : boolean
+        +registrarJugadorIA(Dificultad dificultad, String nombre) : boolean
+        +registrarJugadorIA(String nombre, Dificultad dificultad) : boolean
+        +eliminarUsuario(String nombre) : boolean
+        +setEnPartida(String nombre, boolean enPartida) : boolean
+        +getJugadoresRegistrados() : List~String~
+        +getJugadoresHumanos() : List~String~
+        +getJugadoresIA() : List~String~
+        -getJugador(String nombre) : Jugador
+        +getNombrePartidaActual(String nombre) : String
+        +setNombrePartidaActual(String nombre, String nombrePartida) : boolean
+        -guardarDatos() : void
+        -cargarDatos() : void
+    }
+    class ControladorRanking {
+        <<Singleton>>
+        -serialVersionUID$ : long
+        -instance$ : ControladorRanking
+        -estadisticasUsuarios : Map~String,PlayerRankingStats~
+        -estrategiaActual : String
+        -RANKING_FILE$ : String
+        -ControladorRanking()
+        +getInstance$() : ControladorRanking
+        +agregarPuntuacion(String nombre, int puntuacion) : boolean
+        +actualizarEstadisticasUsuario(String nombre, boolean esVictoria) : boolean
+        +perteneceRanking(String nombre) : boolean
+        +eliminarPuntuacion(String nombre, int puntuacion) : boolean
+        +existePuntuacion(String nombre, int puntuacion) : boolean
+        +eliminarUsuario(String nombre) : boolean
+        +setEstrategia(String criterio) : void
+        +getEstrategiaActual() : String
+        +getRanking() : List~String~
+        +getRanking(String criterio) : List~String~
+        +getPuntuacionesUsuario(String nombre) : List~Integer~
+        +getPuntuacionMaxima(String nombre) : int
+        +getPuntuacionMedia(String nombre) : double
+        +getPartidasJugadas(String nombre) : int
+        +getVictorias(String nombre) : int
+        +getPuntuacionTotal(String nombre) : int
+        +setPuntuacionTotal(String nombre, int puntuacionAgregada) : boolean
+        +addPuntuacionTotal(String nombre, int puntosPartidas) : boolean
+        +getUsuarios() : List~String~
+        +guardarDatos() : void
+        -cargarDatos() : void
+        +getMapaPuntuacionesMaximas() : Map~String,Integer~
+        +getMapaPuntuacionesMedias() : Map~String,Double~
+        +getMapaPartidasJugadas() : Map~String,Integer~
+        +getMapaVictorias() : Map~String,Integer~
+        +ordenarUsuariosPorCriterio(List~String~ usuarios, String criterio) : List~String~
+    }
+    class ControladorDiccionario {
+        <<Singleton>>
+        -instance$ : ControladorDiccionario
+        -diccionarios : Map~String,Diccionario~
+        -diccionarioPaths : Map~String,String~
+        -ControladorDiccionario()
+        +getInstance$() : ControladorDiccionario
+        -leerArchivoLineaPorLinea(String rutaArchivo) : List~String~
+        +crearDiccionario(String nombre, String path) : void
+        +crearDiccionario(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) : void
+        +eliminarDiccionario(String nombre) : void
+        +existeDiccionario(String nombre) : boolean
+        +getDiccionariosDisponibles() : List~String~
+        +modificarPalabraDiccionario(String nombre, String palabra, boolean anadir) : void
+        -getAlphabetChars(String nombre) : Set~Character~
+        -getAlphabetChars(Path alphaPath) : Set~Character~
+        -getTokensAlfabeto(String nombre) : Set<String>~
+        -isValidWordSyntax(String palabra, Set~Character~ validChars) : boolean
+        -isValidWordWithTokens(String palabra, Set<String> validTokens): boolean
+        +getCaracteresAlfabeto(String nombre) : Set~Character~
+        +existePalabra(String nombre, String palabra) : boolean
+        +modificarPalabra(String nombre, String palabraOriginal, String palabraNueva) : void
+        +verificarDiccionarioValido(String nombre) : boolean
+        -verificarTodosDiccionarios() : void
+        +esComodin(String nombre, String caracter) : boolean
+        +getFichas(String nombreDiccionario) : Map~String,Integer~
+        +getPuntaje(String nombreDiccionario, String valueOf) : int
+        +getAvailableEdges(String nombreDiccionario, String palabraParcial) : Set~String~
+        +isFinal(String nombreDiccionario, String palabraParcial) : boolean
+        +nodeExists(String nombreDiccionario, String palabraParcial) : boolean
+    }
+    class Jugador {
+        <<Abstract>>
+        -serialVersionUID$ : long
+        #rack : Map~String,Integer~
+        #skipTrack : int
+        #nombre : String
+        +Jugador(String nombre)
+        +getNombre() : String
+        +inicializarRack(Map~String,Integer~ rack) : void
+        +getRack() : Map~String,Integer~
+        +sacarFicha(String ficha) : Tuple~String,Integer~
+        +agregarFicha(String ficha) : void
+        +getCantidadFichas() : int
+        +addSkipTrack() : void
+        +setSkipTrack(int skipTrack) : void
+        +getSkipTrack() : int
+        +esIA()* : boolean  # Mètode abstracte marcat amb *
+        +clearSkipTrack() : void
+    }
+    class JugadorHumano {
+        -serialVersionUID$ : long
+        -enPartida : boolean
+        -nombrePartidaActual : String
+        +JugadorHumano(String nombre)
+        +setEnPartida(boolean enPartida) : void
+        +isEnPartida() : boolean
+        +getNombrePartidaActual() : String
+        +setNombrePartidaActual(String nombrePartida) : void
+        +esIA() : boolean
+        +getFichas() : Map~String,Integer~
+        +toString() : String
+    }
+    class JugadorIA {
+        -serialVersionUID$ : long
+        -contadorIAs$ : int
+        -nivelDificultad : Dificultad
+        +JugadorIA(String nombre, Dificultad dificultad)
+        +JugadorIA(Dificultad dificultad)
+        -generarNombreIA$(Dificultad dificultad) : String
+        +setNivelDificultad(Dificultad dificultad) : void
+        +getNivelDificultad() : Dificultad
+        +getPartidasJugadas() : int
+        +esIA() : boolean
+        +getFichas() : Map~String,Integer~
+        +toString() : String
+    }
+    class Tablero {
+        -serialVersionUID$ : long
+        -tablero : String[][]
+        -bonus : Bonus[][]
+        -alphabetPoint : Map~Character,Integer~
+        -N : int
+        -inicializarPuntosAlfabeto() : void
+        +Tablero()
+        +Tablero(int N)
+        -inicializarTablero15x15() : Bonus[][]
+        +Tablero(Tablero tablero2)
+        +toString() : String
+        +getTile(Tuple~Integer,Integer~ pos) : String
+        +setTile(Tuple~Integer,Integer~ pos, String letra) : void
+        +validPosition(Tuple~Integer,Integer~ pos) : boolean
+        +isEmpty(Tuple~Integer,Integer~ pos) : boolean
+        +isFilled(Tuple~Integer,Integer~ pos) : boolean
+        +getSize() : int
+        +getCenter() : Tuple~Integer,Integer~
+        -calcularSiguientePosicion(Tuple~Integer,Integer~ pos, Direction dir) : Tuple~Integer,Integer~
+        -calcularPuntosLetra(char letra, Tuple~Integer,Integer~ pos) : Tuple~Integer,Integer~
+        +makeMove(Tuple~Integer,Integer~ lastPos, String word, Direction direction) : int
+        +getBonus(Tuple~Integer,Integer~ pos) : Bonus
+        +getPointValue(char letra) : int
+    }
+    class Bolsa {
+        -serialVersionUID$ : long
+        -fichas : List~String~
+        +Bolsa()
+        +llenarBolsa(Map~String,Integer~ bolsa) : void
+        +agregarFichas(String letra, int cantidad) : void
+        +sacarFicha() : String
+        +getCantidadFichas() : int
+    }
+    class Diccionario {
+        -serialVersionUID$ : long
+        -dawg : Dawg
+        -alphabet : Map~String,Integer~
+        -bag : Map~String,Integer~
+        -comodines : Set~String~
+        +Diccionario()
+        +setDawg(List~String~ palabras) : void
+        -inicializarDawg(Dawg dawg, List~String~ palabras) : void
+        +setAlphabet(List~String~ lineas) : void
+        -isValidChar(String s) : boolean
+        +getAlphabet() : Map~String,Integer~
+        +getBag() : Map~String,Integer~
+        +getComodines() : Set~String~
+        +contienePalabra(String palabra) : boolean
+        +esComodin(String caracter) : boolean
+        -isValidWord(String palabra) : boolean
+        +getFichas() : Map~String,Integer~
+        +getPuntaje(String c) : int
+        +getAvailableEdges(String palabraParcial) : Set~String~
+        +isFinal(String palabraParcial) : boolean
+        +nodeExists(String palabraParcial) : boolean
+    }
+    class Dawg {
+        -DawgNode root
+        +Dawg()
+        +insert(String word) : void
+        +search(String word) : boolean
+        +getNode(String word) : DawgNode
+        +getAvailableEdges(String partialword) : Set~String~
+        +isFinal(String partialword) : boolean
+    }
+    class DawgNode {
+        -edges : Map~String,DawgNode~
+        -isFinal : boolean
+        +DawgNode()
+        +getEdge(String c) : DawgNode
+        +getAllEdges() : Set~String~
+        +addEdge(String c, DawgNode node) : void
+        +isFinal() : boolean
+        +setFinal(boolean isFinal) : void
+    }
+    class Configuracion {
+        -idioma : Idioma
+        -volumen : int
+        -tema : Tema
+        +Configuracion()
+        +obteneridioma() : String
+        +obtenerTema() : String
+        +obtenerVolumen() : int
+        +setIdioma(String i) : void
+        +setTema(String t) : void
+        +setVolumen(int v) : void
+    }
+    class Ranking {
+        -serialVersionUID$ : long
+        -estadisticasUsuarios : Map~String,PlayerRankingStats~
+        -estrategiaActual : RankingOrderStrategy
+        +Ranking()
+        +setEstrategia(String criterio) : void
+        +getEstrategiaActual() : String  # Corregit: El codi retorna String
+        +agregarPuntuacion(String nombre, int puntuacion) : boolean
+        +actualizarEstadisticasUsuario(String nombre, boolean esVictoria) : void
+        +eliminarPuntuacion(String nombre, int puntuacion) : boolean
+        +existePuntuacion(String nombre, int puntuacion) : boolean
+        +getPuntuacionesUsuario(String nombre) : List~Integer~
+        +getPuntuacionMaxima(String nombre) : int
+        +getPuntuacionMedia(String nombre) : double
+        +getPartidasJugadas(String nombre) : int
+        +getVictorias(String nombre) : int
+        +getRanking() : List~String~
+        +getRanking(String criterio) : List~String~
+        +getMapaPuntuacionesMaximas() : Map~String,Integer~
+        +getMapaPuntuacionesMedias() : Map~String,Double~
+        +getMapaPartidasJugadas() : Map~String,Integer~
+        +getMapaVictorias() : Map~String,Integer~
+        +perteneceRanking(String nombre) : boolean
+        +eliminarUsuario(String nombre) : boolean
+        +getUsuarios() : Set~String~
+        +getPuntuacionTotal(String nombre) : int
+    }
+    class PlayerRankingStats {
+      -serialVersionUID$ : long
+        -username : String
+        -puntuaciones : List~Integer~
+        -puntuacionMaxima : int
+        -puntuacionMedia : double
+        -partidasJugadas : int
+        -victorias : int
+        -puntuacionTotalAcumulada : int
+        +PlayerRankingStats(String username)
+        +addPuntuacion(int puntuacion) : void
+        -recalcularEstadisticas() : void
+        +removePuntuacion(int puntuacion) : boolean
+        +actualizarEstadisticas(boolean esVictoria) : void
+        +getPuntuacionTotal() : int
+        +setPuntuacionTotal(int puntuacionAgregada) : void
+        +getUsername() : String
+        +getPuntuaciones() : List~Integer~
+        +getPuntuacionMaxima() : int
+        +getPuntuacionMedia() : double
+        +getPartidasJugadas() : int
+        +getVictorias() : int
+        +contienePuntuacion(int puntuacion) : boolean
+    }
+    class RankingOrderStrategy {
+        <<Strategy>>
+        <<interface>>
+        +compare(String username1, String username2) int
+        +getNombre() String
+    }
+    class MaximaScoreStrategy {
+        <<Strategy>>
+        -serialVersionUID$ : long
+        -dataProvider : RankingDataProvider
+        +MaximaScoreStrategy(RankingDataProvider dataProvider)
+        +compare(String username1, String username2) : int
+        +getNombre() : String
+    }
+    class MediaScoreStrategy {
+        <<Strategy>>
+        -serialVersionUID$ : long
+        -dataProvider : RankingDataProvider
+        +MediaScoreStrategy(RankingDataProvider dataProvider)
+        +compare(String username1, String username2) : int
+        +getNombre() : String
+    }
+    class PuntuacionTotalStrategy {
+        <<Strategy>>
+        -dataProvider : RankingDataProvider
+        +PuntuacionTotalStrategy(RankingDataProvider dataProvider)
+        +compare(String jugador1, String jugador2) : int
+        +getNombre() : String
+    }
+    class PartidasJugadasStrategy {
+        <<Strategy>>
+        -dataProvider : RankingDataProvider
+        +PartidasJugadasStrategy(RankingDataProvider dataProvider)
+        +compare(String username1, String username2) : int
+        +getNombre() : String
+    }
+    class RankingOrderStrategyFactory {
+        <<Factory>>
+        +createStrategy(String criterio, RankingDataProvider dataProvider) RankingOrderStrategy
+    }
+    class RankingDataProvider {
+        <<interface>>
+        +getPuntuacionMaxima(String username) : int
+        +getPuntuacionMedia(String username) : double
+        +getPartidasJugadas(String username) : int
+        +getVictorias(String username) : int
+        +getPuntuacionTotal(String username) : int
+    }
+    class VictoriasStrategy {
+        <<Strategy>>
+        -dataProvider : RankingDataProvider
+        +VictoriasStrategy(RankingDataProvider dataProvider)
+        +compare(String username1, String username2) : int
+        +getNombre() : String
+    }
+namespace scrabble.helpers {
+  class Tuple~X, Y~ {
+    +X x
+    +Y y
+    +Tuple(x: X, y: Y)
+    +equals(o: Object) boolean
+  }
+  class Triple~X, Y, Z~ {
+    +X x
+    +Y y
+    +Z z
+    +Triple(x: X, y: Y, z: Z)
+    +equals(o: Object) boolean
+  }
+  class Dificultad {
+    <<enumeration>>
+    +FACIL
+    +DIFICIL
+  }
+  class Idioma {
+    <<enumeration>>
+    +ESPANOL
+    +CATALAN
+    +INGLES
+  }
+  class Tema {
+    <<enumeration>>
+    +CLARO
+    +OSCURO
+  }
+}
+    ControladorJugador "1" --> "0..*" Jugador : gestiona
+    ControladorConfiguracion "1" --> "1" Configuracion : gestiona
+    ControladorJuego "1" --> "0..1" Tablero : gestiona
+    ControladorJuego "1" --> "0..1" Bolsa : gestiona
+    ControladorRanking "1" *-- "0..*" PlayerRankingStats : gestiona
+    ControladorDiccionario "1" --> "0..*" Diccionario : gestiona
+    Diccionario "1" *-- "1" Dawg : contiene
+    Dawg "1" *-- "1" DawgNode : root
+    DawgNode "1" --> "0..*" DawgNode : edges
+    Ranking "1" *-- "0..*" PlayerRankingStats : contiene
+    Ranking "1" o-- "1" RankingOrderStrategy : usa
+    ControladorDomain "1" --> "1" ControladorConfiguracion
+    ControladorDomain "1" --> "1" ControladorJuego
+    ControladorDomain "1" --> "1" ControladorRanking
+    ControladorDomain "1" --> "1" ControladorJugador
+    ControladorDomain "1" --> "1" ControladorDiccionario
+    ControladorJuego "1" --> "1" ControladorDiccionario
+    ControladorRanking ..|> RankingDataProvider
+    Jugador <|-- JugadorHumano
+    Jugador <|-- JugadorIA
+    RankingOrderStrategy <|.. VictoriasStrategy
+    RankingOrderStrategy <|.. PuntuacionTotalStrategy
+    RankingOrderStrategy <|.. MaximaScoreStrategy
+    RankingOrderStrategy <|.. MediaScoreStrategy
+    RankingOrderStrategy <|.. PartidasJugadasStrategy
+    RankingOrderStrategyFactory ..> RankingOrderStrategy
+    MaximaScoreStrategy ..> RankingDataProvider
+    MediaScoreStrategy ..> RankingDataProvider
+    PartidasJugadasStrategy ..> RankingDataProvider
+    VictoriasStrategy ..> RankingDataProvider
+    PuntuacionTotalStrategy ..> RankingDataProvider

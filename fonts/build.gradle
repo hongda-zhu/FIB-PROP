@@ -39,7 +39,7 @@ test {
 sourceSets {
     temp {
         java.srcDirs = ['src/main/java']
-        resources.srcDirs = ['src/java/resources']
+        resources.srcDirs = ['src/main/resources']
         compileClasspath += sourceSets.main.output
         runtimeClasspath += output + compileClasspath
     }

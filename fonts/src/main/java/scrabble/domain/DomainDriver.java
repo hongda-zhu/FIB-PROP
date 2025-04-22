@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Collections;
+import java.util.Arrays;
+import scrabble.helpers.Dificultad;
 
 import scrabble.domain.controllers.ControladorDomain;
 import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
@@ -27,7 +30,6 @@ import scrabble.excepciones.ExceptionUserExist;
 import scrabble.excepciones.ExceptionUserInGame;
 import scrabble.excepciones.ExceptionUserLoggedIn;
 import scrabble.excepciones.ExceptionUserNotExist;
-import scrabble.helpers.Dificultad;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 
@@ -46,8 +48,14 @@ public class DomainDriver {
     static boolean readingFile;   
     
     public static void main(String[] args) throws IOException {
+        // Registrar shutdown hook para eliminar persistencias cuando se cierra la aplicación inesperadamente
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("\nLimpiando archivos de persistencia antes de cerrar...");
+            controladorDomain.limpiarPersistencias();
+        }));
+
         initializeMenus();
-        // initializeDefaultSettings();
+        initializeDefaultSettings();
         
         controladorDomain = new ControladorDomain();
         
@@ -82,10 +90,8 @@ public class DomainDriver {
 
     // Ejecución principal
     private static void menus() throws IOException {
-
-        // Existen opciones innecesarias en algunos menus, quitarlas cuando todas las funcionalidades estén acabadas
         initializeMenus();
-        // initializeDefaultSettings();
+        initializeDefaultSettings();
         ShowMenu("principal");
         readingFile = false;
         boolean successful;
@@ -93,8 +99,6 @@ public class DomainDriver {
         while ((command = readLine()) != null) {
             boolean menu = false;
             try {
-                String input;
-                String[] parts;
                 successful = true;
                 command = command.toLowerCase();
                 command = command.stripTrailing();
@@ -102,6 +106,10 @@ public class DomainDriver {
                 switch (command) {
                     case "0":
                     case "salir":
+                        // Limpiar persistencias antes de salir
+                        System.out.println("\nLimpiando archivos de persistencia antes de cerrar...");
+                        controladorDomain.limpiarPersistencias();
+                        System.out.println("¡Hasta pronto!");
                         System.exit(0);
                         break;
                     
@@ -166,6 +174,8 @@ public class DomainDriver {
             System.err.flush();
             if (!menu) ShowMenu("principal");
         }
+        Scanner scanner = new Scanner(System.in);
+        scanner.close(); // Add this line at the end of the method
     }
 
     public static Triple<String, Tuple<Integer, Integer>, Direction> jugarTurno() {
@@ -173,7 +183,7 @@ public class DomainDriver {
         String palabra = "";
         // Leer la palabra
 
-        System.out.print("Introduce la palabra a colocar ('p' para pasar, 'x' para el menu, 'c' para cambiar fichas): ");
+        System.out.print("Introduce la palabra a colocar ('P' para pasar, 'X' para el menu, 'CF' para cambiar fichas): ");
         
 
         System.out.println("Coloca una palabra en el tablero.");
@@ -188,8 +198,8 @@ public class DomainDriver {
             return new Triple<String,Tuple<Integer,Integer>,Direction>("P", null, null);
         }
 
-        if (palabra.equals("C")){
-            return new Triple<String,Tuple<Integer,Integer>,Direction>("C", null, null);
+        if (palabra.equals("CF")){
+            return new Triple<String,Tuple<Integer,Integer>,Direction>("CF", null, null);
         }
         
         
@@ -229,6 +239,7 @@ public class DomainDriver {
                 System.out.println("Dirección no válida. Debe ser HORIZONTAL o VERTICAL.");
             }
         }
+        
         // Este return nunca debería alcanzarse, pero es necesario para la compilación
         return null;
     }
@@ -244,31 +255,38 @@ public class DomainDriver {
                 System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
                 System.out.println(controladorDomain.mostrarRack(nombreJugador));
 
-                Triple<String, Tuple<Integer, Integer>, Direction> result = null;
+                Triple<String, Tuple<Integer, Integer>, Direction> result = new Triple<String,Tuple<Integer,Integer>,Direction>("IA", null, null);
 
                 if (!controladorDomain.esIA(nombreJugador)) {
-                    result = jugarTurno();
-                    while (result.x != "P" && result.x != "X" && result.x != "C" && !controladorDomain.isValidMove(result, controladorDomain.getRack(nombreJugador))) {
-                        System.out.println("Movimiento inválido. Intenta de nuevo.");
-                        result = jugarTurno();
-                    }
+                    boolean jugadaValida = false;
                     
-                    if (result.x == "X") {
-                        juegoPausado();
+                    while (!jugadaValida) {
                         result = jugarTurno();
-                        while (result.x != "P" && result.x != "X" && !controladorDomain.isValidMove(result, controladorDomain.getRack(nombreJugador))) {
-                            System.out.println("Movimiento inválido. Intenta de nuevo.");
-                            result = jugarTurno();
-                        } 
-                    } else if (result.x == "P") {
-                        System.out.println("El turno ha sido pasado. El jugador ha decidido no colocar ninguna palabra en este turno.");
-                    } else if (result.x == "C") {
-                        List<String> fichasCambiar = pedirFichasCambiar(controladorDomain.getRack(nombreJugador));
-                        controladorDomain.intercambiarFichas(nombreJugador, fichasCambiar);
-                        System.out.println("El jugador ha decidido cambiar fichas.");
+                        if (result.x == "X") {
+                            juegoPausado();
+                            System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
+                            System.out.println(controladorDomain.mostrarRack(nombreJugador));
+                        } else if (result.x == "P") {
+                            System.out.println("El jugador ha decidido pasar su turno.");
+                            jugadaValida = true;
+                        } else if (result.x == "CF") {
+                            System.out.println(controladorDomain.mostrarRack(nombreJugador));
+                            List<String> fichasCambiar = pedirFichasCambiar(controladorDomain.getRack(nombreJugador));
+                            controladorDomain.intercambiarFichas(nombreJugador, fichasCambiar);
+                            System.out.println("El jugador ha decidido cambiar fichas.");
+                            System.out.println("Tu nuevo rack: ");
+
+                            System.out.println(controladorDomain.mostrarRack(nombreJugador));
+                            jugadaValida = true;
+                        } else {
+                            if (!controladorDomain.isValidMove(result, controladorDomain.getRack(nombreJugador))) {
+                                System.out.println("Movimiento inválido. Intenta de nuevo.");
+                            } else {
+                                jugadaValida = true;
+                            }
+                        }
                     }
                 }
-                
                 controladorDomain.realizarTurnoPartida(nombreJugador, result);
             }
             controladorDomain.comprobarFinPartida(jugadoresSeleccionados);
@@ -377,10 +395,10 @@ public class DomainDriver {
         }
         
         // Registrar algunos usuarios por defecto para testing solo si no existen
-        if (!controladorDomain.existeJugador("xdxd")) controladorDomain.registrarUsuario("xdxd");
+        if (!controladorDomain.existeJugador("xuanyi")) controladorDomain.registrarUsuario("xuanyi");
         if (!controladorDomain.existeJugador("jiahao")) controladorDomain.registrarUsuario("jiahao");
         if (!controladorDomain.existeJugador("admin")) controladorDomain.registrarUsuario("admin");
-        if (!controladorDomain.existeJugador("admin2")) controladorDomain.registrarUsuario("admin2");
+        if (!controladorDomain.existeJugador("songhe")) controladorDomain.registrarUsuario("songhe");
         if (!controladorDomain.existeJugador("hongda")) controladorDomain.registrarUsuario("hongda");
         controladorDomain.crearJugadorIA(Dificultad.FACIL, "DummyEZ");
         controladorDomain.crearJugadorIA(Dificultad.DIFICIL, "DummyHardCore");
@@ -388,6 +406,97 @@ public class DomainDriver {
         if (!hayDatosEnRanking()) {
             initializeRankingData();
         }
+    }
+
+
+    private static void initializeRankingData() {
+        System.out.println("Inicializando datos de ranking para demostración...");
+        
+        // Limpiamos cualquier dato previo que pudiera existir
+        List<String> usuarios = controladorDomain.getUsuariosRanking();
+        for (String usuario : usuarios) {
+            controladorDomain.eliminarUsuarioRanking(usuario);
+        }
+        
+        // Creamos algunos usuarios para el ranking si no existen
+        String[] jugadoresMuestra = {"hongda", "xuanyi", "jiahao", "songhe"};
+        for (String jugador : jugadoresMuestra) {
+            if (!controladorDomain.existeJugador(jugador)) {
+                controladorDomain.registrarUsuario(jugador);
+            }
+        }
+        
+        // Simulamos varias partidas con diferentes resultados
+        
+        // Partida 1: hongda gana
+        Map<String, Integer> puntuacionesPartida1 = new HashMap<>();
+        puntuacionesPartida1.put("hongda", 120);
+        puntuacionesPartida1.put("xuanyi", 85);
+        puntuacionesPartida1.put("jiahao", 90);
+        List<String> ganadoresPartida1 = Collections.singletonList("hongda");
+        controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida1, ganadoresPartida1);
+        
+        // Partida 2: jiahao gana
+        Map<String, Integer> puntuacionesPartida2 = new HashMap<>();
+        puntuacionesPartida2.put("hongda", 75);
+        puntuacionesPartida2.put("jiahao", 130);
+        puntuacionesPartida2.put("songhe", 60);
+        List<String> ganadoresPartida2 = Collections.singletonList("jiahao");
+        controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida2, ganadoresPartida2);
+        
+        // Partida 3: xuanyi gana
+        Map<String, Integer> puntuacionesPartida3 = new HashMap<>();
+        puntuacionesPartida3.put("xuanyi", 110);
+        puntuacionesPartida3.put("jiahao", 95);
+        puntuacionesPartida3.put("songhe", 85);
+        List<String> ganadoresPartida3 = Collections.singletonList("xuanyi");
+        controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida3, ganadoresPartida3);
+        
+        // Partida 4: hongda y songhe empatan (ambos ganan)
+        Map<String, Integer> puntuacionesPartida4 = new HashMap<>();
+        puntuacionesPartida4.put("hongda", 100);
+        puntuacionesPartida4.put("xuanyi", 80);
+        puntuacionesPartida4.put("songhe", 100);
+        List<String> ganadoresPartida4 = Arrays.asList("hongda", "songhe");
+        controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida4, ganadoresPartida4);
+
+        // Partida 5: hongda y songhe empatan (ambos ganan)
+        Map<String, Integer> puntuacionesPartida5 = new HashMap<>();
+        puntuacionesPartida5.put("jiahao", 1000);
+        puntuacionesPartida5.put("xuanyi", 80);
+        puntuacionesPartida5.put("songhe", 2000);
+        List<String> ganadoresPartida5 = Arrays.asList("jiahao", "songhe");
+        controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida5, ganadoresPartida5);
+
+        // Partida 6: hongda y songhe empatan (ambos ganan)
+        Map<String, Integer> puntuacionesPartida6 = new HashMap<>();
+        puntuacionesPartida6.put("jiahao", 1000);
+        puntuacionesPartida6.put("xuanyi", 40);
+        puntuacionesPartida6.put("songhe", 100);
+        List<String> ganadoresPartida6 = Arrays.asList("jiahao");
+        controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida6, ganadoresPartida6);
+        
+        // Guardar los datos del ranking
+        controladorDomain.guardarRanking();
+        System.out.println("Datos de ranking inicializados correctamente.");
+        
+        // Mostrar un resumen de las estadísticas generadas
+        System.out.println("\nResumen de estadísticas generadas:");
+        System.out.println("----------------------------------");
+        System.out.println("Jugador | Partidas | Victorias | Puntuación Total | Máxima | Media");
+        System.out.println("----------------------------------------------------------");
+        
+        for (String jugador : jugadoresMuestra) {
+            int partidas = controladorDomain.getPartidasJugadas(jugador);
+            int victorias = controladorDomain.getVictorias(jugador);
+            int puntuacionTotal = controladorDomain.getPuntuacionTotal(jugador);
+            int puntuacionMaxima = controladorDomain.getPuntuacionMaxima(jugador);
+            double puntuacionMedia = controladorDomain.getPuntuacionMedia(jugador);
+            
+            System.out.printf("%-7s | %-8d | %-9d | %-15d | %-6d | %.2f%n", 
+                              jugador, partidas, victorias, puntuacionTotal, puntuacionMaxima, puntuacionMedia);
+        }
+        System.out.println("----------------------------------------------------------");
     }
     
     /**
@@ -409,74 +518,6 @@ public class DomainDriver {
         }
         
         return false;
-    }
-
-    private static void initializeRankingData() {
-        System.out.println("Inicializando datos de ranking para demostración...");
-        
-        // Limpiamos cualquier dato previo que pudiera existir
-        List<String> usuarios = controladorDomain.getUsuariosRanking();
-        for (String usuario : usuarios) {
-            controladorDomain.eliminarUsuarioRanking(usuario);
-        }
-        
-        // Variables para acumular puntuación total de cada jugador
-        int totalPuntosXdxd = 0;
-        int totalPuntosJiahao = 0;
-        int totalPuntosAdmin = 0;
-        int totalPuntosAdmin2 = 0;
-        int totalPuntosHongda = 0;
-        
-        // Datos para xdxd - 25 partidas, 5 victorias, puntuaciones fijas: en la 12ª partida se asigna 450, en las demás 400.
-        for (int i = 0; i < 25; i++) {
-            int puntuacion = (i == 12) ? 450 : 400;
-            controladorDomain.agregarPuntuacion("xdxd", puntuacion);
-            totalPuntosXdxd += puntuacion;
-            controladorDomain.actualizarEstadisticasUsuario("xdxd", i < 5);
-        }
-        
-        // Datos para jiahao - 30 partidas, 27 victorias, puntuaciones fijas: en la 5ª partida se asigna 550, en las demás 540.
-        for (int i = 0; i < 30; i++) {
-            int puntuacion = (i == 5) ? 550 : 540;
-            controladorDomain.agregarPuntuacion("jiahao", puntuacion);
-            totalPuntosJiahao += puntuacion;
-            controladorDomain.actualizarEstadisticasUsuario("jiahao", i < 27);
-        }
-        
-        // Datos para admin - 40 partidas, 20 victorias, puntuaciones fijas: en la 10ª partida se asigna 590, en las demás 500.
-        for (int i = 0; i < 40; i++) {
-            int puntuacion = (i == 10) ? 590 : 500;
-            controladorDomain.agregarPuntuacion("admin", puntuacion);
-            totalPuntosAdmin += puntuacion;
-            controladorDomain.actualizarEstadisticasUsuario("admin", i < 20);
-        }
-        
-        // Datos para admin2 - 20 partidas, 0 victorias, puntuaciones fijas: siempre 350.
-        for (int i = 0; i < 20; i++) {
-            int puntuacion = 350;
-            controladorDomain.agregarPuntuacion("admin2", puntuacion);
-            totalPuntosAdmin2 += puntuacion;
-            controladorDomain.actualizarEstadisticasUsuario("admin2", false);
-        }
-        
-        // Datos para hongda - 60 partidas, 40 victorias, puntuaciones fijas: en la 20ª partida se asigna 480, en las demás 430.
-        for (int i = 0; i < 60; i++) {
-            int puntuacion = (i == 20) ? 480 : 430;
-            controladorDomain.agregarPuntuacion("hongda", puntuacion);
-            totalPuntosHongda += puntuacion;
-            controladorDomain.actualizarEstadisticasUsuario("hongda", i < 40);
-        }
-        
-        // Actualizar puntuación total en los objetos JugadorHumano
-        controladorDomain.setPuntuacionTotal("xdxd", totalPuntosXdxd);
-        controladorDomain.setPuntuacionTotal("jiahao", totalPuntosJiahao);
-        controladorDomain.setPuntuacionTotal("admin", totalPuntosAdmin);
-        controladorDomain.setPuntuacionTotal("admin2", totalPuntosAdmin2);
-        controladorDomain.setPuntuacionTotal("hongda", totalPuntosHongda);
-        
-        // Guardar los datos del ranking
-        controladorDomain.guardarRanking();
-        System.out.println("Datos de ranking inicializados correctamente.");
     }
 
     public static void initializeMenus() {
@@ -897,42 +938,12 @@ public class DomainDriver {
         System.out.println("| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |");
         System.out.println("+-------------------+-----------+---------+-------------------+----------------+");
         
-        // Primero capturamos la salida original en una cadena de texto
-        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-        java.io.PrintStream originalOut = System.out;
-        System.setOut(new java.io.PrintStream(baos));
+        // Obtener la lista de usuarios humanos y ordenarla alfabéticamente
+        List<String> usuarios = controladorDomain.getUsuariosHumanos();
+        Collections.sort(usuarios);
         
-        // Llamamos al método que ya existe para mostrar usuarios
-        controladorDomain.mostrarTodosUsuariosDebug();
-        
-        // Restauramos la salida estándar
-        System.setOut(originalOut);
-        
-        // Convertimos la salida capturada a texto
-        String output = baos.toString();
-        String[] lines = output.split("\\r?\\n");
-        
-        List<String> usuarios = new ArrayList<>();
-        
-        // Procesamos las líneas obtenidas
-        boolean procesandoUsuarios = false;
-        for (String line : lines) {
-            if (line.contains("=== LISTADO DEBUG DE USUARIOS ===")) {
-                procesandoUsuarios = true;
-                continue;
-            }
-            
-            if (procesandoUsuarios && line.contains("Nombre:")) {
-                if (!line.contains("Tipo: IA")) {
-                    usuarios.add(line);
-                }
-            }
-        }
-        
-        // Mostramos los usuarios humanos
-        for (String line : usuarios) {
-            String nombreUsuario = line.substring(line.indexOf("Nombre: ") + 8, line.indexOf(" |")).trim();
-            
+        // Recorrer la lista ordenada y mostrar la información de cada usuario
+        for (String nombreUsuario : usuarios) {
             // Obtenemos información adicional del usuario
             String tipoUsuario = "Humano";
             
@@ -961,8 +972,6 @@ public class DomainDriver {
             System.out.printf("| %-17s | %-9s | %-7s | %-17s | %-14s |%s%n", 
                             nombreUsuario, tipoUsuario, estadoPartida, nombrePartida, puntuacionTotal, indicadorNuevo);
         }
-        
-        // No mostramos los usuarios IA en la lista
         
         System.out.println("+------------------------------------------------------------------------------+");
         System.out.println("| Total jugadores: " + usuarios.size() + 
@@ -1176,7 +1185,7 @@ public class DomainDriver {
         }
         
         // Construir la ruta del directorio
-        String RESOURCE_BASE_PATH = "src/java/resources/diccionarios/";
+        String RESOURCE_BASE_PATH = "src/main/resources/diccionarios/";
         java.nio.file.Path dictPath = java.nio.file.Paths.get(RESOURCE_BASE_PATH, nombre);
         
         // Verificar si ya existe una carpeta o un diccionario cargado con ese nombre
@@ -1332,11 +1341,17 @@ public class DomainDriver {
             showNotification("GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO", 
                             "Archivo alpha.txt creado correctamente.");
             
-            // Extraer los caracteres válidos del alfabeto
-            Set<Character> validChars = new HashSet<>();
+            // Extraer los tokens válidos del alfabeto (preservando letras multicarácter como CH, RR)
+            Set<String> validTokens = new HashSet<>();
             for (String line : alphabetLines) {
                 String letra = line.split("\\s+")[0].toUpperCase();
-                for (char c : letra.toCharArray()) {
+                validTokens.add(letra);
+            }
+            
+            // También extraer caracteres individuales para validación
+            Set<Character> validChars = new HashSet<>();
+            for (String token : validTokens) {
+                for (char c : token.toCharArray()) {
                     validChars.add(c);
                 }
             }
@@ -1349,7 +1364,7 @@ public class DomainDriver {
                            "Ingrese las palabras válidas, una por línea.",
                            "Para terminar, introduzca una línea vacía o ingrese '-1'.",
                            
-                           "El alfabeto actual contiene las letras: " + validChars,
+                           "El alfabeto actual contiene las letras: " + validTokens,
                            "Presione Enter después de cada palabra.");
             
             String wordLine;
@@ -1377,28 +1392,39 @@ public class DomainDriver {
                 
                 String palabra = wordLine.toUpperCase();
                 
-                // Validar que la palabra solo contiene caracteres del alfabeto
+                // Nueva validación que verifica si la palabra puede componerse usando exclusivamente
+                // los tokens del alfabeto (como "CC", "RR", etc.)
                 boolean esValida = true;
-                List<Character> caracteresInvalidos = new ArrayList<>();
+                String palabraPendiente = palabra;
+                Set<String> tokensNoEncontrados = new HashSet<>();
                 
-                for (char c : palabra.toCharArray()) {
-                    if (!validChars.contains(c)) {
-                        esValida = false;
-                        if (!caracteresInvalidos.contains(c)) {
-                            caracteresInvalidos.add(c);
+                // Intentar consumir la palabra usando tokens en orden descendente por longitud (primero los más largos)
+                List<String> tokensPorLongitud = new ArrayList<>(validTokens);
+                tokensPorLongitud.sort((t1, t2) -> Integer.compare(t2.length(), t1.length()));
+                
+                while (!palabraPendiente.isEmpty() && esValida) {
+                    boolean consumido = false;
+                    
+                    for (String token : tokensPorLongitud) {
+                        if (palabraPendiente.startsWith(token)) {
+                            palabraPendiente = palabraPendiente.substring(token.length());
+                            consumido = true;
+                            break;
                         }
+                    }
+                    
+                    if (!consumido) {
+                        esValida = false;
+                        // Registrar qué partes no pueden consumirse
+                        tokensNoEncontrados.add(palabraPendiente.substring(0, Math.min(3, palabraPendiente.length())));
                     }
                 }
                 
                 if (!esValida) {
-                    String invalidos = caracteresInvalidos.stream()
-                                      .map(String::valueOf)
-                                      .collect(java.util.stream.Collectors.joining(", "));
-                    
                     showNotification("GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO", 
-                                   "Error: La palabra '" + palabra + "' contiene caracteres no definidos en el alfabeto.",
-                                   "Caracteres inválidos: " + invalidos,
-                                   "Alfabeto actual: " + validChars,
+                                   "Error: La palabra '" + palabra + "' no puede formarse con los tokens disponibles en el alfabeto.",
+                                   "Tokens disponibles: " + validTokens,
+                                   "Recuerde que solo puede usar combinaciones exactas de los tokens listados.",
                                    "Presione Enter e intente de nuevo.");
                     continue;
                 }
@@ -1439,43 +1465,44 @@ public class DomainDriver {
             
             // Intentar cargar el diccionario
             try {
-                controladorDomain.crearDiccionario(nombre, dictPath.toString());
+                controladorDomain.anadirLenguaje(nombre, alphaFile.toString(), wordsFile.toString());
+                
+                // Obtener los tokens del alfabeto para mostrarlos correctamente
+                Set<String> tokensAlphabet = controladorDomain.getTokensAlfabeto(nombre);
+                
+                // Formatear los tokens para mostrarlos de forma más legible
+                StringBuilder tokensStr = new StringBuilder();
+                int count = 0;
+                for (String token : tokensAlphabet) {
+                    tokensStr.append(token);
+                    count++;
+                    if (count < tokensAlphabet.size()) {
+                        tokensStr.append(", ");
+                    }
+                    // Añadir salto de línea cada 8 tokens para mejor legibilidad
+                    if (count % 8 == 0 && count < tokensAlphabet.size()) {
+                        tokensStr.append("\n");
+                    }
+                }
+                
                 showNotification("GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO", 
-                                "¡Diccionario '" + nombre + "' creado exitosamente!");
+                               "Diccionario '" + nombre + "' creado y cargado correctamente.",
+                               "Contiene " + wordLines.size() + " palabras y " + tokensAlphabet.size() + " letras/tokens en el alfabeto.",
+                               "",
+                               "Tokens del alfabeto:",
+                               tokensStr.toString());
             } catch (ExceptionDiccionarioExist e) {
                 showNotification("GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO", 
-                                 "Error: Ya existe un diccionario con el nombre '" + nombre + "'.",
-                                 "Operación cancelada.");
-                // Limpiar recursos creados
-                if (java.nio.file.Files.exists(dictPath)) {
-                    java.nio.file.Files.walk(dictPath)
-                         .sorted(java.util.Comparator.reverseOrder())
-                         .map(java.nio.file.Path::toFile)
-                         .forEach(java.io.File::delete);
-                }
+                              "Error: Ya existe un diccionario con ese nombre. Este comportamiento es inesperado.",
+                              "Los archivos han sido creados correctamente, pero el diccionario no ha sido cargado.");
             } catch (ExceptionPalabraInvalida e) {
                 showNotification("GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO", 
-                                 "Error: El archivo words.txt contiene palabras con caracteres no válidos según alpha.txt.",
-                                 e.getMessage(),
-                                 "Operación cancelada.");
-                // Limpiar recursos creados
-                if (java.nio.file.Files.exists(dictPath)) {
-                    java.nio.file.Files.walk(dictPath)
-                         .sorted(java.util.Comparator.reverseOrder())
-                         .map(java.nio.file.Path::toFile)
-                         .forEach(java.io.File::delete);
-                }
-            } catch (IOException e) {
+                              "Error al cargar el diccionario: " + e.getMessage(),
+                              "Los archivos han sido creados correctamente, pero el diccionario no ha sido cargado completamente.");
+            } catch (Exception e) {
                 showNotification("GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO", 
-                                 "Error de E/S: " + e.getMessage(),
-                                 "Operación cancelada.");
-                // Limpiar recursos creados
-                if (java.nio.file.Files.exists(dictPath)) {
-                    java.nio.file.Files.walk(dictPath)
-                         .sorted(java.util.Comparator.reverseOrder())
-                         .map(java.nio.file.Path::toFile)
-                         .forEach(java.io.File::delete);
-                }
+                              "Error al cargar el diccionario: " + e.getMessage(),
+                              "Los archivos han sido creados correctamente, pero el diccionario no ha sido cargado completamente.");
             }
             
         } catch (IOException e) {
@@ -1508,6 +1535,9 @@ public class DomainDriver {
                             "No hay diccionarios cargados para eliminar.");
             return;
         }
+        
+        // Ordenar los diccionarios alfabéticamente
+        Collections.sort(diccionarios);
         
         // Preparar los mensajes con las opciones
         List<String> mensajes = new ArrayList<>();
@@ -1752,6 +1782,9 @@ public class DomainDriver {
             return;
         }
         
+        // Ordenar los diccionarios alfabéticamente
+        Collections.sort(diccionarios);
+        
         // Preparar los mensajes con las opciones
         List<String> mensajes = new ArrayList<>();
         mensajes.add("Seleccione el diccionario a modificar:");
@@ -1821,113 +1854,75 @@ public class DomainDriver {
         
         // Opción 1: Añadir palabra
         if (op.equals("1")) {
-            // Si vamos a añadir palabra, intentamos obtener los caracteres válidos del alfabeto
-            Set<Character> alfabeto = null;
-            try {
-                alfabeto = controladorDomain.getCaracteresAlfabeto(nombre);
-            } catch (Exception e) {
+            boolean seguirAñadiendo = true;
+            while (seguirAñadiendo) {
+                // Obtener alfabeto para validación
+                Set<Character> alfabeto = null;
+                try {
+                    alfabeto = controladorDomain.getCaracteresAlfabeto(nombre);
+                } catch (Exception e) {
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "Error al obtener caracteres válidos del alfabeto: " + e.getMessage(),
+                                    "Operación cancelada.");
+                    break;
+                }
+                
+                // Información sobre el alfabeto
+                List<String> mensajeAlfabeto = new ArrayList<>();
+                mensajeAlfabeto.add("Ingrese la palabra a añadir al diccionario '" + nombre + "':");
+                
+                if (alfabeto != null && !alfabeto.isEmpty()) {
+                    String alfabetoStr = alfabeto.stream()
+                        .sorted()
+                        .map(String::valueOf)
+                        .collect(java.util.stream.Collectors.joining(", "));
+                    mensajeAlfabeto.add("");
+                    mensajeAlfabeto.add("Alfabeto disponible: [" + alfabetoStr + "]");
+                    mensajeAlfabeto.add("Solo se permiten palabras con estos caracteres.");
+                }
+                
+                mensajeAlfabeto.add("");
+                mensajeAlfabeto.add("[0] Volver");
+                
+                // Pedir la palabra a añadir
                 showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Error al obtener caracteres válidos del alfabeto: " + e.getMessage(),
-                                "Operación cancelada.");
-                return;
+                                mensajeAlfabeto.toArray(new String[0]));
+                
+                String palabra = leerLinea("> ");
+                if (palabra.isEmpty()) {
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "No se ingresó ninguna palabra. Intente de nuevo o escriba '0' para volver.");
+                    continue;
+                }
+                
+                // Verificar si el usuario quiere volver
+                if (palabra.equals("0")) {
+                    seguirAñadiendo = false;
+                    continue;
+                }
+                
+                // Intentar añadir la palabra
+                try {
+                    controladorDomain.modificarPalabraDiccionario(nombre, palabra, true);
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "Palabra '" + palabra.toUpperCase() + "' añadida correctamente al diccionario '" + nombre + "'.",
+                                    "",
+                                    "Puede seguir añadiendo palabras o escribir '0' para volver.");
+                } catch (Exception e) {
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "Error al añadir la palabra: " + e.getMessage(),
+                                    "",
+                                    "Intente con otra palabra o escriba '0' para volver.");
+                }
             }
             
-            // Pedir la palabra a añadir
-            showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                            "Ingrese la palabra a añadir al diccionario '" + nombre + "':");
-            
-            String palabra = leerLinea("> ");
-            if (palabra.isEmpty()) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "No se ingresó ninguna palabra. Operación cancelada.");
-                return;
-            }
-            
-            // Intentar añadir la palabra
-            try {
-                controladorDomain.modificarPalabraDiccionario(nombre, palabra, true);
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Palabra '" + palabra + "' añadida correctamente al diccionario '" + nombre + "'.");
-            } catch (Exception e) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Error al añadir la palabra: " + e.getMessage());
-            }
+            // Al salir del bucle, volver al menú de modificar diccionario
+            modificarDiccionarioInteractivo(nombre);
+            return;
         }
         // Opción 2: Modificar palabra
         else if (op.equals("2")) {
-            // Pedir la palabra a modificar
-            showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO  > MODIFICAR PALABRA", 
-                            "Ingrese la palabra que desea modificar del diccionario '" + nombre + "':");
-            
-            String palabraOriginal = leerLinea("> ");
-            if (palabraOriginal.isEmpty()) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "No se ingresó ninguna palabra. Operación cancelada.");
-                return;
-            }
-            
-            // Verificar si la palabra existe en el diccionario
-            boolean existePalabra = false;
-            try {
-                existePalabra = controladorDomain.existePalabra(nombre, palabraOriginal);
-            } catch (Exception e) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Error al verificar la palabra: " + e.getMessage());
-                return;
-            }
-            
-            if (!existePalabra) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "La palabra '" + palabraOriginal + "' no existe en el diccionario '" + nombre + "'.",
-                                "Operación cancelada.");
-                return;
-            }
-            
-            // Pedir la nueva palabra
-            // Intentamos obtener los caracteres válidos del alfabeto
-            Set<Character> alfabeto = null;
-            try {
-                alfabeto = controladorDomain.getCaracteresAlfabeto(nombre);
-            } catch (Exception e) {
-                System.err.println("Error al obtener caracteres del alfabeto: " + e.getMessage());
-            }
-            
-            List<String> mensajeNuevaPalabra = new ArrayList<>();
-            mensajeNuevaPalabra.add("La palabra '" + palabraOriginal + "' existe en el diccionario.");
-            
-            // Añadir información del alfabeto si está disponible
-            if (alfabeto != null && !alfabeto.isEmpty()) {
-                String alfabetoStr = alfabeto.stream()
-                    .sorted()
-                    .map(String::valueOf)
-                    .collect(java.util.stream.Collectors.joining(", "));
-                mensajeNuevaPalabra.add("");
-                mensajeNuevaPalabra.add("Alfabeto disponible: [" + alfabetoStr + "]");
-                mensajeNuevaPalabra.add("Solo se permiten palabras con estos caracteres.");
-            }
-            
-            mensajeNuevaPalabra.add("");
-            mensajeNuevaPalabra.add("Ingrese la nueva palabra que reemplazará a '" + palabraOriginal + "':");
-            
-            showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO  > MODIFICAR PALABRA", 
-                            mensajeNuevaPalabra.toArray(new String[0]));
-            
-            String palabraNueva = leerLinea("> ");
-            if (palabraNueva.isEmpty()) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "No se ingresó ninguna palabra nueva. Operación cancelada.");
-                return;
-            }
-            
-            // Intentar modificar la palabra
-            try {
-                controladorDomain.modificarPalabraEnDiccionario(nombre, palabraOriginal, palabraNueva);
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Palabra '" + palabraOriginal + "' modificada correctamente a '" + palabraNueva + "' en el diccionario '" + nombre + "'.");
-            } catch (Exception e) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Error al modificar la palabra: " + e.getMessage());
-            }
+            modificarPalabraEnDiccionario(nombre);
         }
         // Opción 3: Eliminar palabra
         else {
@@ -1947,9 +1942,11 @@ public class DomainDriver {
                 controladorDomain.modificarPalabraDiccionario(nombre, palabra, false);
                 showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
                                 "Palabra '" + palabra + "' eliminada correctamente del diccionario '" + nombre + "'.");
+                modificarDiccionarioInteractivo(nombre);
             } catch (Exception e) {
                 showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
                                 "Error al eliminar la palabra: " + e.getMessage());
+                modificarDiccionarioInteractivo(nombre);
             }
         }
     }
@@ -2099,55 +2096,71 @@ public class DomainDriver {
         
         // Opción 1: Añadir palabra
         if (op.equals("1")) {
-            // Obtener alfabeto para validación
-            Set<Character> alfabeto = null;
-            try {
-                alfabeto = controladorDomain.getCaracteresAlfabeto(nombreDiccionario);
-            } catch (Exception e) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Error al obtener caracteres válidos del alfabeto: " + e.getMessage(),
-                                "Operación cancelada.");
-                modificarDiccionarioInteractivo(nombreDiccionario);
-                return;
-            }
-            
-            // Información sobre el alfabeto
-            List<String> mensajeAlfabeto = new ArrayList<>();
-            mensajeAlfabeto.add("Ingrese la palabra a añadir al diccionario '" + nombreDiccionario + "':");
-            
-            if (alfabeto != null && !alfabeto.isEmpty()) {
-                String alfabetoStr = alfabeto.stream()
-                    .sorted()
-                    .map(String::valueOf)
-                    .collect(java.util.stream.Collectors.joining(", "));
+            boolean seguirAñadiendo = true;
+            while (seguirAñadiendo) {
+                // Obtener alfabeto para validación
+                Set<Character> alfabeto = null;
+                try {
+                    alfabeto = controladorDomain.getCaracteresAlfabeto(nombreDiccionario);
+                } catch (Exception e) {
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "Error al obtener caracteres válidos del alfabeto: " + e.getMessage(),
+                                    "Operación cancelada.");
+                    break;
+                }
+                
+                // Información sobre el alfabeto
+                List<String> mensajeAlfabeto = new ArrayList<>();
+                mensajeAlfabeto.add("Ingrese la palabra a añadir al diccionario '" + nombreDiccionario + "':");
+                
+                if (alfabeto != null && !alfabeto.isEmpty()) {
+                    String alfabetoStr = alfabeto.stream()
+                        .sorted()
+                        .map(String::valueOf)
+                        .collect(java.util.stream.Collectors.joining(", "));
+                    mensajeAlfabeto.add("");
+                    mensajeAlfabeto.add("Alfabeto disponible: [" + alfabetoStr + "]");
+                    mensajeAlfabeto.add("Solo se permiten palabras con estos caracteres.");
+                }
+                
                 mensajeAlfabeto.add("");
-                mensajeAlfabeto.add("Alfabeto disponible: [" + alfabetoStr + "]");
-                mensajeAlfabeto.add("Solo se permiten palabras con estos caracteres.");
+                mensajeAlfabeto.add("[0] Volver");
+                
+                // Pedir la palabra a añadir
+                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                mensajeAlfabeto.toArray(new String[0]));
+                
+                String palabra = leerLinea("> ");
+                if (palabra.isEmpty()) {
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "No se ingresó ninguna palabra. Intente de nuevo o escriba '0' para volver.");
+                    continue;
+                }
+                
+                // Verificar si el usuario quiere volver
+                if (palabra.equals("0")) {
+                    seguirAñadiendo = false;
+                    continue;
+                }
+                
+                // Intentar añadir la palabra
+                try {
+                    controladorDomain.modificarPalabraDiccionario(nombreDiccionario, palabra, true);
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "Palabra '" + palabra.toUpperCase() + "' añadida correctamente al diccionario '" + nombreDiccionario + "'.",
+                                    "",
+                                    "Puede seguir añadiendo palabras o escribir '0' para volver.");
+                } catch (Exception e) {
+                    showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
+                                    "Error al añadir la palabra: " + e.getMessage(),
+                                    "",
+                                    "Intente con otra palabra o escriba '0' para volver.");
+                }
             }
             
-            // Pedir la palabra a añadir
-            showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                            mensajeAlfabeto.toArray(new String[0]));
-            
-            String palabra = leerLinea("> ");
-            if (palabra.isEmpty()) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "No se ingresó ninguna palabra. Operación cancelada.");
-                modificarDiccionarioInteractivo(nombreDiccionario);
-                return;
-            }
-            
-            // Intentar añadir la palabra
-            try {
-                controladorDomain.modificarPalabraDiccionario(nombreDiccionario, palabra, true);
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Palabra '" + palabra + "' añadida correctamente al diccionario '" + nombreDiccionario + "'.");
-                modificarDiccionarioInteractivo(nombreDiccionario);
-            } catch (Exception e) {
-                showNotification("GESTIÓN DE DICCIONARIOS > MODIFICAR DICCIONARIO ", 
-                                "Error al añadir la palabra: " + e.getMessage());
-                modificarDiccionarioInteractivo(nombreDiccionario);
-            }
+            // Al salir del bucle, volver al menú de modificar diccionario
+            modificarDiccionarioInteractivo(nombreDiccionario);
+            return;
         }
         // Opción 2: Modificar palabra
         else if (op.equals("2")) {
@@ -2192,6 +2205,9 @@ public class DomainDriver {
                             "No hay diccionarios cargados en el sistema.");
             return;
         }
+        
+        // Ordenar los diccionarios alfabéticamente
+        Collections.sort(diccionarios);
         
         boolean seguirMostrandoDiccionarios = true;
         
@@ -2247,7 +2263,7 @@ public class DomainDriver {
      */
     private static void mostrarAlphaDiccionario(String nombreDiccionario) {
         // Definir la ruta donde se encuentran los recursos de los diccionarios
-        String RESOURCE_BASE_PATH = "src/java/resources/diccionarios/";
+        String RESOURCE_BASE_PATH = "src/main/resources/diccionarios/";
         Path dictPath = Paths.get(RESOURCE_BASE_PATH, nombreDiccionario);
         Path alphaPath = dictPath.resolve("alpha.txt");
         
@@ -2371,7 +2387,7 @@ public class DomainDriver {
                 System.out.println("+--------------------------------------+");
             }
 
-            System.out.println("Selecciona una partida para eliminar (0 para volver): ");
+            System.out.println("Selecciona una partida para eliminar [El numero de la partida, no el indice] (0 para volver): ");
             String userCommand = readLine().trim();
             switch (userCommand) {
                 case "0":
@@ -2382,10 +2398,6 @@ public class DomainDriver {
                     int partidaIndex;
                     try {
                         partidaIndex = Integer.parseInt(userCommand);
-                        if (partidaIndex < 1 || partidaIndex > partidasGuardadas.size()) {
-                            System.out.println("Índice de partida no válido. Intenta de nuevo.");
-                            break;
-                        }
                         if (controladorDomain.eliminarPartidaGuardada(partidaIndex)){
                             System.out.println("Partida eliminada correctamente.");
                         } else {
@@ -2529,6 +2541,10 @@ public class DomainDriver {
         List<String> jugadoresDisponibles = controladorDomain.getUsuariosHumanos();
         List<String> jugadoresIA = controladorDomain.getJugadoresIA();
         
+        // Ordenamos alfabéticamente las listas de jugadores
+        Collections.sort(jugadoresDisponibles);
+        Collections.sort(jugadoresIA);
+        
         if (jugadoresDisponibles.isEmpty() && jugadoresIA.isEmpty()) {
             System.out.println("| No hay jugadores disponibles para seleccionar.                              |");
         } else {
@@ -2658,11 +2674,17 @@ public class DomainDriver {
                     System.out.println("| JUGADORES DISPONIBLES PARA SELECCIONAR                                       |");
                     System.out.println("+------------------------------------------------------------------------------+");
                     
-                    if (jugadoresDisponibles.isEmpty() && jugadoresIA.isEmpty()) {
+                    // Obtener listas actualizadas y ordenarlas
+                    List<String> jugadoresDisponiblesActualizados = controladorDomain.getUsuariosHumanos();
+                    List<String> jugadoresIAActualizados = controladorDomain.getJugadoresIA();
+                    Collections.sort(jugadoresDisponiblesActualizados);
+                    Collections.sort(jugadoresIAActualizados);
+                    
+                    if (jugadoresDisponiblesActualizados.isEmpty() && jugadoresIAActualizados.isEmpty()) {
                         System.out.println("| No hay jugadores disponibles para seleccionar.                              |");
                     } else {
                         System.out.println("| Jugadores Humanos:                                                           |");
-                        for (String jugador : jugadoresDisponibles) {
+                        for (String jugador : jugadoresDisponiblesActualizados) {
                             if (!controladorDomain.isEnPartida(jugador)) {
                                 System.out.printf("| - %-74s |\n", jugador);
                             }
@@ -2670,7 +2692,7 @@ public class DomainDriver {
                         
                         System.out.println("|                                                                              |");
                         System.out.println("| Jugadores IA:                                                                |");
-                        for (String jugadorIA : jugadoresIA) {
+                        for (String jugadorIA : jugadoresIAActualizados) {
                             if (!controladorDomain.isEnPartida(jugadorIA)) {
                                 System.out.printf("| - %-74s |\n", jugadorIA);
                             }
@@ -2970,9 +2992,18 @@ public class DomainDriver {
                                    "El jugador '" + nombreJugador + "' ha sido eliminado del ranking.",
                                    "Su puntuación total ha sido reseteada a 0.");
                 } else {
+                    String mensaje;
+                    if (!existeAntes) {
+                        mensaje = "El jugador no estaba en el ranking antes de la operación.";
+                    } else if (existeDespues) {
+                        mensaje = "Error: El jugador sigue en el ranking después de intentar eliminarlo.";
+                    } else {
+                        mensaje = "Error: Falló la operación, pero el jugador ya no está en el ranking.";
+                    }
+                    
                     showNotification("ERROR", 
                                    "No se pudo eliminar al jugador '" + nombreJugador + "' del ranking.",
-                                   "El jugador " + (existeDespues ? "SIGUE" : "NO ESTÁ") + " en el ranking.");
+                                   mensaje);
                 }
             } catch (Exception e) {
                 showNotification("ERROR", 
@@ -3049,68 +3080,75 @@ public class DomainDriver {
             // Contenido de la tabla
             int posicion = 1;
             for (String id : rankingOrdenado) {
-                int puntuacionTotal = controladorDomain.getPuntuacionTotalDirecta(id);
+                // Obtener estadísticas del jugador para la tabla
+                int puntuacionTotal = controladorDomain.getPuntuacionTotal(id);
                 int puntuacionMaxima = controladorDomain.getPuntuacionMaxima(id);
                 double puntuacionMedia = controladorDomain.getPuntuacionMedia(id);
                 int partidas = controladorDomain.getPartidasJugadas(id);
                 int victorias = controladorDomain.getVictorias(id);
                 
-                output.append(String.format("| %-8d | %-14s | %-11d | %-11d | %-11.2f | %-8d | %-9d |\n", 
-                                posicion++, id, puntuacionTotal, puntuacionMaxima, puntuacionMedia, partidas, victorias));
+                // Construir la fila con formato adecuado
+                String fila = String.format("| %-8d | %-14s | %-11d | %-11d | %-11.2f | %-8d | %-9d |",
+                                           posicion, id, puntuacionTotal, puntuacionMaxima, puntuacionMedia, partidas, victorias);
+                output.append(fila).append("\n");
+                posicion++;
             }
-           
             
-            // Línea de cierre de la tabla
             output.append("+--------------------------------------------------------------------------------------------+\n");
-            
-            // Opciones de ordenación
             output.append("+------------------------------------------------------------------------------------+\n");
             output.append("| GESTIÓN DE RANKING > VER RANKING                                                   |\n");
             output.append("| OPCIONES DE ORDENACIÓN                                                             |\n");
             output.append("|                                                                                    |\n");
-            output.append("|   [ 1 ] Ordenar por puntuación máxima                                              |\n");
-            output.append("|   [ 2 ] Ordenar por puntuación media                                               |\n");
-            output.append("|   [ 3 ] Ordenar por partidas jugadas                                               |\n");
-            output.append("|   [ 4 ] Ordenar por victorias                                                      |\n");
-            output.append("|   [ 5 ] Ordenar por puntuación total                                               |\n");
+            output.append("|   [ 1 ] Ordenar por puntuación total                                               |\n");
+            output.append("|   [ 2 ] Ordenar por puntuación máxima                                              |\n");
+            output.append("|   [ 3 ] Ordenar por puntuación media                                               |\n");
+            output.append("|   [ 4 ] Ordenar por partidas   jugadas                                             |\n");
+            output.append("|   [ 5 ] Ordenar por victorias                                                      |\n");
             output.append("|   [ 0 ] Volver                                                                     |\n");
             output.append("|                                                                                    |\n");
             output.append("+------------------------------------------------------------------------------------+\n");
             
-            // Mostrar todo el contenido como un único bloque
-            System.out.print(output.toString());
-                
+            // Mostrar toda la salida de una vez
+            System.out.println(output.toString());
+            
+            // Lectura de opción
             String opcion = readLine().trim();
             
             switch (opcion) {
-                case "0":
-                    volver = true;
-                    break;
+
                 case "1":
+                    criterioActual = "total";
+                    controladorDomain.cambiarEstrategiaRanking(criterioActual);
+                break;
+                case "2":
                     criterioActual = "maxima";
                     controladorDomain.cambiarEstrategiaRanking(criterioActual);
-                    break;
-                case "2":
+                break;
+                case "3":
                     criterioActual = "media";
                     controladorDomain.cambiarEstrategiaRanking(criterioActual);
                     break;
-                case "3":
+                case "4":
                     criterioActual = "partidas";
                     controladorDomain.cambiarEstrategiaRanking(criterioActual);
                     break;
-                case "4":
+                case "5":
                     criterioActual = "victorias";
                     controladorDomain.cambiarEstrategiaRanking(criterioActual);
                     break;
-                case "5":
-                    criterioActual = "total";
-                    controladorDomain.cambiarEstrategiaRanking(criterioActual);
+                case "0":
+                    volver = true;
                     break;
                 default:
-                    System.out.println("Opción no válida. Inténtalo de nuevo.");
-                    break;
+                    System.out.println("Opción no válida. Inténtelo de nuevo.");
             }
         }
+        
+        // Guardar los datos del ranking al salir del menú
+        controladorDomain.guardarRanking();
+        
+        // Mostrar el menú principal al volver
+        ShowMenu("principal");
     }
 
     /**
@@ -3440,6 +3478,10 @@ public class DomainDriver {
         System.out.println("+------------------------------------------------------------------------------+");
         
         List<String> diccDisponibles = controladorDomain.getDiccionariosDisponibles();
+        
+        // Ordenar los diccionarios alfabéticamente
+        Collections.sort(diccDisponibles);
+        
         if (diccDisponibles.isEmpty()) {
             System.out.println("| No hay ningún diccionario disponible :(                                     |");
         } else {
@@ -3564,6 +3606,9 @@ public class DomainDriver {
                     diccionariosInvalidos.add(nombre);
                 }
             }
+            
+            // Ordenar la lista de diccionarios inválidos alfabéticamente
+            Collections.sort(diccionariosInvalidos);
             
             // Informar y eliminar los diccionarios inválidos
             if (!diccionariosInvalidos.isEmpty()) {

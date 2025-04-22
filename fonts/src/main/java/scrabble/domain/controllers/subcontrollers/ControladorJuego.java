@@ -91,6 +91,9 @@ public class ControladorJuego implements Serializable {
         this.tablero = new Tablero(N);
         this.nombreDiccionario = nombreDiccionario;
         this.jugadores = jugadores;
+        this.juegoIniciado = false;
+        this.juegoTerminado = false;
+        this.idPartida = -1;
         
         Map<String, Integer> fichas = controladorDiccionario.getFichas(nombreDiccionario);
         this.bolsa = new Bolsa();
@@ -426,9 +429,9 @@ public class ControladorJuego implements Serializable {
      * @post Se devuelve un conjunto (posiblemente vacío) de todos los movimientos válidos posibles.
      * @throws NullPointerException Si el rack es null o si el tablero o diccionario no están inicializados.
      */
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack, boolean isFirst) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack, boolean juegoIniciado) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> answers = new HashSet<>();
-        Set<Tuple<Integer, Integer>> anchors = find_anchors(isFirst);
+        Set<Tuple<Integer, Integer>> anchors = find_anchors(juegoIniciado);
 
         for (Direction dir : Direction.values()) {
 
@@ -498,11 +501,14 @@ public class ControladorJuego implements Serializable {
         for (int i = word.length() - 1; i >= 0; i--) {
             String letter = String.valueOf(word.charAt(i)).toUpperCase();
             
-            if (newRack.containsKey(letter) && this.tablero.isEmpty(pos)) {
-                if (newRack.get(letter) == 1) {
-                    newRack.remove(letter);
+            if ((newRack.containsKey(letter) || newRack.containsKey("#")) && this.tablero.isEmpty(pos)) {
+                String letraParaEliminar = letter;
+                if (!newRack.containsKey(letter)) letraParaEliminar = "#";
+
+                if (newRack.get(letraParaEliminar) == 1) {
+                    newRack.remove(letraParaEliminar);
                 } else {
-                    newRack.put(letter, newRack.get(letter) - 1);
+                    newRack.put(letraParaEliminar, newRack.get(letraParaEliminar) - 1);
                 }
             }
             this.tablero.setTile(pos, String.valueOf(letter));
@@ -618,66 +624,89 @@ public class ControladorJuego implements Serializable {
       *       para el primer turno del juego.
       * @throws NullPointerException Si alguno de los parámetros es null.
       */
-     public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+      public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+        if (move == null || rack == null) {
+            throw new NullPointerException("Move o rack es null");
+        }
+    
         String word = move.x;
         Tuple<Integer, Integer> pos = move.y;
         Direction dir = move.z;
     
+        System.out.println("Verificando movimiento: " + word + " en posición " + pos + " con dirección " + dir);
     
         // Check if the word fits within the board boundaries
+        Tuple<Integer, Integer> currentPos = new Tuple<>(pos.x, pos.y);
         for (int i = word.length() - 1; i >= 0; i--) {
-            if (!tablero.validPosition(pos)) {
+            if (!tablero.validPosition(currentPos)) {
+                System.out.println("Posición fuera del tablero: " + currentPos);
                 return false;
             }
-            pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
+            currentPos = dir == Direction.HORIZONTAL
+                ? new Tuple<>(currentPos.x, currentPos.y - 1)
+                : new Tuple<>(currentPos.x - 1, currentPos.y);
         }
     
+        System.out.println("La palabra cabe en el tablero.");
+    
         // Reset position to the starting point
-        pos = move.y;
+        currentPos = new Tuple<>(pos.x, pos.y);
     
         // Check if the word is placed on the center tile
         boolean centerTileCovered = false;
         for (int i = word.length() - 1; i >= 0; i--) {
-            if (pos.equals(tablero.getCenter())) {
+            if (currentPos.equals(tablero.getCenter())) {
                 centerTileCovered = true;
+                System.out.println("La palabra pasa por el centro del tablero en " + currentPos);
             }
-            pos = dir == Direction.HORIZONTAL ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
+            currentPos = dir == Direction.HORIZONTAL
+                ? new Tuple<>(currentPos.x, currentPos.y - 1)
+                : new Tuple<>(currentPos.x - 1, currentPos.y);
         }
     
         if (!centerTileCovered) {
+            System.out.println("La palabra no pasa por el centro.");
             return false;
         }
     
         // Check if the word can be formed using the rack
         Map<String, Integer> tempRack = new HashMap<>(rack);
+        System.out.println("Comprobando si se puede formar la palabra con el atril: " + tempRack);
+    
         for (int i = 0; i < word.length(); i++) {
             String letter = String.valueOf(word.charAt(i)).toUpperCase();
             String diletter = "";
             if (i + 1 < word.length()) {
-                diletter = String.valueOf(word.charAt(i + 1)).toUpperCase();
+                diletter = letter + String.valueOf(word.charAt(i + 1)).toUpperCase();
             }
     
             if (tempRack.containsKey(letter) || tempRack.containsKey(diletter)) {
-                String key = tempRack.containsKey(letter) ? letter : diletter;
+                String key = tempRack.containsKey(diletter) ? diletter : letter;
+                System.out.println("Usando ficha: " + key);
                 if (tempRack.get(key) == 1) {
                     tempRack.remove(key);
                 } else {
                     tempRack.put(key, tempRack.get(key) - 1);
                 }
             } else if (tempRack.containsKey("#")) { // Use blank tile
+                System.out.println("Usando ficha blanca para letra: " + letter);
                 if (tempRack.get("#") == 1) {
                     tempRack.remove("#");
                 } else {
                     tempRack.put("#", tempRack.get("#") - 1);
                 }
             } else {
+                System.out.println("No se puede formar la palabra. Letra faltante: " + letter);
                 return false;
             }
         }
     
         boolean found = this.controladorDiccionario.existePalabra(nombreDiccionario, word);
+        System.out.println("¿La palabra existe en el diccionario?: " + found);
         return found;
     }
+    
+    
 
     /*
      * Método para realizar una acción en el juego.
@@ -693,12 +722,9 @@ public class ControladorJuego implements Serializable {
      */
 
      private Tuple<Map<String, Integer>, Integer> realizarAccion(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst) {
-        if (!isIA) {
-            if (move == null) {
-                return null;
-            } else {   
-                return new Tuple<Map<String,Integer>,Integer>(this.makeMove(move, rack), this.calculateMovePoints(move));
-            }
+        if (!isIA) { 
+            this.juegoIniciado = true;
+            return new Tuple<Map<String,Integer>,Integer>(this.makeMove(move, rack), this.calculateMovePoints(move));
         } else {
             Set<Triple<String,Tuple<Integer, Integer>, Direction>> moves = this.searchAllMoves(rack, this.juegoIniciado);
             if (moves == null || moves.isEmpty()) {
@@ -847,6 +873,7 @@ public class ControladorJuego implements Serializable {
      * @throws RuntimeException Si ocurre un error de I/O durante el proceso de guardado,
      * envolviendo la {@code IOException} original.
      */
+    @SuppressWarnings("unchecked")
     public boolean guardar() {
         String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
         File archivo = new File(nombreArchivo);
@@ -893,11 +920,11 @@ public class ControladorJuego implements Serializable {
      * durante la deserialización, envolviendo la excepción original
      * ({@code IOException} o {@code ClassNotFoundException}).
      */
+    @SuppressWarnings("unchecked")
     public void cargarDesdeArchivo(int idPartida) {
         String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
         File archivo = new File(nombreArchivo);
         if (!archivo.exists()) {
-            System.out.println("Información: El archivo no existe. No se puede cargar la partida.");
             return;
         }
     
@@ -937,6 +964,7 @@ public class ControladorJuego implements Serializable {
      * @post Se devuelve una lista con los IDs de las partidas guardadas sin modificar el estado del sistema.
      * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
+    @SuppressWarnings("unchecked")
     public static List<Integer> listarArchivosGuardados() {
         String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
         File archivo = new File(nombreArchivo);
@@ -971,6 +999,7 @@ public class ControladorJuego implements Serializable {
      * @post Si la partida existía, se elimina del archivo de partidas guardadas.
      * @throws RuntimeException Si ocurre un error al manipular el archivo de partidas.
      */
+    @SuppressWarnings("unchecked")
     public static boolean eliminarArchivoGuardado(int idPartida) {
         String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
         File archivo = new File(nombreArchivo);
@@ -1014,6 +1043,7 @@ public class ControladorJuego implements Serializable {
      * @post Se devuelve un conjunto con los nombres de los jugadores sin modificar el estado del sistema.
      * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
+    @SuppressWarnings("unchecked")
     public static Set<String> getJugadoresPorId(int idPartida) {
         String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
         File archivo = new File(nombreArchivo);

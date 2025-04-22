@@ -169,20 +169,24 @@ public class ControladorDomain {
     }
 
     /**
-     * Muestra por consola todos los usuarios y otras informaciones para depuración.
+     * Obtiene información detallada sobre todos los usuarios para depuración.
      * 
      * @pre No hay precondiciones específicas.
-     * @post Se imprime en la consola información detallada sobre todos los usuarios registrados.
+     * @return String con información detallada sobre todos los usuarios registrados.
+     * @post Se devuelve una cadena de texto con información detallada sobre todos los usuarios registrados.
      */
-    public void mostrarTodosUsuariosDebug() {
-        System.out.println("\n=== LISTADO DEBUG DE USUARIOS ===");
-        System.out.println("-----------------------------------------");
+    public String obtenerTodosUsuariosDebug() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n=== LISTADO DEBUG DE USUARIOS ===\n");
+        sb.append("-----------------------------------------\n");
         
-        controladorJugador.getTodosUsuariosDebug().forEach(System.out::println);
+        controladorJugador.getTodosUsuariosDebug().forEach(line -> sb.append(line).append("\n"));
         
-        System.out.println("\nTotal registrados: " + controladorJugador.getJugadoresRegistrados().size());
-        System.out.println("- Humanos: " + controladorJugador.getJugadoresHumanos().size());
-        System.out.println("- IA: " + controladorJugador.getJugadoresIA().size());
+        sb.append("\nTotal registrados: ").append(controladorJugador.getJugadoresRegistrados().size()).append("\n");
+        sb.append("- Humanos: ").append(controladorJugador.getJugadoresHumanos().size()).append("\n");
+        sb.append("- IA: ").append(controladorJugador.getJugadoresIA().size()).append("\n");
+        
+        return sb.toString();
     }
 
     public void setIdioma(String idioma) {
@@ -213,7 +217,11 @@ public class ControladorDomain {
             throw new ExceptionDiccionarioExist();
         }
         // Delegar al controlador de diccionarios
-        controladorDiccionario.crearDiccionario(nombre, rutaArchivoAlpha, rutaArchivoWords);
+        try {
+            controladorDiccionario.crearDiccionario(nombre, rutaArchivoAlpha, rutaArchivoWords);
+        } catch (ExceptionDiccionarioOperacionFallida e) {
+            throw new ExceptionLoggingOperacion("Error al añadir el lenguaje: " + e.getMessage(), "creación", true);
+        }
     }
 
     /**
@@ -243,19 +251,12 @@ public class ControladorDomain {
         Map<String, Integer> rack = controladorJugador.getRack(nombreJugador);
         boolean esIA = controladorJugador.esIA(nombreJugador);
         Dificultad dificultad = getNivelDificultad(nombreJugador);
-        return (move != null && move.x == "P" && !esIA)? null: controladorJuego.realizarTurno(move, nombreJugador, rack, esIA, dificultad);
+        return (move.x == "P" || move.x == "CF")? null: controladorJuego.realizarTurno(move, nombreJugador, rack, esIA, dificultad);
     }
 
     public void managePartidaIniciar(String idiomaSeleccionado, Set<String> jugadoresSeleccionados, Integer N) throws IOException{
         
         iniciarPartida(jugadoresSeleccionados, idiomaSeleccionado, N);
-        
-        // Inicializar racks para todos los jugadores
-        for (String jugador : jugadoresSeleccionados) {
-            Map<String, Integer> rack = controladorJuego.cogerFichas(7);
-            inicializarRack(jugador, rack);
-        }
-        
         // Inicializar a los jugadores para la partida (marcando que están en partida)
         List<String> listaJugadores = new ArrayList<>(jugadoresSeleccionados);
         inicializarJugadoresPartida(listaJugadores);
@@ -282,6 +283,7 @@ public class ControladorDomain {
                         }   
                     }
                 }
+                controladorJugador.clearSkipTrack(nombreJugador);
             }               
     }
 
@@ -296,7 +298,6 @@ public class ControladorDomain {
             }
         }
         if (allskiped) {
-            System.out.println("Los jugadores han pasado mas de 2 veces consecutivas. El juego ha terminado.");
             controladorJuego.finalizarJuego();
         }
     }
@@ -364,6 +365,59 @@ public class ControladorDomain {
         controladorJugador.agregarFicha(nombre, letra);
     }
 
+
+
+    /**
+     * Intercambia fichas del rack del jugador por nuevas fichas de la bolsa.
+     * @param nombre nombre del jugador
+     * @param letras lista de letras a intercambiar
+     * @return true si el intercambio es exitoso, false si no hay suficientes fichas en la bolsa
+     */
+    public boolean intercambiarFichas (String nombre, List<String> letras) {
+        Map<String, Integer> rack = controladorJugador.getRack(nombre);
+
+        for (String letra : letras) {
+            if (rack.containsKey(letra)) {
+                int cantidad = rack.get(letra);
+                if (cantidad > 1) {
+                    rack.put(letra, cantidad - 1);
+                } else {
+                    rack.remove(letra);
+                }
+            }
+        }
+
+        Map<String, Integer> fichasDevueltas = new HashMap<>();
+
+        for (String letra : letras) {
+            if (fichasDevueltas.containsKey(letra)) {
+                fichasDevueltas.put(letra, fichasDevueltas.get(letra) + 1);
+            } else {
+                fichasDevueltas.put(letra, 1);
+            }
+        }
+
+        Map<String, Integer> fichasBolsa = controladorJuego.cogerFichas(letras.size());
+
+        if (fichasBolsa == null) {
+            controladorJuego.finalizarJuego();
+            return false; // No hay suficientes fichas en la bolsa
+        }
+
+        controladorJuego.meterFichas(fichasDevueltas);
+
+        for (Map.Entry<String, Integer> entry : fichasBolsa.entrySet()) {
+            String letra = entry.getKey();
+            int cantidad = entry.getValue();
+            for (int i = 0; i < cantidad; i++) {
+                rack.put(letra, rack.getOrDefault(letra, 0) + 1);
+            }
+        }
+        controladorJugador.inicializarRack(nombre, rack);
+
+        return true;
+    }
+
     /**
      * Devuelve la puntuación actual del jugador.
      * @param nombre nombre del jugador
@@ -389,6 +443,9 @@ public class ControladorDomain {
         // Inicializar racks para todos los jugadores
         for (String jugador : jugadoresSeleccionados) {
             Map<String, Integer> rack = controladorJuego.cogerFichas(7);
+            if (rack == null) {
+                controladorJuego.finalizarJuego();
+            }
             inicializarRack(jugador, rack);
         }
     }
@@ -760,11 +817,14 @@ public class ControladorDomain {
                 controladorJugador.setNombrePartidaActual(nombre, "");
                 
                 // Actualizar estadísticas en el ranking
+                // NOTA: actualizarEstadisticasUsuario ya incrementa el contador de partidas
                 boolean esGanador = ganadores.contains(nombre);
                 controladorRanking.actualizarEstadisticasUsuario(nombre, esGanador);
                 
                 // Agregar puntuación al ranking
-                controladorRanking.addPuntuacionTotal(nombre, puntuacion);
+                // Usamos agregarPuntuacion en lugar de agregarPuntuacionSinIncrementarPartidas
+                // para evitar duplicados en las puntuaciones
+                controladorRanking.agregarPuntuacion(nombre, puntuacion);
             }
         }
     }
@@ -782,12 +842,15 @@ public class ControladorDomain {
     }
     
     /**
-     * Establece la puntuación total acumulada de un jugador humano.
-     * Esta función ya no interactúa con JugadorHumano y solo modifica el ranking.
+     * Establece la puntuación total de un jugador, eliminando todas sus puntuaciones anteriores.
      * 
-     * @param nombre Nombre del jugador
-     * @param puntuacionTotal La nueva puntuación total
-     * @return true si se actualizó correctamente, false en caso contrario
+     * @param nombreUsuario Nombre del jugador
+     * @param puntuacionTotal Nueva puntuación total a establecer
+     * @return true si se estableció correctamente, false en caso contrario
+     * @pre El usuario debe existir en el sistema.
+     * @post Si el usuario existe, se eliminan todas sus puntuaciones anteriores del ranking, se establece
+     *       la nueva puntuación total y se guardan los datos. Si el usuario no existe o hay algún error,
+     *       se devuelve false.
      */
     public boolean setPuntuacionTotal(String nombreUsuario, int puntuacionTotal) {        
         // Verificar que el usuario exista
@@ -828,7 +891,11 @@ public class ControladorDomain {
      * @throws ExceptionPalabraInvalida Si las palabras contienen caracteres no válidos.
      */
     public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida {
-        controladorDiccionario.crearDiccionario(nombre, path);
+        try {
+            controladorDiccionario.crearDiccionario(nombre, path);
+        } catch (ExceptionDiccionarioOperacionFallida e) {
+            throw new ExceptionLoggingOperacion("Error al crear el diccionario: " + e.getMessage(), "creación", true);
+        }
     }
     
     /**
@@ -839,7 +906,11 @@ public class ControladorDomain {
      * @throws IOException Si hay problemas eliminando los archivos
      */
     public void eliminarDiccionario(String nombre) throws ExceptionDiccionarioNotExist, IOException {
-        controladorDiccionario.eliminarDiccionario(nombre);
+        try {
+            controladorDiccionario.eliminarDiccionario(nombre);
+        } catch (ExceptionDiccionarioOperacionFallida e) {
+            throw new ExceptionLoggingOperacion("Error al eliminar el diccionario: " + e.getMessage(), "eliminación", true);
+        }
     }
     
     /**
@@ -863,34 +934,37 @@ public class ControladorDomain {
     
     /**
      * Modifica un diccionario añadiendo o eliminando una palabra.
+     * Valida que la palabra pueda formarse usando únicamente los tokens existentes en el alfabeto. Por ejemplo,
+     * si el alfabeto solo contiene "CC", solo podrán añadirse palabras compuestas de múltiplos de "CC" como "CC", "CCCC", etc.
      * 
      * @param nombre Nombre del diccionario
-     * @param palabra Palabra a añadir o eliminar
+     * @param palabra Palabra a modificar
      * @param anadir true para añadir, false para eliminar
      * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
      * @throws ExceptionPalabraVacia Si la palabra está vacía
-     * @throws ExceptionPalabraInvalida Si la palabra contiene caracteres no válidos
-     * @throws ExceptionPalabraExist Si la palabra ya existe (al añadir)
-     * @throws ExceptionPalabraNotExist Si la palabra no existe (al eliminar)
+     * @throws ExceptionPalabraInvalida Si la palabra no puede formarse con los tokens del alfabeto
+     * @throws ExceptionPalabraExist Si al añadir, la palabra ya existe
+     * @throws ExceptionPalabraNotExist Si al eliminar, la palabra no existe
      * @throws IOException Si hay problemas con los archivos
      */
     public void modificarPalabraDiccionario(String nombre, String palabra, boolean anadir) 
             throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida, 
-                  ExceptionPalabraExist, ExceptionPalabraNotExist, IOException {
+                   ExceptionPalabraExist, ExceptionPalabraNotExist, IOException {
         controladorDiccionario.modificarPalabraDiccionario(nombre, palabra, anadir);
     }
 
     /**
-     * Modifica una palabra existente en el diccionario por otra nueva.
+     * Modifica una palabra existente en un diccionario.
+     * Valida que la nueva palabra pueda formarse usando únicamente los tokens existentes en el alfabeto.
      * 
      * @param nombre Nombre del diccionario
-     * @param palabraOriginal Palabra a modificar
+     * @param palabraOriginal Palabra original a modificar
      * @param palabraNueva Nueva palabra que reemplazará a la original
      * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws ExceptionPalabraVacia Si alguna de las palabras está vacía
-     * @throws ExceptionPalabraInvalida Si la nueva palabra contiene caracteres no válidos
+     * @throws ExceptionPalabraVacia Si alguna palabra está vacía
+     * @throws ExceptionPalabraInvalida Si la nueva palabra no puede formarse con los tokens del alfabeto
      * @throws ExceptionPalabraNotExist Si la palabra original no existe
-     * @throws ExceptionPalabraExist Si la nueva palabra ya existe en el diccionario
+     * @throws ExceptionPalabraExist Si la nueva palabra ya existe
      * @throws IOException Si hay problemas con los archivos
      */
     public void modificarPalabraEnDiccionario(String nombre, String palabraOriginal, String palabraNueva) 
@@ -900,18 +974,31 @@ public class ControladorDomain {
     }
 
     /**
-     * Obtiene el conjunto de caracteres válidos del alfabeto de uzn diccionario.
+     * Obtiene el conjunto de caracteres válidos del alfabeto de un diccionario.
      * 
      * @param nombreDiccionario Nombre del diccionario
-     * @return Conjunto de caracteres válidos, o conjunto vacío si hay error
+     * @return Conjunto de caracteres válidos
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
      */
     public Set<Character> getCaracteresAlfabeto(String nombreDiccionario) {
         try {
             return controladorDiccionario.getCaracteresAlfabeto(nombreDiccionario);
-        } catch (Exception e) {
-            // Si ocurre cualquier error, devolvemos un conjunto vacío
-            System.err.println("Error al obtener caracteres del alfabeto: " + e.getMessage());
-            return new HashSet<>();
+        } catch (ExceptionDiccionarioNotExist | IOException e) {
+            throw new ExceptionLoggingOperacion("Error al obtener caracteres del alfabeto: " + e.getMessage(), "consulta", true);
+        }
+    }
+
+    /**
+     * Obtiene el conjunto de tokens (letras, incluyendo multicarácter como CH, RR) del alfabeto.
+     * 
+     * @param nombreDiccionario Nombre del diccionario
+     * @return Conjunto de tokens del alfabeto (ejemplo: A, B, CH, RR)
+     */
+    public Set<String> getTokensAlfabeto(String nombreDiccionario) {
+        try {
+            return controladorDiccionario.getTokensAlfabeto(nombreDiccionario);
+        } catch (ExceptionDiccionarioNotExist e) {
+            throw new ExceptionLoggingOperacion("Error al obtener tokens del alfabeto: " + e.getMessage(), "consulta", true);
         }
     }
 
@@ -926,8 +1013,7 @@ public class ControladorDomain {
         try {
             return controladorDiccionario.existePalabra(nombreDiccionario, palabra);
         } catch (Exception e) {
-            System.err.println("Error al verificar palabra: " + e.getMessage());
-            return false;
+            throw new ExceptionLoggingOperacion("Error al verificar palabra: " + e.getMessage(), "consulta", true);
         }
     }
     
@@ -962,8 +1048,7 @@ public class ControladorDomain {
             
             return Files.exists(alphaPath) && Files.exists(wordsPath);
         } catch (Exception e) {
-            System.err.println("Error al verificar directorio: " + e.getMessage());
-            return false;
+            throw new ExceptionLoggingOperacion("Error al verificar directorio: " + e.getMessage(), "validación", true);
         }
     }
 
@@ -981,8 +1066,7 @@ public class ControladorDomain {
             }
             return controladorDiccionario.esComodin(nombreDiccionario, caracter);
         } catch (Exception e) {
-            System.err.println("Error al verificar comodín: " + e.getMessage());
-            return false;
+            throw new ExceptionLoggingOperacion("Error al verificar comodín: " + e.getMessage(), "consulta", true);
         }
     }
 
@@ -995,6 +1079,7 @@ public class ControladorDomain {
      * Muestra el rack del jugador de forma ordenada y legible.
      * 
      * @param jugador Nombre del jugador
+     * @return String con la información del rack
      */
     public String mostrarRack(String jugador) {
         StringBuilder rackInfo = new StringBuilder();
@@ -1112,5 +1197,61 @@ public class ControladorDomain {
      */
     public boolean setNombrePartidaActual(String nombre, String nombrePartida) {
         return controladorJugador.setNombrePartidaActual(nombre, nombrePartida);
+    }
+
+    /**
+     * Agrega una puntuación individual para un usuario específico.
+     * Este método es idéntico a agregarPuntuacion y se proporciona para claridad semántica.
+     * 
+     * @pre El nombre debe ser no nulo y no vacío, y la puntuación debe ser no negativa.
+     * @param nombre Nombre del usuario
+     * @param puntuacion Puntuación individual a agregar
+     * @return true si se agregó correctamente, false en caso contrario
+     * @post Si el nombre es válido y la puntuación no es negativa, se agrega la puntuación
+     *       a la lista de puntuaciones individuales del usuario, se actualiza la puntuación máxima
+     *       y media, y se incrementa la puntuación total. Se devuelve true si la operación tuvo éxito,
+     *       false en caso contrario.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    public boolean agregarPuntuacionIndividual(String nombre, int puntuacion) {
+        return controladorRanking.agregarPuntuacionIndividual(nombre, puntuacion);
+    }
+
+    /**
+     * Elimina todos los archivos de persistencia del sistema.
+     * Este método se utiliza principalmente al cerrar la aplicación para limpiar los datos temporales.
+     * 
+     * @return true si todos los archivos fueron eliminados correctamente, false en caso contrario
+     */
+    public boolean limpiarPersistencias() {
+        boolean todoOk = true;
+        try {
+            // Lista de rutas posibles para los archivos de persistencia
+            String[][] posiblesRutas = {
+
+                // Ruta relativa desde directorio fonts
+                {"src/main/resources/persistencias/jugadores.dat", "src/main/resources/persistencias/partidas.dat", "src/main/resources/persistencias/ranking.dat"},
+               
+            };
+
+            
+            // Intentar cada conjunto de rutas posibles
+            for (String[] rutasActuales : posiblesRutas) {
+                for (String ruta : rutasActuales) {
+                    Path path = Paths.get(ruta);
+                    if (Files.exists(path)) {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            todoOk = false;
+                        }
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            todoOk = false;
+        }
+        return todoOk;
     }
 }

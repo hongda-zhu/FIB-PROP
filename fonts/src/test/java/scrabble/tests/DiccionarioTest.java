@@ -268,7 +268,7 @@ public class DiccionarioTest {
 
     /**
      * Pre: Se ha creado una instancia de Diccionario y se ha añadido un alfabeto.
-     * Post: Se verifica que se obtienen correctamente los caracteres individuales del alfabeto.
+     * Post: Se verifica que se obtienen correctamente los caracteres individuales del alfabeto, incluyendo letras compuestas.
      *
      * Comprueba la funcionalidad para obtener caracteres válidos del alfabeto, incluyendo letras compuestas.
      * Aporta validación de la correcta gestión de caracteres disponibles.
@@ -521,5 +521,183 @@ public class DiccionarioTest {
         
         // Comparamos con getBag() para confirmar que son el mismo objeto
         assertSame("getFichas() y getBag() deberían devolver el mismo objeto", diccionario.getBag(), fichas);
+    }
+
+    /**
+     * Pre: Se ha creado una instancia de Diccionario y se ha añadido un alfabeto.
+     * Post: Se verifica que esComodin lanza NullPointerException cuando se pasa null.
+     *
+     * Comprueba el manejo de entrada nula en esComodin.
+     */
+    @Test(expected = NullPointerException.class)
+    public void testEsComodinConNull() {
+        diccionario.setAlphabet(lineasAlphabetValido);
+        diccionario.esComodin(null);
+    }
+
+    /**
+     * Pre: Se ha creado una instancia de Diccionario y se ha añadido un alfabeto.
+     * Post: Se verifica que getAlphabetKeys devuelve correctamente todas las claves del alfabeto,
+     * preservando los tokens multicarácter.
+     *
+     * Comprueba la funcionalidad para obtener las claves completas del alfabeto.
+     * Aporta validación de la correcta gestión de tokens multicarácter.
+     */
+    @Test
+    public void testGetAlphabetKeys() {
+        diccionario.setAlphabet(lineasAlphabetValido);
+        
+        Set<String> keys = diccionario.getAlphabetKeys();
+        assertNotNull("El conjunto de claves no debería ser null", keys);
+        
+        // Verificar que contiene todas las claves exactas (incluyendo tokens multicarácter)
+        assertTrue("Debería contener la clave 'A'", keys.contains("A"));
+        assertTrue("Debería contener la clave 'E'", keys.contains("E"));
+        assertTrue("Debería contener la clave 'O'", keys.contains("O"));
+        assertTrue("Debería contener la clave 'S'", keys.contains("S"));
+        assertTrue("Debería contener la clave 'X'", keys.contains("X"));
+        assertTrue("Debería contener la clave 'CH' como token completo", keys.contains("CH"));
+        assertTrue("Debería contener la clave '#'", keys.contains("#"));
+        
+        // Verificar el tamaño del conjunto
+        assertEquals("El conjunto debería tener 7 claves", 7, keys.size());
+        
+        // Verificar que CH es un token completo, no caracteres separados
+        assertFalse("No debería contener 'C' como clave separada", keys.contains("C"));
+        assertFalse("No debería contener 'H' como clave separada", keys.contains("H"));
+        
+        // Verificar comportamiento con alfabeto vacío
+        Diccionario dicVacio = new Diccionario();
+        Set<String> keysVacio = dicVacio.getAlphabetKeys();
+        assertNotNull("Con alfabeto vacío, el conjunto no debería ser null", keysVacio);
+        assertTrue("Con alfabeto vacío, el conjunto debería estar vacío", keysVacio.isEmpty());
+    }
+
+    /**
+     * Pre: Se ha creado una instancia de Diccionario.
+     * Post: Se verifica que addWord funciona correctamente para diferentes casos.
+     *
+     * Comprueba la funcionalidad para añadir palabras al diccionario.
+     * Aporta validación de la correcta gestión de adición de palabras.
+     */
+    @Test
+    public void testAddWord() {
+        // Añadir palabra nueva
+        assertTrue("Añadir 'MESA' debería retornar true", diccionario.addWord("MESA"));
+        assertTrue("La palabra 'MESA' debería existir ahora", diccionario.contienePalabra("MESA"));
+        
+        // Añadir palabra con espacios y en minúsculas (debería normalizarse)
+        assertTrue("Añadir ' silla ' debería retornar true", diccionario.addWord(" silla "));
+        assertTrue("La palabra 'SILLA' debería existir ahora", diccionario.contienePalabra("SILLA"));
+        
+        // Añadir palabra existente
+        assertFalse("Añadir 'MESA' de nuevo debería retornar false", diccionario.addWord("MESA"));
+        assertFalse("Añadir 'mesa' de nuevo debería retornar false", diccionario.addWord("mesa"));
+        
+        // Verificar que otras palabras no existen
+        assertFalse("La palabra 'LIBRO' no debería existir", diccionario.contienePalabra("LIBRO"));
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Diccionario.
+     * Post: Se verifica que addWord lanza NullPointerException cuando se pasa null.
+     *
+     * Comprueba el manejo de entrada nula en addWord.
+     */
+    @Test(expected = NullPointerException.class)
+    public void testAddWordNull() {
+        diccionario.addWord(null);
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Diccionario.
+     * Post: Se verifica que addWord lanza IllegalArgumentException cuando se pasa una palabra vacía.
+     *
+     * Comprueba el manejo de entrada vacía en addWord.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddWordEmpty() {
+        diccionario.addWord("");
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Diccionario.
+     * Post: Se verifica que addWord lanza IllegalArgumentException cuando se pasa una palabra
+     * que es solo espacios.
+     *
+     * Comprueba el manejo de entrada inválida en addWord.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddWordOnlySpaces() {
+        diccionario.addWord("   ");
+    }
+
+    /**
+     * Pre: Se ha creado una instancia de Diccionario con algunas palabras.
+     * Post: Se verifica que removeWord funciona correctamente para diferentes casos.
+     *
+     * Comprueba la funcionalidad para eliminar palabras del diccionario.
+     * Aporta validación de la correcta gestión de eliminación de palabras.
+     */
+    @Test
+    public void testRemoveWord() {
+        // Preparar diccionario con palabras
+        diccionario.addWord("CASA");
+        diccionario.addWord("MESA");
+        diccionario.addWord("SILLA");
+        
+        // Eliminar palabra existente
+        assertTrue("Eliminar 'CASA' debería retornar true", diccionario.removeWord("CASA"));
+        assertFalse("La palabra 'CASA' no debería existir ahora", diccionario.contienePalabra("CASA"));
+        
+        // Eliminar palabra en minúsculas (debería normalizarse)
+        assertTrue("Eliminar 'mesa' debería retornar true", diccionario.removeWord("mesa"));
+        assertFalse("La palabra 'MESA' no debería existir ahora", diccionario.contienePalabra("MESA"));
+        
+        // Eliminar palabra con espacios (debería normalizarse)
+        assertTrue("Eliminar ' SILLA ' debería retornar true", diccionario.removeWord(" SILLA "));
+        assertFalse("La palabra 'SILLA' no debería existir ahora", diccionario.contienePalabra("SILLA"));
+        
+        // Eliminar palabra no existente
+        assertFalse("Eliminar 'LIBRO' debería retornar false", diccionario.removeWord("LIBRO"));
+        
+        // Verificar que se pueden añadir palabras después de eliminar todas
+        assertTrue("Añadir 'NUEVA' después de eliminar todas debería funcionar", 
+                 diccionario.addWord("NUEVA"));
+        assertTrue("La palabra 'NUEVA' debería existir", diccionario.contienePalabra("NUEVA"));
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Diccionario.
+     * Post: Se verifica que removeWord lanza NullPointerException cuando se pasa null.
+     *
+     * Comprueba el manejo de entrada nula en removeWord.
+     */
+    @Test(expected = NullPointerException.class)
+    public void testRemoveWordNull() {
+        diccionario.removeWord(null);
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Diccionario.
+     * Post: Se verifica que removeWord lanza IllegalArgumentException cuando se pasa una palabra vacía.
+     *
+     * Comprueba el manejo de entrada vacía en removeWord.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveWordEmpty() {
+        diccionario.removeWord("");
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Diccionario.
+     * Post: Se verifica que removeWord lanza IllegalArgumentException cuando se pasa una palabra
+     * que es solo espacios.
+     *
+     * Comprueba el manejo de entrada inválida en removeWord.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveWordOnlySpaces() {
+        diccionario.removeWord("   ");
     }
 }

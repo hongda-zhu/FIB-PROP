@@ -7,45 +7,39 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import scrabble.domain.models.rankingStrategy.PlayerRankingStats;
+import scrabble.domain.models.Ranking;
 import scrabble.domain.models.rankingStrategy.RankingDataProvider;
-import scrabble.domain.models.rankingStrategy.RankingOrderStrategy;
-import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
+import scrabble.excepciones.ExceptionLoggingOperacion;
 
 /**
  * Controlador para la gestión del ranking de jugadores.
  * Implementa el patrón Singleton para garantizar una única instancia.
+ * Delega toda la lógica de negocio al modelo Ranking.
  */
 public class ControladorRanking implements RankingDataProvider {
     private static final long serialVersionUID = 1L;
     private static transient ControladorRanking instance;
     
-    // Estructura simplificada para almacenar las estadísticas de los usuarios
-    private Map<String, PlayerRankingStats> estadisticasUsuarios;
-    
-    // Estrategia actual de ordenación
-    private String estrategiaActual;
+    // Referencia al modelo de Ranking
+    private Ranking ranking;
     
     private static final String RANKING_FILE = "src/main/resources/persistencias/ranking.dat";
     
     /**
      * Constructor privado para implementar el patrón Singleton.
-     * Inicializa las estructuras de datos y carga los datos existentes.
+     * Inicializa el modelo de Ranking y carga los datos existentes.
      * 
      * @pre No hay precondiciones específicas.
-     * @post Se inicializa una nueva instancia con un mapa de estadísticas vacío
+     * @post Se inicializa una nueva instancia con un modelo de Ranking
      *       y se cargan los datos persistentes si están disponibles.
-     *       La estrategia por defecto se establece a "total".
      */
     private ControladorRanking() {
-        this.estadisticasUsuarios = new HashMap<>();
-        this.estrategiaActual = "total"; // Estrategia por defecto cambiada a puntuación total
+        this.ranking = new Ranking();
         
         cargarDatos();
     }
@@ -65,7 +59,8 @@ public class ControladorRanking implements RankingDataProvider {
     }
     
     /**
-     * Agrega una puntuación para un usuario específico.
+     * Agrega una puntuación para un usuario específico a la lista de puntuaciones individuales.
+     * Esta puntuación afectará las estadísticas (máxima, media) y también la puntuación total.
      * 
      * @pre El nombre debe ser no nulo y no vacío, y la puntuación debe ser no negativa.
      * @param nombre Nombre del usuario
@@ -85,17 +80,59 @@ public class ControladorRanking implements RankingDataProvider {
             return false; // No se permiten puntuaciones negativas
         }
         
-        // Obtener o crear las estadísticas del usuario
-        PlayerRankingStats stats = estadisticasUsuarios.computeIfAbsent(nombre, 
-                                                                      PlayerRankingStats::new);
-        // Agregar puntuación (la clase PlayerRankingStats actualiza internamente máximo y media)
-        stats.addPuntuacion(puntuacion);
+        // Delegar al modelo de Ranking
+        boolean resultado = ranking.agregarPuntuacion(nombre, puntuacion);
         
-        return true;
+        // Guardar cambios si la operación fue exitosa
+        if (resultado) {
+            guardarDatos();
+        }
+        
+        return resultado;
+    }
+    
+    /**
+     * Actualiza las estadísticas de un usuario (partidas jugadas y victoria),
+     * y opcionalmente registra una puntuación de partida.
+     * 
+     * @pre El nombre debe ser no nulo y no vacío.
+     * @param nombre Nombre del usuario
+     * @param esVictoria true si el usuario ha ganado la partida
+     * @param puntuacion Puntuación obtenida en la partida (-1 si no se debe registrar puntuación)
+     * @return true si se actualizaron correctamente las estadísticas
+     * @post Si el nombre es válido, se actualizan las estadísticas del usuario
+     *       (partidas jugadas y, si corresponde, victorias). Si puntuacion >= 0,
+     *       también se registra como puntuación individual sin duplicar el contador de partidas.
+     *       Se devuelve true si todo se ejecuta correctamente.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    public boolean actualizarEstadisticasUsuario(String nombre, boolean esVictoria, int puntuacion) {
+        // Verificar que se proporciona un usuario válido
+        if (nombre == null || nombre.isEmpty()) {
+            return false;
+        }
+        
+        try {
+            // Primero actualizamos las estadísticas básicas (partidas y victorias)
+            ranking.actualizarEstadisticasUsuario(nombre, esVictoria);
+            
+            // Si se proporciona una puntuación válida, la añadimos sin incrementar partidas
+            if (puntuacion >= 0) {
+                ranking.agregarPuntuacionSinIncrementarPartidas(nombre, puntuacion);
+            }
+            
+            // Guardar cambios
+            guardarDatos();
+            
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     /**
      * Actualiza las estadísticas de un usuario (partidas jugadas y victoria).
+     * Método de compatibilidad que no registra puntuación.
      * 
      * @pre El nombre debe ser no nulo y no vacío.
      * @param nombre Nombre del usuario
@@ -107,18 +144,7 @@ public class ControladorRanking implements RankingDataProvider {
      * @throws NullPointerException Si el nombre es null.
      */
     public boolean actualizarEstadisticasUsuario(String nombre, boolean esVictoria) {
-        // Verificar que se proporciona un usuario válido
-        if (nombre == null || nombre.isEmpty()) {
-            return false;
-        }
-        
-        // Obtener o crear las estadísticas del usuario
-        PlayerRankingStats stats = estadisticasUsuarios.computeIfAbsent(nombre, 
-                                                                      PlayerRankingStats::new);
-        // Actualizar estadísticas
-        stats.actualizarEstadisticas(esVictoria);
-        
-        return true;
+        return actualizarEstadisticasUsuario(nombre, esVictoria, -1);
     }
     
     /**
@@ -131,7 +157,7 @@ public class ControladorRanking implements RankingDataProvider {
      * @throws NullPointerException Si el nombre es null.
      */
     public boolean perteneceRanking(String nombre) {
-        return estadisticasUsuarios.containsKey(nombre);
+        return ranking.perteneceRanking(nombre);
     }
     
     /**
@@ -147,12 +173,14 @@ public class ControladorRanking implements RankingDataProvider {
      * @throws NullPointerException Si el nombre es null.
      */
     public boolean eliminarPuntuacion(String nombre, int puntuacion) {
-        if (!perteneceRanking(nombre)) {
-            return false;
+        boolean resultado = ranking.eliminarPuntuacion(nombre, puntuacion);
+        
+        // Guardar cambios si la operación fue exitosa
+        if (resultado) {
+            guardarDatos();
         }
         
-        // Eliminar puntuación y actualizar estadísticas automáticamente
-        return estadisticasUsuarios.get(nombre).removePuntuacion(puntuacion);
+        return resultado;
     }
     
     /**
@@ -167,8 +195,7 @@ public class ControladorRanking implements RankingDataProvider {
      * @throws NullPointerException Si el nombre es null.
      */
     public boolean existePuntuacion(String nombre, int puntuacion) {
-        return perteneceRanking(nombre) && 
-               estadisticasUsuarios.get(nombre).contienePuntuacion(puntuacion);
+        return ranking.existePuntuacion(nombre, puntuacion);
     }
     
     /**
@@ -182,30 +209,28 @@ public class ControladorRanking implements RankingDataProvider {
      * @throws NullPointerException Si el nombre es null.
      */
     public boolean eliminarUsuario(String nombre) {
-        if (!perteneceRanking(nombre)) {
-            return false;
+        boolean resultado = ranking.eliminarUsuario(nombre);
+        
+        // Guardar cambios si la operación fue exitosa
+        if (resultado) {
+            guardarDatos();
         }
         
-        // Eliminar usuario del mapa de estadísticas
-        estadisticasUsuarios.remove(nombre);
-        
-        // Guardar cambios inmediatamente
-        guardarDatos();
-        
-        return !perteneceRanking(nombre);
+        return resultado;
     }
     
     /**
      * Cambia la estrategia de ordenación del ranking.
      * 
      * @pre No hay precondiciones específicas.
-     * @param criterio Criterio de ordenación: "maxima", "media", "partidas" o "ratio" (victorias totales)
+     * @param criterio Criterio de ordenación: "maxima", "media", "partidas", "victorias" o "total"
      * @post La estrategia de ordenación del ranking se actualiza al criterio especificado.
      * @throws NullPointerException Si el criterio es null.
      * @throws IllegalArgumentException Si el criterio no es uno de los valores permitidos.
      */
     public void setEstrategia(String criterio) {
-        this.estrategiaActual = criterio;
+        ranking.setEstrategia(criterio);
+        guardarDatos();
     }
     
     /**
@@ -216,8 +241,7 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve el nombre de la estrategia actual de ordenación.
      */
     public String getEstrategiaActual() {
-        RankingOrderStrategy estrategia = RankingOrderStrategyFactory.createStrategy(estrategiaActual, this);
-        return estrategia.getNombre();
+        return ranking.getEstrategiaActual();
     }
     
     /**
@@ -230,29 +254,20 @@ public class ControladorRanking implements RankingDataProvider {
      *       nombres de usuarios humanos. Los jugadores IA se excluyen.
      */
     public List<String> getRanking() {
-        // Verificar si estadisticasUsuarios es null y manejarlo
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return new ArrayList<>();
-        }
+        // Obtener todos los usuarios del ranking
+        List<String> todosUsuarios = new ArrayList<>(ranking.getUsuarios());
         
         // Obtenemos una instancia del controlador de jugadores para verificar si son IA
         ControladorJugador controladorJugador = ControladorJugador.getInstance();
         
         // Filtramos los jugadores IA y obtenemos solo los nombres de usuarios humanos
-        List<String> usuariosHumanos = estadisticasUsuarios.keySet().stream()
+        List<String> usuariosHumanos = todosUsuarios.stream()
             .filter(nombre -> !controladorJugador.existeJugador(nombre) || 
                     !controladorJugador.esIA(nombre))
             .collect(Collectors.toList());
         
-        // Obtenemos la estrategia de ordenación, pasando this como proveedor de datos
-        RankingOrderStrategy estrategia = RankingOrderStrategyFactory.createStrategy(estrategiaActual, this);
-        
-        // Ordenamos los nombres de usuario directamente usando la estrategia como Comparator
-        Collections.sort(usuariosHumanos, estrategia);
-        
-        // Devolvemos la lista ordenada
-        return usuariosHumanos;
+        // Obtenemos el ranking ordenado de estos usuarios
+        return ordenarUsuariosPorCriterio(usuariosHumanos, ranking.getEstrategiaActual());
     }
     
     /**
@@ -268,29 +283,20 @@ public class ControladorRanking implements RankingDataProvider {
      * @throws IllegalArgumentException Si el criterio no es uno de los valores permitidos.
      */
     public List<String> getRanking(String criterio) {
-        // Verificar si estadisticasUsuarios es null y manejarlo
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return new ArrayList<>();
-        }
+        // Obtener todos los usuarios del ranking
+        List<String> todosUsuarios = new ArrayList<>(ranking.getUsuarios());
         
         // Obtenemos una instancia del controlador de jugadores para verificar si son IA
         ControladorJugador controladorJugador = ControladorJugador.getInstance();
         
         // Filtramos los jugadores IA y obtenemos solo los nombres de usuarios humanos
-        List<String> usuariosHumanos = estadisticasUsuarios.keySet().stream()
+        List<String> usuariosHumanos = todosUsuarios.stream()
             .filter(nombre -> !controladorJugador.existeJugador(nombre) || 
                     !controladorJugador.esIA(nombre))
             .collect(Collectors.toList());
         
-        // Obtenemos la estrategia de ordenación específica, pasando this como proveedor de datos
-        RankingOrderStrategy estrategia = RankingOrderStrategyFactory.createStrategy(criterio, this);
-        
-        // Ordenamos los nombres de usuario directamente usando la estrategia como Comparator
-        Collections.sort(usuariosHumanos, estrategia);
-        
-        // Devolvemos la lista ordenada
-        return usuariosHumanos;
+        // Obtener el ranking ordenado con el criterio específico
+        return ordenarUsuariosPorCriterio(usuariosHumanos, criterio);
     }
     
     /**
@@ -304,9 +310,7 @@ public class ControladorRanking implements RankingDataProvider {
      * @throws NullPointerException Si el nombre es null.
      */
     public List<Integer> getPuntuacionesUsuario(String nombre) {
-        return perteneceRanking(nombre) ? 
-               new ArrayList<>(estadisticasUsuarios.get(nombre).getPuntuaciones()) : 
-               new ArrayList<>();
+        return ranking.getPuntuacionesUsuario(nombre);
     }
     
     /**
@@ -320,8 +324,7 @@ public class ControladorRanking implements RankingDataProvider {
      */
     @Override
     public int getPuntuacionMaxima(String nombre) {
-        return perteneceRanking(nombre) ? 
-               estadisticasUsuarios.get(nombre).getPuntuacionMaxima() : 0;
+        return ranking.getPuntuacionMaxima(nombre);
     }
     
     /**
@@ -335,8 +338,7 @@ public class ControladorRanking implements RankingDataProvider {
      */
     @Override
     public double getPuntuacionMedia(String nombre) {
-        return perteneceRanking(nombre) ? 
-               estadisticasUsuarios.get(nombre).getPuntuacionMedia() : 0.0;
+        return ranking.getPuntuacionMedia(nombre);
     }
     
     /**
@@ -350,8 +352,7 @@ public class ControladorRanking implements RankingDataProvider {
      */
     @Override
     public int getPartidasJugadas(String nombre) {
-        return perteneceRanking(nombre) ? 
-               estadisticasUsuarios.get(nombre).getPartidasJugadas() : 0;
+        return ranking.getPartidasJugadas(nombre);
     }
     
     /**
@@ -365,8 +366,7 @@ public class ControladorRanking implements RankingDataProvider {
      */
     @Override
     public int getVictorias(String nombre) {
-        return perteneceRanking(nombre) ? 
-               estadisticasUsuarios.get(nombre).getVictorias() : 0;
+        return ranking.getVictorias(nombre);
     }
     
     /**
@@ -379,41 +379,62 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve un entero no negativo que representa la puntuación total acumulada del usuario.
      * @throws NullPointerException Si el nombre es null.
      */
+    @Override
     public int getPuntuacionTotal(String nombre) {
-        return perteneceRanking(nombre) ? 
-               estadisticasUsuarios.get(nombre).getPuntuacionTotal() : 0;
+        return ranking.getPuntuacionTotal(nombre);
     }
     
     /**
-     * Establece la puntuación total de un jugador
+     * Establece la puntuación total de un jugador.
      * 
-     * @pre El jugador debe existir en el ranking y la puntuación debe ser no negativa.
-     * @param nombre Nombre del jugador
-     * @param puntuacionAgregada Puntuación total a establecer
-     * @return true si se ha establecido correctamente, false en caso contrario
-     * @post Si el jugador existe y la puntuación es no negativa, se establece la puntuación total
-     *       y se devuelve true. En caso contrario, se devuelve false.
-     * @throws NullPointerException Si el nombre es null.
+     * @param username Nombre del jugador.
+     * @param nuevaPuntuacion Nueva puntuación total.
+     * @pre El nombre de usuario no es null y el jugador existe en el ranking.
+     * @return true si se pudo establecer la puntuación, false en caso contrario.
+     * @post La puntuación total del usuario queda establecida al valor indicado.
+     *       Además, se registra como una puntuación individual para asegurar
+     *       que las estadísticas como puntuación máxima y media se calculen correctamente.
      */
-    public boolean setPuntuacionTotal(String nombre, int puntuacionAgregada) {
-        //  verifica si existe el jugador en el ranking
-        if(!perteneceRanking(nombre)) {
+    public boolean setPuntuacionTotal(String username, int nuevaPuntuacion) {
+        if (username == null) {
             return false;
         }
         
-        // Obtener o crear las estadísticas del usuario
-        PlayerRankingStats stats = estadisticasUsuarios.get(nombre);
-        if (puntuacionAgregada < 0) {
-            return false; // No se permiten puntuaciones negativas
+        try {
+            // Obtener la puntuación total actual
+            int puntuacionActual = ranking.getPuntuacionTotal(username);
+            
+            // Si no existe el usuario en el ranking, crear sus estadísticas
+            // registrando la puntuación como una puntuación individual
+            if (!ranking.perteneceRanking(username)) {
+                // En este caso sí queremos incrementar el contador de partidas
+                // ya que es la primera vez que se registra al usuario
+                ranking.agregarPuntuacion(username, nuevaPuntuacion);
+                guardarDatos();
+                return true;
+            }
+            
+            // Si hay cambio en la puntuación total, registramos el valor como puntuación individual
+            // esto asegura que las estadísticas (máxima, media) se calculen correctamente
+            if (puntuacionActual != nuevaPuntuacion) {
+                // No incrementamos el contador de partidas, ya que simplemente estamos
+                // actualizando la puntuación total
+                ranking.agregarPuntuacionSinIncrementarPartidas(username, nuevaPuntuacion);
+            }
+            
+            // Establecer la puntuación total
+            boolean resultado = ranking.setPuntuacionTotal(username, nuevaPuntuacion);
+            
+            // Guardar cambios si la operación fue exitosa
+            if (resultado) {
+                guardarDatos();
+            }
+            
+            return resultado;
+        } catch (Exception e) {
+            // Si ocurre algún error durante la operación, devolver false
+            return false;
         }
-        
-        // Actualizar estadísticas
-        stats.setPuntuacionTotal(puntuacionAgregada);
-        
-        // Guardar cambios inmediatamente
-        guardarDatos();
-        
-        return true;
     }
     
     /**
@@ -424,7 +445,8 @@ public class ControladorRanking implements RankingDataProvider {
      * @param puntosPartidas Puntos a añadir a la puntuación total existente
      * @return true si se ha incrementado correctamente, false en caso contrario
      * @post Si el jugador existe y los puntos son positivos, se incrementa la puntuación total
-     *       y se devuelve true. En caso contrario, se devuelve false.
+     *       y se registra también como una puntuación individual para asegurar que las estadísticas
+     *       como puntuación máxima y media se calculen correctamente.
      * @throws NullPointerException Si el nombre es null.
      */
     public boolean addPuntuacionTotal(String nombre, int puntosPartidas) {
@@ -442,10 +464,18 @@ public class ControladorRanking implements RankingDataProvider {
         int puntuacionActual = getPuntuacionTotal(nombre);
         
         // Calcular la nueva puntuación total
-        int nuevaPuntuacionTotal = puntuacionActual + puntosPartidas;
+        int nuevaPuntuacion = puntuacionActual + puntosPartidas;
+        
+        // Registrar la nueva puntuación como puntuación individual
+        // Esto es crucial para que la puntuación máxima y media se calculen correctamente
+        // Usamos agregarPuntuacionSinIncrementarPartidas para evitar el incremento del contador de partidas
+        // ya que este podría haber sido incrementado por actualizarEstadisticasUsuario
+        ranking.agregarPuntuacionSinIncrementarPartidas(nombre, puntosPartidas);
         
         // Establecer la nueva puntuación total
-        return setPuntuacionTotal(nombre, nuevaPuntuacionTotal);
+        boolean resultado = setPuntuacionTotal(nombre, nuevaPuntuacion);
+        
+        return resultado;
     }
     
     /**
@@ -457,16 +487,13 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve una lista (posiblemente vacía) con los nombres de usuarios humanos en el ranking.
      */
     public List<String> getUsuarios() {
-        // Garantizar que estadisticasUsuarios nunca sea null
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return new ArrayList<>();
-        }
+        // Obtener todos los usuarios del ranking
+        Set<String> todosUsuarios = ranking.getUsuarios();
         
         // Obtenemos una instancia del controlador de jugadores para verificar si son IA
         ControladorJugador controladorJugador = ControladorJugador.getInstance();
         
-        return estadisticasUsuarios.keySet().stream()
+        return todosUsuarios.stream()
                .filter(nombre -> !controladorJugador.existeJugador(nombre) || !controladorJugador.esIA(nombre))
                .collect(Collectors.toList());
     }
@@ -480,13 +507,19 @@ public class ControladorRanking implements RankingDataProvider {
      */
     public void guardarDatos() {
         try {
+            // Asegurarse de que el directorio existe
+            File rankingDir = new File(RANKING_FILE).getParentFile();
+            if (rankingDir != null && !rankingDir.exists()) {
+                rankingDir.mkdirs();
+            }
+            
             FileOutputStream fos = new FileOutputStream(RANKING_FILE);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this);
+            oos.writeObject(ranking);  // Guardar el objeto Ranking en lugar del ControladorRanking
             oos.close();
             fos.close();
         } catch (IOException e) {
-            System.err.println("Error al guardar el ranking: " + e.getMessage());
+            throw new ExceptionLoggingOperacion("Error al guardar el ranking: " + e.getMessage(), "persistencia", true);
         }
     }
     
@@ -503,24 +536,21 @@ public class ControladorRanking implements RankingDataProvider {
             try {
                 FileInputStream fis = new FileInputStream(RANKING_FILE);
                 ObjectInputStream ois = new ObjectInputStream(fis);
-                ControladorRanking loaded = (ControladorRanking) ois.readObject();
+                Ranking loadedRanking = (Ranking) ois.readObject();  // Cargar el objeto Ranking
                 ois.close();
                 fis.close();
                 
-                // Copiar datos del ranking cargado
-                // Asegurarse de que estadisticasUsuarios nunca sea null
-                if (loaded.estadisticasUsuarios != null) {
-                    this.estadisticasUsuarios = loaded.estadisticasUsuarios;
+                // Usar el ranking cargado
+                if (loadedRanking != null) {
+                    this.ranking = loadedRanking;
                 } else {
-                    this.estadisticasUsuarios = new HashMap<>();
+                    this.ranking = new Ranking();
                 }
                 
-                this.estrategiaActual = loaded.estrategiaActual;
-                
             } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error al cargar el ranking: " + e.getMessage());
-                // Inicializar con datos vacíos
-                this.estadisticasUsuarios = new HashMap<>();
+                // Inicializar con un ranking vacío
+                this.ranking = new Ranking();
+                throw new ExceptionLoggingOperacion("Error al cargar el ranking: " + e.getMessage(), "persistencia", true);
             }
         }
     }
@@ -535,17 +565,7 @@ public class ControladorRanking implements RankingDataProvider {
      *       y los valores son sus puntuaciones máximas.
      */
     public Map<String, Integer> getMapaPuntuacionesMaximas() {
-        Map<String, Integer> resultado = new HashMap<>();
-        // Verificación de nulidad para prevenir NPE
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return resultado;
-        }
-        
-        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
-            resultado.put(entry.getKey(), entry.getValue().getPuntuacionMaxima());
-        }
-        return resultado;
+        return ranking.getMapaPuntuacionesMaximas();
     }
     
     /**
@@ -558,17 +578,7 @@ public class ControladorRanking implements RankingDataProvider {
      *       y los valores son sus puntuaciones medias.
      */
     public Map<String, Double> getMapaPuntuacionesMedias() {
-        Map<String, Double> resultado = new HashMap<>();
-        // Verificación de nulidad para prevenir NPE
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return resultado;
-        }
-        
-        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
-            resultado.put(entry.getKey(), entry.getValue().getPuntuacionMedia());
-        }
-        return resultado;
+        return ranking.getMapaPuntuacionesMedias();
     }
     
     /**
@@ -581,17 +591,7 @@ public class ControladorRanking implements RankingDataProvider {
      *       y los valores son sus números de partidas jugadas.
      */
     public Map<String, Integer> getMapaPartidasJugadas() {
-        Map<String, Integer> resultado = new HashMap<>();
-        // Verificación de nulidad para prevenir NPE
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return resultado;
-        }
-        
-        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
-            resultado.put(entry.getKey(), entry.getValue().getPartidasJugadas());
-        }
-        return resultado;
+        return ranking.getMapaPartidasJugadas();
     }
     
     /**
@@ -604,17 +604,7 @@ public class ControladorRanking implements RankingDataProvider {
      *       y los valores son sus números de victorias.
      */
     public Map<String, Integer> getMapaVictorias() {
-        Map<String, Integer> resultado = new HashMap<>();
-        // Verificación de nulidad para prevenir NPE
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return resultado;
-        }
-        
-        for (Map.Entry<String, PlayerRankingStats> entry : estadisticasUsuarios.entrySet()) {
-            resultado.put(entry.getKey(), entry.getValue().getVictorias());
-        }
-        return resultado;
+        return ranking.getMapaVictorias();
     }
 
     /**
@@ -622,7 +612,7 @@ public class ControladorRanking implements RankingDataProvider {
      * 
      * @pre La lista de usuarios puede ser null o vacía.
      * @param usuarios Lista de usuarios a ordenar
-     * @param criterio Criterio de ordenación ("maxima", "media", "partidas", "victorias")
+     * @param criterio Criterio de ordenación ("maxima", "media", "partidas", "victorias", "total")
      * @return Nueva lista ordenada de usuarios
      * @post Se devuelve una nueva lista ordenada según el criterio especificado.
      *       Si la lista de entrada es null o vacía, se devuelve una lista vacía.
@@ -634,28 +624,103 @@ public class ControladorRanking implements RankingDataProvider {
             return new ArrayList<>();
         }
         
-        // Verificar si estadisticasUsuarios es null y manejarlo
-        if (estadisticasUsuarios == null) {
-            estadisticasUsuarios = new HashMap<>();
-            return new ArrayList<>();
-        }
+        // Guardar la estrategia actual
+        String estrategiaOriginal = ranking.getEstrategiaActual();
+        
+        // Cambiar temporalmente a la estrategia solicitada
+        ranking.setEstrategia(criterio);
         
         // Filtrar los usuarios que pertenecen al ranking
         List<String> usuariosDelRanking = usuarios.stream()
-                .filter(this::perteneceRanking)
+                .filter(ranking::perteneceRanking)
                 .collect(Collectors.toList());
         
         if (usuariosDelRanking.isEmpty()) {
+            // Restaurar la estrategia original
+            ranking.setEstrategia(estrategiaOriginal);
             return new ArrayList<>();
         }
         
-        // Usar la estrategia adecuada según el criterio, pasando this como proveedor de datos
-        RankingOrderStrategy estrategia = RankingOrderStrategyFactory.createStrategy(criterio, this);
+        // Obtener una copia del ranking con el criterio especificado
+        List<String> rankingOrdenado = new ArrayList<>(ranking.getRanking());
         
-        // Ordenar directamente los nombres de usuario usando la estrategia como Comparator
-        Collections.sort(usuariosDelRanking, estrategia);
+        // Filtrar para mantener solo los usuarios solicitados y en el orden correcto
+        List<String> resultado = rankingOrdenado.stream()
+                .filter(usuariosDelRanking::contains)
+                .collect(Collectors.toList());
         
-        // Devolver la lista ordenada
-        return usuariosDelRanking;
+        // Restaurar la estrategia original
+        ranking.setEstrategia(estrategiaOriginal);
+        
+        return resultado;
+    }
+
+    /**
+     * Agrega una puntuación individual para un usuario específico sin incrementar el contador de partidas.
+     * Útil cuando ya se ha incrementado el contador mediante actualizarEstadisticasUsuario.
+     * 
+     * @pre El nombre debe ser no nulo y no vacío, y la puntuación debe ser no negativa.
+     * @param nombre Nombre del usuario
+     * @param puntuacion Puntuación a agregar
+     * @return true si se agregó correctamente, false en caso contrario
+     * @post Si el nombre es válido y la puntuación no es negativa, se agrega la puntuación
+     *       sin incrementar el contador de partidas y se devuelve true.
+     *       En caso contrario, se devuelve false.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    public boolean agregarPuntuacionSinIncrementarPartidas(String nombre, int puntuacion) {
+        // Verificar que se proporciona un usuario válido
+        if (nombre == null || nombre.isEmpty()) {
+            return false;
+        }
+        
+        if (puntuacion < 0) {
+            return false; // No se permiten puntuaciones negativas
+        }
+        
+        // Delegar al modelo de Ranking
+        boolean resultado = ranking.agregarPuntuacionSinIncrementarPartidas(nombre, puntuacion);
+        
+        // Guardar cambios si la operación fue exitosa
+        if (resultado) {
+            guardarDatos();
+        }
+        
+        return resultado;
+    }
+
+    /**
+     * Agrega una puntuación individual para un usuario específico.
+     * Este método es idéntico a agregarPuntuacion y se proporciona para claridad semántica.
+     * 
+     * @pre El nombre debe ser no nulo y no vacío, y la puntuación debe ser no negativa.
+     * @param nombre Nombre del usuario
+     * @param puntuacion Puntuación individual a agregar
+     * @return true si se agregó correctamente, false en caso contrario
+     * @post Si el nombre es válido y la puntuación no es negativa, se agrega la puntuación
+     *       a la lista de puntuaciones individuales del usuario, se actualiza la puntuación máxima
+     *       y media, y se incrementa la puntuación total. Se devuelve true si la operación tuvo éxito,
+     *       false en caso contrario.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    public boolean agregarPuntuacionIndividual(String nombre, int puntuacion) {
+        // Verificar que se proporciona un usuario válido
+        if (nombre == null || nombre.isEmpty()) {
+            return false;
+        }
+        
+        if (puntuacion < 0) {
+            return false; // No se permiten puntuaciones negativas
+        }
+        
+        // Delegar al modelo de Ranking para añadir la puntuación individual
+        boolean resultado = ranking.agregarPuntuacion(nombre, puntuacion);
+        
+        // Guardar cambios si la operación fue exitosa
+        if (resultado) {
+            guardarDatos();
+        }
+        
+        return resultado;
     }
 }

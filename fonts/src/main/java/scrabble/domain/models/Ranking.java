@@ -90,8 +90,8 @@ public class Ranking implements RankingDataProvider {
         // Obtener o crear estadísticas para este usuario
         PlayerRankingStats stats = estadisticasUsuarios.computeIfAbsent(nombre, 
                                                                  PlayerRankingStats::new);
-        // Agregar puntuación
-        stats.addPuntuacion(puntuacion);
+        // Agregar puntuación sin incrementar partidas jugadas
+        stats.addPuntuacionSinIncrementarPartidas(puntuacion);
         
         return true;
     }
@@ -436,5 +436,71 @@ public class Ranking implements RankingDataProvider {
         
         return perteneceRanking(nombre) ? 
                estadisticasUsuarios.get(nombre).getPuntuacionTotal() : 0;
+    }
+
+    /**
+     * Establece la puntuación total de un jugador, eliminando todas sus puntuaciones anteriores
+     * y añadiendo la nueva puntuación total como una única entrada.
+     * 
+     * @pre El jugador debe existir en el ranking y la puntuación debe ser no negativa.
+     * @param nombre Nombre del jugador
+     * @param puntuacionAgregada Puntuación total a establecer
+     * @return true si se ha establecido correctamente, false en caso contrario
+     * @post Si el jugador existe y la puntuación es no negativa, se establece la nueva puntuación total
+     *       sin afectar a las puntuaciones individuales existentes, y se devuelve true.
+     *       En caso contrario, se devuelve false.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    public boolean setPuntuacionTotal(String nombre, int puntuacionAgregada) {
+        if (nombre == null) {
+            throw new NullPointerException("El nombre no puede ser null");
+        }
+        
+        if (!perteneceRanking(nombre)) {
+            return false;
+        }
+        
+        if (puntuacionAgregada < 0) {
+            return false; // No se permiten puntuaciones negativas
+        }
+        
+        // Obtener las estadísticas del jugador
+        PlayerRankingStats stats = estadisticasUsuarios.get(nombre);
+        
+        // Establecer directamente la puntuación total sin afectar a las puntuaciones individuales
+        stats.setPuntuacionTotal(puntuacionAgregada);
+        
+        return true;
+    }
+
+    /**
+     * Agrega una nueva puntuación para un usuario sin incrementar el contador de partidas.
+     * Útil cuando ya se ha incrementado el contador mediante actualizarEstadisticasUsuario.
+     * 
+     * @pre nombre no debe ser null. puntuacion debe ser no negativa.
+     * @param nombre Nombre del usuario
+     * @param puntuacion Puntuación a agregar
+     * @return true si se agregó correctamente, false en caso contrario
+     * @post Si la puntuación es no negativa, se agrega a las estadísticas del usuario
+     *       y se devuelve true. Si ya existe un usuario con ese nombre, se actualiza.
+     *       Si la puntuación es negativa, se devuelve false.
+     * @throws NullPointerException si nombre es null
+     */
+    public boolean agregarPuntuacionSinIncrementarPartidas(String nombre, int puntuacion) {
+        if (nombre == null) {
+            throw new NullPointerException("El nombre del usuario no puede ser null");
+        }
+        
+        if (puntuacion < 0) {
+            return false; // No se permiten puntuaciones negativas
+        }
+        
+        // Obtener o crear estadísticas para este usuario
+        PlayerRankingStats stats = estadisticasUsuarios.computeIfAbsent(nombre, 
+                                                                 PlayerRankingStats::new);
+        // Agregar puntuación sin incrementar partidas
+        stats.addPuntuacionSinIncrementarPartidas(puntuacion);
+        
+        return true;
     }
 }

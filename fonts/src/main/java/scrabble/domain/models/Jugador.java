@@ -16,18 +16,18 @@ public abstract class Jugador implements Serializable {
      * Mapa que representa el atril de fichas del jugador.
      * Las claves son las letras y los valores son la cantidad de cada letra.
      */
-    protected Map<String, Integer> rack; 
+    private Map<String, Integer> rack; 
     
     /**
      * Contador de turnos que el jugador ha pasado (skip).
      * Se utiliza para controlar el fin de la partida cuando todos los jugadores pasan turnos consecutivamente.
      */
-    protected int skipTrack;
+    private int skipTrack;
     
     /**
      * Nombre del jugador, utilizado como identificador único
      */
-    protected String nombre;
+    private String nombre;
     
     /**
      * Constructor para la clase Jugador
@@ -188,5 +188,53 @@ public abstract class Jugador implements Serializable {
      */
     public void clearSkipTrack() {
         setSkipTrack(0);
+    }
+
+    /**
+     * Obtiene el nombre para uso interno en subclases.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Nombre del jugador
+     * @post Se devuelve el nombre del jugador.
+     */
+    protected String getNombreInterno() {
+        return nombre;
+    }
+
+    /**
+     * Obtiene el rack para uso interno en subclases.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Mapa con las fichas del jugador
+     * @post Se devuelve el rack actual del jugador, que puede ser null si no ha sido inicializado.
+     */
+    protected Map<String, Integer> getRackInterno() {
+        return rack;
+    }
+
+    /**
+     * Establece el rack para uso interno en subclases.
+     * 
+     * @pre rack no debe ser null.
+     * @param rack Mapa de fichas para asignar al jugador
+     * @post El rack del jugador se actualiza al valor especificado.
+     * @throws NullPointerException si rack es null
+     */
+    protected void setRackInterno(Map<String, Integer> rack) {
+        if (rack == null) {
+            throw new NullPointerException("El rack no puede ser null");
+        }
+        this.rack = rack;
+    }
+
+    /**
+     * Obtiene el skipTrack para uso interno en subclases.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Contador de turnos omitidos
+     * @post Se devuelve el contador actual de turnos omitidos.
+     */
+    protected int getSkipTrackInterno() {
+        return skipTrack;
     }
 }

@@ -1,0 +1,172 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+    direction TB
+    
+    %% Controlador principal (Facade)
+    class ControladorDomain {
+        <<Facade>>
+    }
+    
+    %% Controladores específicos
+    class ControladorConfiguracion {
+    }
+    
+    class ControladorJuego {
+    }
+    
+    class ControladorJugador {
+        <<Singleton>>
+    }
+    
+    class ControladorRanking {
+        <<Singleton>>
+    }
+    
+    class ControladorDiccionario {
+        <<Singleton>>
+    }
+    
+    %% Modelos
+    class Jugador {
+        <<Abstract>>
+    }
+    
+    class JugadorHumano {
+    }
+    
+    class JugadorIA {
+    }
+    
+    class Tablero {
+    }
+    
+    class Bolsa {
+    }
+    
+    class Diccionario {
+    }
+    
+    class Dawg {
+    }
+    
+    class DawgNode {
+    }
+    
+    class Configuracion {
+    }
+    
+    class Ranking {
+    }
+    
+    class PlayerRankingStats {
+    }
+    
+    %% Estrategias de Ranking (Patrón Strategy)
+    class RankingOrderStrategy {
+        <<Strategy>>
+        <<interface>>
+    }
+    
+    class MaximaScoreStrategy {
+        <<Strategy>>
+    }
+    
+    class MediaScoreStrategy {
+        <<Strategy>>
+    }
+    
+    class PartidasJugadasStrategy {
+        <<Strategy>>
+    }
+    
+    class RankingOrderStrategyFactory {
+        <<Factory>>
+    }
+    
+    %% Proveedor de datos para Ranking
+    class RankingDataProvider {
+        <<interface>>
+    }
+    
+    class PuntuacionTotalStrategy {
+        <<Strategy>>
+    }
+    
+    class VictoriasStrategy {
+        <<Strategy>>
+    }
+
+    namespace scrabble.helpers {
+
+    class Tuple~X, Y~ {
+        +X x
+        +Y y
+        +Tuple(x: X, y: Y)
+        +equals(o: Object) boolean
+    }
+
+    class Triple~X, Y, Z~ {
+        +X x
+        +Y y
+        +Z z
+        +Triple(x: X, y: Y, z: Z)
+        +equals(o: Object) boolean
+    }
+
+    class Dificultad {
+        <<enumeration>>
+        +FACIL
+        +DIFICIL
+    }
+
+    class Idioma {
+        <<enumeration>>
+        +ESPANOL
+        +CATALAN
+        +INGLES
+    }
+
+    class Tema {
+        <<enumeration>>
+        +CLARO
+        +OSCURO
+    }
+    }
+    
+    %% --- Relaciones principales ---
+    ControladorJugador "1" --> "0..*" Jugador : gestiona
+    ControladorConfiguracion "1" --> "1" Configuracion : gestiona
+    ControladorJuego "1" --> "0..1" Tablero : gestiona
+    ControladorJuego "1" --> "0..1" Bolsa : gestiona
+    ControladorRanking "1" *-- "0..*" PlayerRankingStats : gestiona
+    ControladorDiccionario "1" --> "0..*" Diccionario : gestiona
+    Diccionario "1" *-- "1" Dawg : contiene
+    Dawg "1" *-- "1" DawgNode : root
+    DawgNode "1" --> "0..*" DawgNode : edges
+    Ranking "1" *-- "0..*" PlayerRankingStats : contiene
+    Ranking "1" o-- "1" RankingOrderStrategy : usa
+    
+    %% --- Otras relaciones ---
+    ControladorDomain "1" --> "1" ControladorConfiguracion
+    ControladorDomain "1" --> "1" ControladorJuego
+    ControladorDomain "1" --> "1" ControladorRanking
+    ControladorDomain "1" --> "1" ControladorJugador
+    ControladorDomain "1" --> "1" ControladorDiccionario
+    ControladorJuego "1" --> "1" ControladorDiccionario
+    ControladorRanking ..|> RankingDataProvider
+    Jugador <|-- JugadorHumano
+    Jugador <|-- JugadorIA
+    RankingOrderStrategy <|.. VictoriasStrategy
+    RankingOrderStrategy <|.. PuntuacionTotalStrategy
+    RankingOrderStrategy <|.. MaximaScoreStrategy
+    RankingOrderStrategy <|.. MediaScoreStrategy
+    RankingOrderStrategy <|.. PartidasJugadasStrategy
+    RankingOrderStrategyFactory ..> RankingOrderStrategy
+    MaximaScoreStrategy ..> RankingDataProvider
+    MediaScoreStrategy ..> RankingDataProvider
+    PartidasJugadasStrategy ..> RankingDataProvider
+    VictoriasStrategy ..> RankingDataProvider
+    PuntuacionTotalStrategy ..> RankingDataProvider

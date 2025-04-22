@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"scrabble.domain"},{"l":"scrabble.domain.controllers"},{"l":"scrabble.domain.controllers.subcontrollers"},{"l":"scrabble.domain.models"},{"l":"scrabble.domain.models.rankingStrategy"},{"l":"scrabble.excepciones"},{"l":"scrabble.helpers"}];updateSearchResults();

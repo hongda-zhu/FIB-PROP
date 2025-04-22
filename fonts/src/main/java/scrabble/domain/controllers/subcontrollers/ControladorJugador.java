@@ -8,8 +8,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import scrabble.domain.models.Jugador;
 import scrabble.domain.models.JugadorHumano;
@@ -53,7 +55,86 @@ public class ControladorJugador {
         return instance;
     }
     
+    /**
+     * Método privado para añadir un jugador al mapa interno.
+     * 
+     * @pre nombre y jugador no deben ser null.
+     * @param nombre Nombre del jugador (clave)
+     * @param jugador Objeto Jugador a añadir (valor)
+     * @post El jugador se añade al mapa interno.
+     * @throws NullPointerException Si alguno de los parámetros es null.
+     */
+    private void addJugadorToMap(String nombre, Jugador jugador) {
+        if (nombre == null || jugador == null) {
+            throw new NullPointerException("El nombre y el jugador no pueden ser null");
+        }
+        jugadores.put(nombre, jugador);
+    }
+    
+    /**
+     * Método privado para eliminar un jugador del mapa interno.
+     * 
+     * @pre nombre no debe ser null.
+     * @param nombre Nombre del jugador a eliminar
+     * @return true si el jugador existía y fue eliminado, false si no existía
+     * @post Si el jugador existía, se elimina del mapa interno y se devuelve true.
+     *       Si no existía, se devuelve false.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    private boolean removeJugadorFromMap(String nombre) {
+        if (nombre == null) {
+            throw new NullPointerException("El nombre no puede ser null");
+        }
+        return jugadores.remove(nombre) != null;
+    }
+    
+    /**
+     * Método privado para obtener un jugador del mapa interno por su nombre.
+     * 
+     * @pre nombre no debe ser null.
+     * @param nombre Nombre del jugador a obtener
+     * @return El objeto Jugador asociado al nombre, o null si no existe
+     * @post Se devuelve el objeto Jugador asociado al nombre, o null si no existe.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    private Jugador getJugadorFromMap(String nombre) {
+        if (nombre == null) {
+            throw new NullPointerException("El nombre no puede ser null");
+        }
+        return jugadores.get(nombre);
+    }
+    
+    /**
+     * Verifica si un jugador existe en el sistema.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @param nombre Nombre del jugador
+     * @return true si el jugador existe, false en caso contrario
+     * @post Se devuelve un valor booleano indicando si el jugador existe.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    public boolean existeJugador(String nombre) {
+        if (nombre == null) {
+            throw new NullPointerException("El nombre no puede ser null");
+        }
+        return getNombresJugadoresFromMap().contains(nombre);
+    }
 
+    /**
+     * Obtiene un jugador por su nombre.
+     * 
+     * @pre El nombre debe corresponder a un jugador existente.
+     * @param nombre Nombre del jugador
+     * @return Jugador encontrado o null si no existe
+     * @post Se devuelve el objeto Jugador asociado al nombre, o null si no existe.
+     * @throws NullPointerException Si el nombre es null.
+     */
+    private Jugador getJugador(String nombre) {
+        if (nombre == null) {
+            throw new NullPointerException("El nombre no puede ser null");
+        }
+        return getJugadorFromMap(nombre);
+    }
 
     /**
      * Obtiene el contador de turnos que un jugador ha omitido.
@@ -82,7 +163,6 @@ public class ControladorJugador {
         j.clearSkipTrack();
     }
 
-
     /**
      * Agrega una ficha al jugador.
      * 
@@ -97,7 +177,6 @@ public class ControladorJugador {
         j.agregarFicha(letra);
     }
     
-
     /**
      * Obtiene la cantidad de fichas que tiene un jugador.
      * 
@@ -156,7 +235,7 @@ public class ControladorJugador {
             return null;
         }
 
-        Jugador jugador = jugadores.get(nombre);
+        Jugador jugador = getJugador(nombre);
 
         if (jugador instanceof JugadorIA jugadorIA) {
             return jugadorIA.getNivelDificultad();
@@ -207,6 +286,22 @@ public class ControladorJugador {
     }
     
     /**
+     * Método privado para añadir información de usuario a una lista.
+     *
+     * @pre lista no debe ser null, infoFormateada no debe ser null.
+     * @param lista Lista donde se añadirá la información
+     * @param infoFormateada String con la información formateada del usuario
+     * @post La información formateada se añade a la lista.
+     * @throws NullPointerException Si alguno de los parámetros es null.
+     */
+    private void addUsuarioToList(List<String> lista, String infoFormateada) {
+        if (lista == null || infoFormateada == null) {
+            throw new NullPointerException("La lista y la información formateada no pueden ser null");
+        }
+        lista.add(infoFormateada);
+    }
+
+    /**
     * Obtiene listado completo de usuarios (SOLO DEBUG o podemos dejarlo)
     * 
     * @pre No hay precondiciones específicas.
@@ -220,21 +315,23 @@ public class ControladorJugador {
         for (String nombre : getJugadoresHumanos()) {
             JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
 
-            usuarios.add(String.format(
+            String infoJugador = String.format(
                 "Nombre: %-15s | Tipo: Humano | En partida: %s",
                 jugador.getNombre(),
                 jugador.isEnPartida() ? "Sí" : "No"
-            ));
+            );
+            addUsuarioToList(usuarios, infoJugador);
         }
         
         // Jugadores IA
         for (String nombre : getJugadoresIA()) {
             JugadorIA ia = (JugadorIA) getJugador(nombre);
-            usuarios.add(String.format(
+            String infoIA = String.format(
                 "Nombre: %-15s | Tipo: IA | Dificultad: %s",
                 ia.getNombre(),
                 ia.getNivelDificultad()
-            ));
+            );
+            addUsuarioToList(usuarios, infoIA);
         }
         
         return usuarios;
@@ -255,19 +352,6 @@ public class ControladorJugador {
     }
     
     /**
-     * Verifica si un jugador existe en el sistema.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @param nombre Nombre del jugador
-     * @return true si el jugador existe, false en caso contrario
-     * @post Se devuelve un valor booleano indicando si el jugador existe.
-     * @throws NullPointerException Si el nombre es null.
-     */
-    public boolean existeJugador(String nombre) {
-        return jugadores.containsKey(nombre);
-    }
-    
-    /**
      * Verifica si un jugador humano está en una partida.
      * 
      * @pre No hay precondiciones específicas fuertes.
@@ -282,7 +366,7 @@ public class ControladorJugador {
             return false;
         }
         
-        Jugador jugador = jugadores.get(nombre);
+        Jugador jugador = getJugador(nombre);
         if (jugador.esIA()) {
             return false; // Las IAs no están "en partida" del mismo modo que los humanos
         }
@@ -306,7 +390,7 @@ public class ControladorJugador {
             return false;
         }
         
-        Jugador jugador = jugadores.get(nombre);
+        Jugador jugador = getJugador(nombre);
         if (jugador.esIA()) {
             return false; // Las IAs no pueden estar en múltiples partidas
         }
@@ -317,35 +401,16 @@ public class ControladorJugador {
     }
     
     /**
-     * Establece la puntuación de un jugador en el ranking.
-     * Nota: La puntuación se gestiona completamente a través del ControladorRanking.
+     * Método privado para obtener los nombres de todos los jugadores registrados.
      * 
-     * @pre No hay precondiciones específicas fuertes.
-     * @param nombre Nombre del jugador
-     * @param puntuacion Nueva puntuación
-     * @return true si se estableció correctamente, false en caso contrario
-     * @post Si el jugador existe, se actualiza su puntuación en el ranking si es mayor que la actual.
-     *       Si el jugador no existe, se devuelve false.
-     * @throws NullPointerException Si el nombre es null.
+     * @pre No hay precondiciones específicas.
+     * @return Conjunto con los nombres de todos los jugadores
+     * @post Se devuelve un conjunto (posiblemente vacío) con los nombres de todos los jugadores.
      */
-    public boolean setPuntuacion(String nombre, int puntuacion) {
-        if (!existeJugador(nombre)) {
-            return false;
-        }
-        
-        // Obtenemos la puntuación actual desde el ranking
-        ControladorRanking controladorRanking = ControladorRanking.getInstance();
-        int puntuacionAnterior = controladorRanking.getPuntuacionTotal(nombre);
-        
-        // Si la puntuación es mayor, añadimos la diferencia
-        if (puntuacion > puntuacionAnterior) {
-            controladorRanking.agregarPuntuacion(nombre, puntuacion - puntuacionAnterior);
-        }
-        // Si necesitamos reflejar una reducción de puntuación, se podría implementar aquí
-        
-        return true;
+    private Set<String> getNombresJugadoresFromMap() {
+        return new HashSet<>(jugadores.keySet());
     }
-    
+
     /**
      * Obtiene una lista de nombres de todos los jugadores registrados.
      * 
@@ -354,9 +419,25 @@ public class ControladorJugador {
      * @post Se devuelve una lista (posiblemente vacía) con los nombres de todos los jugadores.
      */
     public List<String> getJugadoresRegistrados() {
-        return new ArrayList<>(jugadores.keySet());
+        return new ArrayList<>(getNombresJugadoresFromMap());
     }
     
+    /**
+     * Método privado para añadir un nombre a una lista.
+     *
+     * @pre lista no debe ser null, nombre no debe ser null.
+     * @param lista Lista donde se añadirá el nombre
+     * @param nombre Nombre a añadir a la lista
+     * @post El nombre se añade a la lista.
+     * @throws NullPointerException Si alguno de los parámetros es null.
+     */
+    private void addNombreToList(List<String> lista, String nombre) {
+        if (lista == null || nombre == null) {
+            throw new NullPointerException("La lista y el nombre no pueden ser null");
+        }
+        lista.add(nombre);
+    }
+
     /**
      * Obtiene una lista de nombres de todos los jugadores humanos.
      * 
@@ -367,9 +448,10 @@ public class ControladorJugador {
     public List<String> getJugadoresHumanos() {
         List<String> jugadoresHumanos = new ArrayList<>();
         
-        for (Map.Entry<String, Jugador> entry : jugadores.entrySet()) {
-            if (!entry.getValue().esIA()) {
-                jugadoresHumanos.add(entry.getKey());
+        for (String nombre : getJugadoresRegistrados()) {
+            Jugador jugador = getJugador(nombre);
+            if (!jugador.esIA()) {
+                addNombreToList(jugadoresHumanos, nombre);
             }
         }
         
@@ -386,97 +468,14 @@ public class ControladorJugador {
     public List<String> getJugadoresIA() {
         List<String> jugadoresIA = new ArrayList<>();
         
-        for (Map.Entry<String, Jugador> entry : jugadores.entrySet()) {
-            if (entry.getValue().esIA()) {
-                jugadoresIA.add(entry.getKey());
+        for (String nombre : getJugadoresRegistrados()) {
+            Jugador jugador = getJugador(nombre);
+            if (jugador.esIA()) {
+                addNombreToList(jugadoresIA, nombre);
             }
         }
         
         return jugadoresIA;
-    }
-    
-    /**
-     * Obtiene un jugador por su nombre.
-     * 
-     * @pre El nombre debe corresponder a un jugador existente.
-     * @param nombre Nombre del jugador
-     * @return Jugador encontrado o null si no existe
-     * @post Se devuelve el objeto Jugador asociado al nombre, o null si no existe.
-     * @throws NullPointerException Si el nombre es null.
-     */
-    private Jugador getJugador(String nombre) {
-        return jugadores.get(nombre);
-    }
-    
-    /**
-     * Incrementa el contador de partidas jugadas para un jugador en el ranking.
-     * 
-     * @pre No hay precondiciones específicas fuertes.
-     * @param nombre Nombre del jugador
-     * @return true si se incrementó correctamente, false en caso contrario
-     * @post Si el jugador existe y no es IA, se incrementa su contador de partidas jugadas y se devuelve true.
-     *       Si el jugador no existe o es IA, se devuelve false.
-     * @throws NullPointerException Si el nombre es null.
-     */
-    public boolean incrementarPartidasJugadas(String nombre) {
-        if (!existeJugador(nombre)) {
-            return false;
-        }
-        
-        if (esIA(nombre)) {
-            return false; // Las IAs no tienen contador de partidas
-        }
-        
-        // Delegar al ControladorRanking
-        ControladorRanking controladorRanking = ControladorRanking.getInstance();
-        controladorRanking.actualizarEstadisticasUsuario(nombre, false);
-        
-        return true;
-    }
-    
-    /**
-     * Incrementa el contador de partidas ganadas para un jugador en el ranking.
-     * 
-     * @pre No hay precondiciones específicas fuertes.
-     * @param nombre Nombre del jugador
-     * @return true si se incrementó correctamente, false en caso contrario
-     * @post Si el jugador existe y no es IA, se incrementa su contador de partidas ganadas y se devuelve true.
-     *       Si el jugador no existe o es IA, se devuelve false.
-     * @throws NullPointerException Si el nombre es null.
-     */
-    public boolean incrementarPartidasGanadas(String nombre) {
-        if (!existeJugador(nombre)) {
-            return false;
-        }
-        
-        if (esIA(nombre)) {
-            return false; // Las IAs no tienen contador de partidas
-        }
-        
-        // Delegar al ControladorRanking
-        ControladorRanking controladorRanking = ControladorRanking.getInstance();
-        controladorRanking.actualizarEstadisticasUsuario(nombre, true);
-        
-        return true;
-    }
-    
-    /**
-     * Obtiene la puntuación total acumulada de un jugador desde el ranking.
-     * 
-     * @pre No hay precondiciones específicas fuertes.
-     * @param nombre Nombre del jugador
-     * @return La puntuación total acumulada, o 0 si el jugador no existe o es una IA
-     * @post Se devuelve un entero no negativo que representa la puntuación total del jugador.
-     * @throws NullPointerException Si el nombre es null.
-     */
-    public int getPuntuacionTotal(String nombre) {
-        if (!existeJugador(nombre) || esIA(nombre)) {
-            return 0;
-        }
-        
-        // Obtener la puntuación desde el ControladorRanking
-        ControladorRanking controladorRanking = ControladorRanking.getInstance();
-        return controladorRanking.getPuntuacionTotal(nombre);
     }
     
     /**
@@ -512,7 +511,7 @@ public class ControladorJugador {
             return "";
         }
         
-        JugadorHumano jugador = (JugadorHumano) jugadores.get(nombre);
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
         return jugador.getNombrePartidaActual();
     }
     
@@ -532,67 +531,89 @@ public class ControladorJugador {
             return false;
         }
         
-        JugadorHumano jugador = (JugadorHumano) jugadores.get(nombre);
+        JugadorHumano jugador = (JugadorHumano) getJugador(nombre);
         jugador.setNombrePartidaActual(nombrePartida);
         guardarDatos();
         return true;
     }
+    
+    /**
+     * Método privado para añadir información a un mapa.
+     *
+     * @pre mapa no debe ser null, clave no debe ser null.
+     * @param mapa Mapa donde se añadirá la información
+     * @param clave Clave bajo la cual se almacenará el valor
+     * @param valor Valor a almacenar (puede ser null)
+     * @post La clave y valor se añaden al mapa.
+     * @throws NullPointerException Si mapa o clave son null.
+     */
+    private void addInfoToMap(Map<String, Object> mapa, String clave, Object valor) {
+        if (mapa == null || clave == null) {
+            throw new NullPointerException("El mapa y la clave no pueden ser null");
+        }
+        mapa.put(clave, valor);
+    }
 
     /**
-     * Obtiene la información básica de un jugador sin exponer el objeto de dominio.
-     * Actúa como un patrón de transferencia de datos (DTO) improvisado, devolviendo 
-     * solo datos primitivos o inmutables.
-     * 
-     * @pre No hay precondiciones específicas fuertes.
+     * Obtiene la información de un jugador como un mapa de datos.
+     * Este método proporciona encapsulación al devolver solo la información
+     * necesaria sin exponer directamente el objeto Jugador.
+     *
+     * @pre El jugador con el nombre especificado debe existir.
      * @param nombre Nombre del jugador
-     * @return Map con la información básica del jugador, o null si no existe
-     * @post Si el jugador existe, se devuelve un mapa con su información básica.
-     *       Si el jugador no existe, se devuelve null.
+     * @return Mapa con datos del jugador (nombre, tipo, puntuación, etc.)
+     * @post Se devuelve un mapa con la información relevante del jugador.
      * @throws NullPointerException Si el nombre es null.
+     * @throws IllegalArgumentException Si el jugador no existe.
      */
     public Map<String, Object> getInfoJugador(String nombre) {
+        if (nombre == null) {
+            throw new NullPointerException("El nombre no puede ser null");
+        }
+        
         if (!existeJugador(nombre)) {
-            return null;
+            throw new IllegalArgumentException("No existe un jugador con el nombre: " + nombre);
         }
         
         Jugador jugador = getJugador(nombre);
-        Map<String, Object> infoJugador = new HashMap<>();
+        Map<String, Object> info = new HashMap<>();
         
-        // Información común a todos los jugadores (solo valores primitivos o inmutables)
-        infoJugador.put("nombre", jugador.getNombre());
-        infoJugador.put("esIA", jugador.esIA());
-        infoJugador.put("skipTrack", jugador.getSkipTrack());
+        // Datos comunes
+        addInfoToMap(info, "nombre", jugador.getNombre());
+        addInfoToMap(info, "esIA", jugador.esIA());
+        addInfoToMap(info, "cantidadFichas", jugador.getCantidadFichas());
+        addInfoToMap(info, "skipTrack", jugador.getSkipTrack());
         
-        // Obtenemos la puntuación del ranking
-        ControladorRanking controladorRanking = ControladorRanking.getInstance();
-        infoJugador.put("puntuacion", controladorRanking.getPuntuacionTotal(nombre));
-        
-        // Información específica según el tipo de jugador
+        // Datos específicos según tipo
         if (jugador.esIA()) {
             JugadorIA jugadorIA = (JugadorIA) jugador;
-            // Convertimos la enumeración a String para no exponer el tipo Dificultad
-            infoJugador.put("nivelDificultad", jugadorIA.getNivelDificultad().toString());
+            addInfoToMap(info, "nivelDificultad", jugadorIA.getNivelDificultad());
         } else {
             JugadorHumano jugadorHumano = (JugadorHumano) jugador;
-            infoJugador.put("enPartida", jugadorHumano.isEnPartida());
-            infoJugador.put("nombrePartidaActual", jugadorHumano.getNombrePartidaActual());
+            addInfoToMap(info, "enPartida", jugadorHumano.isEnPartida());
+            addInfoToMap(info, "nombrePartidaActual", jugadorHumano.getNombrePartidaActual());
+            
+            // Obtener puntuación desde el controlador de ranking
+            ControladorRanking controladorRanking = ControladorRanking.getInstance();
+            addInfoToMap(info, "puntuacion", controladorRanking.getPuntuacionTotal(nombre));
         }
         
-        return infoJugador;
+        return info;
     }
-    
+
     /**
      * Guarda los datos de los jugadores en un archivo.
      * 
      * @pre No hay precondiciones específicas.
      * @post Los datos de los jugadores se guardan en el archivo especificado por JUGADORES_FILE.
-     *       En caso de error, se registra el mensaje en la consola de error.
      */
     private void guardarDatos() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(JUGADORES_FILE))) {
             oos.writeObject(jugadores);
         } catch (IOException e) {
-            System.err.println("Error al guardar los jugadores: " + e.getMessage());
+            // Capturamos la excepción y la convertimos en una excepción de runtime
+            // para no obligar a manejarla en cada llamada
+            throw new RuntimeException("Error al guardar los jugadores: " + e.getMessage(), e);
         }
     }
     
@@ -601,7 +622,7 @@ public class ControladorJugador {
      * 
      * @pre No hay precondiciones específicas.
      * @post Si el archivo existe y se puede leer correctamente, se cargan los datos de los jugadores.
-     *       En caso de error, se inicializa un mapa vacío y se registra el mensaje en la consola de error.
+     *       En caso de error, se inicializa un mapa vacío.
      */
     @SuppressWarnings("unchecked")
     private void cargarDatos() {
@@ -610,8 +631,9 @@ public class ControladorJugador {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(jugadoresFile))) {
                 jugadores = (Map<String, Jugador>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error al cargar los jugadores: " + e.getMessage());
                 jugadores = new HashMap<>(); // Si hay error, inicializar con uno nuevo
+                // Convertimos la excepción en runtime para no obligar a manejarla en cada llamada
+                throw new RuntimeException("Error al cargar los jugadores: " + e.getMessage() + ". Se inicializaron estructuras vacías.", e);
             }
         }
     }
@@ -636,7 +658,7 @@ public class ControladorJugador {
         }
         
         JugadorHumano nuevoJugador = new JugadorHumano(nombre);
-        jugadores.put(nombre, nuevoJugador);
+        addJugadorToMap(nombre, nuevoJugador);
         
         guardarDatos();
         return true;
@@ -665,7 +687,7 @@ public class ControladorJugador {
             return false;
         }
         
-        jugadores.put(nombreReal, nuevoJugadorIA);
+        addJugadorToMap(nombreReal, nuevoJugadorIA);
         guardarDatos();
         return true;
     }
@@ -701,8 +723,10 @@ public class ControladorJugador {
             return false;
         }
         
-        jugadores.remove(nombre);
-        guardarDatos();
-        return true;
+        boolean removed = removeJugadorFromMap(nombre);
+        if (removed) {
+            guardarDatos();
+        }
+        return removed;
     }
 }

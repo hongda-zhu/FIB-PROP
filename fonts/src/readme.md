@@ -13,12 +13,12 @@ Este directorio contiene todo el código fuente del proyecto Scrabble, organizad
   
   - **java/scrabble**: Archivos fuente Java organizados por paquetes
 
+  - **/resources**: directorio donde se importan los diccionarios al igual que se guardan los datos para la persistencia. 
 
 ### Código de Pruebas
 
 - **test/**  
   Contiene las pruebas unitarias y de integración que validan el funcionamiento del código.
   
-  - **java/scrabble**: los tests sobre las clases reflejan la estructura del código principal
-  - **resources/**: Recursos específicos para pruebas, como datos de prueba y configuraciones
+  - **java/scrabble**: contiene el  input los tests de las principales funcionalidades del driver.
 

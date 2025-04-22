@@ -1,11 +1,9 @@
 package scrabble.excepciones;
 
-import java.io.Serializable;
-
 /**
  * Excepción que se lanza cuando se intenta eliminar una palabra que no existe en el diccionario.
  */
-public class ExceptionPalabraNotExist extends Exception implements Serializable {
+public class ExceptionPalabraNotExist extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**

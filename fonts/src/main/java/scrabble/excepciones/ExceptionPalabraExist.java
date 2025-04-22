@@ -1,11 +1,9 @@
 package scrabble.excepciones;
 
-import java.io.Serializable;
-
 /**
  * Excepción que se lanza cuando se intenta añadir una palabra que ya existe en el diccionario.
  */
-public class ExceptionPalabraExist extends Exception implements Serializable {
+public class ExceptionPalabraExist extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**

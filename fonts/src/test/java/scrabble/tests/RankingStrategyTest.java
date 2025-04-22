@@ -387,4 +387,43 @@ public class RankingStrategyTest {
         stats.setPuntuacionTotal(-50);
         assertEquals("La puntuación total no debe cambiar con valor negativo", 100, stats.getPuntuacionTotal());
     }
+    
+    /**
+     * Prueba el comportamiento de RankingOrderStrategyFactory ante casos especiales y errores.
+     * Pre: Existe un proveedor de datos con estadísticas de jugadores.
+     * Post: Se verifica el comportamiento de la factory ante criterios inválidos y 
+     * se comprueba que lanza las excepciones esperadas.
+     */
+    @Test
+    public void testRankingOrderStrategyFactoryEdgeCases() {
+        // Criterio desconocido debería devolver la estrategia por defecto
+        RankingOrderStrategy unknownStrategy = RankingOrderStrategyFactory.createStrategy("criterio_desconocido", dataProvider);
+        assertTrue("La estrategia para un criterio desconocido debe ser PuntuacionTotalStrategy", 
+                  unknownStrategy instanceof PuntuacionTotalStrategy);
+        
+        // Criterio con otra capitalización debería funcionar igual
+        RankingOrderStrategy capitalizationStrategy = RankingOrderStrategyFactory.createStrategy("MaXiMa", dataProvider);
+        assertTrue("La estrategia debe ser insensible a mayúsculas/minúsculas", 
+                  capitalizationStrategy instanceof MaximaScoreStrategy);
+        
+        // Criterio vacío debería dar la estrategia por defecto
+        RankingOrderStrategy emptyStrategy = RankingOrderStrategyFactory.createStrategy("", dataProvider);
+        assertTrue("La estrategia para un criterio vacío debe ser PuntuacionTotalStrategy", 
+                  emptyStrategy instanceof PuntuacionTotalStrategy);
+        
+        // Criterio null debería dar la estrategia por defecto
+        RankingOrderStrategy nullStrategy = RankingOrderStrategyFactory.createStrategy(null, dataProvider);
+        assertTrue("La estrategia para un criterio null debe ser PuntuacionTotalStrategy", 
+                  nullStrategy instanceof PuntuacionTotalStrategy);
+        
+        try {
+            // DataProvider null debería lanzar IllegalArgumentException
+            RankingOrderStrategyFactory.createStrategy("maxima", null);
+            fail("Debería lanzar IllegalArgumentException con dataProvider null");
+        } catch (IllegalArgumentException e) {
+            // Comportamiento esperado
+        }
+    }
+    
+   
 }

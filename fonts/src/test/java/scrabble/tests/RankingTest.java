@@ -401,4 +401,236 @@ public class RankingTest {
         assertTrue("Jugador3 debe seguir en el ranking", usuariosRestantes.contains("Jugador3"));
         assertFalse("Jugador2 no debe estar en el ranking", usuariosRestantes.contains("Jugador2"));
     }
+    
+    /**
+     * Prueba el método agregarPuntuacionSinIncrementarPartidas.
+     * Pre: Existe una instancia de Ranking con un usuario que tiene estadísticas iniciales.
+     * Post: Se agrega correctamente una puntuación sin incrementar el contador de partidas.
+     */
+    @Test
+    public void testAgregarPuntuacionSinIncrementarPartidas() {
+        // Añadir un usuario y establecer estadísticas iniciales
+        ranking.agregarPuntuacion("Jugador1", 100);
+        ranking.actualizarEstadisticasUsuario("Jugador1", true); // 1 victoria, 1 partida
+        
+        // Verificar estadísticas iniciales
+        assertEquals("Debe tener 1 partida jugada", 1, ranking.getPartidasJugadas("Jugador1"));
+        assertEquals("Debe tener 1 puntuación", 1, ranking.getPuntuacionesUsuario("Jugador1").size());
+        
+        // Agregar puntuación sin incrementar partidas
+        assertTrue("Debe retornar true al agregar puntuación sin incrementar partidas", 
+                 ranking.agregarPuntuacionSinIncrementarPartidas("Jugador1", 50));
+        
+        // Verificar estadísticas actualizadas
+        assertEquals("Debe seguir teniendo 1 partida jugada", 1, ranking.getPartidasJugadas("Jugador1"));
+        assertEquals("Debe tener 2 puntuaciones", 2, ranking.getPuntuacionesUsuario("Jugador1").size());
+        assertEquals("La puntuación media debe ser 75.0", 75.0, ranking.getPuntuacionMedia("Jugador1"), 0.01);
+        assertEquals("La puntuación total debe ser 150", 150, ranking.getPuntuacionTotal("Jugador1"));
+        
+        // Verificar que no se aceptan puntuaciones negativas
+        assertFalse("Debe retornar false al agregar puntuación negativa", 
+                   ranking.agregarPuntuacionSinIncrementarPartidas("Jugador1", -10));
+    }
+    
+    /**
+     * Prueba el método setPuntuacionTotal.
+     * Pre: Existe una instancia de Ranking con un usuario que tiene estadísticas iniciales.
+     * Post: Se establece correctamente la puntuación total sin afectar a las puntuaciones individuales.
+     */
+    @Test
+    public void testSetPuntuacionTotal() {
+        // Añadir un usuario con puntuaciones iniciales
+        ranking.agregarPuntuacion("Jugador1", 100);
+        ranking.agregarPuntuacion("Jugador1", 50);
+        
+        // Verificar puntuación total inicial
+        assertEquals("La puntuación total inicial debe ser 150", 150, ranking.getPuntuacionTotal("Jugador1"));
+        assertEquals("Debe tener 2 puntuaciones individuales", 2, ranking.getPuntuacionesUsuario("Jugador1").size());
+        
+        // Establecer nueva puntuación total
+        assertTrue("Debe retornar true al establecer puntuación total", 
+                 ranking.setPuntuacionTotal("Jugador1", 200));
+        
+        // Verificar que se ha actualizado la puntuación total
+        assertEquals("La puntuación total debe ser 200", 200, ranking.getPuntuacionTotal("Jugador1"));
+        
+        // Verificar que las puntuaciones individuales no han cambiado
+        assertEquals("Debe seguir teniendo 2 puntuaciones individuales", 
+                    2, ranking.getPuntuacionesUsuario("Jugador1").size());
+        
+        // Verificar que no se aceptan puntuaciones negativas
+        assertFalse("Debe retornar false al establecer puntuación negativa", 
+                   ranking.setPuntuacionTotal("Jugador1", -50));
+        
+        // Verificar que la puntuación total no ha cambiado
+        assertEquals("La puntuación total debe seguir siendo 200", 200, ranking.getPuntuacionTotal("Jugador1"));
+        
+        // Verificar que no se puede establecer para un usuario inexistente
+        assertFalse("Debe retornar false para usuario inexistente", 
+                   ranking.setPuntuacionTotal("JugadorInexistente", 300));
+    }
+    
+    /**
+     * Prueba el manejo de valores null y excepciones en los métodos del Ranking.
+     * Pre: Existe una instancia de Ranking vacía.
+     * Post: Se verifica que los métodos manejan correctamente los parámetros null.
+     */
+    @Test
+    public void testExcepcionesYValoresNull() {
+        // Probar setEstrategia con null
+        try {
+            ranking.setEstrategia(null);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        // Probar agregarPuntuacion con username null
+        try {
+            ranking.agregarPuntuacion(null, 100);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        // Probar actualizarEstadisticasUsuario con username null
+        try {
+            ranking.actualizarEstadisticasUsuario(null, true);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        // Probar eliminarPuntuacion con username null
+        try {
+            ranking.eliminarPuntuacion(null, 100);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        // Probar existePuntuacion con username null
+        try {
+            ranking.existePuntuacion(null, 100);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        // Probar getPuntuacionesUsuario con username null
+        try {
+            ranking.getPuntuacionesUsuario(null);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        // Probar otros métodos que reciben username
+        try {
+            ranking.getPuntuacionMaxima(null);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        try {
+            ranking.getPuntuacionMedia(null);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        try {
+            ranking.perteneceRanking(null);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+        
+        try {
+            ranking.eliminarUsuario(null);
+            fail("Debería lanzar NullPointerException");
+        } catch (NullPointerException e) {
+            // Comportamiento esperado
+        }
+    }
+    
+    /**
+     * Prueba las funcionalidades de ordenamiento del Ranking con diferentes criterios.
+     * Pre: Existe una instancia de Ranking con un conjunto complejo de usuarios.
+     * Post: Se verifica el comportamiento de ordenamiento con diferentes estrategias 
+     * y conjuntos de datos, incluyendo casos especiales.
+     */
+    @Test
+    public void testOrdenamientoAvanzado() {
+        // Configurar usuarios con diferentes perfiles de puntuación
+        
+        // Usuario1: Pocas puntuaciones pero muy altas (máxima alta, media alta)
+        ranking.agregarPuntuacion("Usuario1", 1000);
+        ranking.agregarPuntuacion("Usuario1", 900);
+        ranking.actualizarEstadisticasUsuario("Usuario1", true);
+        ranking.actualizarEstadisticasUsuario("Usuario1", true);
+        
+        // Usuario2: Muchas puntuaciones bajas (máxima baja, media baja, pero muchas partidas)
+        for (int i = 0; i < 20; i++) {
+            ranking.agregarPuntuacion("Usuario2", 50);
+            ranking.actualizarEstadisticasUsuario("Usuario2", i < 5); // 5 victorias
+        }
+        
+        // Usuario3: Puntuaciones medias (máxima media, media media, victorias proporcionales)
+        for (int i = 0; i < 10; i++) {
+            ranking.agregarPuntuacion("Usuario3", 200 + i * 10); // De 200 a 290
+            ranking.actualizarEstadisticasUsuario("Usuario3", i < 7); // 7 victorias
+        }
+        
+        // Usuario4: Un usuario sin puntuaciones pero con partidas
+        for (int i = 0; i < 5; i++) {
+            ranking.actualizarEstadisticasUsuario("Usuario4", i < 3); // 3 victorias
+        }
+        
+        // Probar ordenamiento por puntuación máxima
+        ranking.setEstrategia("maxima");
+        List<String> rankingMaxima = ranking.getRanking();
+        assertEquals("Usuario1", rankingMaxima.get(0)); // Tiene 1000 como máxima
+        assertEquals("Usuario3", rankingMaxima.get(1)); // Tiene 290 como máxima
+        assertEquals("Usuario2", rankingMaxima.get(2)); // Tiene 50 como máxima
+        assertEquals("Usuario4", rankingMaxima.get(3)); // Tiene 0 como máxima
+        
+        // Probar ordenamiento por victorias
+        ranking.setEstrategia("victorias");
+        List<String> rankingVictorias = ranking.getRanking();
+        assertEquals("Usuario3", rankingVictorias.get(0)); // 7 victorias
+        assertEquals("Usuario2", rankingVictorias.get(1)); // 5 victorias
+        assertEquals("Usuario4", rankingVictorias.get(2)); // 3 victorias
+        assertEquals("Usuario1", rankingVictorias.get(3)); // 2 victorias
+        
+        // Probar ordenamiento por partidas
+        ranking.setEstrategia("partidas");
+        List<String> rankingPartidas = ranking.getRanking();
+        assertEquals("Usuario2", rankingPartidas.get(0)); // 20 partidas
+        assertEquals("Usuario3", rankingPartidas.get(1)); // 10 partidas
+        assertEquals("Usuario4", rankingPartidas.get(2)); // 5 partidas
+        assertEquals("Usuario1", rankingPartidas.get(3)); // 2 partidas
+        
+        // Eliminar un usuario y verificar que ya no aparece en el ranking
+        ranking.eliminarUsuario("Usuario3");
+        List<String> nuevoRanking = ranking.getRanking();
+        assertEquals(3, nuevoRanking.size());
+        assertFalse(nuevoRanking.contains("Usuario3"));
+        
+        // Añadir usuarios con misma puntuación para verificar ordenamiento alfabético secundario
+        ranking.setEstrategia("maxima");
+        ranking.eliminarUsuario("Usuario1");
+        ranking.eliminarUsuario("Usuario2");
+        ranking.eliminarUsuario("Usuario4");
+        
+        ranking.agregarPuntuacion("UsuarioB", 100);
+        ranking.agregarPuntuacion("UsuarioA", 100);
+        ranking.agregarPuntuacion("UsuarioC", 100);
+        
+        List<String> rankingAlfabetico = ranking.getRanking();
+        assertEquals("UsuarioA", rankingAlfabetico.get(0));
+        assertEquals("UsuarioB", rankingAlfabetico.get(1));
+        assertEquals("UsuarioC", rankingAlfabetico.get(2));
+    }
 }

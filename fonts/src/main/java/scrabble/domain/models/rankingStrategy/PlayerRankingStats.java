@@ -42,15 +42,43 @@ public class PlayerRankingStats implements Serializable {
     
     /**
      * Añade una nueva puntuación y actualiza las estadísticas.
-     * También suma esta puntuación a la puntuación total acumulada.
+     * Solo actualiza la puntuación máxima y la puntuación total acumulada, sin afectar al contador de partidas.
      * 
      * @pre La puntuación debe ser no negativa.
      * @param puntuacion Puntuación a añadir
-     * @post Si la puntuación es válida, se añade a la lista de puntuaciones y se actualizan las estadísticas.
+     * @post Si la puntuación es válida, se añade a la lista de puntuaciones, se actualiza la puntuación máxima,
+     *       se incrementa la puntuación total acumulada y se recalcula la puntuación media.
      *       Si la puntuación es negativa, no se realiza ninguna acción.
      */
     public void addPuntuacion(int puntuacion) {
         if (puntuacion < 0) return;
+        
+        addPuntuacionSinIncrementarPartidas(puntuacion);
+        
+        // NO incrementar partidasJugadas aquí
+    }
+    
+    /**
+     * Añade una nueva puntuación y actualiza las estadísticas sin incrementar el contador de partidas.
+     * Útil cuando ya se ha incrementado el contador a través de actualizarEstadisticas.
+     * 
+     * @pre La puntuación debe ser no negativa.
+     * @param puntuacion Puntuación a añadir
+     * @post Si la puntuación es válida, se añade a la lista de puntuaciones, se actualiza la puntuación máxima,
+     *       se incrementa la puntuación total acumulada y se recalcula la puntuación media.
+     *       El contador de partidas jugadas no se modifica.
+     *       Si la puntuación es negativa, no se realiza ninguna acción.
+     */
+    public void addPuntuacionSinIncrementarPartidas(int puntuacion) {
+        if (puntuacion < 0) return;
+        
+        // Verificar si esta puntuación ya existe para evitar duplicados
+        // cuando se llama después de actualizarEstadisticas
+        if (contienePuntuacion(puntuacion)) {
+            // Si ya existe esta puntuación exacta, solo actualizamos la puntuación total
+            puntuacionTotalAcumulada += puntuacion;
+            return;
+        }
         
         puntuaciones.add(puntuacion);
         
@@ -60,14 +88,31 @@ public class PlayerRankingStats implements Serializable {
         }
         
         // Recalcular media
+        recalcularMedia();
+        
+        // Actualizar puntuación total acumulada
+        puntuacionTotalAcumulada += puntuacion;
+    }
+    
+    /**
+     * Recalcula la puntuación media basada en las puntuaciones actuales.
+     * La media se calcula como el total de puntuaciones dividido por el número de puntuaciones.
+     * Si no hay puntuaciones, la media se establece a 0.
+     */
+    private void recalcularMedia() {
+        if (puntuaciones.isEmpty()) {
+            puntuacionMedia = 0;
+            return;
+        }
+        
+        // Calcular la suma de todas las puntuaciones
         double suma = 0;
         for (Integer p : puntuaciones) {
             suma += p;
         }
-        puntuacionMedia = puntuaciones.isEmpty() ? 0 : suma / puntuaciones.size();
         
-        // Actualizar puntuación total acumulada
-        puntuacionTotalAcumulada += puntuacion;
+        // La media es la suma dividida por el número de puntuaciones (NO por partidasJugadas)
+        puntuacionMedia = suma / puntuaciones.size();
     }
     
     /**
@@ -91,22 +136,25 @@ public class PlayerRankingStats implements Serializable {
             }
             
             // Recalcular puntuación máxima
-            puntuacionMaxima = 0;
-            for (Integer p : puntuaciones) {
-                if (p > puntuacionMaxima) {
-                    puntuacionMaxima = p;
-                }
-            }
+            recalcularPuntuacionMaxima();
             
             // Recalcular media
-            double suma = 0;
-            for (Integer p : puntuaciones) {
-                suma += p;
-            }
-            puntuacionMedia = puntuaciones.isEmpty() ? 0 : suma / puntuaciones.size();
+            recalcularMedia();
         }
         
         return removed;
+    }
+    
+    /**
+     * Recalcula la puntuación máxima basada en las puntuaciones actuales.
+     */
+    private void recalcularPuntuacionMaxima() {
+        puntuacionMaxima = 0;
+        for (Integer p : puntuaciones) {
+            if (p > puntuacionMaxima) {
+                puntuacionMaxima = p;
+            }
+        }
     }
     
     /**
@@ -116,12 +164,16 @@ public class PlayerRankingStats implements Serializable {
      * @param esVictoria true si el jugador ganó la partida
      * @post Se incrementa el contador de partidas jugadas en 1.
      *       Si esVictoria es true, también se incrementa el contador de victorias en 1.
+     *       Además, se recalcula la puntuación media basada en las partidas actualizadas.
      */
     public void actualizarEstadisticas(boolean esVictoria) {
         partidasJugadas++;
         if (esVictoria) {
             victorias++;
         }
+        
+        // Recalcular la puntuación media ya que el número de partidas ha cambiado
+        recalcularMedia();
     }
     
     /**
@@ -136,17 +188,17 @@ public class PlayerRankingStats implements Serializable {
     }
     
     /**
-     * Establece la puntuación total acumulada directamente.
-     * Este método NO afecta a las puntuaciones individuales ni a sus estadísticas (máxima, media).
+     * Establece la puntuación total acumulada directamente sin afectar a las puntuaciones
+     * individuales ni alterar sus estadísticas (máxima, media).
      * 
      * @pre La puntuación debe ser no negativa.
-     * @param puntuacionAgregada La nueva puntuación total acumulada
+     * @param puntuacionTotal La nueva puntuación total acumulada
      * @post Si la puntuación es válida, se establece como la nueva puntuación total acumulada.
      *       Si la puntuación es negativa, no se realiza ninguna acción.
      */
-    public void setPuntuacionTotal(int puntuacionAgregada) {
-        if (puntuacionAgregada < 0) return;
-        this.puntuacionTotalAcumulada = puntuacionAgregada;
+    public void setPuntuacionTotal(int puntuacionTotal) {
+        if (puntuacionTotal < 0) return;
+        this.puntuacionTotalAcumulada = puntuacionTotal;
     }
     
     // Getters

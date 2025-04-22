@@ -1,6 +1,8 @@
 package scrabble.domain.models;
 
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Clase que implementa un Grafo Acíclico Dirigido para Palabras (DAWG, Directed Acyclic Word Graph).
@@ -139,5 +141,38 @@ public class Dawg {
         return currentNode != null && currentNode.isFinal();
     }
 
+    /**
+     * Obtiene todas las palabras almacenadas en el DAWG.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Lista de todas las palabras almacenadas en el DAWG
+     * @post Se devuelve una lista (posiblemente vacía) con todas las palabras almacenadas en el DAWG.
+     */
+    public List<String> getAllWords() {
+        List<String> result = new ArrayList<>();
+        collectWords(root, "", result);
+        return result;
+    }
+
+    /**
+     * Método auxiliar recursivo para recolectar todas las palabras del DAWG.
+     * 
+     * @pre node no debe ser null, prefix y result no deben ser null.
+     * @param node Nodo actual en la recursión
+     * @param prefix Prefijo acumulado hasta el nodo actual
+     * @param result Lista donde se almacenan las palabras encontradas
+     * @post La lista result se actualiza con todas las palabras encontradas a partir del nodo actual.
+     */
+    private void collectWords(DawgNode node, String prefix, List<String> result) {
+        if (node.isFinal()) {
+            result.add(prefix);
+        }
+        
+        Set<String> edges = node.getAllEdges();
+        for (String edge : edges) {
+            DawgNode nextNode = node.getEdge(edge);
+            collectWords(nextNode, prefix + edge, result);
+        }
+    }
 
 }

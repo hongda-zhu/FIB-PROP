@@ -6,6 +6,7 @@ import scrabble.domain.models.Dawg;
 import scrabble.domain.models.DawgNode;
 
 import java.util.Set;
+import java.util.List;
 import static org.junit.Assert.*;
 
 /**
@@ -384,5 +385,170 @@ public class DawgTest {
                      dawg.search("casa"), dawg.isFinal("casa"));
         assertEquals("isFinal('xyz') debería ser consistente con search('xyz')", 
                      dawg.search("xyz"), dawg.isFinal("xyz"));
+    }
+
+    /**
+     * Pre: Se ha creado una instancia de Dawg y se han insertado varias palabras.
+     * Post: Se verifica que getAllWords() devuelve correctamente todas las palabras almacenadas.
+     *
+     * Comprueba la funcionalidad para obtener todas las palabras almacenadas en el Dawg.
+     * Aporta validación de la correcta implementación del método getAllWords y,
+     * indirectamente, del método privado collectWords.
+     */
+    @Test
+    public void testGetAllWords() {
+        // Insertar varias palabras
+        dawg.insert("casa");
+        dawg.insert("caso");
+        dawg.insert("cama");
+        dawg.insert("sol");
+        dawg.insert("solo");
+        dawg.insert("a");
+        
+        // Obtener todas las palabras
+        List<String> palabras = dawg.getAllWords();
+        
+        // Verificar que la lista no es nula y contiene el número correcto de palabras
+        assertNotNull("La lista de palabras no debería ser null", palabras);
+        assertEquals("La lista debería contener 6 palabras", 6, palabras.size());
+        
+        // Verificar que contiene todas las palabras insertadas
+        assertTrue("La lista debería contener 'casa'", palabras.contains("casa"));
+        assertTrue("La lista debería contener 'caso'", palabras.contains("caso"));
+        assertTrue("La lista debería contener 'cama'", palabras.contains("cama"));
+        assertTrue("La lista debería contener 'sol'", palabras.contains("sol"));
+        assertTrue("La lista debería contener 'solo'", palabras.contains("solo"));
+        assertTrue("La lista debería contener 'a'", palabras.contains("a"));
+        
+        // Verificar que no contiene palabras no insertadas
+        assertFalse("La lista no debería contener 'casas'", palabras.contains("casas"));
+        assertFalse("La lista no debería contener 'b'", palabras.contains("b"));
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Dawg vacía (sin palabras).
+     * Post: Se verifica que getAllWords() devuelve una lista vacía.
+     *
+     * Comprueba el comportamiento de getAllWords con un Dawg vacío.
+     */
+    @Test
+    public void testGetAllWordsEmptyDawg() {
+        // El DAWG está vacío (no se insertan palabras)
+        
+        // Obtener todas las palabras
+        List<String> palabras = dawg.getAllWords();
+        
+        // Verificar que la lista no es nula pero está vacía
+        assertNotNull("La lista de palabras no debería ser null", palabras);
+        assertTrue("La lista debería estar vacía", palabras.isEmpty());
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Dawg con palabras que comparten prefijos.
+     * Post: Se verifica que getAllWords() devuelve correctamente todas las palabras,
+     * incluyendo aquellas que son prefijos de otras.
+     *
+     * Comprueba la funcionalidad de collectWords (indirectamente) con palabras
+     * que tienen relaciones de prefijo.
+     */
+    @Test
+    public void testGetAllWordsWithPrefixes() {
+        // Insertar palabras con prefijos comunes
+        dawg.insert("a");
+        dawg.insert("an");
+        dawg.insert("ant");
+        dawg.insert("ante");
+        dawg.insert("anti");
+        
+        // Obtener todas las palabras
+        List<String> palabras = dawg.getAllWords();
+        
+        // Verificar que la lista contiene el número correcto de palabras
+        assertEquals("La lista debería contener 5 palabras", 5, palabras.size());
+        
+        // Verificar que contiene todas las palabras insertadas
+        assertTrue("La lista debería contener 'a'", palabras.contains("a"));
+        assertTrue("La lista debería contener 'an'", palabras.contains("an"));
+        assertTrue("La lista debería contener 'ant'", palabras.contains("ant"));
+        assertTrue("La lista debería contener 'ante'", palabras.contains("ante"));
+        assertTrue("La lista debería contener 'anti'", palabras.contains("anti"));
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Dawg con palabras de diferentes longitudes.
+     * Post: Se verifica que getAllWords() maneja correctamente palabras cortas, largas y
+     * con caracteres especiales.
+     *
+     * Comprueba el comportamiento de collectWords (indirectamente) con palabras diversas.
+     */
+    @Test
+    public void testGetAllWordsWithDiverseWords() {
+        // Palabra corta (1 letra)
+        dawg.insert("a");
+        
+        // Palabra larga
+        dawg.insert("supercalifragilisticoespialidoso");
+        
+        // Palabras con caracteres especiales
+        dawg.insert("café");
+        dawg.insert("niño");
+        
+        // Palabras con mayúsculas y minúsculas mezcladas
+        dawg.insert("CaSa");
+        dawg.insert("PERRO");
+        
+        // Obtener todas las palabras
+        List<String> palabras = dawg.getAllWords();
+        
+        // Verificar que la lista contiene el número correcto de palabras
+        assertEquals("La lista debería contener 6 palabras", 6, palabras.size());
+        
+        // Verificar que contiene todas las palabras insertadas
+        assertTrue("La lista debería contener 'a'", palabras.contains("a"));
+        assertTrue("La lista debería contener 'supercalifragilisticoespialidoso'", 
+                  palabras.contains("supercalifragilisticoespialidoso"));
+        assertTrue("La lista debería contener 'café'", palabras.contains("café"));
+        assertTrue("La lista debería contener 'niño'", palabras.contains("niño"));
+        assertTrue("La lista debería contener 'CaSa'", palabras.contains("CaSa"));
+        assertTrue("La lista debería contener 'PERRO'", palabras.contains("PERRO"));
+    }
+    
+    /**
+     * Pre: Se ha creado una instancia de Dawg, se han insertado palabras y luego se han insertado más.
+     * Post: Se verifica que getAllWords() refleja el estado actual del Dawg después de múltiples modificaciones.
+     *
+     * Comprueba que getAllWords devuelve el estado actual del Dawg después de cambios.
+     */
+    @Test
+    public void testGetAllWordsAfterMultipleInsertions() {
+        // Primera ronda de inserciones
+        dawg.insert("uno");
+        dawg.insert("dos");
+        
+        // Verificar palabras después de la primera ronda
+        List<String> primeraRonda = dawg.getAllWords();
+        assertEquals("Después de la primera ronda debería haber 2 palabras", 2, primeraRonda.size());
+        assertTrue("Debería contener 'uno'", primeraRonda.contains("uno"));
+        assertTrue("Debería contener 'dos'", primeraRonda.contains("dos"));
+        
+        // Segunda ronda de inserciones
+        dawg.insert("tres");
+        dawg.insert("cuatro");
+        
+        // Verificar palabras después de la segunda ronda
+        List<String> segundaRonda = dawg.getAllWords();
+        assertEquals("Después de la segunda ronda debería haber 4 palabras", 4, segundaRonda.size());
+        assertTrue("Debería contener 'uno'", segundaRonda.contains("uno"));
+        assertTrue("Debería contener 'dos'", segundaRonda.contains("dos"));
+        assertTrue("Debería contener 'tres'", segundaRonda.contains("tres"));
+        assertTrue("Debería contener 'cuatro'", segundaRonda.contains("cuatro"));
+        
+        // Insertar una palabra duplicada
+        dawg.insert("dos");
+        
+        // Verificar que no hay cambios después de insertar un duplicado
+        List<String> trasDuplicado = dawg.getAllWords();
+        assertEquals("Después de insertar un duplicado debería seguir habiendo 4 palabras", 
+                    4, trasDuplicado.size());
     }
 }

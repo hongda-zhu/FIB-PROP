@@ -1,0 +1,7 @@
+scrabble.domain
+scrabble.domain.controllers
+scrabble.domain.controllers.subcontrollers
+scrabble.domain.models
+scrabble.domain.models.rankingStrategy
+scrabble.excepciones
+scrabble.helpers

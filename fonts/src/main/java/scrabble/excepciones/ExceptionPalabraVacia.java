@@ -1,11 +1,9 @@
 package scrabble.excepciones;
 
-import java.io.Serializable;
-
 /**
  * Excepción que se lanza cuando se intenta procesar una palabra vacía.
  */
-public class ExceptionPalabraVacia extends Exception implements Serializable {
+public class ExceptionPalabraVacia extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**
