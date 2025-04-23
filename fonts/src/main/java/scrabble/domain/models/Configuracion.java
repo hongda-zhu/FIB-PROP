@@ -1,6 +1,7 @@
 package scrabble.domain.models;
 
 import java.io.Serializable;
+
 import scrabble.helpers.Idioma;
  
 /**
@@ -10,6 +11,10 @@ import scrabble.helpers.Idioma;
 public class Configuracion implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    /**
+    * Enum que representa el tema de la aplicación
+    * 
+    */
     public enum Tema {
         CLARO,
         OSCURO

@@ -72,14 +72,7 @@ public class PlayerRankingStats implements Serializable {
     public void addPuntuacionSinIncrementarPartidas(int puntuacion) {
         if (puntuacion < 0) return;
         
-        // Verificar si esta puntuación ya existe para evitar duplicados
-        // cuando se llama después de actualizarEstadisticas
-        if (contienePuntuacion(puntuacion)) {
-            // Si ya existe esta puntuación exacta, solo actualizamos la puntuación total
-            puntuacionTotalAcumulada += puntuacion;
-            return;
-        }
-        
+        // Añadimos todas las puntuaciones, incluso si ya existen, para mantener un registro histórico completo
         puntuaciones.add(puntuacion);
         
         // Actualizar puntuación máxima
@@ -87,16 +80,16 @@ public class PlayerRankingStats implements Serializable {
             puntuacionMaxima = puntuacion;
         }
         
-        // Recalcular media
-        recalcularMedia();
-        
         // Actualizar puntuación total acumulada
         puntuacionTotalAcumulada += puntuacion;
+        
+        // Recalcular media
+        recalcularMedia();
     }
     
     /**
      * Recalcula la puntuación media basada en las puntuaciones actuales.
-     * La media se calcula como el total de puntuaciones dividido por el número de puntuaciones.
+     * La media se calcula como la puntuación total acumulada dividida por el número de puntuaciones.
      * Si no hay puntuaciones, la media se establece a 0.
      */
     private void recalcularMedia() {
@@ -105,14 +98,8 @@ public class PlayerRankingStats implements Serializable {
             return;
         }
         
-        // Calcular la suma de todas las puntuaciones
-        double suma = 0;
-        for (Integer p : puntuaciones) {
-            suma += p;
-        }
-        
-        // La media es la suma dividida por el número de puntuaciones (NO por partidasJugadas)
-        puntuacionMedia = suma / puntuaciones.size();
+        // La media es la puntuación total acumulada dividida por el número de puntuaciones
+        puntuacionMedia = (double) puntuacionTotalAcumulada / puntuaciones.size();
     }
     
     /**
@@ -193,12 +180,15 @@ public class PlayerRankingStats implements Serializable {
      * 
      * @pre La puntuación debe ser no negativa.
      * @param puntuacionTotal La nueva puntuación total acumulada
-     * @post Si la puntuación es válida, se establece como la nueva puntuación total acumulada.
-     *       Si la puntuación es negativa, no se realiza ninguna acción.
+     * @post Si la puntuación es válida, se establece como la nueva puntuación total acumulada
+     *       y se recalcula la puntuación media. Si la puntuación es negativa, no se realiza ninguna acción.
      */
     public void setPuntuacionTotal(int puntuacionTotal) {
         if (puntuacionTotal < 0) return;
         this.puntuacionTotalAcumulada = puntuacionTotal;
+        
+        // Recalcular la media con el nuevo total
+        recalcularMedia();
     }
     
     // Getters

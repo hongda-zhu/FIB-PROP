@@ -1,0 +1,676 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileTempJava UP-TO-DATE
+> Task :processTempResources UP-TO-DATE
+> Task :tempClasses UP-TO-DATE
+
+> Task :runTemp
+Inicializando datos de ranking para demostración...
+Datos de ranking inicializados correctamente.
+
+Resumen de estadísticas generadas:
+----------------------------------
+Jugador | Partidas | Victorias | Puntuación Total | Máxima | Media
+----------------------------------------------------------
+hongda  | 3        | 2         | 295             | 120    | 98.33
+xuanyi  | 5        | 1         | 395             | 110    | 78.75
+jiahao  | 5        | 3         | 2315            | 1000   | 328.75
+songhe  | 5        | 2         | 2345            | 2000   | 561.25
+----------------------------------------------------------
+
+Bienvenido al Driver del Dominio.
+Escriba 'help' para ver los comandos disponibles
+Escriba 'quit' para salir
+
++------------------------------------------------------------------------------+
+| MENÚ PRINCIPAL |                                                             |
++------------------------------------------------------------------------------+
+|                 Selecciona un menú o ejecuta un comando.                     |
+|                                                                              |
+|                           [ 1 ] Gestión de Jugadores                         |
+|                           [ 2 ] Gestión de Diccionarios                      |
+|                           [ 3 ] Gestión de Partidas                          |
+|                           [ 4 ] Gestión de Rankings                          |
+|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 6 ] Ejecutar Archivo                             |
+|                           [ 0 ] Salir                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS |                                                        |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   [ 1 ] Iniciar una nueva partida  - Configura una nueva partida.            |
+|   [ 2 ] Cargar partida             - Carga una partida guardada.             |
+|   [ 3 ] Eliminar partida           - Eliminar una partida guardada.          |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
+Mostrando menu de incializacion...
++------------------------------------------------------------------------------+
+| JUGADORES DISPONIBLES PARA SELECCIONAR                                       |
++------------------------------------------------------------------------------+
+| Jugadores Humanos:                                                           |
+| - admin                                                                      |
+| - hongda                                                                     |
+| - jiahao                                                                     |
+| - songhe                                                                     |
+| - xuanyi                                                                     |
+|                                                                              |
+| Jugadores IA:                                                                |
+| - DummyEZ                                                                    |
+| - DummyHardCore                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| No hay jugadores seleccionados.      |
+|                                      |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| AÑADIR JUGADOR                                                               |
++------------------------------------------------------------------------------+
+| Introduce el nombre de usuario del jugador:                                  |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
+|                                                                              |
+|   ✓ El usuario 'jiahao' ha sido añadido correctamente a la partida.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| AÑADIR JUGADOR                                                               |
++------------------------------------------------------------------------------+
+| Introduce el nombre de usuario del jugador:                                  |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
+|                                                                              |
+|   ✓ El usuario 'hongda' ha sido añadido correctamente a la partida.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| JUGADORES SELECCIONADOS              |
++--------------------------------------+
+| - jiahao                              |
+| - hongda                              |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| AÑADIR JUGADOR                                                               |
++------------------------------------------------------------------------------+
+| Introduce el nombre de usuario del jugador:                                  |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
+|                                                                              |
+|   ✓ El usuario 'jiahao' ha sido añadido correctamente a la partida.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| JUGADORES SELECCIONADOS              |
++--------------------------------------+
+| - jiahao                              |
+| - hongda                              |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
++------------------------------------------------------------------------------+
+| Introduce el nombre de usuario del jugador a eliminar:                       |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                     |
+|                                                                              |
+|   ✓ El usuario 'jiahao' ha sido eliminado correctamente de la partida.       |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                      |
++------------------------------------------------------------------------------+
+| Introduce el nombre de usuario del jugador a eliminar:                       |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                     |
+|                                                                              |
+|   ✗ Error: El usuario 'jiahao' no está en la lista de jugadores              |
+|   seleccionados.                                                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| JUGADORES SELECCIONADOS              |
++--------------------------------------+
+| - hongda                              |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| AÑADIR JUGADOR                                                               |
++------------------------------------------------------------------------------+
+| Introduce el nombre de usuario del jugador:                                  |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
+|                                                                              |
+|   ✓ El usuario 'jiahao' ha sido añadido correctamente a la partida.          |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| JUGADORES DISPONIBLES PARA SELECCIONAR                                       |
++------------------------------------------------------------------------------+
+| Jugadores Humanos:                                                           |
+| - admin                                                                      |
+| - hongda                                                                     |
+| - jiahao                                                                     |
+| - songhe                                                                     |
+| - xuanyi                                                                     |
+|                                                                              |
+| Jugadores IA:                                                                |
+| - DummyEZ                                                                    |
+| - DummyHardCore                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| JUGADORES SELECCIONADOS              |
++--------------------------------------+
+| - jiahao                           |
+| - hongda                           |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| DICCIONARIOS DISPONIBLES                                                    |
++------------------------------------------------------------------------------+
+| - CAT                                                                        |
+| - ENG                                                                        |
+| - ESP                                                                        |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
++------------------------------------------------------------------------------+
+|   Seleciona el diccionario que quieras usar.                                 |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
+|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
+|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| INFORMACIÓN                                                                  |
+|                                                                              |
+| No se ha seleccionado ningún diccionario.                                    |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
++------------------------------------------------------------------------------+
+|   Seleciona el diccionario que quieras usar.                                 |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
+|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
+|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
+Introduce el nombre del diccionario a seleccionar: 
++------------------------------------------------------------------------------+
+| INFORMACIÓN                                                                  |
+|                                                                              |
+| Diccionario seleccionado correctamente: ESP                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
++------------------------------------------------------------------------------+
+|   Seleciona el diccionario que quieras usar.                                 |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
+|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
+|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| INFORMACIÓN                                                                  |
+|                                                                              |
+  | Diccionario seleccionado correctamente: ESP                             |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
++------------------------------------------------------------------------------+
+|   Seleciona el diccionario que quieras usar.                                 |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
+|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
+|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| DICCIONARIOS DISPONIBLES                                                    |
++------------------------------------------------------------------------------+
+| - CAT                                                                        |
+| - ENG                                                                        |
+| - ESP                                                                        |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
++------------------------------------------------------------------------------+
+|   Seleciona el diccionario que quieras usar.                                 |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
+|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
+|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| INFORMACIÓN                                                                  |
+|                                                                              |
+  | Diccionario seleccionado correctamente: ESP                                  |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:     |
+| 15x15                                |
+|                                      |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
++------------------------------------------------------------------------------+
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:     |
+| 15x15                                |
+|                                      |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
++------------------------------------------------------------------------------+
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
+Introduce el tamaño del tablero (N x N) [Solo un numero > 15]: 
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:    |
+| 20x20                              |
+|                                      |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
++------------------------------------------------------------------------------+
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:     |
+| 20x20                                |
+|                                      |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
++------------------------------------------------------------------------------+
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
+Introduce el tamaño del tablero (N x N) [Solo un numero > 15]: 
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:    |
+| 15x15                              |
+|                                      |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
++------------------------------------------------------------------------------+
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
+Volviendo a Gestión de Partidas...
++------------------------------------------------------------------------------+
+| DICCIONARIOS DISPONIBLES                                                    |
++------------------------------------------------------------------------------+
+| - CAT                                                                        |
+| - ENG                                                                        |
+| - ESP                                                                        |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
++------------------------------------------------------------------------------+
+|   Seleciona el diccionario que quieras usar.                                 |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
+|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
+|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
+Volviendo a Gestión de Partidas...
++------------------------------------------------------------------------------+
+| JUGADORES DISPONIBLES PARA SELECCIONAR                                       |
++------------------------------------------------------------------------------+
+| Jugadores Humanos:                                                           |
+| - admin                                                                      |
+| - hongda                                                                     |
+| - jiahao                                                                     |
+| - songhe                                                                     |
+| - xuanyi                                                                     |
+|                                                                              |
+| Jugadores IA:                                                                |
+| - DummyEZ                                                                    |
+| - DummyHardCore                                                              |
++------------------------------------------------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
++------------------------------------------------------------------------------+
+|   Anade jugadores a tu juego!                                                |
+|                                                                              |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver jugadores             - Ver jugadores actuales de la partida     |
+|   [ 3 ] Anadir jugador            - Anadir jugadores actuales del juego      |
+|   [ 4 ] Eliminar jugador          - Eliminar jugadores actuales del juego    |
+|   [ 5 ] Ver jugadores disponibles - Ver jugadores actuales del juego         |
+|                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
+Volviendo a Gestión de Partidas...
+Volviendo a Gestión de Partidas...
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS |                                                        |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   [ 1 ] Iniciar una nueva partida  - Configura una nueva partida.            |
+|   [ 2 ] Cargar partida             - Carga una partida guardada.             |
+|   [ 3 ] Eliminar partida           - Eliminar una partida guardada.          |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
+Mostrando menu de carga de partidas...
++--------------------------------------+
+| No hay partidas guardadas disponibles |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS |                                                        |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   [ 1 ] Iniciar una nueva partida  - Configura una nueva partida.            |
+|   [ 2 ] Cargar partida             - Carga una partida guardada.             |
+|   [ 3 ] Eliminar partida           - Eliminar una partida guardada.          |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
+Mostrando menu de eliminacion de partidas...
++--------------------------------------+
+| No hay partidas guardadas disponibles |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS |                                                        |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   [ 1 ] Iniciar una nueva partida  - Configura una nueva partida.            |
+|   [ 2 ] Cargar partida             - Carga una partida guardada.             |
+|   [ 3 ] Eliminar partida           - Eliminar una partida guardada.          |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+| MENÚ PRINCIPAL |                                                             |
++------------------------------------------------------------------------------+
+|                 Selecciona un menú o ejecuta un comando.                     |
+|                                                                              |
+|                           [ 1 ] Gestión de Jugadores                         |
+|                           [ 2 ] Gestión de Diccionarios                      |
+|                           [ 3 ] Gestión de Partidas                          |
+|                           [ 4 ] Gestión de Rankings                          |
+|                           [ 5 ] Gestión de Configuración                     |
+|                           [ 6 ] Ejecutar Archivo                             |
+|                           [ 0 ] Salir                                        |
+|                                                                              |
++------------------------------------------------------------------------------+
+
+Limpiando archivos de persistencia antes de cerrar...
+
+BUILD SUCCESSFUL in 2s
+5 actionable tasks: 1 executed, 4 up-to-date

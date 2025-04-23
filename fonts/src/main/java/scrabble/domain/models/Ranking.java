@@ -90,7 +90,7 @@ public class Ranking implements RankingDataProvider {
         // Obtener o crear estadísticas para este usuario
         PlayerRankingStats stats = estadisticasUsuarios.computeIfAbsent(nombre, 
                                                                  PlayerRankingStats::new);
-        // Agregar puntuación sin incrementar partidas jugadas
+        // Agregar puntuación sin incrementar partidas
         stats.addPuntuacionSinIncrementarPartidas(puntuacion);
         
         return true;

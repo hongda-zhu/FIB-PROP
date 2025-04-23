@@ -1,8 +1,3 @@
----
-config:
-  layout: elk
-  theme: neo-dark
----
 classDiagram
     direction TB
     class ControladorDomain {
@@ -19,7 +14,7 @@ classDiagram
         +crearJugadorIA(Dificultad dificultad, String nombre) void
         +getJugadoresIA() List~String~
         +getNombre(String nombre) String
-        +mostrarTodosUsuariosDebug() void
+    
         +setIdioma(String idioma) void
         +setTema(String tema) void
         +setVolumen(int volumen) void
@@ -36,6 +31,7 @@ classDiagram
         +cogerFichas(int cantidad) Map~String,Integer~
         +getCantidadFichas(String nombre) int
         +agregarFicha(String nombre, String letra) void
+        +intercambiarFichas (String nombre, List~String~ Letras) boolean
         +getPuntuacion(String nombre) int
         +iniciarPartida(Set~String~ jugadoresSeleccionados, String nombreDiccionario, int N) void
         +getCantidadFichasRestantes() int
@@ -76,6 +72,7 @@ classDiagram
         +modificarPalabraDiccionario(String nombre, String palabra, boolean anadir) void
         +modificarPalabraEnDiccionario(String nombre, String palabraOriginal, String palabraNueva) void
         +getCaracteresAlfabeto(String nombreDiccionario) Set~Character~
+        +getTokensAlfabeto(Strig nombreDiccionario)Set ~String~
         +existePalabra(String nombreDiccionario, String palabra) boolean
         +verificarDiccionarioValido(String nombreDiccionario) boolean
         +esDiccionarioValido(String rutaDirectorio) boolean
@@ -97,17 +94,13 @@ classDiagram
         +getNombrePartidaActual(String nombre) String
         +setNombrePartidaActual(String nombre, String nombrePartida) boolean
         +intercambiarFichas(String nombre, List<String> letras) boolean
+        +limpiarPersistencias() boolean
     }
     class ControladorConfiguracion {
         -configuracion : Configuracion
         +ControladorConfiguracion()
-        +obteneridioma() : String
-        +obtenerTema() : String
-        +obtenerVolumen() : int
-        +setIdioma(String i) : void
-        +setTema(String t) : void
-        +setVolumen(int v) : void
     }
+    
     class ControladorJuego {
         -serialVersionUID$ : long
         -idPartida : int
@@ -143,8 +136,6 @@ classDiagram
         +realizarTurno(Triple~String,Tuple~Integer,Integer~,Direction~ move, String nombreJugador, Map~String,Integer~ rack, boolean isIA, Dificultad dificultad) : Tuple~Map~String,Integer~,Integer~
         +finalizarJuego() : void
         +reiniciarJuego() : void
-        +isJuegoTerminado() : boolean
-        +isJuegoIniciado() : boolean
         +mostrarStatusPartida(String nombreJugador) : String
         +guardar() : boolean
         +cargarDesdeArchivo(int idPartida) : void
@@ -159,6 +150,9 @@ classDiagram
         -jugadores : Map~String,Jugador~
         -JUGADORES_FILE$ : String
         -ControladorJugador()
+        -addJugadorToMap(String nombre, Jugador jugador) void
+        -removeJugadorFromMap(String nombre) boolean
+        -getJugador(String nombre)
         +getInstance$() : ControladorJugador
         +getSkipTrack(String nombre) : int
         +clearSkipTrack(String nombre) : void
@@ -170,7 +164,6 @@ classDiagram
         +inicializarRack(String nombre, Map~String,Integer~ rack) : void
         +getNombre(String nombre) : String
         +addSkipTrack(String nombre) : void
-        +getTodosUsuariosDebug() : List~String~
         +esIA(String nombre) : boolean
         +existeJugador(String nombre) : boolean
         +isEnPartida(String nombre) : boolean
@@ -262,15 +255,12 @@ classDiagram
         #skipTrack : int
         #nombre : String
         +Jugador(String nombre)
-        +getNombre() : String
+
         +inicializarRack(Map~String,Integer~ rack) : void
-        +getRack() : Map~String,Integer~
         +sacarFicha(String ficha) : Tuple~String,Integer~
         +agregarFicha(String ficha) : void
         +getCantidadFichas() : int
         +addSkipTrack() : void
-        +setSkipTrack(int skipTrack) : void
-        +getSkipTrack() : int
         +esIA()* : boolean  # Mètode abstracte marcat amb *
         +clearSkipTrack() : void
     }
@@ -279,10 +269,6 @@ classDiagram
         -enPartida : boolean
         -nombrePartidaActual : String
         +JugadorHumano(String nombre)
-        +setEnPartida(boolean enPartida) : void
-        +isEnPartida() : boolean
-        +getNombrePartidaActual() : String
-        +setNombrePartidaActual(String nombrePartida) : void
         +esIA() : boolean
         +getFichas() : Map~String,Integer~
         +toString() : String
@@ -294,8 +280,6 @@ classDiagram
         +JugadorIA(String nombre, Dificultad dificultad)
         +JugadorIA(Dificultad dificultad)
         -generarNombreIA$(Dificultad dificultad) : String
-        +setNivelDificultad(Dificultad dificultad) : void
-        +getNivelDificultad() : Dificultad
         +getPartidasJugadas() : int
         +esIA() : boolean
         +getFichas() : Map~String,Integer~
@@ -313,12 +297,9 @@ classDiagram
         -inicializarTablero15x15() : Bonus[][]
         +Tablero(Tablero tablero2)
         +toString() : String
-        +getTile(Tuple~Integer,Integer~ pos) : String
-        +setTile(Tuple~Integer,Integer~ pos, String letra) : void
         +validPosition(Tuple~Integer,Integer~ pos) : boolean
         +isEmpty(Tuple~Integer,Integer~ pos) : boolean
         +isFilled(Tuple~Integer,Integer~ pos) : boolean
-        +getSize() : int
         +getCenter() : Tuple~Integer,Integer~
         -calcularSiguientePosicion(Tuple~Integer,Integer~ pos, Direction dir) : Tuple~Integer,Integer~
         -calcularPuntosLetra(char letra, Tuple~Integer,Integer~ pos) : Tuple~Integer,Integer~
@@ -342,17 +323,12 @@ classDiagram
         -bag : Map~String,Integer~
         -comodines : Set~String~
         +Diccionario()
-        +setDawg(List~String~ palabras) : void
         -inicializarDawg(Dawg dawg, List~String~ palabras) : void
-        +setAlphabet(List~String~ lineas) : void
         -isValidChar(String s) : boolean
-        +getAlphabet() : Map~String,Integer~
-        +getBag() : Map~String,Integer~
         +getComodines() : Set~String~
         +contienePalabra(String palabra) : boolean
         +esComodin(String caracter) : boolean
         -isValidWord(String palabra) : boolean
-        +getFichas() : Map~String,Integer~
         +getPuntaje(String c) : int
         +getAvailableEdges(String palabraParcial) : Set~String~
         +isFinal(String palabraParcial) : boolean
@@ -382,20 +358,12 @@ classDiagram
         -volumen : int
         -tema : Tema
         +Configuracion()
-        +obteneridioma() : String
-        +obtenerTema() : String
-        +obtenerVolumen() : int
-        +setIdioma(String i) : void
-        +setTema(String t) : void
-        +setVolumen(int v) : void
     }
     class Ranking {
         -serialVersionUID$ : long
         -estadisticasUsuarios : Map~String,PlayerRankingStats~
         -estrategiaActual : RankingOrderStrategy
         +Ranking()
-        +setEstrategia(String criterio) : void
-        +getEstrategiaActual() : String  # Corregit: El codi retorna String
         +agregarPuntuacion(String nombre, int puntuacion) : boolean
         +actualizarEstadisticasUsuario(String nombre, boolean esVictoria) : void
         +eliminarPuntuacion(String nombre, int puntuacion) : boolean
@@ -429,15 +397,6 @@ classDiagram
         +addPuntuacion(int puntuacion) : void
         -recalcularEstadisticas() : void
         +removePuntuacion(int puntuacion) : boolean
-        +actualizarEstadisticas(boolean esVictoria) : void
-        +getPuntuacionTotal() : int
-        +setPuntuacionTotal(int puntuacionAgregada) : void
-        +getUsername() : String
-        +getPuntuaciones() : List~Integer~
-        +getPuntuacionMaxima() : int
-        +getPuntuacionMedia() : double
-        +getPartidasJugadas() : int
-        +getVictorias() : int
         +contienePuntuacion(int puntuacion) : boolean
     }
     class RankingOrderStrategy {
@@ -497,7 +456,7 @@ classDiagram
     }
 namespace scrabble.helpers {
   class Tuple~X, Y~ {
-    +X x
+    +X W
     +Y y
     +Tuple(x: X, y: Y)
     +equals(o: Object) boolean
@@ -557,3 +516,4 @@ namespace scrabble.helpers {
     PartidasJugadasStrategy ..> RankingDataProvider
     VictoriasStrategy ..> RankingDataProvider
     PuntuacionTotalStrategy ..> RankingDataProvider
+

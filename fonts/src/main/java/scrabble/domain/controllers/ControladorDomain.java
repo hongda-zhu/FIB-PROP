@@ -254,43 +254,46 @@ public class ControladorDomain {
         return (move.x == "P" || move.x == "CF")? null: controladorJuego.realizarTurno(move, nombreJugador, rack, esIA, dificultad);
     }
 
-    public void managePartidaIniciar(String idiomaSeleccionado, Set<String> jugadoresSeleccionados, Integer N) throws IOException{
+    public void managePartidaIniciar(String idiomaSeleccionado, Map<String, Integer> jugadoresSeleccionados, Integer N) throws IOException{
         
         iniciarPartida(jugadoresSeleccionados, idiomaSeleccionado, N);
         // Inicializar a los jugadores para la partida (marcando que están en partida)
-        List<String> listaJugadores = new ArrayList<>(jugadoresSeleccionados);
+        List<String> listaJugadores = new ArrayList<>(jugadoresSeleccionados.keySet());
         inicializarJugadoresPartida(listaJugadores);
     }
 
-    public void realizarTurnoPartida(String nombreJugador, Triple<String, Tuple<Integer, Integer>, Direction> jugada) {
+    public int realizarTurnoPartida (String nombreJugador, Triple<String, Tuple<Integer, Integer>, Direction> jugada) {
         
-            Tuple<Map<String, Integer>, Integer> result = realizarTurno(jugada, nombreJugador);
-            if (result == null) {
-                addSkipTrack(nombreJugador);
+        Tuple<Map<String, Integer>, Integer> result = realizarTurno(jugada, nombreJugador);
+        if (result == null) {
+            addSkipTrack(nombreJugador);
+        } else {
+            inicializarRack(nombreJugador, result.x);
+
+            Map<String, Integer> nuevasFicha = cogerFichas(7 - getCantidadFichas(nombreJugador));
+            
+            if (nuevasFicha == null) {
+                controladorJuego.finalizarJuego();
             } else {
-                inicializarRack(nombreJugador, result.x);
-                addPuntuacion(nombreJugador, result.y);
-                Map<String, Integer> nuevasFicha = cogerFichas(7 - getCantidadFichas(nombreJugador));
-                
-                if (nuevasFicha == null) {
-                    controladorJuego.finalizarJuego();
-                } else {
-                    for (Map.Entry<String, Integer> fichas : nuevasFicha.entrySet()) {
-                        String letra = fichas.getKey();
-                        int cantidad = fichas.getValue();
-                        for (int i = 0; i < cantidad; i++) {
-                            agregarFicha(nombreJugador, letra);
-                        }   
-                    }
+                for (Map.Entry<String, Integer> fichas : nuevasFicha.entrySet()) {
+                    String letra = fichas.getKey();
+                    int cantidad = fichas.getValue();
+                    for (int i = 0; i < cantidad; i++) {
+                        agregarFicha(nombreJugador, letra);
+                    }   
                 }
-                controladorJugador.clearSkipTrack(nombreJugador);
-            }               
+            }
+            controladorJugador.clearSkipTrack(nombreJugador);
+
+            return result.y;
+        }
+        return 0;               
     }
 
-    public void comprobarFinPartida(Set<String> jugadoresSeleccionados) {
+    public void comprobarFinPartida(Map<String, Integer> jugadoresSeleccionados) {
         boolean allskiped = true;
 
-        for (String entry : jugadoresSeleccionados) {
+        for (String entry : jugadoresSeleccionados.keySet()) {
             String nombreJugador = entry;
             if (getSkipTrack(nombreJugador) < 3) {
                 allskiped = false;
@@ -436,12 +439,16 @@ public class ControladorDomain {
     * @param N tamaño del tablero; si es distinto de 15, se crea un tablero personalizado de NxN.
     *     
     */  
-    public void iniciarPartida(Set<String> jugadoresSeleccionados, String nombreDiccionario, int N) {
+    public void iniciarPartida(Map<String, Integer> jugadoresSeleccionados, String nombreDiccionario, int N) {
     
-        controladorJuego.inicializarJuego(N, jugadoresSeleccionados, nombreDiccionario);
+        Map<String, Integer> jugadoresPuntuaciones = new HashMap<>();
+        for (String jugador : jugadoresSeleccionados.keySet()) {
+            jugadoresPuntuaciones.put(jugador, 0);
+        }
+        controladorJuego.inicializarJuego(N, jugadoresPuntuaciones, nombreDiccionario);
         
         // Inicializar racks para todos los jugadores
-        for (String jugador : jugadoresSeleccionados) {
+        for (String jugador : jugadoresSeleccionados.keySet()) {
             Map<String, Integer> rack = controladorJuego.cogerFichas(7);
             if (rack == null) {
                 controladorJuego.finalizarJuego();
@@ -461,17 +468,10 @@ public class ControladorDomain {
     /**
      * Finaliza el juego actual y realiza tareas de limpieza si es necesario.
      */
-    public String finalizarJuego(Set<String> jugadoresSeleccionados) {
-
-        Map<String, Integer> puntuacionesFinales = new HashMap<>();
+    public String finalizarJuego(Map<String, Integer> jugadoresSeleccionados) {
         
-        for (String jugador : jugadoresSeleccionados) {
+        for (String jugador : jugadoresSeleccionados.keySet()) {
             controladorJugador.clearSkipTrack(jugador);
-        }
-
-         // Recopilar las puntuaciones finales
-         for (String nombreJugador : jugadoresSeleccionados) {
-            puntuacionesFinales.put(nombreJugador, getPuntuacion(nombreJugador));
         }
         
         // Determinar el ganador o ganadores (en caso de empate)
@@ -479,21 +479,21 @@ public class ControladorDomain {
         List<String> ganadores = new ArrayList<>();
         
         // Primero encontramos la puntuación máxima
-        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
+        for (Map.Entry<String, Integer> entry : jugadoresSeleccionados.entrySet()) {
             if (entry.getValue() > maxPuntuacion) {
                 maxPuntuacion = entry.getValue();
             }
         }
         
         // Luego identificamos todos los jugadores con esa puntuación máxima (pueden ser varios en caso de empate)
-        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
+        for (Map.Entry<String, Integer> entry : jugadoresSeleccionados.entrySet()) {
             if (entry.getValue() == maxPuntuacion) {
                 ganadores.add(entry.getKey());
             }
         }
         
         // Ahora actualizamos las estadísticas para todos los jugadores, marcando múltiples ganadores si es necesario
-        finalizarPartidaJugadoresMultiple(puntuacionesFinales, ganadores);
+        finalizarPartidaJugadoresMultiple(jugadoresSeleccionados, ganadores);
         
         // Mensaje de resultado
         StringBuilder mensajeGanadores = new StringBuilder();
@@ -525,7 +525,7 @@ public class ControladorDomain {
         // Mostrar resultados finales
         mensajeGanadores.append("+--------------------------------------+\n");
         mensajeGanadores.append("  RESULTADOS FINALES                    \n");
-        for (Map.Entry<String, Integer> entry : puntuacionesFinales.entrySet()) {
+        for (Map.Entry<String, Integer> entry : jugadoresSeleccionados.entrySet()) {
             mensajeGanadores.append(String.format("  %-20s : %4d puntos\n", entry.getKey(), entry.getValue()));
         }
         mensajeGanadores.append("+--------------------------------------+\n");
@@ -533,7 +533,7 @@ public class ControladorDomain {
         
         controladorJuego.reiniciarJuego();
         
-        for (String nombreJugador : jugadoresSeleccionados) {
+        for (String nombreJugador : jugadoresSeleccionados.keySet()) {
             controladorJugador.clearSkipTrack(nombreJugador);
             
             // Actualizar el estado de los jugadores humanos (desvincularlos de la partida)
@@ -668,6 +668,15 @@ public class ControladorDomain {
         return controladorRanking.perteneceRanking(nombre);
     }
 
+
+    /**
+     * Actualiza las puntuaciones de los jugadores seleccionados en el ranking.
+     * @param jugadoresSeleccionados Mapa de jugadores y sus puntuaciones
+     */
+    public void actualizarJugadores(String nombre, int puntuacion) {
+        controladorJuego.actualizarPuntuaciones(nombre, puntuacion);
+    }
+
     /**
      * Guarda los datos del ranking.
      */
@@ -787,6 +796,7 @@ public class ControladorDomain {
             // Solo aplicamos esto a jugadores humanos
             if (!controladorJugador.esIA(nombre)) {
                 controladorJugador.setEnPartida(nombre, true);
+                
             }
         }
     }
@@ -817,14 +827,12 @@ public class ControladorDomain {
                 controladorJugador.setNombrePartidaActual(nombre, "");
                 
                 // Actualizar estadísticas en el ranking
-                // NOTA: actualizarEstadisticasUsuario ya incrementa el contador de partidas
                 boolean esGanador = ganadores.contains(nombre);
                 controladorRanking.actualizarEstadisticasUsuario(nombre, esGanador);
                 
-                // Agregar puntuación al ranking
-                // Usamos agregarPuntuacion en lugar de agregarPuntuacionSinIncrementarPartidas
-                // para evitar duplicados en las puntuaciones
-                controladorRanking.agregarPuntuacion(nombre, puntuacion);
+                // Agregar puntuación al ranking SIN incrementar el contador de partidas
+                // ya que ya lo hicimos en actualizarEstadisticasUsuario
+                controladorRanking.agregarPuntuacionSinIncrementarPartidas(nombre, puntuacion);
             }
         }
     }
@@ -1110,8 +1118,8 @@ public class ControladorDomain {
         return ControladorJuego.listarArchivosGuardados();
     }
     public boolean eliminarPartidaGuardada(Integer nombrePartida) {
-        Set<String> jugadores = ControladorJuego.getJugadoresPorId(nombrePartida);
-        for (String jugador : jugadores) {
+        Map<String, Integer> jugadores = ControladorJuego.getJugadoresPorId(nombrePartida);
+        for (String jugador : jugadores.keySet()) {
             if (!controladorJugador.esIA(jugador)) {
                 controladorJugador.setEnPartida(jugador, false);
                 controladorJugador.setNombrePartidaActual(jugador, "");
@@ -1121,14 +1129,14 @@ public class ControladorDomain {
     }
 
     public void aliberarJugadoresActuales() {
-        Set<String> jugadoresSeleccionados = controladorJuego.getJugadoresActuales();
-        for (String jugador : jugadoresSeleccionados) {
+        Map<String, Integer> jugadoresSeleccionados = controladorJuego.getJugadoresActuales();
+        for (String jugador :jugadoresSeleccionados.keySet()) {
             controladorJugador.setEnPartida(jugador, false);
             controladorJugador.setNombrePartidaActual(jugador, "");
         }
     }
 
-    public Set<String> getJugadoresActuales() {
+    public Map<String, Integer> getJugadoresActuales() {
         return controladorJuego.getJugadoresActuales();
     }
 

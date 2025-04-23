@@ -107,9 +107,7 @@ public class DomainDriver {
                     case "0":
                     case "salir":
                         // Limpiar persistencias antes de salir
-                        System.out.println("\nLimpiando archivos de persistencia antes de cerrar...");
                         controladorDomain.limpiarPersistencias();
-                        System.out.println("¡Hasta pronto!");
                         System.exit(0);
                         break;
                     
@@ -245,12 +243,13 @@ public class DomainDriver {
     }
 
 
-    public static void managePartidaIniciar(String idiomaSeleccionado, Set<String> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException{
+    public static void managePartidaIniciar(String idiomaSeleccionado, Map<String, Integer> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException{
+
         if (!cargado) controladorDomain.managePartidaIniciar(idiomaSeleccionado, jugadoresSeleccionados, N);
 
         while (!controladorDomain.isJuegoTerminado()) {
 
-            for (String nombreJugador : jugadoresSeleccionados) {
+            for (String nombreJugador : jugadoresSeleccionados.keySet()) {
 
                 System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
                 System.out.println(controladorDomain.mostrarRack(nombreJugador));
@@ -287,12 +286,13 @@ public class DomainDriver {
                         }
                     }
                 }
-                controladorDomain.realizarTurnoPartida(nombreJugador, result);
+                int puntoGanados = controladorDomain.realizarTurnoPartida(nombreJugador, result);
+                controladorDomain.actualizarJugadores(nombreJugador, puntoGanados);
+
             }
             controladorDomain.comprobarFinPartida(jugadoresSeleccionados);
         }
-               
-        System.out.println(controladorDomain.finalizarJuego(jugadoresSeleccionados));
+        System.out.println(controladorDomain.finalizarJuego(controladorDomain.getJugadoresActuales()));
     }  
 
     private static List<String> pedirFichasCambiar(Map<String,Integer> rack) {
@@ -2469,7 +2469,7 @@ public class DomainDriver {
     public static void managePartidaDefinir() throws IOException {
         boolean volver = false;
         String idiomaSeleccionado = "";
-        Set<String> jugadoresSeleccionados = new HashSet<>();
+        Map<String, Integer> jugadoresSeleccionados = new HashMap<>();
         Integer N = -1;
         String step = "1";
 
@@ -2486,7 +2486,7 @@ public class DomainDriver {
                     break;
                 case "1":
                     //comprovar parametros configurar o iniciar directamente
-                    Tuple<Set<String>, String> resJugador = managePartidaJugadores();
+                    Tuple<Map<String, Integer>, String> resJugador = managePartidaJugadores();
                     jugadoresSeleccionados = resJugador.x;
                     step = resJugador.y;
                     break;
@@ -2529,9 +2529,10 @@ public class DomainDriver {
             }
         }
     }
-    public static Tuple<Set<String>, String> managePartidaJugadores() throws IOException {
+    public static Tuple<Map<String, Integer>, String> managePartidaJugadores() throws IOException {
         boolean volver = false;
-        Set<String> jugadoresSeleccionados = new HashSet<>();
+        Map<String, Integer> jugadoresSeleccionados = new HashMap<String, Integer>();
+        
 
 
         System.out.println("+------------------------------------------------------------------------------+");
@@ -2589,12 +2590,12 @@ public class DomainDriver {
                         System.out.println("+--------------------------------------+");
                         System.out.println("| JUGADORES SELECCIONADOS              |");
                         System.out.println("+--------------------------------------+");
-                        for (String jugador : jugadoresSeleccionados) {
+                        for (String jugador : jugadoresSeleccionados.keySet()) {
                             System.out.printf("| - %-32s |\n", jugador);
                         }
                         System.out.println("+--------------------------------------+");
                         volver = true;
-                        return new Tuple<Set<String>, String>(jugadoresSeleccionados, "2"); // Salir del bucle y devolver los jugadores seleccionados
+                        return new Tuple<Map<String, Integer>, String>(jugadoresSeleccionados, "2"); // Salir del bucle y devolver los jugadores seleccionados
                     }
                 case "2":
                     // Mostrar jugadores existentes
@@ -2609,7 +2610,7 @@ public class DomainDriver {
                         System.out.println("+--------------------------------------+");
                         System.out.println("| JUGADORES SELECCIONADOS              |");
                         System.out.println("+--------------------------------------+");
-                        for (String jugador : jugadoresSeleccionados) {
+                        for (String jugador : jugadoresSeleccionados.keySet()) {
                             System.out.printf("| - %-35s |\n", jugador);
                         }
                         System.out.println("+--------------------------------------+");
@@ -2635,7 +2636,7 @@ public class DomainDriver {
                         }
                         
                         // El nombre es también el ID en el nuevo sistema
-                        jugadoresSeleccionados.add(nombre);
+                        jugadoresSeleccionados.put(nombre, 0); // Añadir jugador a la lista de seleccionados
 
                         // Mostrar mensaje formateado en caja
                         showNotification("GESTIÓN DE JUGADORES > AÑADIR JUGADOR ",
@@ -2659,7 +2660,7 @@ public class DomainDriver {
 
                     String nombreEliminar = readLine();
 
-                    if (jugadoresSeleccionados.contains(nombreEliminar)) {
+                    if (jugadoresSeleccionados.containsKey(nombreEliminar)) {
                         jugadoresSeleccionados.remove(nombreEliminar);
                         showNotification("GESTIÓN DE JUGADORES > ELIMINAR JUGADOR",
                                 "✓ El usuario '" + nombreEliminar + "' ha sido eliminado correctamente de la partida.");
@@ -2708,7 +2709,7 @@ public class DomainDriver {
             }
         }
 
-        return new Tuple<Set<String>,String>(new HashSet<>(), "0"); // Devolver un conjunto vacío si no se seleccionan jugadores
+        return new Tuple<Map<String, Integer>,String>(new HashMap<>(), "0"); // Devolver un conjunto vacío si no se seleccionan jugadores
     }
 
     public static Tuple<Integer, String> managePartidaTablero() throws IOException {

@@ -30,7 +30,10 @@ public class ControladorJuego implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private int idPartida;
-
+    /**
+    * Controlador para la gestión de usuarios.
+    * Implementa el patrón Singleton para garantizar una única instancia.
+    */
     public enum Direction {
         HORIZONTAL,
         VERTICAL
@@ -45,7 +48,7 @@ public class ControladorJuego implements Serializable {
     private boolean juegoIniciado;
     private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
     private String nombreDiccionario;
-    private Set<String> jugadores;
+    private Map<String, Integer> jugadores;
 
     private Set<String> alfabeto = Set.of(
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
@@ -87,7 +90,7 @@ public class ControladorJuego implements Serializable {
      * @throws NullPointerException Si alguno de los parámetros es null.
      * @throws IllegalArgumentException Si N es menor que 1 o si el conjunto de jugadores está vacío.
      */
-    public void inicializarJuego(int N, Set<String> jugadores, String nombreDiccionario) {
+    public void inicializarJuego(int N, Map<String, Integer> jugadores, String nombreDiccionario) {
         this.tablero = new Tablero(N);
         this.nombreDiccionario = nombreDiccionario;
         this.jugadores = jugadores;
@@ -839,6 +842,10 @@ public class ControladorJuego implements Serializable {
         return juegoIniciado;
     }
 
+    public void actualizarPuntuaciones(String nombre, int puntuacion) {
+        this.jugadores.put(nombre, this.jugadores.get(nombre) + puntuacion);
+    }
+
     /**
      * Genera una cadena de texto que representa el estado actual de la partida,
      * incluyendo el tablero y la cantidad de fichas restantes.
@@ -1044,7 +1051,7 @@ public class ControladorJuego implements Serializable {
      * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
     @SuppressWarnings("unchecked")
-    public static Set<String> getJugadoresPorId(int idPartida) {
+    public static Map<String, Integer> getJugadoresPorId(int idPartida) {
         String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
         File archivo = new File(nombreArchivo);
         Map<Integer, ControladorJuego> mapa;
@@ -1058,7 +1065,7 @@ public class ControladorJuego implements Serializable {
             if (obj instanceof Map) {
                 mapa = (Map<Integer, ControladorJuego>) obj;
                 ControladorJuego controlador = mapa.get(idPartida);
-                return controlador != null ? controlador.getJugadoresActuales() : new HashSet<>();
+                return controlador != null ? controlador.getJugadoresActuales() : new HashMap<String, Integer>();
             } else {
                 throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
             }
@@ -1075,7 +1082,7 @@ public class ControladorJuego implements Serializable {
      * Puede devolver un Set vacío si no hay jugadores.
      * @post Se devuelve una copia del conjunto de jugadores sin modificar el estado del juego.
      */
-    public Set<String> getJugadoresActuales() {
+    public Map<String, Integer> getJugadoresActuales() {
         // Asume que existe una variable de instancia Set<String> jugadores
         return jugadores;
     }

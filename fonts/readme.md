@@ -21,7 +21,7 @@ Este directorio contiene el proyecto completo de Scrabble, implementado como una
 
 - **src/**  
   Contiene todo el código fuente de la aplicación, pruebas y recursos.
-  
+
   - **main/**: Código fuente principal de la aplicación
   - **test/**: Pruebas unitarias y de integración
 
@@ -40,19 +40,37 @@ Este directorio contiene el proyecto completo de Scrabble, implementado como una
 ## Flujo de Construcción y Ejecución
 
 1. **Compilación**:
+
    ```
    ./gradlew build
    ```
+
    Compila el código fuente, ejecuta las pruebas y genera los artefactos.
 
 2. **Ejecución de pruebas**:
+
    ```
    ./gradlew test
    ```
+
    Ejecuta todas las pruebas unitarias y de integración.
 
 3. **Ejecución de la aplicación**:
+
    ```
    ./gradlew run
    ```
+
    Inicia la aplicación principal.
+
+4. **Ejecución de la aplicación 2**:
+
+.\gradlew.bat runTemp "-PmainClass=scrabble.domain.DomainDriver" --stacktrace
+
+Ejecutar la propia tasca
+
+5. **Ejecución de la aplicación a partir de exe**:
+
+Situados en la carpeta exe:
+
+java -jar .\scrabble.jar

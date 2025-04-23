@@ -6,257 +6,22 @@
 > Task :tempClasses UP-TO-DATE
 
 > Task :runTemp
+Inicializando datos de ranking para demostración...
+Datos de ranking inicializados correctamente.
+
+Resumen de estadísticas generadas:
+----------------------------------
+Jugador | Partidas | Victorias | Puntuación Total | Máxima | Media
+----------------------------------------------------------
+hongda  | 3        | 2         | 295             | 120    | 98.33
+xuanyi  | 5        | 1         | 395             | 110    | 78.75
+jiahao  | 5        | 3         | 2315            | 1000   | 328.75
+songhe  | 5        | 2         | 2345            | 2000   | 561.25
+----------------------------------------------------------
 
 Bienvenido al Driver del Dominio.
 Escriba 'help' para ver los comandos disponibles
 Escriba 'quit' para salir
-
-+------------------------------------------------------------------------------+
-| MENÚ PRINCIPAL |                                                             |
-+------------------------------------------------------------------------------+
-|                 Selecciona un menú o ejecuta un comando.                     |
-|                                                                              |
-|                           [ 1 ] Gestión de Jugadores                         |
-|                           [ 2 ] Gestión de Diccionarios                      |
-|                           [ 3 ] Gestión de Partidas                          |
-|                           [ 4 ] Gestión de Rankings                          |
-|                           [ 5 ] Gestión de Configuración                     |
-|                           [ 6 ] Ejecutar Archivo                             |
-|                           [ 0 ] Salir                                        |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES |                                                       |
-|                                                                              |
-|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
-|   [ 2 ] Eliminar jugador           - Elimina un jugador existente.           |
-|   [ 3 ] Mostrar jugadores          - Muestra todos los jugadores registrados.|
-|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
-|                                                                              |
-|   ¿Cómo crear un nuevo jugador?                                              |
-|   Introduce un nombre de jugador                                             |
-|                                                                              |
-|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
-|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
-|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES > CREAR JUGADOR > INTRODUCIR NOMBRE                     |
-|                                                                              |
-|   Introduce un nombre de jugador:                                            |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| JUGADORES REGISTRADOS                                                        |
-+------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
-+-------------------+-----------+---------+-------------------+----------------+
-| test1             | Humano    | No      | -                 | No en ranking  | ★
-+------------------------------------------------------------------------------+
-| Total jugadores: 1 (Humanos: 1)                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
-|                                                                              |
-|   ¡Jugador 'test1' creado correctamente!                                        |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
-|                                                                              |
-|   ¿Cómo crear un nuevo jugador?                                              |
-|   Introduce un nombre de jugador                                             |
-|                                                                              |
-|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
-|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
-|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES > CREAR JUGADOR > INTRODUCIR NOMBRE                     |
-|                                                                              |
-|   Introduce un nombre de jugador:                                            |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| JUGADORES REGISTRADOS                                                        |
-+------------------------------------------------------------------------------+
-| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |
-+-------------------+-----------+---------+-------------------+----------------+
-| test2             | Humano    | No      | -                 | No en ranking  | ★
-| test1             | Humano    | No      | -                 | No en ranking  |
-+------------------------------------------------------------------------------+
-| Total jugadores: 2 (Humanos: 2)                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
-|                                                                              |
-|   ¡Jugador 'test2' creado correctamente!                                        |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES > CREAR JUGADOR                                         |
-|                                                                              |
-|   ¿Cómo crear un nuevo jugador?                                              |
-|   Introduce un nombre de jugador                                             |
-|                                                                              |
-|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
-|   [ 2 ] Ver jugadores              - Muestra la lista de jugadores existentes|
-|   [ 0 ] Volver                     - Vuelve a Gestión de Jugadores.          |
-|                                                                              |
-+------------------------------------------------------------------------------+
-Volviendo a Gestión de Jugadores...
-+------------------------------------------------------------------------------+
-| GESTIÓN DE JUGADORES |                                                       |
-|                                                                              |
-|   [ 1 ] Crear jugador              - Crea un nuevo jugador en el sistema.    |
-|   [ 2 ] Eliminar jugador           - Elimina un jugador existente.           |
-|   [ 3 ] Mostrar jugadores          - Muestra todos los jugadores registrados.|
-|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
-|                                                                              |
-+------------------------------------------------------------------------------+
-
-+------------------------------------------------------------------------------+
-| MENÚ PRINCIPAL |                                                             |
-+------------------------------------------------------------------------------+
-|                 Selecciona un menú o ejecuta un comando.                     |
-|                                                                              |
-|                           [ 1 ] Gestión de Jugadores                         |
-|                           [ 2 ] Gestión de Diccionarios                      |
-|                           [ 3 ] Gestión de Partidas                          |
-|                           [ 4 ] Gestión de Rankings                          |
-|                           [ 5 ] Gestión de Configuración                     |
-|                           [ 6 ] Ejecutar Archivo                             |
-|                           [ 0 ] Salir                                        |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE DICCIONARIOS |                                                    |
-|                                                                              |
-|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
-|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
-|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
-|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
-|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
-|                                                                              |
-|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    Ingrese el nombre del nuevo diccionario (será el nombre de la             |
-|    carpeta):                                                                 |
-|    Presione Enter para continuar después de cada entrada.                    |
-|    Para cancelar en cualquier momento, ingrese '-1'.                         |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    Ingrese los caracteres del alfabeto (formato: LETRA FRECUENCIA            |
-|    PUNTOS), uno por línea.                                                   |
-|    Ejemplo: A 9 1,  CH 1 5 o  en formato comodín # 2 0 (comodín)             |
-|    Para terminar, introduzca una línea vacía o ingrese '-1' o                |
-|    Presione Enter después de cada entrada.                                   |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    ✓ Formato correcto. Letra 'A' añadida al alfabeto.                        |
-|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    ✓ Formato correcto. Letra 'B' añadida al alfabeto.                        |
-|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    ✓ Formato correcto. Letra 'C' añadida al alfabeto.                        |
-|    Ingrese otra letra o deje vacío para terminar o -1 para cancelar.         |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    Archivo alpha.txt creado correctamente.                                   |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    Ingrese las palabras válidas, una por línea.                              |
-|    Para terminar, introduzca una línea vacía o ingrese '-1'.                 |
-|    El alfabeto actual contiene las letras: [A, B, C]                         |
-|    Presione Enter después de cada palabra.                                   |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    ✓ Palabra 'CA' añadida al diccionario.                                    |
-|    Ingrese otra palabra o deje vacío para terminar.                          |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    ✓ Palabra 'BA' añadida al diccionario.                                    |
-|    Ingrese otra palabra o deje vacío para terminar.                          |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> +------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    ✓ Palabra 'BACA' añadida al diccionario.                                  |
-|    Ingrese otra palabra o deje vacío para terminar.                          |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-> Diccionario 'test' creado correctamente.
-+------------------------------------------------------------------------------+
-|                 GESTIÓN DE DICCIONARIOS > CREAR DICCIONARIO                  |
-|                                                                              |
-|    ¡Diccionario 'test' creado exitosamente!                                  |
-|                                                                              |
-|                                                                              |
-+------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE DICCIONARIOS |                                                    |
-|                                                                              |
-|   [ 1 ] Crear diccionario          - Crea un nuevo diccionario.              |
-|   [ 2 ] Eliminar diccionario       - Elimina un diccionario existente.       |
-|   [ 3 ] Importar diccionario       - Importa un diccionario desde un archivo.|
-|   [ 4 ] Modificar diccionario      - Añade o elimina palabras de un dicc.    |
-|   [ 5 ] Mostrar diccionarios       - Muestra los diccionarios disponibles.   |
-|                                                                              |
-|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
-|                                                                              |
-+------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
 | MENÚ PRINCIPAL |                                                             |
@@ -287,10 +52,15 @@ Mostrando menu de incializacion...
 | JUGADORES DISPONIBLES PARA SELECCIONAR                                       |
 +------------------------------------------------------------------------------+
 | Jugadores Humanos:                                                           |
-| - test2                                                                      |
-| - test1                                                                      |
+| - admin                                                                      |
+| - hongda                                                                     |
+| - jiahao                                                                     |
+| - songhe                                                                     |
+| - xuanyi                                                                     |
 |                                                                              |
 | Jugadores IA:                                                                |
+| - DummyEZ                                                                    |
+| - DummyHardCore                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
@@ -336,7 +106,7 @@ Mostrando menu de incializacion...
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
 |                                                                              |
-|   ✓ El usuario 'test1' ha sido añadido correctamente a la partida.           |
+|   ✓ El usuario 'jiahao' ha sido añadido correctamente a la partida.          |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
@@ -362,7 +132,7 @@ Mostrando menu de incializacion...
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
 |                                                                              |
-|   ✓ El usuario 'test1' ha sido añadido correctamente a la partida.           |
+|   ✓ El usuario 'hongda' ha sido añadido correctamente a la partida.          |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
@@ -383,7 +153,8 @@ Mostrando menu de incializacion...
 +--------------------------------------+
 | JUGADORES SELECCIONADOS              |
 +--------------------------------------+
-| - test1                               |
+| - jiahao                              |
+| - hongda                              |
 +--------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
@@ -408,7 +179,7 @@ Mostrando menu de incializacion...
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
 |                                                                              |
-|   ✓ El usuario 'test2' ha sido añadido correctamente a la partida.           |
+|   ✓ El usuario 'jiahao' ha sido añadido correctamente a la partida.          |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
@@ -429,8 +200,8 @@ Mostrando menu de incializacion...
 +--------------------------------------+
 | JUGADORES SELECCIONADOS              |
 +--------------------------------------+
-| - test2                               |
-| - test1                               |
+| - jiahao                              |
+| - hongda                              |
 +--------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
@@ -455,7 +226,7 @@ Mostrando menu de incializacion...
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                     |
 |                                                                              |
-|   ✓ El usuario 'test2' ha sido eliminado correctamente de la partida.        |
+|   ✓ El usuario 'jiahao' ha sido eliminado correctamente de la partida.       |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
@@ -481,7 +252,7 @@ Mostrando menu de incializacion...
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > ELIMINAR JUGADOR                                     |
 |                                                                              |
-|   ✗ Error: El usuario 'test2' no está en la lista de jugadores               |
+|   ✗ Error: El usuario 'jiahao' no está en la lista de jugadores              |
 |   seleccionados.                                                             |
 |                                                                              |
 +------------------------------------------------------------------------------+
@@ -503,7 +274,7 @@ Mostrando menu de incializacion...
 +--------------------------------------+
 | JUGADORES SELECCIONADOS              |
 +--------------------------------------+
-| - test1                               |
+| - hongda                              |
 +--------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
@@ -528,7 +299,7 @@ Mostrando menu de incializacion...
 +------------------------------------------------------------------------------+
 | GESTIÓN DE JUGADORES > AÑADIR JUGADOR                                       |
 |                                                                              |
-|   ✓ El usuario 'test2' ha sido añadido correctamente a la partida.           |
+|   ✓ El usuario 'jiahao' ha sido añadido correctamente a la partida.          |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
@@ -550,10 +321,15 @@ Mostrando menu de incializacion...
 | JUGADORES DISPONIBLES PARA SELECCIONAR                                       |
 +------------------------------------------------------------------------------+
 | Jugadores Humanos:                                                           |
-| - test2                                                                      |
-| - test1                                                                      |
+| - admin                                                                      |
+| - hongda                                                                     |
+| - jiahao                                                                     |
+| - songhe                                                                     |
+| - xuanyi                                                                     |
 |                                                                              |
 | Jugadores IA:                                                                |
+| - DummyEZ                                                                    |
+| - DummyHardCore                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
@@ -573,13 +349,15 @@ Mostrando menu de incializacion...
 +--------------------------------------+
 | JUGADORES SELECCIONADOS              |
 +--------------------------------------+
-| - test2                            |
-| - test1                            |
+| - jiahao                           |
+| - hongda                           |
 +--------------------------------------+
 +------------------------------------------------------------------------------+
 | DICCIONARIOS DISPONIBLES                                                    |
 +------------------------------------------------------------------------------+
-| - test                                                                       |
+| - CAT                                                                        |
+| - ENG                                                                        |
+| - ESP                                                                        |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
@@ -615,9 +393,9 @@ Mostrando menu de incializacion...
 +------------------------------------------------------------------------------+
 Introduce el nombre del diccionario a seleccionar: 
 +------------------------------------------------------------------------------+
-| ERROR                                                                        |
+| INFORMACIÓN                                                                  |
 |                                                                              |
-| Diccionario no encontrado. Asegúrate de que el nombre sea correcto.          |
+| Diccionario seleccionado correctamente: ESP                             |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
@@ -636,7 +414,7 @@ Introduce el nombre del diccionario a seleccionar:
 +------------------------------------------------------------------------------+
 | INFORMACIÓN                                                                  |
 |                                                                              |
-| No se ha seleccionado ningún diccionario.                                    |
+  | Diccionario seleccionado correctamente: ESP                             |
 |                                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
@@ -655,7 +433,9 @@ Introduce el nombre del diccionario a seleccionar:
 +------------------------------------------------------------------------------+
 | DICCIONARIOS DISPONIBLES                                                    |
 +------------------------------------------------------------------------------+
-| - test                                                                       |
+| - CAT                                                                        |
+| - ENG                                                                        |
+| - ESP                                                                        |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
@@ -673,86 +453,123 @@ Introduce el nombre del diccionario a seleccionar:
 +------------------------------------------------------------------------------+
 | INFORMACIÓN                                                                  |
 |                                                                              |
-| No se ha seleccionado ningún diccionario.                                    |
+  | Diccionario seleccionado correctamente: ESP                                  |
 |                                                                              |
 +------------------------------------------------------------------------------+
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:     |
+| 15x15                                |
+|                                      |
++--------------------------------------+
 +------------------------------------------------------------------------------+
-| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
 +------------------------------------------------------------------------------+
-|   Seleciona el diccionario que quieras usar.                                 |
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
 |                                                                              |
 |   [ 1 ] Continuar                 - Continuar la inicializacion              |
-|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
-|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
-|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
 |                                                                              |
 |   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
 |                                                                              |
 +------------------------------------------------------------------------------+
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:     |
+| 15x15                                |
+|                                      |
++--------------------------------------+
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| No se ha seleccionado ningún diccionario.                                    |
-|                                                                              |
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
 +------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
-+------------------------------------------------------------------------------+
-|   Seleciona el diccionario que quieras usar.                                 |
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
 |                                                                              |
 |   [ 1 ] Continuar                 - Continuar la inicializacion              |
-|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
-|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
-|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
 |                                                                              |
 |   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
 |                                                                              |
 +------------------------------------------------------------------------------+
-Introduce el nombre del diccionario a seleccionar: 
+Introduce el tamaño del tablero (N x N) [Solo un numero > 15]: 
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:    |
+| 20x20                              |
+|                                      |
++--------------------------------------+
 +------------------------------------------------------------------------------+
-| ERROR                                                                        |
-|                                                                              |
-| Diccionario no encontrado. Asegúrate de que el nombre sea correcto.          |
-|                                                                              |
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
 +------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
-+------------------------------------------------------------------------------+
-|   Seleciona el diccionario que quieras usar.                                 |
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
 |                                                                              |
 |   [ 1 ] Continuar                 - Continuar la inicializacion              |
-|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
-|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
-|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
 |                                                                              |
 |   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
 |                                                                              |
 +------------------------------------------------------------------------------+
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:     |
+| 20x20                                |
+|                                      |
++--------------------------------------+
 +------------------------------------------------------------------------------+
-| INFORMACIÓN                                                                  |
-|                                                                              |
-| No se ha seleccionado ningún diccionario.                                    |
-|                                                                              |
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
 +------------------------------------------------------------------------------+
-+------------------------------------------------------------------------------+
-| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
-+------------------------------------------------------------------------------+
-|   Seleciona el diccionario que quieras usar.                                 |
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
 |                                                                              |
 |   [ 1 ] Continuar                 - Continuar la inicializacion              |
-|   [ 2 ] Ver seleccion actual      - Ver diccionario actual                   |
-|   [ 3 ] Selecionar un diccionario - Seleciona un diccionario                 |
-|   [ 4 ] Ver diccionarios          - Ver diccionarios disponibles             |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
+|                                                                              |
 |                                                                              |
 |   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
 |                                                                              |
 +------------------------------------------------------------------------------+
-Introduce el nombre del diccionario a seleccionar: 
+Introduce el tamaño del tablero (N x N) [Solo un numero > 15]: 
++--------------------------------------+
+| INFORMACIÓN                          |
+|                                      |
+| El tamaño actual del tablero es:    |
+| 15x15                              |
+|                                      |
++--------------------------------------+
 +------------------------------------------------------------------------------+
-| ERROR                                                                        |
+| GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR TABLERO                      |
++------------------------------------------------------------------------------+
+|   Define el tamano del tablero! (Por defecto, solo el tablero de 15x15       |
+|   tendra casillas especiales).                                               |
 |                                                                              |
-| Diccionario no encontrado. Asegúrate de que el nombre sea correcto.          |
+|   [ 1 ] Continuar                 - Continuar la inicializacion              |
+|   [ 2 ] Ver tamano actual         - Ver el tamano actual                     |
+|   [ 3 ] Modificar tamano actual   - Modifica el tamano actual                |
 |                                                                              |
+|                                                                              |
+|   [ 0 ] Volver                    - Vuelve a Gestión de Partidas.            |
+|                                                                              |
++------------------------------------------------------------------------------+
+Volviendo a Gestión de Partidas...
++------------------------------------------------------------------------------+
+| DICCIONARIOS DISPONIBLES                                                    |
++------------------------------------------------------------------------------+
+| - CAT                                                                        |
+| - ENG                                                                        |
+| - ESP                                                                        |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR DICCIONARIO                  |
@@ -772,10 +589,15 @@ Volviendo a Gestión de Partidas...
 | JUGADORES DISPONIBLES PARA SELECCIONAR                                       |
 +------------------------------------------------------------------------------+
 | Jugadores Humanos:                                                           |
-| - test2                                                                      |
-| - test1                                                                      |
+| - admin                                                                      |
+| - hongda                                                                     |
+| - jiahao                                                                     |
+| - songhe                                                                     |
+| - xuanyi                                                                     |
 |                                                                              |
 | Jugadores IA:                                                                |
+| - DummyEZ                                                                    |
+| - DummyHardCore                                                              |
 +------------------------------------------------------------------------------+
 +------------------------------------------------------------------------------+
 | GESTIÓN DE PARTIDAS > INICIAR PARTIDA > DEFINIR JUGADORES                    |
@@ -804,6 +626,34 @@ Volviendo a Gestión de Partidas...
 |   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
 |                                                                              |
 +------------------------------------------------------------------------------+
+Mostrando menu de carga de partidas...
++--------------------------------------+
+| No hay partidas guardadas disponibles |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS |                                                        |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   [ 1 ] Iniciar una nueva partida  - Configura una nueva partida.            |
+|   [ 2 ] Cargar partida             - Carga una partida guardada.             |
+|   [ 3 ] Eliminar partida           - Eliminar una partida guardada.          |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
+Mostrando menu de eliminacion de partidas...
++--------------------------------------+
+| No hay partidas guardadas disponibles |
++--------------------------------------+
++------------------------------------------------------------------------------+
+| GESTIÓN DE PARTIDAS |                                                        |
++------------------------------------------------------------------------------+
+|                                                                              |
+|   [ 1 ] Iniciar una nueva partida  - Configura una nueva partida.            |
+|   [ 2 ] Cargar partida             - Carga una partida guardada.             |
+|   [ 3 ] Eliminar partida           - Eliminar una partida guardada.          |
+|   [ 0 ] Volver                     - Vuelve al Menú Principal.               |
+|                                                                              |
++------------------------------------------------------------------------------+
 
 +------------------------------------------------------------------------------+
 | MENÚ PRINCIPAL |                                                             |
@@ -820,5 +670,7 @@ Volviendo a Gestión de Partidas...
 |                                                                              |
 +------------------------------------------------------------------------------+
 
-BUILD SUCCESSFUL in 1s
+Limpiando archivos de persistencia antes de cerrar...
+
+BUILD SUCCESSFUL in 2s
 5 actionable tasks: 1 executed, 4 up-to-date

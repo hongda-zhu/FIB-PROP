@@ -7,7 +7,7 @@ group = 'scrabble'
 version = '1.0-SNAPSHOT'
 
 application {
-    mainClass = 'scrabble.DomainDriver'
+    mainClass = 'scrabble.domain.DomainDriver'
 }
 
 jar {

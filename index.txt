@@ -1,0 +1,22 @@
+Aquest projecte implementa el joc de Scrabble, permetent partides entre diferents tipus de jugadors, tant humans com intel·ligència artificial (IA).
+El sistema ofereix diverses funcionalitats, com ara:
+- Gestió d'usuaris: creació, autenticació i gestió de perfils de jugadors.
+- Execució de partides: amb suport per a diversos modes de joc, incloent dificultats configurables per a la IA.
+- Estadístiques i rànquings: registre de resultats de partides, càlcul de puntuacions mitjanes, victòries, i ordenació segons diferents estratègies.
+
+A més, s'han implementat mecanismes de persistència per conservar l'estat del sistema entre sessions.
+
+A la carpeta carpeta DOCS trobareu documentació de tot el contingut necessari que s'ha de adjuntar per aquesta entrega, que no són codis.
+
+- Javadoc
+- Algorismes i estructures de dades utilitzats
+- Casos d'ús
+- Diagrama de classes
+
+A la carpeta FONTS, conté el codi font del programa, que correspon al contingut del repositori.
+
+Per executar el programa s'ha d'executar el main() de DomainDriver, que dona una interfície per poder interaccionar.
+Tests per provar les principals funcionalitats del sistema a /DriverInputs
+
+
+A la carpeta EXE, trobareu l'executable en format .jar. 
