@@ -1,172 +1,172 @@
----
-config:
-  layout: elk
----
 classDiagram
-    direction TB
-    
-    %% Controlador principal (Facade)
+direction TB
+    %% CAPA 1: CONTROLLERS (Superior)
     class ControladorDomain {
-        <<Facade>>
     }
-    
-    %% Controladores específicos
     class ControladorConfiguracion {
     }
-    
     class ControladorJuego {
     }
-    
     class ControladorJugador {
-        <<Singleton>>
     }
-    
     class ControladorRanking {
-        <<Singleton>>
     }
-    
     class ControladorDiccionario {
-        <<Singleton>>
     }
-    
-    %% Modelos
+
+    %% CAPA 2: REPOSITORIES
+    class RepositorioJugador {
+    }
+    class RepositorioPartida {
+    }
+    class RepositorioDiccionario {
+    }
+    class RepositorioRanking {
+    }
+    class RepositorioConfiguracion {
+    }
+
+    %% IMPLEMENTACIONES
+    class RepositorioJugadorImpl {
+    }
+    class RepositorioPartidaImpl {
+    }
+    class RepositorioDiccionarioImpl {
+    }
+    class RepositorioRankingImpl {
+    }
+    class RepositorioConfiguracionImpl {
+    }
+
+    %% CAPA 3: MODELOS
     class Jugador {
-        <<Abstract>>
     }
-    
     class JugadorHumano {
     }
-    
     class JugadorIA {
     }
-    
     class Tablero {
     }
-    
     class Bolsa {
     }
-    
     class Diccionario {
     }
-    
-    class Dawg {
-    }
-    
-    class DawgNode {
-    }
-    
     class Configuracion {
     }
-    
     class Ranking {
     }
-    
+
+    %% MODELOS SECUNDARIOS
+    class Dawg {
+    }
+    class DawgNode {
+    }
     class PlayerRankingStats {
     }
-    
-    %% Estrategias de Ranking (Patrón Strategy)
-    class RankingOrderStrategy {
-        <<Strategy>>
-        <<interface>>
-    }
-    
-    class MaximaScoreStrategy {
-        <<Strategy>>
-    }
-    
-    class MediaScoreStrategy {
-        <<Strategy>>
-    }
-    
-    class PartidasJugadasStrategy {
-        <<Strategy>>
-    }
-    
-    class RankingOrderStrategyFactory {
-        <<Factory>>
-    }
-    
-    %% Proveedor de datos para Ranking
+
+    %% SUBSISTEMA RANKING
     class RankingDataProvider {
-        <<interface>>
     }
-    
-    class PuntuacionTotalStrategy {
-        <<Strategy>>
+    class RankingOrderStrategy {
     }
-    
+    class RankingOrderStrategyFactory {
+    }
+    class MaximaScoreStrategy {
+    }
+    class MediaScoreStrategy {
+    }
+    class PartidasJugadasStrategy {
+    }
     class VictoriasStrategy {
-        <<Strategy>>
+    }
+    class PuntuacionTotalStrategy {
     }
 
-    namespace scrabble.helpers {
-
-    class Tuple~X, Y~ {
-        +X x
-        +Y y
-        +Tuple(x: X, y: Y)
-        +equals(o: Object) boolean
-    }
-
-    class Triple~X, Y, Z~ {
-        +X x
-        +Y y
-        +Z z
-        +Triple(x: X, y: Y, z: Z)
-        +equals(o: Object) boolean
-    }
-
+    %% HELPERS
     class Dificultad {
-        <<enumeration>>
-        +FACIL
-        +DIFICIL
     }
 
-    class Idioma {
-        <<enumeration>>
-        +ESPANOL
-        +CATALAN
-        +INGLES
-    }
+    %% ESTEREOTIPOS
+    <<Facade>> ControladorDomain
+    <<Singleton>> ControladorJugador
+    <<Singleton>> ControladorRanking
+    <<Singleton>> ControladorDiccionario
+    <<interface>> RepositorioJugador
+    <<interface>> RepositorioPartida
+    <<interface>> RepositorioDiccionario
+    <<interface>> RepositorioRanking
+    <<interface>> RepositorioConfiguracion
+    <<Abstract>> Jugador
+    <<interface>> RankingDataProvider
+    <<interface>> RankingOrderStrategy
+    <<Factory>> RankingOrderStrategyFactory
+    <<Strategy>> MaximaScoreStrategy
+    <<Strategy>> MediaScoreStrategy
+    <<Strategy>> PartidasJugadasStrategy
+    <<Strategy>> VictoriasStrategy
+    <<Strategy>> PuntuacionTotalStrategy
+    <<enumeration>> Dificultad
 
-    class Tema {
-        <<enumeration>>
-        +CLARO
-        +OSCURO
-    }
-    }
-    
-    %% --- Relaciones principales ---
+    %% RELACIONES CONTROLADORES CON MULTIPLICIDAD
+    ControladorDomain "1" --> "1" ControladorConfiguracion : usa
+    ControladorDomain "1" --> "1" ControladorJuego : usa
+    ControladorDomain "1" --> "1" ControladorRanking : usa
+    ControladorDomain "1" --> "1" ControladorJugador : usa
+    ControladorDomain "1" --> "1" ControladorDiccionario : usa
+
+    %% RELACIONES CONTROLADORES-REPOSITORIOS
+    ControladorJugador "1" --> "1" RepositorioJugador : usa
+    ControladorJuego "1" --> "1" RepositorioPartida : usa
+    ControladorDiccionario "1" --> "1" RepositorioDiccionario : usa
+    ControladorRanking "1" --> "1" RepositorioRanking : usa
+    ControladorConfiguracion "1" --> "1" RepositorioConfiguracion : usa
+
+    %% IMPLEMENTACIONES DE REPOSITORIOS
+    RepositorioJugador <|.. RepositorioJugadorImpl : implementa
+    RepositorioPartida <|.. RepositorioPartidaImpl : implementa
+    RepositorioDiccionario <|.. RepositorioDiccionarioImpl : implementa
+    RepositorioRanking <|.. RepositorioRankingImpl : implementa
+    RepositorioConfiguracion <|.. RepositorioConfiguracionImpl : implementa
+
+    %% RELACIONES CONTROLADORES-MODELOS
     ControladorJugador "1" --> "0..*" Jugador : gestiona
     ControladorConfiguracion "1" --> "1" Configuracion : gestiona
     ControladorJuego "1" --> "0..1" Tablero : gestiona
     ControladorJuego "1" --> "0..1" Bolsa : gestiona
-    ControladorRanking "1" *-- "0..*" PlayerRankingStats : gestiona
+    ControladorRanking "1" --> "1" Ranking : gestiona
     ControladorDiccionario "1" --> "0..*" Diccionario : gestiona
+
+    %% HERENCIA DE MODELOS
+    Jugador <|-- JugadorHumano : es un
+    Jugador <|-- JugadorIA : es un
+
+    %% RELACIONES DE COMPOSICIÓN Y AGREGACIÓN
+    Ranking "1" *-- "0..*" PlayerRankingStats : contiene
+    Ranking "1" o-- "1" RankingOrderStrategy : usa
     Diccionario "1" *-- "1" Dawg : contiene
     Dawg "1" *-- "1" DawgNode : root
     DawgNode "1" --> "0..*" DawgNode : edges
-    Ranking "1" *-- "0..*" PlayerRankingStats : contiene
-    Ranking "1" o-- "1" RankingOrderStrategy : usa
-    
-    %% --- Otras relaciones ---
-    ControladorDomain "1" --> "1" ControladorConfiguracion
-    ControladorDomain "1" --> "1" ControladorJuego
-    ControladorDomain "1" --> "1" ControladorRanking
-    ControladorDomain "1" --> "1" ControladorJugador
-    ControladorDomain "1" --> "1" ControladorDiccionario
-    ControladorJuego "1" --> "1" ControladorDiccionario
-    ControladorRanking ..|> RankingDataProvider
-    Jugador <|-- JugadorHumano
-    Jugador <|-- JugadorIA
-    RankingOrderStrategy <|.. VictoriasStrategy
-    RankingOrderStrategy <|.. PuntuacionTotalStrategy
-    RankingOrderStrategy <|.. MaximaScoreStrategy
-    RankingOrderStrategy <|.. MediaScoreStrategy
-    RankingOrderStrategy <|.. PartidasJugadasStrategy
-    RankingOrderStrategyFactory ..> RankingOrderStrategy
-    MaximaScoreStrategy ..> RankingDataProvider
-    MediaScoreStrategy ..> RankingDataProvider
-    PartidasJugadasStrategy ..> RankingDataProvider
-    VictoriasStrategy ..> RankingDataProvider
-    PuntuacionTotalStrategy ..> RankingDataProvider
+
+    %% SUBSISTEMA DE RANKING
+    RankingOrderStrategy <|.. MaximaScoreStrategy : implementa
+    RankingOrderStrategy <|.. MediaScoreStrategy : implementa
+    RankingOrderStrategy <|.. PartidasJugadasStrategy : implementa
+    RankingOrderStrategy <|.. VictoriasStrategy : implementa
+    RankingOrderStrategy <|.. PuntuacionTotalStrategy : implementa
+
+    RankingOrderStrategyFactory "1" ..> "1..*" RankingOrderStrategy : crea >
+
+    ControladorRanking ..|> RankingDataProvider : implementa
+
+    MaximaScoreStrategy "1" --> "1" RankingDataProvider : utiliza
+    MediaScoreStrategy "1" --> "1" RankingDataProvider : utiliza
+    PartidasJugadasStrategy "1" --> "1" RankingDataProvider : utiliza
+    VictoriasStrategy "1" --> "1" RankingDataProvider : utiliza
+    PuntuacionTotalStrategy "1" --> "1" RankingDataProvider : utiliza
+
+    %% RELACIONES REPOSITORIOS-MODELOS
+    RepositorioJugadorImpl ..> Jugador : serializa/deserializa
+    RepositorioPartidaImpl ..> ControladorJuego : serializa/deserializa
+    RepositorioDiccionarioImpl ..> Diccionario : serializa/deserializa
+    RepositorioRankingImpl ..> Ranking : serializa/deserializa
+    RepositorioConfiguracionImpl ..> Configuracion : serializa/deserializa

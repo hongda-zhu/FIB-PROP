@@ -1,6 +1,7 @@
 package scrabble.domain.models;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -64,6 +65,21 @@ public class DawgNode {
         edges.put(c, node);
     }
 
+
+    /**
+     * Reemplaza la arista saliente con la etiqueta dada por un nuevo nodo.
+     * 
+     * @pre c y node no deben ser null.
+     * @param c Etiqueta de la arista (normalmente un carácter)
+     * @param node Nuevo nodo destino de la arista
+     * @post Se reemplaza la arista saliente con la etiqueta dada por el nuevo nodo.
+     *       Si no existía tal arista, se añade una nueva.
+     * @throws NullPointerException si c o node son null
+     */
+    public void switchEdge(String c, DawgNode node) {
+        edges.replace(c, node);
+    }
+
     /**
      * Verifica si este nodo es final (indica el final de una palabra válida).
      * 
@@ -85,4 +101,26 @@ public class DawgNode {
     public void setFinal(boolean isFinal) {
         this.isFinal = isFinal;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DawgNode dawgNode = (DawgNode) o;
+        // Structural equality: same final status AND same edges (recursively checks connected nodes)
+        // Map.equals() checks if both maps contain the same mappings.
+        // For the values (DawgNode), it calls their equals() method.
+        return isFinal == dawgNode.isFinal &&
+               edges.equals(dawgNode.edges);
+    }
+
+    @Override
+    public int hashCode() {
+        // Hash code must be consistent with equals.
+        // Combine the hash code of the boolean isFinal and the hash code of the edges map.
+        return Objects.hash(isFinal, edges); // Use Objects.hash for convenience
+    }
+
+
+
 }

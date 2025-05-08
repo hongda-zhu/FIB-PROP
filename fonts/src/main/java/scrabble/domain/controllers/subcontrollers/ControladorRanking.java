@@ -1,11 +1,5 @@
 package scrabble.domain.controllers.subcontrollers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +9,8 @@ import java.util.stream.Collectors;
 import scrabble.domain.models.Ranking;
 import scrabble.domain.models.rankingStrategy.RankingDataProvider;
 import scrabble.excepciones.ExceptionLoggingOperacion;
+import scrabble.domain.persistences.interfaces.RepositorioRanking;
+import scrabble.domain.persistences.implementaciones.RepositorioRankingImpl;
 
 /**
  * Controlador para la gestión del ranking de jugadores.
@@ -27,8 +23,7 @@ public class ControladorRanking implements RankingDataProvider {
     
     // Referencia al modelo de Ranking
     private Ranking ranking;
-    
-    private static final String RANKING_FILE = "src/main/resources/persistencias/ranking.dat";
+    private RepositorioRanking repositorio;
     
     /**
      * Constructor privado para implementar el patrón Singleton.
@@ -39,9 +34,23 @@ public class ControladorRanking implements RankingDataProvider {
      *       y se cargan los datos persistentes si están disponibles.
      */
     private ControladorRanking() {
-        this.ranking = new Ranking();
-        
-        cargarDatos();
+        this(new RepositorioRankingImpl());
+    }
+    
+    /**
+     * Constructor privado con inyección de repositorio para pruebas.
+     * 
+     * @param repositorio El repositorio a utilizar para la persistencia
+     * @pre El repositorio no debe ser null.
+     * @post Se inicializa una nueva instancia con un modelo de Ranking cargado desde el repositorio.
+     * @throws NullPointerException si el repositorio es null
+     */
+    private ControladorRanking(RepositorioRanking repositorio) {
+        if (repositorio == null) {
+            throw new NullPointerException("El repositorio no puede ser null");
+        }
+        this.repositorio = repositorio;
+        this.ranking = repositorio.cargar();
     }
     
     /**
@@ -55,6 +64,20 @@ public class ControladorRanking implements RankingDataProvider {
         if (instance == null) {
             instance = new ControladorRanking();
         }
+        return instance;
+    }
+    
+    /**
+     * Obtiene la instancia única del controlador con repositorio personalizado (para pruebas).
+     * 
+     * @param repositorio El repositorio a utilizar
+     * @return Instancia de ControladorRanking
+     * @pre El repositorio no debe ser null.
+     * @post Se devuelve una instancia de ControladorRanking configurada con el repositorio especificado.
+     * @throws NullPointerException Si el repositorio es null
+     */
+    public static synchronized ControladorRanking getInstance(RepositorioRanking repositorio) {
+        instance = new ControladorRanking(repositorio);
         return instance;
     }
     
@@ -85,7 +108,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            guardarDatos();
+            repositorio.guardar(ranking);
         }
         
         return resultado;
@@ -122,7 +145,7 @@ public class ControladorRanking implements RankingDataProvider {
             }
             
             // Guardar cambios
-            guardarDatos();
+            repositorio.guardar(ranking);
             
             return true;
         } catch (Exception e) {
@@ -177,7 +200,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            guardarDatos();
+            repositorio.guardar(ranking);
         }
         
         return resultado;
@@ -213,7 +236,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            guardarDatos();
+            repositorio.guardar(ranking);
         }
         
         return resultado;
@@ -230,7 +253,7 @@ public class ControladorRanking implements RankingDataProvider {
      */
     public void setEstrategia(String criterio) {
         ranking.setEstrategia(criterio);
-        guardarDatos();
+        repositorio.guardar(ranking);
     }
     
     /**
@@ -410,7 +433,7 @@ public class ControladorRanking implements RankingDataProvider {
                 // En este caso sí queremos incrementar el contador de partidas
                 // ya que es la primera vez que se registra al usuario
                 ranking.agregarPuntuacion(username, nuevaPuntuacion);
-                guardarDatos();
+                repositorio.guardar(ranking);
                 return true;
             }
             
@@ -427,7 +450,7 @@ public class ControladorRanking implements RankingDataProvider {
             
             // Guardar cambios si la operación fue exitosa
             if (resultado) {
-                guardarDatos();
+                repositorio.guardar(ranking);
             }
             
             return resultado;
@@ -499,62 +522,20 @@ public class ControladorRanking implements RankingDataProvider {
     }
     
     /**
-     * Guarda los datos del ranking en un archivo serializado.
+     * Guarda los datos del ranking utilizando el repositorio.
      * 
      * @pre No hay precondiciones específicas.
-     * @post Los datos del ranking se guardan en el archivo especificado por RANKING_FILE.
+     * @post Los datos del ranking se guardan a través del repositorio.
      *       En caso de error, se registra el mensaje en la consola de error.
      */
     public void guardarDatos() {
         try {
-            // Asegurarse de que el directorio existe
-            File rankingDir = new File(RANKING_FILE).getParentFile();
-            if (rankingDir != null && !rankingDir.exists()) {
-                rankingDir.mkdirs();
-            }
-            
-            FileOutputStream fos = new FileOutputStream(RANKING_FILE);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(ranking);  // Guardar el objeto Ranking en lugar del ControladorRanking
-            oos.close();
-            fos.close();
-        } catch (IOException e) {
+            repositorio.guardar(ranking);
+        } catch (Exception e) {
             throw new ExceptionLoggingOperacion("Error al guardar el ranking: " + e.getMessage(), "persistencia", true);
         }
     }
     
-    /**
-     * Carga los datos del ranking desde un archivo serializado.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @post Si el archivo existe y se puede leer correctamente, se cargan los datos del ranking.
-     *       En caso de error, se inicializan estructuras vacías y se registra el mensaje en la consola de error.
-     */
-    private void cargarDatos() {
-        File rankingFile = new File(RANKING_FILE);
-        if (rankingFile.exists()) {
-            try {
-                FileInputStream fis = new FileInputStream(RANKING_FILE);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                Ranking loadedRanking = (Ranking) ois.readObject();  // Cargar el objeto Ranking
-                ois.close();
-                fis.close();
-                
-                // Usar el ranking cargado
-                if (loadedRanking != null) {
-                    this.ranking = loadedRanking;
-                } else {
-                    this.ranking = new Ranking();
-                }
-                
-            } catch (IOException | ClassNotFoundException e) {
-                // Inicializar con un ranking vacío
-                this.ranking = new Ranking();
-                throw new ExceptionLoggingOperacion("Error al cargar el ranking: " + e.getMessage(), "persistencia", true);
-            }
-        }
-    }
-
     /**
      * Para compatibilidad con código existente.
      * Devuelve un mapa con las puntuaciones máximas por usuario.
@@ -683,7 +664,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            guardarDatos();
+            repositorio.guardar(ranking);
         }
         
         return resultado;
@@ -718,7 +699,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            guardarDatos();
+            repositorio.guardar(ranking);
         }
         
         return resultado;

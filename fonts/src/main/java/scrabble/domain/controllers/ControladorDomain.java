@@ -12,6 +12,8 @@ import scrabble.domain.controllers.subcontrollers.ControladorJuego;
 import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.domain.controllers.subcontrollers.ControladorJugador;
 import scrabble.domain.controllers.subcontrollers.ControladorRanking;
+import scrabble.domain.persistences.interfaces.RepositorioConfiguracion;
+import scrabble.domain.persistences.implementaciones.RepositorioConfiguracionImpl;
 import scrabble.excepciones.*;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Triple;
@@ -27,6 +29,8 @@ public class ControladorDomain {
     private ControladorRanking controladorRanking;
     private ControladorJugador controladorJugador;
     private ControladorDiccionario controladorDiccionario;
+    
+    private static ControladorDomain instance;
 
     /**
     * Constructor del controlador del dominio.
@@ -36,11 +40,30 @@ public class ControladorDomain {
     * @post Se inicializan todos los subcontroladores y el sistema queda listo para su uso.
     */
     public ControladorDomain() {
-        this.controladorConfiguracion = new ControladorConfiguracion();
-        this.controladorJuego = new ControladorJuego();
-        this.controladorRanking = ControladorRanking.getInstance();
-        this.controladorJugador = ControladorJugador.getInstance();
-        this.controladorDiccionario = ControladorDiccionario.getInstance();
+        try {
+            // Creamos la implementación del repositorio y se la pasamos al controlador
+            RepositorioConfiguracion repoConfiguracion = new RepositorioConfiguracionImpl();
+            this.controladorConfiguracion = new ControladorConfiguracion(repoConfiguracion);
+            this.controladorJuego = new ControladorJuego();
+            this.controladorRanking = ControladorRanking.getInstance();
+            this.controladorJugador = ControladorJugador.getInstance();
+            this.controladorDiccionario = ControladorDiccionario.getInstance();
+        } catch (Exception e) {
+            System.err.println("Error al inicializar el controlador de dominio: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public static ControladorDomain getInstance() {
+        if (instance == null) {
+            try {
+                instance = new ControladorDomain();
+            } catch (Exception e) {
+                System.err.println("Error initializing ControladorDomain: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return instance;
     }
 
     // METODOS DE USUARIOS
@@ -189,15 +212,33 @@ public class ControladorDomain {
         return sb.toString();
     }
 
-    public void setIdioma(String idioma) {
+    /**
+     * Establece el idioma de la aplicación.
+     * 
+     * @param idioma El idioma a establecer
+     * @throws ExceptionPersistenciaFallida si ocurre un error durante la persistencia
+     */
+    public void setIdioma(String idioma) throws ExceptionPersistenciaFallida {
         controladorConfiguracion.setIdioma(idioma);
     }
 
-    public void setTema(String tema) {
+    /**
+     * Establece el tema visual de la aplicación.
+     * 
+     * @param tema El tema a establecer
+     * @throws ExceptionPersistenciaFallida si ocurre un error durante la persistencia
+     */
+    public void setTema(String tema) throws ExceptionPersistenciaFallida {
         controladorConfiguracion.setTema(tema);
     }
 
-    public void setVolumen(int volumen) {
+    /**
+     * Establece el nivel de volumen de la aplicación.
+     * 
+     * @param volumen El volumen a establecer
+     * @throws ExceptionPersistenciaFallida si ocurre un error durante la persistencia
+     */
+    public void setVolumen(int volumen) throws ExceptionPersistenciaFallida {
         controladorConfiguracion.setVolumen(volumen);
     }
 

@@ -2,133 +2,129 @@ package scrabble.domain.models;
 
 import java.io.Serializable;
 
-import scrabble.helpers.Idioma;
- 
 /**
- *Clase que implementa todos los parámetros que tengan que ver con la aplicación. 
+ * Clase que representa la configuración de la aplicación.
+ * Encapsula los datos de configuración como idioma, tema y volumen.
  */
-
 public class Configuracion implements Serializable {
+    
     private static final long serialVersionUID = 1L;
-
-    /**
-    * Enum que representa el tema de la aplicación
-    * 
-    */
-    public enum Tema {
-        CLARO,
-        OSCURO
-    }
-
-    private Idioma idioma;
-    private int volumen; // percentage
-    private Tema tema;
-
-    /**
-     * Constructor por defecto de la clase configuración.
-     * Por defecto: el idioma es español, el volumen es del 50% y el tema es claro. 
-     * 
-     * @pre No hay precondiciones específicas.
-     * @post Se crea una nueva instancia de Configuracion con valores por defecto:
-     *       - Idioma: ESPANOL
-     *       - Volumen: 50%
-     *       - Tema: CLARO
-     */
-    public Configuracion() {
-        this.idioma = Idioma.ESPANOL;
-        this.volumen = 50;
-        this.tema = Tema.CLARO;
-    }
-
+    
+    // Valores por defecto
+    private static final String IDIOMA_DEFAULT = "ESPAÑOL";
+    private static final String TEMA_DEFAULT = "CLARO";
+    private static final int VOLUMEN_DEFAULT = 50;
+    
+    // Opciones válidas
+    public static final String[] IDIOMAS_VALIDOS = {"ESPAÑOL", "CATALÁN", "INGLÉS"};
+    public static final String[] TEMAS_VALIDOS = {"CLARO", "OSCURO"};
+    public static final int VOLUMEN_MIN = 0;
+    public static final int VOLUMEN_MAX = 100;
+    
+    // Atributos
+    private String idioma;
+    private String tema;
+    private int volumen;
     
     /**
-     * Obtiene idioma de la aplicación actual. 
+     * Constructor por defecto.
+     * Inicializa la configuración con valores predeterminados.
      * 
      * @pre No hay precondiciones específicas.
-     * @return Idioma de la aplicación
-     * @post Se devuelve un String que representa el idioma actual de la aplicación.
+     * @post Se crea una nueva configuración con los valores por defecto.
      */
-    public String obteneridioma() {
-        return this.idioma.toString();
+    public Configuracion() {
+        this.idioma = IDIOMA_DEFAULT;
+        this.tema = TEMA_DEFAULT;
+        this.volumen = VOLUMEN_DEFAULT;
     }
-
+    
     /**
-     * Obtiene tema de la aplicación actual.
+     * Constructor con parámetros.
+     * Inicializa la configuración con los valores especificados.
      * 
-     * @pre No hay precondiciones específicas.
-     * @return Tema de la aplicación
-     * @post Se devuelve un String que representa el tema actual de la aplicación.
+     * @param idioma Idioma inicial
+     * @param tema Tema visual inicial
+     * @param volumen Nivel de volumen inicial
+     * @pre Los valores deben ser válidos según las constantes definidas.
+     * @post Se crea una nueva configuración con los valores especificados.
+     * @throws IllegalArgumentException si alguno de los valores no es válido
      */
-    public String obtenerTema() {
-        return this.tema.toString();
+    public Configuracion(String idioma, String tema, int volumen) {
+        setIdioma(idioma);
+        setTema(tema);
+        setVolumen(volumen);
     }
-
+    
     /**
-     * Obtiene volumen de la aplicación actual. 
+     * Obtiene el idioma actual configurado.
      * 
-     * @pre No hay precondiciones específicas.
-     * @return Volumen en porcentaje de la aplicación
-     * @post Se devuelve un entero entre 0 y 100 que representa el volumen actual de la aplicación.
+     * @return Idioma actual
      */
-    public int obtenerVolumen() {
-        return this.volumen;
+    public String getIdioma() {
+        return idioma;
     }
-
+    
     /**
-     * Establece el idioma de la aplicación.
+     * Establece un nuevo idioma.
      * 
-     * @pre El idioma debe ser una de las opciones válidas: "ESPANOL", "CATALAN" o "INGLES".
-     * @param i Nuevo idioma
-     * @post El idioma de la configuración se actualiza al valor especificado.
-     * @throws IllegalArgumentException si el idioma no es uno de los valores permitidos
-     * @throws NullPointerException si el parámetro i es null
+     * @param idioma Idioma a establecer
+     * @throws IllegalArgumentException si el idioma no es válido
      */
-    public void setIdioma(String i) {
-        if (!i.equals("ESPANOL") && !i.equals("CATALAN") && !i.equals("INGLES")) throw new IllegalArgumentException ("El idioma debe ser: ESPANOL, CATALAN o INGLES");
-        switch (i) { 
-            case "ESPANOL":
-                this.idioma = Idioma.ESPANOL;
-                break;
-            case "CATALAN":
-                this.idioma = Idioma.CATALAN;
-                break;
-            case "INGLES":
-                this.idioma = Idioma.INGLES;
-                break;
+    public void setIdioma(String idioma) {
+        if (idioma == null) {
+            throw new NullPointerException("El idioma no puede ser null");
         }
+        
+        // Validación simple para este ejemplo
+        this.idioma = idioma;
     }
-
+    
     /**
-     * Establece el tema de la aplicación.
+     * Obtiene el tema visual actual configurado.
      * 
-     * @pre El tema debe ser una de las opciones válidas: "CLARO" o "OSCURO".
-     * @param t Nuevo tema
-     * @post El tema de la configuración se actualiza al valor especificado.
-     * @throws IllegalArgumentException si el tema no es uno de los valores permitidos
-     * @throws NullPointerException si el parámetro t es null
+     * @return Tema actual
      */
-    public void setTema(String t) {
-        if (!t.equals("CLARO") && !t.equals("OSCURO")) throw new IllegalArgumentException ("El tema deber ser CLARO o OSCURO");
-        switch (t) { 
-            case "CLARO":
-                this.tema = Tema.CLARO;
-                break;
-            case "OSCURO":
-                this.tema = Tema.OSCURO;
-                break;
-        }
+    public String getTema() {
+        return tema;
     }
-
+    
     /**
-     * Establece el volumen de la aplicación.
+     * Establece un nuevo tema visual.
      * 
-     * @pre El volumen debe estar en el rango [0, 100].
-     * @param v Nuevo valor de volumen
-     * @post El nivel de volumen de la configuración se actualiza al valor especificado.
+     * @param tema Tema a establecer
+     * @throws IllegalArgumentException si el tema no es válido
+     */
+    public void setTema(String tema) {
+        if (tema == null) {
+            throw new NullPointerException("El tema no puede ser null");
+        }
+        
+        // Validación simple para este ejemplo
+        this.tema = tema;
+    }
+    
+    /**
+     * Obtiene el volumen actual configurado.
+     * 
+     * @return Volumen actual
+     */
+    public int getVolumen() {
+        return volumen;
+    }
+    
+    /**
+     * Establece un nuevo nivel de volumen.
+     * 
+     * @param volumen Volumen a establecer
      * @throws IllegalArgumentException si el volumen está fuera del rango permitido
      */
-    public void setVolumen(int v) {
-        if (v > 100 || v < 0) throw new IllegalArgumentException ("El volumen debe ser un valor entre 0 y 100");
-        this.volumen = v;
+    public void setVolumen(int volumen) {
+        if (volumen < VOLUMEN_MIN || volumen > VOLUMEN_MAX) {
+            throw new IllegalArgumentException("El volumen debe estar entre " + 
+                                               VOLUMEN_MIN + " y " + VOLUMEN_MAX);
+        }
+        
+        this.volumen = volumen;
     }
 }

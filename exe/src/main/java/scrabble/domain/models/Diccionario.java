@@ -90,6 +90,7 @@ public class Diccionario implements Serializable {
         for (String palabra : palabras) {
             dawg.insert(palabra);
         }
+        dawg.finish(); // Finaliza la construcción del DAWG
     }
 
     /**

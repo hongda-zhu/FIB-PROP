@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    // id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 group = 'scrabble'
@@ -9,6 +10,10 @@ version = '1.0-SNAPSHOT'
 application {
     mainClass = 'scrabble.domain.DomainDriver'
 }
+
+// application {
+//     mainClass = 'scrabble.presentation.MainRanking'
+// }
 
 jar {
     manifest {
@@ -22,6 +27,11 @@ java {
         languageVersion = JavaLanguageVersion.of(22)
     }
 }
+
+// javafx {
+//     version = '24.0.1' 
+//     modules = [ 'javafx.controls', 'javafx.fxml' ]
+// }
 
 repositories {
     mavenCentral()
@@ -43,6 +53,7 @@ sourceSets {
         compileClasspath += sourceSets.main.output
         runtimeClasspath += output + compileClasspath
     }
+    
 }
 
 task runTemp(type: JavaExec) {

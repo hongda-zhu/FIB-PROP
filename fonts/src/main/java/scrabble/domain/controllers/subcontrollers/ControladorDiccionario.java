@@ -6,6 +6,8 @@ import java.nio.file.*;
 import java.util.*;
 import scrabble.domain.models.Diccionario;
 import scrabble.excepciones.*;
+import scrabble.domain.persistences.interfaces.RepositorioDiccionario;
+import scrabble.domain.persistences.implementaciones.RepositorioDiccionarioImpl;
 
 /**
  * Controlador para la gestión de diccionarios en el juego de Scrabble.
@@ -16,14 +18,32 @@ public class ControladorDiccionario {
     private static ControladorDiccionario instance;
     private Map<String, Diccionario> diccionarios;
     private Map<String, String> diccionarioPaths;
+    private RepositorioDiccionario repositorio;
     
     /**
      * Constructor privado para implementar el patrón Singleton.
      * Inicializa los mapas de diccionarios y paths.
      */
     private ControladorDiccionario() {
+        this(new RepositorioDiccionarioImpl());
+    }
+    
+    /**
+     * Constructor privado con inyección de repositorio para pruebas.
+     * 
+     * @param repositorio El repositorio a utilizar para la persistencia
+     * @pre El repositorio no debe ser null.
+     * @post Se inicializa una nueva instancia con mapas vacíos y se cargan los diccionarios.
+     * @throws NullPointerException si el repositorio es null
+     */
+    private ControladorDiccionario(RepositorioDiccionario repositorio) {
+        if (repositorio == null) {
+            throw new NullPointerException("El repositorio no puede ser null");
+        }
+        this.repositorio = repositorio;
         this.diccionarios = new HashMap<>();
-        this.diccionarioPaths = new HashMap<>();
+        this.diccionarioPaths = repositorio.cargarIndice();
+        
         // Verificar diccionarios existentes al inicializar
         verificarTodosDiccionarios();
     }
@@ -39,6 +59,20 @@ public class ControladorDiccionario {
         if (instance == null) {
             instance = new ControladorDiccionario();
         }
+        return instance;
+    }
+    
+    /**
+     * Obtiene la instancia única del controlador con repositorio personalizado (para pruebas).
+     * 
+     * @param repositorio El repositorio a utilizar
+     * @return Instancia de ControladorDiccionario
+     * @pre El repositorio no debe ser null.
+     * @post Se devuelve una instancia de ControladorDiccionario configurada con el repositorio especificado.
+     * @throws NullPointerException Si el repositorio es null
+     */
+    public static synchronized ControladorDiccionario getInstance(RepositorioDiccionario repositorio) {
+        instance = new ControladorDiccionario(repositorio);
         return instance;
     }
     
@@ -73,7 +107,7 @@ public class ControladorDiccionario {
      * @throws NullPointerException Si alguno de los parámetros es null.
      */
     public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida, ExceptionDiccionarioOperacionFallida {
-        if (diccionarios.containsKey(nombre)) {
+        if (repositorio.existe(nombre)) {
             throw new ExceptionDiccionarioExist("Ya existe un diccionario con el nombre: " + nombre);
         }
         
@@ -128,7 +162,9 @@ public class ControladorDiccionario {
             diccionarios.put(nombre, dict);
             diccionarioPaths.put(nombre, path);
             
-            // Mensaje informativo movido a la capa de presentación
+            // Guardar en el repositorio
+            repositorio.guardar(nombre, dict, path);
+            
         } catch (IOException e) {
             throw new ExceptionDiccionarioOperacionFallida("Error al crear el diccionario: " + e.getMessage(), "creación");
         }
@@ -150,7 +186,7 @@ public class ControladorDiccionario {
      * @throws NullPointerException Si alguno de los parámetros es null.
      */
     public void crearDiccionario(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida, ExceptionDiccionarioOperacionFallida {
-        if (diccionarios.containsKey(nombre)) {
+        if (repositorio.existe(nombre)) {
             throw new ExceptionDiccionarioExist("Ya existe un diccionario con el nombre: " + nombre);
         }
         
@@ -195,17 +231,16 @@ public class ControladorDiccionario {
             // Si todas las palabras son válidas, añadir el DAWG
             dict.setDawg(palabras);
             
-            // Guardar el diccionario
-            diccionarios.put(nombre, dict);
-            
             // Obtener el directorio padre de la ruta del archivo
             String parentDir = alphaPath.getParent() != null ? 
                                alphaPath.getParent().toString() : 
                                ".";
             
+            // Guardar el diccionario en memoria y en el repositorio
+            diccionarios.put(nombre, dict);
             diccionarioPaths.put(nombre, parentDir);
+            repositorio.guardar(nombre, dict, parentDir);
             
-            // Mensaje informativo movido a la capa de presentación
         } catch (IOException e) {
             throw new ExceptionDiccionarioOperacionFallida("Error al crear el diccionario: " + e.getMessage(), "creación");
         }
@@ -223,36 +258,18 @@ public class ControladorDiccionario {
      * @throws NullPointerException Si el parámetro nombre es null.
      */
     public void eliminarDiccionario(String nombre) throws ExceptionDiccionarioNotExist, IOException, ExceptionDiccionarioOperacionFallida {
-        if (!diccionarios.containsKey(nombre)) {
+        if (!repositorio.existe(nombre)) {
             throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
-        }
-        
-        String path = diccionarioPaths.get(nombre);
-        if (path == null) {
-            // Si hay inconsistencia interna
-            diccionarios.remove(nombre);
-            throw new ExceptionDiccionarioNotExist("Error interno: Path no encontrado para el diccionario '" + nombre + "'. Eliminado de memoria.");
         }
         
         // Eliminar de memoria
         diccionarios.remove(nombre);
-        diccionarioPaths.remove(nombre);
         
-        // Eliminar archivos
-        Path dirPath = Paths.get(path);
-        if (Files.exists(dirPath)) {
-            try {
-                Files.walk(dirPath)
-                    .sorted(Comparator.reverseOrder()) // Importante para borrar contenido antes que directorios
-                    .map(Path::toFile)
-                    .forEach(java.io.File::delete);
-                
-                // Mensaje informativo movido a la capa de presentación
-            } catch (IOException e) {
-                throw new ExceptionDiccionarioOperacionFallida("Error al eliminar los archivos del diccionario: " + e.getMessage(), "eliminación");
-            }
-        } else {
-            throw new ExceptionLoggingOperacion("El directorio del diccionario ya no existe en la ruta esperada: " + path, "eliminación");
+        // Eliminar del sistema de persistencia
+        boolean eliminado = repositorio.eliminar(nombre);
+        
+        if (!eliminado) {
+            throw new ExceptionDiccionarioOperacionFallida("Error al eliminar los archivos del diccionario.", "eliminación");
         }
     }
     
@@ -266,7 +283,7 @@ public class ControladorDiccionario {
      * @throws NullPointerException Si el parámetro nombre es null.
      */
     public boolean existeDiccionario(String nombre) {
-        return diccionarios.containsKey(nombre);
+        return repositorio.existe(nombre);
     }
     
     
@@ -278,7 +295,7 @@ public class ControladorDiccionario {
      * @post Se devuelve una lista no nula con los nombres de los diccionarios disponibles (posiblemente vacía).
      */
     public List<String> getDiccionariosDisponibles() {
-        return new ArrayList<>(diccionarios.keySet());
+        return repositorio.listarDiccionarios();
     }
     
     /**
@@ -620,17 +637,7 @@ public class ControladorDiccionario {
      * @throws NullPointerException Si el parámetro nombre es null.
      */
     public boolean verificarDiccionarioValido(String nombre) {
-        if (!diccionarios.containsKey(nombre) || !diccionarioPaths.containsKey(nombre)) {
-            return false;
-        }
-        
-        String path = diccionarioPaths.get(nombre);
-        Path dirPath = Paths.get(path);
-        Path alphaPath = dirPath.resolve("alpha.txt");
-        Path wordsPath = dirPath.resolve("words.txt");
-        
-        return Files.exists(dirPath) && Files.isDirectory(dirPath) && 
-               Files.exists(alphaPath) && Files.exists(wordsPath);
+        return repositorio.verificarDiccionarioValido(nombre);
     }
     
     /**
@@ -642,7 +649,7 @@ public class ControladorDiccionario {
         List<String> diccionariosInvalidos = new ArrayList<>();
         
         // Identificar diccionarios inválidos
-        for (String nombre : new ArrayList<>(diccionarios.keySet())) {
+        for (String nombre : new ArrayList<>(diccionarioPaths.keySet())) {
             if (!verificarDiccionarioValido(nombre)) {
                 diccionariosInvalidos.add(nombre);
             }
@@ -653,6 +660,13 @@ public class ControladorDiccionario {
             // Mensaje de log transformado a excepción informativa
             diccionarios.remove(nombre);
             diccionarioPaths.remove(nombre);
+            try {
+                repositorio.eliminar(nombre);
+            } catch (Exception e) {
+                // Ya que estamos en un método privado que no propaga excepciones,
+                // simplemente capturamos cualquier error al eliminar del repositorio
+                System.err.println("Error al eliminar diccionario inválido: " + nombre + " - " + e.getMessage());
+            }
             throw new ExceptionLoggingOperacion("Eliminando diccionario inválido: " + nombre + " (archivos no encontrados)", "verificación");
         }
     }
@@ -805,6 +819,7 @@ public class ControladorDiccionario {
 
     /**
      * Obtiene un diccionario por su nombre.
+     * Si no está en memoria, lo carga desde el repositorio.
      * 
      * @pre No hay precondiciones específicas fuertes.
      * @param nombre Nombre del diccionario
@@ -814,10 +829,28 @@ public class ControladorDiccionario {
      * @throws NullPointerException Si el parámetro nombre es null.
      */
     public Diccionario getDiccionario(String nombre) throws ExceptionDiccionarioNotExist {
-        if (!diccionarios.containsKey(nombre)) {
+        if (!repositorio.existe(nombre)) {
             throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
         }
-        return diccionarios.get(nombre);
+        
+        // Si el diccionario ya está cargado en memoria, devolverlo
+        if (diccionarios.containsKey(nombre)) {
+            return diccionarios.get(nombre);
+        }
+        
+        // Si no está en memoria, cargarlo desde el repositorio
+        try {
+            Diccionario dict = repositorio.cargar(nombre);
+            if (dict == null) {
+                throw new ExceptionDiccionarioNotExist("No se pudo cargar el diccionario: " + nombre);
+            }
+            
+            // Almacenar en caché para futuras consultas
+            diccionarios.put(nombre, dict);
+            return dict;
+        } catch (IOException e) {
+            throw new ExceptionDiccionarioNotExist("Error al cargar el diccionario '" + nombre + "': " + e.getMessage());
+        }
     }
 
 }

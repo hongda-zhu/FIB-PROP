@@ -1,8 +1,13 @@
 package scrabble.domain.models;
 
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import scrabble.helpers.Triple;
 
 /**
  * Clase que implementa un Grafo Acíclico Dirigido para Palabras (DAWG, Directed Acyclic Word Graph).
@@ -11,6 +16,9 @@ import java.util.ArrayList;
 public class Dawg {
 
     private final DawgNode root;
+    private Map<DawgNode, DawgNode> minimizedNodes = new HashMap<>();
+    private Stack<Triple<DawgNode, String, DawgNode>> uncheckedNodes = new Stack<>();
+    private String previousWord = "";
 
     /**
      * Constructor por defecto. Inicializa un DAWG vacío con un nodo raíz.
@@ -20,6 +28,47 @@ public class Dawg {
      */
     public Dawg() {
         root = new DawgNode();
+    }
+
+
+    
+    private int commonPrefix(String word)
+    {
+        for (int commonPrefix = 0; commonPrefix < Math.min(word.length(), previousWord.length()); commonPrefix++)
+        {
+            if (word.charAt(commonPrefix) != previousWord.charAt(commonPrefix))
+            {
+                return commonPrefix;
+            }
+        }
+
+        return 0;
+    }
+
+
+    private void minimize(int downTo)
+    {
+        for (int i = uncheckedNodes.size() - 1; i > downTo - 1; i--)
+        {
+            Triple<DawgNode, String, DawgNode> unNode = uncheckedNodes.pop();
+            DawgNode parent = unNode.x;
+            String letter = unNode.y;
+            DawgNode child = unNode.z;
+
+            if (minimizedNodes.containsKey(child)) {
+                DawgNode newChild = minimizedNodes.get(child);
+                parent.switchEdge(letter, newChild);
+            } else {
+                minimizedNodes.put(child, child);
+            }
+        }
+    }
+
+    public void finish() {
+        minimize(0);
+        minimizedNodes.clear();
+        uncheckedNodes.clear();
+        previousWord = "";
     }
 
     /**
@@ -32,18 +81,34 @@ public class Dawg {
      * @throws NullPointerException si word es null
      */
     public void insert(String word) {
-        if (word.isEmpty()) {
-            return;
-        }
+        // if (word.isEmpty()) {
+        //     return;
+        // }
         
-        DawgNode current = root;
-        for (char c : word.toCharArray()) {
-            if (current.getEdge(String.valueOf(c)) == null) {
-                current.addEdge(String.valueOf(c), new DawgNode());
-            }
-            current = current.getEdge(String.valueOf(c));
+        // DawgNode current = root;
+        // for (char c : word.toCharArray()) {
+        //     if (current.getEdge(String.valueOf(c)) == null) {
+        //         current.addEdge(String.valueOf(c), new DawgNode());
+        //     }
+        //     current = current.getEdge(String.valueOf(c));
+        // }
+        // current.setFinal(true);
+
+        int commonPrefix = commonPrefix(word);
+        minimize(commonPrefix);
+
+        DawgNode current = uncheckedNodes.isEmpty() ? root : uncheckedNodes.peek().z;
+
+        for (int i = commonPrefix; i < word.length(); i++)
+        {
+            String letter = String.valueOf(word.charAt(i));
+            DawgNode newNode = new DawgNode();
+            current.addEdge(letter, newNode);
+            uncheckedNodes.push(new Triple<>(current, letter, newNode));
+            current = newNode;
         }
         current.setFinal(true);
+        previousWord = word;
     }
 
     /**

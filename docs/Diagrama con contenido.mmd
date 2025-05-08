@@ -335,23 +335,35 @@ classDiagram
         +nodeExists(String palabraParcial) : boolean
     }
     class Dawg {
-        -DawgNode root
-        +Dawg()
-        +insert(String word) : void
-        +search(String word) : boolean
-        +getNode(String word) : DawgNode
-        +getAvailableEdges(String partialword) : Set~String~
-        +isFinal(String partialword) : boolean
+    - DawgNode root
+    - Map<DawgNode, DawgNode> minimizedNodes
+    - Stack<Triple<DawgNode, String, DawgNode>> uncheckedNodes
+    - String previousWord
+    + Dawg()
+    + insert(String word) : void
+    + search(String word) : boolean
+    + getNode(String word) : DawgNode
+    + getAvailableEdges(String partialword) : Set<String>
+    + isFinal(String partialword) : boolean
+    + finish() : void
+    + getAllWords() : List<String>
+    - commonPrefix(String word) : int
+    - minimize(int downTo) : void
+    - collectWords(DawgNode node, String prefix, List<String> result) : void
     }
     class DawgNode {
-        -edges : Map~String,DawgNode~
-        -isFinal : boolean
-        +DawgNode()
-        +getEdge(String c) : DawgNode
-        +getAllEdges() : Set~String~
-        +addEdge(String c, DawgNode node) : void
-        +isFinal() : boolean
-        +setFinal(boolean isFinal) : void
+    - edges : Map<String, DawgNode>
+    - isFinal : boolean
+    + DawgNode()
+    + getEdge(String c) : DawgNode
+    + getAllEdges() : Set<String>
+    + addEdge(String c, DawgNode node) : void
+    + switchEdge(String c, DawgNode node) : void
+    + isFinal() : boolean
+    + setFinal(boolean isFinal) : void
+    + getEdges() : Map<String, DawgNode>
+    + equals(Object o) : boolean
+    + hashCode() : int
     }
     class Configuracion {
         -idioma : Idioma

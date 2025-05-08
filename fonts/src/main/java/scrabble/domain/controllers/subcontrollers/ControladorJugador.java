@@ -1,11 +1,5 @@
 package scrabble.domain.controllers.subcontrollers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +10,7 @@ import java.util.Set;
 import scrabble.domain.models.Jugador;
 import scrabble.domain.models.JugadorHumano;
 import scrabble.domain.models.JugadorIA;
+import scrabble.domain.persistences.interfaces.RepositorioJugador;
 import scrabble.helpers.Dificultad;
 
 /**
@@ -25,24 +20,28 @@ import scrabble.helpers.Dificultad;
 public class ControladorJugador {
     private static ControladorJugador instance;
     private Map<String, Jugador> jugadores; // key: nombre -> value: Jugador 
-    
-    private static final String JUGADORES_FILE = "src/main/resources/persistencias/jugadores.dat";
+    private RepositorioJugador repositorioJugador;
     
     /**
      * Constructor privado para implementar el patrón Singleton.
      * Inicializa la gestión de jugadores y carga los datos si existen.
      * 
-     * @pre No hay precondiciones específicas.
+     * @pre repositorioJugador no debe ser null.
      * @post Se inicializa una nueva instancia con un mapa de jugadores vacío
      *       y se cargan los datos persistentes si están disponibles.
      */
-    private ControladorJugador() {
+    private ControladorJugador(RepositorioJugador repositorioJugador) {
+        if (repositorioJugador == null) {
+            throw new NullPointerException("El repositorio de jugadores no puede ser null");
+        }
         this.jugadores = new HashMap<>();
+        this.repositorioJugador = repositorioJugador;
         cargarDatos();
     }
     
     /**
      * Obtiene la instancia única del controlador (Singleton).
+     * Utiliza la implementación por defecto del repositorio.
      * 
      * @pre No hay precondiciones específicas.
      * @return Instancia de ControladorJugador
@@ -50,9 +49,50 @@ public class ControladorJugador {
      */
     public static synchronized ControladorJugador getInstance() {
         if (instance == null) {
-            instance = new ControladorJugador();
+            // Usar un método de fábrica para crear la implementación del repositorio
+            RepositorioJugador repo = createDefaultRepository();
+            instance = new ControladorJugador(repo);
         }
         return instance;
+    }
+    
+    /**
+     * Obtiene la instancia única del controlador (Singleton) con un repositorio específico.
+     * Útil para pruebas o para usar una implementación alternativa de repositorio.
+     * 
+     * @param repositorioJugador Implementación de RepositorioJugador a utilizar
+     * @pre repositorioJugador no debe ser null.
+     * @return Instancia de ControladorJugador
+     * @post Se devuelve la única instancia de ControladorJugador que existe en la aplicación.
+     * @throws NullPointerException Si repositorioJugador es null.
+     */
+    public static synchronized ControladorJugador getInstance(RepositorioJugador repositorioJugador) {
+        if (repositorioJugador == null) {
+            throw new NullPointerException("El repositorio de jugadores no puede ser null");
+        }
+        
+        if (instance == null) {
+            instance = new ControladorJugador(repositorioJugador);
+        } else {
+            // Si la instancia ya existe, actualizamos su repositorio
+            instance.repositorioJugador = repositorioJugador;
+        }
+        return instance;
+    }
+    
+    /**
+     * Método privado para crear la implementación por defecto del repositorio.
+     * Encapsula la creación de la implementación concreta para evitar dependencias directas.
+     * 
+     * @return Una implementación de RepositorioJugador
+     */
+    private static RepositorioJugador createDefaultRepository() {
+        try {
+            // Cambiamos la ruta para que apunte al package correcto
+            return (RepositorioJugador) Class.forName("scrabble.domain.persistences.implementaciones.RepositorioJugadorImpl").getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("No se pudo crear la implementación por defecto del repositorio: " + e.getMessage(), e);
+        }
     }
     
     /**
@@ -602,39 +642,33 @@ public class ControladorJugador {
     }
 
     /**
-     * Guarda los datos de los jugadores en un archivo.
+     * Guarda los datos de los jugadores a través del repositorio.
      * 
      * @pre No hay precondiciones específicas.
-     * @post Los datos de los jugadores se guardan en el archivo especificado por JUGADORES_FILE.
+     * @post Los datos de los jugadores se guardan usando el repositorio.
+     * @throws RuntimeException si ocurre un error al guardar los jugadores
      */
     private void guardarDatos() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(JUGADORES_FILE))) {
-            oos.writeObject(jugadores);
-        } catch (IOException e) {
-            // Capturamos la excepción y la convertimos en una excepción de runtime
-            // para no obligar a manejarla en cada llamada
-            throw new RuntimeException("Error al guardar los jugadores: " + e.getMessage(), e);
+        boolean success = repositorioJugador.guardarTodos(jugadores);
+        if (!success) {
+            throw new RuntimeException("Error al guardar los jugadores a través del repositorio");
         }
     }
     
     /**
-     * Carga los datos de los jugadores desde un archivo.
+     * Carga los datos de los jugadores desde el repositorio.
      * 
      * @pre No hay precondiciones específicas.
-     * @post Si el archivo existe y se puede leer correctamente, se cargan los datos de los jugadores.
+     * @post Si el repositorio tiene datos, se cargan los jugadores.
      *       En caso de error, se inicializa un mapa vacío.
      */
-    @SuppressWarnings("unchecked")
     private void cargarDatos() {
-        File jugadoresFile = new File(JUGADORES_FILE);
-        if (jugadoresFile.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(jugadoresFile))) {
-                jugadores = (Map<String, Jugador>) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                jugadores = new HashMap<>(); // Si hay error, inicializar con uno nuevo
-                // Convertimos la excepción en runtime para no obligar a manejarla en cada llamada
-                throw new RuntimeException("Error al cargar los jugadores: " + e.getMessage() + ". Se inicializaron estructuras vacías.", e);
-            }
+        Map<String, Jugador> jugadoresCargados = repositorioJugador.cargarTodos();
+        if (jugadoresCargados != null && !jugadoresCargados.isEmpty()) {
+            this.jugadores = jugadoresCargados;
+        } else {
+            // Si no hay datos, inicializamos un mapa vacío
+            this.jugadores = new HashMap<>();
         }
     }
 
