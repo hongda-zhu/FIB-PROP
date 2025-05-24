@@ -72,25 +72,25 @@ public class VistaTablero {
     // Lista para rastrear las fichas colocadas en el turno actual 
     private List<FichaColocada> fichasColocadasEnTurnoActual = new ArrayList<>();
     
-    private Map<Tuple<Integer, Integer>, Character> posiciones; 
+    private Map<Tuple<Integer, Integer>, String> posiciones; 
     // Tamaño fijo para cada casilla
     private final int CASILLA_SIZE = 40; // Tamaño en pixeles   
 
     // Información temporal para mantener una ficha colocada pero no confirmada
     private class FichaColocada {
-        private char letra;
+        private String letra;
         private int puntos;
         private int fila;
         private int columna;
         
-        public FichaColocada(char letra, int puntos, int fila, int columna) {
+        public FichaColocada(String letra, int puntos, int fila, int columna) {
             this.letra = letra;
             this.puntos = puntos;
             this.fila = fila;
             this.columna = columna;
         }
 
-        public char getLetra() {
+        public String getLetra() {
             return this.letra;
         }
 
@@ -328,7 +328,7 @@ private void colocarFichasIA(String palabra, Tuple<Integer, Integer> posFinal, D
         for (int i = 0; i < longitud; i++) {
             int fila = (direccion == Direction.HORIZONTAL) ? filaInicial : filaInicial + i;
             int columna = (direccion == Direction.HORIZONTAL) ? columnaInicial + i : columnaInicial;
-            char letra = palabra.charAt(i);
+            String letra = String.valueOf(palabra.charAt(i));
             
             // Verificar si ya hay una ficha en esa posición
             Tuple<Integer, Integer> pos = new Tuple<>(fila, columna);
@@ -342,7 +342,7 @@ private void colocarFichasIA(String palabra, Tuple<Integer, Integer> posFinal, D
                     CasillaDisplay casilla = (CasillaDisplay) node;
                     if (casilla.getFila() == fila && casilla.getColumna() == columna) {
                     
-                        int puntos = obtenerPuntosPorLetra(letra);                        
+                        int puntos = obtenerPuntosPorLetra(String.valueOf(letra));                        
                         casilla.colocarFicha(letra, puntos, true);                        
                         posiciones.put(new Tuple<>(fila, columna), letra);
                         
@@ -447,10 +447,10 @@ private void actualizarRackJugador() {
             int cantidad = entry.getValue();
             
             // Puntos para la letra (esto podría obtenerse del controlador)
-            int puntos = obtenerPuntosPorLetra(letra.charAt(0));
+            int puntos = obtenerPuntosPorLetra(letra);
             
             for (int i = 0; i < cantidad; i++) {
-                Ficha ficha = new Ficha(letra.charAt(0), puntos);
+                Ficha ficha = new Ficha(letra, puntos);
                 ficha.setMinSize(CASILLA_SIZE, CASILLA_SIZE);
                 ficha.setPrefSize(CASILLA_SIZE, CASILLA_SIZE);
                 ficha.setMaxSize(CASILLA_SIZE, CASILLA_SIZE);
@@ -526,24 +526,10 @@ private void actualizarVistaHistorial() {
 /**
  * Obtiene los puntos correspondientes a una letra
  */
-private int obtenerPuntosPorLetra(char letra) {
-    // Valores por defecto para el Scrabble español
-    switch (Character.toUpperCase(letra)) {
-        case 'A': case 'E': case 'O': case 'S': case 'I': case 'N': case 'L': case 'R': case 'T': case 'U':
-            return 1;
-        case 'D': case 'G':
-            return 2;
-        case 'B': case 'C': case 'M': case 'P':
-            return 3;
-        case 'F': case 'H': case 'V': case 'Y':
-            return 4;
-        case 'J': case 'K': case 'Ñ': case 'Q': case 'W': case 'X':
-            return 8;
-        case 'Z':
-            return 10;
-        default:
-            return 0; // Para comodines o caracteres no reconocidos
-    }
+public int obtenerPuntosPorLetra(String letra) {
+    Integer puntos = controlador.obtenerPuntosPorLetra(letra);
+    return puntos != null ? puntos : 0; // Devuelve 0 si es null
+    
 }
 
 /**
@@ -814,18 +800,13 @@ private Tuple<Boolean, Triple<String, Tuple <Integer, Integer>, Direction>> veri
                 );
             
             // Verificar con el controlador
-            Boolean valid = controlador.esMovimientoValido(jugada, rackActual);
+            Boolean valid = jugada.getx().contains("#") ? true : controlador.esMovimientoValido(jugada, rackActual);
             return new Tuple<>(valid, jugada);
         }
     
     }
     
     System.err.println("Se ha intentado colocar la palabra: " + palabra);
-    
-    // Verificar que la palabra tiene al menos 2 letras
-    if (palabra.length() < 2) {
-        return result;
-    }
     
     // Crear la jugada con la posición de la última letra
     Triple<String, Tuple<Integer, Integer>, Direction> jugada = 
@@ -836,7 +817,7 @@ private Tuple<Boolean, Triple<String, Tuple <Integer, Integer>, Direction>> veri
         );
     
     
-    Boolean valid = controlador.esMovimientoValido(jugada, rackActual);
+    Boolean valid = jugada.getx().contains("#") ? true : controlador.esMovimientoValido(jugada, rackActual);
     return new Tuple<Boolean,Triple<String,Tuple<Integer,Integer>,Direction>>(valid, jugada);
 }
     /**
@@ -878,7 +859,7 @@ private Tuple<Boolean, Triple<String, Tuple <Integer, Integer>, Direction>> veri
             } 
 
             if(!contiguo && !firstMove) {
-                controlador.mostrarAlerta("warning", "Jugada inválida", "¡Movimiento ilegal por las normas del juego, debe estar contigua con al menos una ficha del tablero!");
+                controlador.mostrarAlerta("warning", "Jugada inválida", "¡Movimiento ilegal por las reglas del juego, la palabra debe estar contigua con al menos una ficha del tablero!");
                 cancelarJugada();
                 return;
             }                           
@@ -1064,9 +1045,9 @@ private void pasarTurno() {
         controlador.realizarTurnoPartida(jugadorActualNombre, pasarJugada);
         agregarEntradaHistorial(jugadorActualNombre, "P", 0);        
         // Comprobar fin de partida
-        controlador.comprobarFinPartida(jugadoresPuntuaciones);
         
         if (controlador.isJuegoTerminado()) {
+            System.err.println("Desde jugador " + jugadorActualNombre + " se ha acabado la partida");
             finalizarPartida();
         } else {
             // showAlert(Alert.AlertType.INFORMATION, "Turno pasado", 
@@ -1099,7 +1080,7 @@ private void cambiarFichas() {
         }
         
         // Mostrar el popup para que el usuario seleccione las fichas
-        CambiarFichasPopup popup = new CambiarFichasPopup(rackActual, CASILLA_SIZE);
+        CambiarFichasPopup popup = new CambiarFichasPopup(rackActual, CASILLA_SIZE, this);
         List<String> fichasACambiar = popup.mostrarYEsperar();
         if (fichasACambiar.isEmpty()) {
             return; 
@@ -1143,13 +1124,125 @@ private void cambiarFichas() {
 }     
 
 /**
- * Finaliza la partida y muestra el resultado
+ * Finaliza la partida y muestra el resultado detallado
  */
 private void finalizarPartida() {
-    String resultado = controlador.finalizarJuego(jugadoresPuntuaciones);
-    controlador.mostrarAlerta("info", "Fin de la partida", resultado);
-    controlador.volver();
+    try {
+        jugadoresPuntuaciones = controlador.getJugadoresActuales();
+        
+        // Determinar el ganador y calcular estadísticas
+        String ganador = determinarGanador();
+        String estadisticasFinales = generarEstadisticasFinales();
+        String mensajeCompleto = construirMensajeFinal(ganador, estadisticasFinales);
+        
+        // Liberar jugadores de la partida actual si no está cargada
+        if (!controlador.getCargado()) {
+            controlador.liberarJugadores();
+        } else {
+            controlador.setCargado(false);
+        }
+        
+        mostrarResultadoFinal(mensajeCompleto);
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        controlador.mostrarAlerta("error", "Error", "Error al finalizar la partida: " + e.getMessage());
+        controlador.volver();
+    }
 }
+
+/**
+ * Determina el ganador de la partida
+ */
+private String determinarGanador() {
+    if (jugadoresPuntuaciones == null || jugadoresPuntuaciones.isEmpty()) {
+        return "No hay jugadores";
+    }
+    
+    // Encontrar la puntuación máxima
+    int puntuacionMaxima = jugadoresPuntuaciones.values().stream()
+            .mapToInt(Integer::intValue)
+            .max()
+            .orElse(0);
+    
+    // Encontrar todos los jugadores con la puntuación máxima (por si hay empate)
+    List<String> ganadores = jugadoresPuntuaciones.entrySet().stream()
+            .filter(entry -> entry.getValue() == puntuacionMaxima)
+            .map(Map.Entry::getKey)
+            .collect(java.util.stream.Collectors.toList());
+    
+    if (ganadores.size() == 1) {
+        return ganadores.get(0);
+    } else {
+        return "Empate entre: " + String.join(", ", ganadores);
+    }
+}
+
+/**
+ * Genera estadísticas finales de la partida
+ */
+private String generarEstadisticasFinales() {
+    StringBuilder stats = new StringBuilder();
+    
+    // Puntuaciones finales ordenadas de mayor a menor
+    List<Map.Entry<String, Integer>> puntuacionesOrdenadas = jugadoresPuntuaciones.entrySet()
+            .stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .collect(java.util.stream.Collectors.toList());
+    
+    stats.append("PUNTUACIONES FINALES:\n");
+    for (int i = 0; i < puntuacionesOrdenadas.size(); i++) {
+        Map.Entry<String, Integer> entry = puntuacionesOrdenadas.get(i);
+        String posicion = (i + 1) + "º";
+        String tipoJugador = controlador.esIA(entry.getKey()) ? " (IA)" : " (Humano)";
+        stats.append(String.format("%s %s%s: %d puntos\n", 
+                posicion, entry.getKey(), tipoJugador, entry.getValue()));
+    }
+    
+    return stats.toString();
+}
+
+/**
+ * Construye el mensaje final completo
+ */
+private String construirMensajeFinal(String ganador, String estadisticas) {
+    StringBuilder mensaje = new StringBuilder();
+    
+    // Título principal
+    mensaje.append(" ¡PARTIDA FINALIZADA! \n\n");
+    
+    // Ganador
+    if (ganador.startsWith("Empate")) {
+        mensaje.append(ganador).append("!\n\n");
+    } else {
+        String tipoGanador = controlador.esIA(ganador) ? " (IA)" : " (Humano)";
+        mensaje.append("🏆 ¡Ganador: ").append(ganador).append(tipoGanador).append("!\n\n");
+    }
+    
+    // Estadísticas
+    mensaje.append(estadisticas);
+    
+    return mensaje.toString();
+}
+
+/**
+ * Muestra el resultado final usando el popup de pausa
+ */
+private void mostrarResultadoFinal(String mensaje) {
+
+    List<PausaPopup.PopupButton> buttons = List.of(
+        new PausaPopup.PopupButton("Salir", PausaPopup.ButtonStyle.INFO, 
+            stage -> {
+                stage.close();
+                Platform.runLater(() -> {
+                    controlador.volver();
+                });
+            })
+    );
+    
+    PausaPopup.show("Resultado Final", mensaje, buttons);
+}
+
 /**
  * Centra el tablero en el ScrollPane para una mejor visualización
  */
@@ -1190,7 +1283,6 @@ private void centrarTableroEnScrollPane() {
         scrollPane.setFitToWidth(false);
         scrollPane.setFitToHeight(false);
         
-        // Aplicar estilos a las barras de desplazamiento
         aplicarEstiloScrollbars();
         
         // Centrar el viewport después de renderizar
@@ -1199,10 +1291,6 @@ private void centrarTableroEnScrollPane() {
             scrollPane.setHvalue(0.5);
             scrollPane.setVvalue(0.5);
             
-            // Log para depuración
-            System.out.println("Numeración de filas: " + filasNumeracion.getChildren().size());
-            System.out.println("Numeración de columnas: " + columnasNumeracion.getChildren().size());
-            System.out.println("Casillas en el tablero: " + tablero.getChildren().size());
         });
     }
 }
@@ -1442,7 +1530,7 @@ private void aplicarEstiloScrollbars() {
     private void inicializarFichasJugador() {
         if (fichasJugador != null) {
             fichasJugador.getChildren().clear();
-            char[] letras = {'S', 'C', 'R', 'A', 'B', 'L', 'E'};
+            String[] letras = {"S", "C", "R", "A", "BB", "L", "E"};
             int[] puntos = {1, 3, 1, 1, 3, 1, 1};
             
             for (int i = 0; i < 7; i++) {
@@ -1530,7 +1618,7 @@ private void aplicarEstiloScrollbars() {
             System.out.println("Retirando ficha de casilla " + casilla.getFila() + "," + casilla.getColumna());
             
             // Obtener información de la ficha
-            char letra = casilla.getLetraFicha();
+            String letra = casilla.getLetraFicha();
             int puntos = casilla.getPuntosFicha();
             int fila = casilla.getFila();
             int columna = casilla.getColumna();
@@ -1560,7 +1648,7 @@ private void aplicarEstiloScrollbars() {
      * Devuelve una ficha retirada del tablero al rack del jugador
      * Solo permite retirar fichas no confirmadas
      */
-    public void devolverFichaAJugador(char letra, int puntos, int fila, int columna) {
+    public void devolverFichaAJugador(String letra, int puntos, int fila, int columna) {
         if (esFichaConfirmada(fila, columna)) {
             System.out.println("No se puede retirar una ficha confirmada");
             return;

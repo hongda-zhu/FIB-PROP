@@ -29,7 +29,7 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.util.converter.DefaultStringConverter;
 import scrabble.presentation.componentes.DiccionarioVisual;
-import scrabble.presentation.viewControllers.ControladorDiccionario;
+import scrabble.presentation.viewControllers.ControladorDiccionarioView;
 
 /**
  * Clase que representa la vista para modificar un diccionario.
@@ -37,7 +37,7 @@ import scrabble.presentation.viewControllers.ControladorDiccionario;
 
 public class ModificarDiccionarioView {
     private Parent view;
-    private ControladorDiccionario controlador;
+    private ControladorDiccionarioView controlador;
 
     private TextField campoNombre;
     private TableView<ObservableList<String>> tablaAlfabeto;
@@ -57,7 +57,7 @@ public class ModificarDiccionarioView {
      * @param diccionarioVisual Diccionario visual a modificar.
      */
 
-    public ModificarDiccionarioView(ControladorDiccionario controlador, DiccionarioVisual diccionarioVisual) {
+    public ModificarDiccionarioView(ControladorDiccionarioView controlador, DiccionarioVisual diccionarioVisual) {
         this.controlador = controlador;
 
         crearBotones();
@@ -83,6 +83,9 @@ public class ModificarDiccionarioView {
         this.tablaPalabras = new TableView<>();
         inicializarTablaPalabras(diccionarioVisual);
 
+        // Aplicar estilo después de inicializar las dos tabkas
+        estilizarTablas();
+
         VBox campos = new VBox(10,
                 new Label("Nombre del Diccionario"), campoNombre,
                 headerAlfabeto, tablaAlfabeto,
@@ -94,11 +97,11 @@ public class ModificarDiccionarioView {
 
         HBox botones = new HBox(10, btnCancelar, btnGuardar);
         botones.setAlignment(Pos.CENTER);
-        botones.setPadding(new Insets(10));
+        botones.setPadding(new Insets(10, 40, 10, 40));
 
         VBox mainContent = new VBox(10, subtitle, campos, botones);
         mainContent.setAlignment(Pos.TOP_CENTER);
-        mainContent.setPadding(new Insets(20));
+        mainContent.setPadding(new Insets(10, 100, 10, 100));
         mainContent.setStyle("-fx-background-color: #ffffff;");
 
         VBox root = new VBox(10, topBar, mainContent);
@@ -119,7 +122,7 @@ public class ModificarDiccionarioView {
         this.view = root;
 
         try {
-            List<String> cssResources = List.of("/styles/button.css", "/styles/excel-table.css");
+            List<String> cssResources = List.of("/styles/button.css", "/styles/table.css");
             for (String cssResource : cssResources) {
                 URL cssUrl = getClass().getResource(cssResource);
                 if (cssUrl != null) {
@@ -142,7 +145,7 @@ public class ModificarDiccionarioView {
     private void inicializarTablaAlfabeto(DiccionarioVisual diccionarioVisual) {
         tablaAlfabeto.setEditable(false);
         this.alfabetoOriginal = FXCollections.observableArrayList();
-        tablaAlfabeto.getStyleClass().add("excel-table");
+        // tablaAlfabeto.getStyleClass().add("modern-table");
 
         FilteredList<ObservableList<String>> filtrada = new FilteredList<>(alfabetoOriginal, s -> true);
         tablaAlfabeto.setItems(filtrada);
@@ -194,9 +197,9 @@ public class ModificarDiccionarioView {
         headerAlfabeto.setAlignment(Pos.CENTER_LEFT);
 
         tablaAlfabeto.getColumns().addAll(colLetra, colPunt, colFreq);
-        tablaAlfabeto.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tablaAlfabeto.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         tablaAlfabeto.setPlaceholder(new Label("No hay letras añadidas."));
-        tablaAlfabeto.setFixedCellSize(25);
+        tablaAlfabeto.setFixedCellSize(45);
         tablaAlfabeto.setPrefHeight(26);
         tablaAlfabeto.setMaxHeight(250);
 
@@ -261,6 +264,76 @@ public class ModificarDiccionarioView {
     }
 
     /**
+    * Aplica estilos y configuraciones adicionales a ambas TableView
+    */
+    private void estilizarTablas() {
+        estilizarTablaAlfabeto();
+        estilizarTablaPalabras();
+    }
+
+    /**
+    * Aplica estilos y configuraciones adicionales a la TableView del alfabeto
+    */
+    private void estilizarTablaAlfabeto() {
+        if (tablaAlfabeto != null) {
+            // Aplicar clase CSS
+            tablaAlfabeto.getStyleClass().clear();            
+            tablaAlfabeto.getStyleClass().add("table-view");
+            
+            // Configurar dimensiones
+            tablaAlfabeto.setMinWidth(400);
+            tablaAlfabeto.setPrefWidth(600);
+            tablaAlfabeto.setMaxWidth(Double.MAX_VALUE);
+            
+            // Desactivar reordenamiento de columnas
+            for (TableColumn<ObservableList<String>, ?> column : tablaAlfabeto.getColumns()) {
+                column.setReorderable(false);
+            }
+            
+            // Configurar selección
+            tablaAlfabeto.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.SINGLE);
+            
+            
+            // Configurar altura de filas 
+            tablaAlfabeto.setRowFactory(tv -> {
+                javafx.scene.control.TableRow<ObservableList<String>> row = new javafx.scene.control.TableRow<>();
+                row.setPrefHeight(tablaAlfabeto.getFixedCellSize());
+                return row;
+            });
+        }
+    }
+
+    /**
+    * Aplica estilos y configuraciones adicionales a la TableView de palabras
+    */
+    private void estilizarTablaPalabras() {
+        if (tablaPalabras != null) {
+            // Aplicar clase CSS
+            tablaPalabras.getStyleClass().clear();            
+            tablaPalabras.getStyleClass().add("table-view");
+            
+            // Configurar dimensiones
+            tablaPalabras.setMinWidth(400);
+            tablaPalabras.setPrefWidth(600);
+            tablaPalabras.setMaxWidth(Double.MAX_VALUE);
+            
+            // Desactivar reordenamiento de columnas
+            for (TableColumn<String, ?> column : tablaPalabras.getColumns()) {
+                column.setReorderable(false);
+            }
+            
+            // Configurar selección
+            tablaPalabras.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.SINGLE);
+            
+            // Configurar altura de filas (mantener la lógica existente pero mejorada)
+            tablaPalabras.setRowFactory(tv -> {
+                javafx.scene.control.TableRow<String> row = new javafx.scene.control.TableRow<>();
+                row.setPrefHeight(tablaPalabras.getFixedCellSize()); // Usar el tamaño fijo ya configurado
+                return row;
+            });
+        }
+    }
+    /**
      * Inicializa la tabla de palabras.
      *
      * @param diccionarioVisual Diccionario visual a modificar.
@@ -269,7 +342,7 @@ public class ModificarDiccionarioView {
     private void inicializarTablaPalabras(DiccionarioVisual diccionarioVisual) {
         this.palabrasOriginales = FXCollections.observableArrayList(diccionarioVisual.getPalabras());
         this.tablaPalabras.setEditable(false);
-        this.tablaPalabras.getStyleClass().add("excel-table");
+        // this.tablaPalabras.getStyleClass().add("modern-table");
 
         FilteredList<String> filtrada = new FilteredList<>(palabrasOriginales, s -> true);
         tablaPalabras.setItems(filtrada);
@@ -314,9 +387,22 @@ public class ModificarDiccionarioView {
         tablaPalabras.getColumns().addAll(palabraCol, colEliminar);
         tablaPalabras.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tablaPalabras.setPlaceholder(new Label("No hay palabras añadidas."));
-        tablaPalabras.setFixedCellSize(25);
+        tablaPalabras.setFixedCellSize(45);
         tablaPalabras.setPrefHeight(26);
         tablaPalabras.setMaxHeight(300);
+
+        tablaPalabras.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                String palabraOriginal = tablaPalabras.getSelectionModel().getSelectedItem();
+                Set<String> letrasValidas = alfabetoOriginal.stream()
+                    .map(fila -> fila.get(0).toUpperCase())
+                    .collect(Collectors.toSet());
+
+                if (palabraOriginal != null) {
+                    controlador.mostrarPopupModificarPalabra(palabrasOriginales, letrasValidas, palabraOriginal);
+                }
+            }
+        });
 
 
         tablaPalabras.getItems().addListener((ListChangeListener<String>) change -> {
@@ -346,6 +432,7 @@ public class ModificarDiccionarioView {
         HBox.setHgrow(espacio, Priority.ALWAYS);
         headerPalabras.getChildren().addAll(lblPalabras, campoBusqueda, espacio, btnAnadirPalabra);
         headerPalabras.setAlignment(Pos.CENTER_LEFT);
+
 
     }
 

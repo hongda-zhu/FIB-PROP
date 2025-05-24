@@ -1,6 +1,6 @@
 package scrabble.presentation.componentes;
 
-import java.io.File;
+import java.net.URL;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -11,16 +11,23 @@ public class MusicManager {
 
     public static void initialize() {
         if (initialized) return;
-        String path = "src/main/resources/audio/musica.mp3"; // Ruta a tu archivo
-        if (!new File(path).exists()) {
-            System.err.println("El archivo de música no existe: " + path);
-            return;
+
+        try {
+            URL url = MusicManager.class.getResource("/audio/musica.wav");
+            if (url == null) {
+                System.err.println("No se pudo encontrar el archivo de música en los recursos.");
+                return;
+            }
+
+            Media media = new Media(url.toExternalForm());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            mediaPlayer.setVolume(0.5);
+            initialized = true;
+        } catch (Exception e) {
+            System.err.println("Error al inicializar el reproductor de música:");
+            e.printStackTrace();
         }
-        Media media = new Media(new File(path).toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-        mediaPlayer.setVolume(0.5);
-        initialized = true;
     }
 
     public static void play() {
@@ -39,3 +46,7 @@ public class MusicManager {
         return mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING;
     }
 }
+
+
+
+

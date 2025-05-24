@@ -330,6 +330,7 @@ public class ControladorDomain {
         Tuple<Map<String, Integer>, Integer> result = realizarTurno(jugada, nombreJugador);
         if (result == null) {
             addSkipTrack(nombreJugador);
+            comprobarFinPartida(controladorJuego.getJugadoresActuales());
         } else {
             inicializarRack(nombreJugador, result.x);
 
@@ -345,8 +346,8 @@ public class ControladorDomain {
                         agregarFicha(nombreJugador, letra);
                     }   
                 }
-            }
-            controladorJugador.clearSkipTrack(nombreJugador);
+            }            
+                controladorJugador.clearSkipTrack(nombreJugador);        
 
             return result.y;
         }
@@ -355,10 +356,10 @@ public class ControladorDomain {
 
     public void comprobarFinPartida(Map<String, Integer> jugadoresSeleccionados) {
         boolean allskiped = true;
-
+        
         for (String entry : jugadoresSeleccionados.keySet()) {
             String nombreJugador = entry;
-            if (getSkipTrack(nombreJugador) < 3) {
+            if (getSkipTrack(nombreJugador) < 2) {
                 allskiped = false;
                 break;
             }
@@ -385,6 +386,12 @@ public class ControladorDomain {
         controladorJugador.addSkipTrack(nombre);
     }
 
+    /**
+    *  Resetea el skiptrack de un jugador
+    */
+    public void clearSkipTrack(String nombreJugador) {
+        controladorJugador.clearSkipTrack(nombreJugador);
+    }
 
     /**
      * Inicializa el rack del jugador con las fichas proporcionadas.
@@ -1011,6 +1018,35 @@ public class ControladorDomain {
     public List<String> getDiccionariosDisponibles() {
         return controladorDiccionario.getDiccionariosDisponibles();
     }
+
+    /**
+     * Obtiene la lista de carácteres con sus correspondientes valores.
+     * 
+     * @return Lista de nombres de diccionarios
+     */
+    public Map<String, Integer> getAlphabet(String nombre) throws ExceptionDiccionarioNotExist, IOException {
+        return controladorDiccionario.getAlphabet(nombre);
+    }
+
+    /**
+     * Devuelve una lista con todas las palabras del diccionario.
+     * @param  dic Nombre de diccionario
+     * @return Lista de palabras.
+     */    
+
+    public List<String> getListaPalabras(String dic) {
+        return controladorDiccionario.getListaPalabras(dic);
+    }
+
+    /**
+     * Devuelve una lista de letras con su puntuación y frecuencia en formato: "letra puntuacion frecuencia" del diccionario.
+     * @param  dic Nombre de diccionario
+     * @return Lista de letras
+     */
+
+    public List<String> getListaAlfabeto(String dic) {
+        return controladorDiccionario.getListaAlfabeto(dic);
+    }
     
     /**
      * Modifica un diccionario añadiendo o eliminando una palabra.
@@ -1212,6 +1248,22 @@ public class ControladorDomain {
         }
         catch (ExceptionPersistenciaFallida e) {
             return null;
+        }
+    }
+
+    /**
+     * Obtiene el número de jugadores asociado a una partida específica.
+     *
+     * @param idPartida el identificador único de la partida.
+     * @return la cantidad de jugadores en la partida, o -1 si no se encuentra la partida.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al intentar cargar la partida desde el repositorio.
+     */
+    public int getNumJugadoresPartida(int idPartida){
+        try {
+            return ControladorJuego.getNumJugadoresPartida(idPartida);   
+        } catch (
+         ExceptionPersistenciaFallida e) {
+          return -1;
         }
     }
 

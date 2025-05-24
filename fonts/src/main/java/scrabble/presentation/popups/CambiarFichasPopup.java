@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import scrabble.presentation.componentes.Ficha;
+import scrabble.presentation.views.VistaTablero;
 
 public class CambiarFichasPopup {
     
@@ -25,13 +26,16 @@ public class CambiarFichasPopup {
     private List<String> letrasSeleccionadas = new ArrayList<>();
     private Label lblSeleccionadas;
     private int casillaTamaño;
-    
+    private VistaTablero vistaTablero;
+
+
     /**
      * Constructor para el popup de cambio de fichas
      * @param rack El rack actual del jugador (mapa de letras y cantidades)
      * @param casillaTamaño El tamaño de cada casilla de ficha
      */
-    public CambiarFichasPopup(Map<String, Integer> rack, int casillaTamaño) {
+    public CambiarFichasPopup(Map<String, Integer> rack, int casillaTamaño, VistaTablero vistaTablero) {
+        this.vistaTablero = vistaTablero;
         this.casillaTamaño = casillaTamaño;
         stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -70,10 +74,10 @@ public class CambiarFichasPopup {
         for (Map.Entry<String, Integer> entry : rack.entrySet()) {
             String letra = entry.getKey();
             int cantidad = entry.getValue();
-            int puntos = obtenerPuntosPorLetra(letra.charAt(0));
+            int puntos = obtenerPuntosPorLetra(letra);
             
             for (int i = 0; i < cantidad; i++) {
-                Ficha ficha = new Ficha(letra.charAt(0), puntos);
+                Ficha ficha = new Ficha(letra, puntos);
                 ficha.setMinSize(casillaTamaño, casillaTamaño);
                 ficha.setPrefSize(casillaTamaño, casillaTamaño);
                 ficha.setMaxSize(casillaTamaño, casillaTamaño);
@@ -179,22 +183,7 @@ public class CambiarFichasPopup {
     /**
      * Obtiene los puntos correspondientes a una letra
      */
-    private int obtenerPuntosPorLetra(char letra) {
-        switch (Character.toUpperCase(letra)) {
-            case 'A': case 'E': case 'O': case 'S': case 'I': case 'N': case 'L': case 'R': case 'T': case 'U':
-                return 1;
-            case 'D': case 'G':
-                return 2;
-            case 'B': case 'C': case 'M': case 'P':
-                return 3;
-            case 'F': case 'H': case 'V': case 'Y':
-                return 4;
-            case 'J': case 'K': case 'Ñ': case 'Q': case 'W': case 'X':
-                return 8;
-            case 'Z':
-                return 10;
-            default:
-                return 0; // Para comodines o caracteres no reconocidos
-        }
+    private int obtenerPuntosPorLetra(String letra) {
+        return vistaTablero.obtenerPuntosPorLetra(letra);
     }
 }

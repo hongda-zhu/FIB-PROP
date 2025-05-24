@@ -20,7 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import scrabble.presentation.componentes.DiccionarioVisual;
-import scrabble.presentation.viewControllers.ControladorDiccionario;
+import scrabble.presentation.viewControllers.ControladorDiccionarioView;
 
 /**
  * Clase que representa la vista de gestión de diccionarios.
@@ -29,7 +29,7 @@ import scrabble.presentation.viewControllers.ControladorDiccionario;
 public class GestionDiccionariosView {
     private final Parent view;
 
-    private ControladorDiccionario controlador;
+    private ControladorDiccionarioView controlador;
 
     private Button btnCrear;
     private Button btnModificar;
@@ -44,7 +44,7 @@ public class GestionDiccionariosView {
      * @param controlador Controlador de la vista.
      */
 
-    public GestionDiccionariosView(ControladorDiccionario controlador) {
+    public GestionDiccionariosView(ControladorDiccionarioView controlador) {
         this.controlador = controlador;
         Label titulo = new Label("Gestión de Diccionarios");
         titulo.setFont(Font.font("Arial", FontWeight.BOLD, 22));
@@ -54,7 +54,7 @@ public class GestionDiccionariosView {
         header.setStyle("-fx-background-color: #2f3e4e; -fx-padding: 15px;");
 
         VBox izquierda = new VBox(15);
-        izquierda.setPadding(new Insets(20));
+        izquierda.setPadding(new Insets(20, 40, 20, 40));
         izquierda.setSpacing(10);
         izquierda.setStyle("-fx-background-color: #ffffff; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: #ffffff;");
         
@@ -68,7 +68,7 @@ public class GestionDiccionariosView {
 
 
         VBox diccionariosBox = new VBox(10);
-        diccionariosBox.setPadding(new Insets(20));
+        diccionariosBox.setPadding(new Insets(20, 100, 20, 100));
 
         cargarDiccionarios();
 
@@ -102,7 +102,7 @@ public class GestionDiccionariosView {
         root.setMaxWidth(1200);
 
         try {
-            List<String> cssResources = List.of("/styles/button.css", "/styles/excel-table.css");
+            List<String> cssResources = List.of("/styles/button.css", "/styles/table.css");
             for (String cssResource : cssResources) {
                 URL cssUrl = getClass().getResource(cssResource);
                 if (cssUrl != null) {
@@ -132,6 +132,9 @@ public class GestionDiccionariosView {
             new DiccionarioVisual("Diccionario 3", List.of("M", "N", "O"), List.of("MN", "NO", "OM"))
             ); 
         }
+        
+        estilizarTabla();        
+        
         TableColumn<DiccionarioVisual, String> colNombre = new TableColumn<>("Nombre");
         colNombre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNombre()));
         colNombre.setMinWidth(300);
@@ -173,6 +176,47 @@ public class GestionDiccionariosView {
     }
 
     /**
+    * Aplica estilos y configuraciones adicionales a la TableView
+    */
+    private void estilizarTabla() {
+        if (listaDiccionarios != null) {
+            // Aplicar clase CSS
+            listaDiccionarios.getStyleClass().add("modern-table");
+            
+            // Configurar dimensiones
+            listaDiccionarios.setMinWidth(300);
+            listaDiccionarios.setPrefWidth(500);
+            listaDiccionarios.setMaxWidth(Double.MAX_VALUE);
+            
+            // Desactivar reordenamiento de columnas
+            for (TableColumn<DiccionarioVisual, ?> column : listaDiccionarios.getColumns()) {
+                column.setReorderable(false);
+            }
+            
+            // Configurar selección
+            listaDiccionarios.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.SINGLE);
+            
+            // Placeholder 
+            Label placeholderLabel = new Label("No hay diccionarios disponibles");
+            placeholderLabel.setStyle("-fx-text-fill: #757575; -fx-font-style: italic; -fx-font-size: 14px;");
+            listaDiccionarios.setPlaceholder(placeholderLabel);
+            
+            // Event listener para habilitar/deshabilitar botones según selección
+            listaDiccionarios.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+                boolean haySeleccion = newSelection != null;
+                if (btnModificar != null) btnModificar.setDisable(!haySeleccion);
+                if (btnEliminar != null) btnEliminar.setDisable(!haySeleccion);
+            });
+            
+            // Configurar altura de filas
+            listaDiccionarios.setRowFactory(tv -> {
+                javafx.scene.control.TableRow<DiccionarioVisual> row = new javafx.scene.control.TableRow<>();
+                row.setPrefHeight(45); 
+                return row;
+            });
+        }
+    }
+    /**
      * Método para aplicar estilos CSS a los botones.
      */
 
@@ -204,7 +248,7 @@ public class GestionDiccionariosView {
             if (diccionarioSeleccionado != null) {
                 controlador.mostrarVistaModificar(diccionarioSeleccionado);
             } else {
-                controlador.mostrarAlerta("info", "Selecciona un diccionario", "Por favor, selecciona un diccionario para modificar.");
+                controlador.mostrarAlerta("error", "Selecciona un diccionario", "Por favor, selecciona un diccionario para modificar.");
             }
         });
         btnEliminar.setOnAction(e -> eliminarDiccionario());
@@ -241,7 +285,7 @@ public class GestionDiccionariosView {
             }
             
         } else {   
-            controlador.mostrarAlerta("info", "Selecciona un diccionario", "Por favor, selecciona un diccionario para eliminar.");
+            controlador.mostrarAlerta("error", "Selecciona un diccionario", "Por favor, selecciona un diccionario para eliminar.");
         }
     }
 

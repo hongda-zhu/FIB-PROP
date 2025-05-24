@@ -545,6 +545,56 @@ public class ControladorDiccionario {
     }
     
     /**
+     * Obtiene los caracteres válidos del alfabeto junto a sus valores correspondientes
+     * 
+     * @pre El diccionario especificado debe existir.
+     * @param nombre Nombre del diccionario
+     * @return Mapa de pares de character-valor
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
+     * @throws IOException Si hay problemas leyendo alpha.txt
+     * @post Si no ocurre ninguna excepción, se devuelve un mapa no nulo con los caracteres y su valores válidos del alfabeto.
+     * @throws NullPointerException Si el parámetro nombre es null.
+     */
+    public Map<String, Integer> getAlphabet(String nombre) throws ExceptionDiccionarioNotExist, IOException {
+        if (!diccionarios.containsKey(nombre)) {
+            throw new ExceptionDiccionarioNotExist("No existe un diccionario con el nombre: " + nombre);
+        }
+        Diccionario d = getDiccionario(nombre);
+        
+        return d.getAlphabet();
+    }
+
+    /**
+     * Obtiene los caracteres válidos del alfabeto a partir de un archivo alpha.txt.
+     * 
+     * @param alphaPath Ruta al archivo alpha.txt
+     * @return Conjunto de caracteres válidos
+     * @throws IOException Si hay problemas leyendo el archivo
+     */
+    // private Map<Character, Integer> getAlphabet(Path alphaPath) throws IOException {
+    //     HashMap<Character, Integer> chars = new HashMap<>();
+    //     List<String> lines = Files.readAllLines(alphaPath, StandardCharsets.UTF_8);
+        
+    //     for (String line : lines) {
+    //         line = line.trim();
+    //         if (line.isEmpty() || line.startsWith("#")) {
+    //             continue;
+    //         }
+            
+    //         String[] parts = line.split("\\s+", 2);
+    //         if (parts.length > 0 && !parts[0].isEmpty()) {
+    //             // Si es un comodín "#", lo agregamos al conjunto para validar el alfabeto
+    //             // pero al validar palabras se excluye en isValidWordSyntax
+    //             for (char c : parts[0].toUpperCase().toCharArray()) {
+                
+    //             }
+    //         }
+    //     }
+        
+    //     return chars;
+    // }
+
+    /**
      * Obtiene los caracteres válidos del alfabeto a partir de un archivo alpha.txt.
      * 
      * @param alphaPath Ruta al archivo alpha.txt
@@ -573,6 +623,54 @@ public class ControladorDiccionario {
         
         return chars;
     }
+
+    /**
+     * Devuelve una lista con todas las palabras del diccionario.
+     * @param  dic Nombre de diccionario
+     * @return Lista de palabras.
+     */
+    public List<String> getListaPalabras(String dic) {
+        List<String> palabras = new ArrayList<>();
+        try {
+            Path wordsPath = Paths.get("src/main/resources/diccionarios/", dic, "words.txt");
+                if (Files.exists(wordsPath)) {
+                    List<String> lineas = Files.readAllLines(wordsPath, StandardCharsets.UTF_8);
+                    for (String linea : lineas) {
+                        linea = linea.trim();
+                        if (!linea.isEmpty()) {
+                            palabras.add(linea);
+                        }
+                    }
+                }
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo words del diccionario '" + dic + "': " + e.getMessage());
+        }
+        return palabras;
+    }
+
+    /**
+     * Devuelve una lista de letras con su puntuación y frecuencia en formato: "letra puntuacion frecuencia" del diccionario.
+     * @param  dic Nombre de diccionario
+     * @return Lista de letras
+     */
+    public List<String> getListaAlfabeto(String dic) {
+        List<String> alfabeto = new ArrayList<>();
+        try {
+           Path alphaPath = Paths.get("src/main/resources/diccionarios/", dic, "alpha.txt");
+                if (Files.exists(alphaPath)) {
+                    List<String> lineas = Files.readAllLines(alphaPath, StandardCharsets.UTF_8);
+                    for (String linea : lineas) {
+                        linea = linea.trim();
+                        if (!linea.isEmpty() && !linea.startsWith("#")) {
+                            alfabeto.add(linea);
+                        }
+                    }
+                }
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo alpha del diccionario '" + dic + "': " + e.getMessage());
+        }
+        return alfabeto;
+    }    
     
     /**
      * Verifica si una palabra contiene solo caracteres válidos.

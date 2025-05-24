@@ -81,6 +81,7 @@ public class PausaPopup {
             messageLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #333; -fx-text-alignment: center;");
             messageLabel.setWrapText(true);
             messageLabel.setMaxWidth(350);
+            messageLabel.setAlignment(Pos.CENTER);            
             root.getChildren().add(messageLabel);
         }
         

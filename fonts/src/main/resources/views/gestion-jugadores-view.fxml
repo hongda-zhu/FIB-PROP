@@ -80,10 +80,10 @@
                 <HBox.margin>
                     <Insets left="0" right="0" />
                 </HBox.margin>
-                <Pane style="-fx-background-radius: 20; -fx-background-color: white;" minWidth="600" VBox.vgrow="ALWAYS">
+                <StackPane alignment="CENTER" style="-fx-background-radius: 20; -fx-background-color: white;" minWidth="600" VBox.vgrow="ALWAYS">
                     <VBox alignment="CENTER" spacing="10" minWidth="600" VBox.vgrow="ALWAYS">
                         <padding>
-                            <Insets top="20" right="20" bottom="20" left="20" />
+                            <Insets top="20" right="100" bottom="20" left="100" />
                         </padding>
                         
                         <!-- Barra de búsqueda -->
@@ -91,6 +91,8 @@
                             <TextField fx:id="txtBuscar" prefWidth="400" prefHeight="40" promptText="Buscar..."/>
                             <Button fx:id="btnBuscar" text="Buscar" prefHeight="40" prefWidth="100" 
                                     style="-fx-background-color: #3498db; -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-radius: 5;"/>
+                            <Button fx:id="btnRestablecer" text="Restablecer" prefHeight="40" prefWidth="100" 
+                                        style="-fx-background-color: #95a5a6; -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-radius: 5;"/>                                    
                         </HBox>
                         
                         <HBox alignment="CENTER">
@@ -101,9 +103,9 @@
                             </Text>
                         </HBox>
                         
-                        <TableView fx:id="tablaJugadores" VBox.vgrow="ALWAYS" 
+                        <TableView fx:id="tablaJugadores"  VBox.vgrow="ALWAYS" 
                                   style="-fx-background-color: transparent; -fx-border-color: #e0e0e0; -fx-border-radius: 5;">
-                            <columns>
+                            <columns >
                                 <TableColumn fx:id="colNombre" text="Nombre" prefWidth="120"/>
                                 <TableColumn fx:id="colTipo" text="Tipo" prefWidth="100"/>
                                 <TableColumn fx:id="colEnPartida" text="En partida" prefWidth="100"/>
@@ -112,7 +114,7 @@
                             </columns>
                         </TableView>
                     </VBox>
-                </Pane>
+                </StackPane>
             </StackPane>
         </HBox>
     </center>

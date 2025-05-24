@@ -927,28 +927,6 @@ public class ControladorJuego implements Serializable {
     }
     
     /**
-    * Obtiene una copia de una partida específica por su ID.
-    *
-    * @pre Debe existir un archivo de partidas guardadas con el ID especificado.
-    * @param idPartida El ID de la partida a obtener.
-    * @return Una nueva instancia de {@code ControladorJuego} con el estado de la partida solicitada.
-    *         Devuelve null si no se encuentra ninguna partida con ese ID.
-    * @throws ExceptionPersistenciaFallida Si ocurre un error durante la carga de las partidas.
-    * @post Se devuelve una copia de la partida solicitada sin modificar el estado del objeto actual.
-    */
-    public ControladorJuego obtenerPartidaPorId(int idPartida) throws ExceptionPersistenciaFallida {
-        try {
-            ControladorJuego partida = repositorioPartida.cargar(idPartida);
-            if (partida != null) {
-                // TODO: Implementar lógica
-            }
-            return partida;
-        } catch (ExceptionPersistenciaFallida e) {
-            throw e;
-        }
-    }
-
-    /**
      * Carga el estado del juego desde un archivo serializado previamente con {@code guardar},
      * sobrescribiendo el estado del objeto actual.
      *
@@ -1022,7 +1000,18 @@ public class ControladorJuego implements Serializable {
         return null;
     }
     
-
+    /**
+     * Obtiene el número de jugadores asociado a una partida específica.
+     *
+     * @param idPartida el identificador único de la partida.
+     * @return la cantidad de jugadores en la partida, o -1 si no se encuentra la partida.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al intentar cargar la partida desde el repositorio.
+     */
+    public static int getNumJugadoresPartida(int idPartida) throws ExceptionPersistenciaFallida {
+        ControladorJuego loadedGame = repositorioPartida.cargar(idPartida);
+        if (loadedGame != null) return loadedGame.jugadores.size();
+        return -1;
+    }
 
     /**
      * Lista todos los IDs de partidas guardadas disponibles.
@@ -1161,15 +1150,14 @@ public class ControladorJuego implements Serializable {
     }
     
     /**
-     * Obtiene el conjunto (Set) de nombres de los jugadores actualmente registrados en la partida.
+     * Obtiene el listado (Map) de nombres de los jugadores actualmente registrados en la partida.
      *
      * @pre No hay precondiciones específicas, pero se espera que el juego haya sido inicializado.
-     * @return Un {@code Set<String>} que contiene los nombres únicos de los jugadores.
-     * Puede devolver un Set vacío si no hay jugadores.
-     * @post Se devuelve una copia del conjunto de jugadores sin modificar el estado del juego.
+     * @return Un {@code Map<String, Integer>} que contiene los nombres únicos de los jugadores y sus respectivos puntuaciones.
+     * Puede devolver un mapa vacío si no hay jugadores.
+     * @post Se devuelve una copia del mapa de jugadores sin modificar el estado del juego.
      */
     public Map<String, Integer> getJugadoresActuales() {
-        // Asume que existe una variable de instancia Set<String> jugadores
         return jugadores;
     }
  }

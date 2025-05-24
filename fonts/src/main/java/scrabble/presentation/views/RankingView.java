@@ -26,7 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import scrabble.presentation.componentes.JugadorRanking;
-import scrabble.presentation.viewControllers.ControladorRanking;
+import scrabble.presentation.viewControllers.ControladorRankingView;
 
 /**
  * Clase que representa la vista de gestión de ranking.
@@ -37,7 +37,7 @@ public class RankingView {
 
     private final Parent view;
 
-    private ControladorRanking controlador;
+    private ControladorRankingView controlador;
 
     private Button volverBtn;
     private Button eliminarBtn;
@@ -58,7 +58,7 @@ public class RankingView {
      * @param controlador Controlador de la vista.
      */
 
-    public RankingView(ControladorRanking controlador) {
+    public RankingView(ControladorRankingView controlador) {
         this.controlador = controlador;
         crearBotones();
         // Barra superior con título
@@ -92,6 +92,7 @@ public class RankingView {
 
         filterCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             quantityField.setDisable(newVal == null || newVal.isBlank());
+            errorLabel.setText("");
         });
         
         quantityField.setPrefWidth(150);
@@ -114,7 +115,7 @@ public class RankingView {
 
         HBox filterBox = new HBox(10, orderCombo, new Region(), filterCombo, quantityBox, searchBtn, restablecerBtn);
         filterBox.setAlignment(Pos.CENTER_LEFT);
-        filterBox.setPadding(new Insets(10));
+        filterBox.setPadding(new Insets(10, 100, 10, 100));
         HBox.setHgrow(filterBox.getChildren().get(1), Priority.ALWAYS);
 
         // Tabla
@@ -137,20 +138,25 @@ public class RankingView {
         controlBox.setAlignment(Pos.CENTER);
         controlBox.setPadding(new Insets(20));
 
+        table.setPrefWidth(1000);
+
+        HBox centeredBox = new HBox(table);
+        centeredBox.setAlignment(Pos.CENTER);
+
         // Layout principal
         VBox layout = new VBox();
         layout.setSpacing(10);
         layout.setStyle("-fx-background-color: #f8f8f8;");
         layout.setPadding(new Insets(10));
 
-        layout.getChildren().addAll(topBar, filterBox, table, controlBox);
+        layout.getChildren().addAll(topBar, filterBox, centeredBox, controlBox);
         layout.setMaxWidth(1200);
 
         this.view = layout;
 
         try {
             List<String> cssResources = List.of(
-                "/styles/excel-table2.css",
+                "/styles/table.css",
                 "/styles/button.css"
             );
 
@@ -167,8 +173,52 @@ public class RankingView {
             System.err.println("Error al cargar CSS en CrearDiccionarioView: " + e.getMessage());
         }
         aplicarCssBotones();
+        eliminarBtn.setDisable(true);
     }
 
+
+    /**
+    * Aplica estilos y configuraciones adicionales a la TableView
+    */
+    private void estilizarTabla() {
+        if (table != null) {
+            // Aplicar clase CSS
+            table.getStyleClass().add("modern-table");
+            
+            // Configurar dimensiones
+            table.setMinWidth(600);
+            table.setPrefWidth(800);
+            table.setMaxWidth(Double.MAX_VALUE);
+            
+            // Desactivar reordenamiento de columnas
+            for (TableColumn<JugadorRanking, ?> column : table.getColumns()) {
+                column.setReorderable(false);
+            }
+            
+            // Configurar selección
+            table.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.SINGLE);
+            
+            // Placeholder personalizado con mejor estilo
+            Label placeholderLabel = new Label("No hay jugadores en el ranking");
+            placeholderLabel.setStyle("-fx-text-fill: #757575; -fx-font-style: italic; -fx-font-size: 14px;");
+            table.setPlaceholder(placeholderLabel);
+            
+            // Event listener para habilitar/deshabilitar botón según selección
+            table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+                boolean haySeleccion = newSelection != null;
+                if (eliminarBtn != null) eliminarBtn.setDisable(!haySeleccion);
+            });
+            
+            // Configurar altura de filas
+            table.setRowFactory(tv -> {
+                javafx.scene.control.TableRow<JugadorRanking> row = new javafx.scene.control.TableRow<>();
+                row.setPrefHeight(45); 
+                return row;
+            });
+            
+            table.setPadding(new Insets(0));
+        }
+    }
     private void aplicarCssBotones() {
         eliminarBtn.getStyleClass().addAll("btn-effect", "btn-danger");
         volverBtn.getStyleClass().addAll("btn-effect", "btn-primary");
@@ -339,9 +389,11 @@ public class RankingView {
         //     new JugadorRanking("Eve", 1760, 400, 293.3, 6, 6)
         // );
 
-        table.setPadding(new Insets(200));
+        // table.setPadding(new Insets(200));
         datosVisibles = FXCollections.observableArrayList(datosOriginales);
         table.setItems(datosVisibles);
+
+        estilizarTabla();
     }
 
     /**

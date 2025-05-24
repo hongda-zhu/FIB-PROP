@@ -50,7 +50,7 @@ public class CasillaDisplay extends StackPane {
         bordeResaltado.setArcWidth(8);
         bordeResaltado.setArcHeight(8);
         bordeResaltado.setVisible(false);
-        
+
         this.getChildren().addAll(casillaLabel, bordeResaltado);
         this.setAlignment(Pos.CENTER);
         
@@ -91,7 +91,7 @@ public class CasillaDisplay extends StackPane {
             fichaContainer.setMaxSize(tamano, tamano);
             
             // Recrear la ficha con el nuevo tamaño
-            char letra = getLetraFicha();
+            String letra = getLetraFicha();
             int puntos = getPuntosFicha();
             boolean confirmada = fichaConfirmada;
             
@@ -108,9 +108,15 @@ public class CasillaDisplay extends StackPane {
         // Solo resaltar si la casilla no tiene ficha
         if (!tieneFicha) {
             bordeResaltado.setVisible(resaltar);
-            // Traer al frente el borde de resaltado
             if (resaltar) {
                 bordeResaltado.toFront();
+                this.setStyle(this.getStyle() + " -fx-cursor: hand;");
+            }
+            else {
+                String currentStyle = this.getStyle();
+                if (currentStyle != null && currentStyle.contains("-fx-cursor: hand;")) {
+                    this.setStyle(currentStyle.replace(" -fx-cursor: hand;", ""));
+                }            
             }
         }
     }
@@ -163,7 +169,7 @@ public class CasillaDisplay extends StackPane {
     /**
      * Coloca una ficha en una casilla del tablero
      */
-    public void colocarFicha(char letra, int puntos, boolean confirmada) {
+    public void colocarFicha(String letra, int puntos, boolean confirmada) {
         if (tieneFicha) {
             quitarFicha();
         }
@@ -186,7 +192,7 @@ public class CasillaDisplay extends StackPane {
         fichaFondo.setArcWidth(8);
         fichaFondo.setArcHeight(8);
         
-        fichaLabel = new Label(String.valueOf(letra));
+        fichaLabel = new Label(letra);
         fichaLabel.setFont(Font.font("Arial", FontWeight.BOLD, tamano * 0.5)); // ~20px para tamano=40
         fichaLabel.setTextFill(Color.web("#8B4513")); 
         
@@ -214,7 +220,7 @@ public class CasillaDisplay extends StackPane {
     /**
      * Sobrecarga del método colocarFicha para mantener compatibilidad
      */
-    public void colocarFicha(char letra, int puntos) {
+    public void colocarFicha(String letra, int puntos) {
         colocarFicha(letra, puntos, false);
     }
     
@@ -226,7 +232,7 @@ public class CasillaDisplay extends StackPane {
             fichaConfirmada = true;
             
             // marcar ficha como confirmada
-            char letra = getLetraFicha();
+            String letra = getLetraFicha();
             int puntos = getPuntosFicha();
             quitarFicha();
             colocarFicha(letra, puntos, true);
@@ -247,11 +253,11 @@ public class CasillaDisplay extends StackPane {
         }
     }
     
-    public char getLetraFicha() {
+    public String getLetraFicha() {
         if (tieneFicha && fichaLabel != null) {
-            return fichaLabel.getText().charAt(0);
+            return fichaLabel.getText();
         }
-        return ' ';
+        return "";
     }
     
     public int getPuntosFicha() {

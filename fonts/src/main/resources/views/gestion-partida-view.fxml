@@ -2,7 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -70,14 +71,14 @@
             </StackPane>
             
             <!-- Partidas disponibles -->
-            <StackPane HBox.hgrow="ALWAYS">
+            <StackPane alignment="CENTER" HBox.hgrow="ALWAYS">
                 <HBox.margin>
                     <Insets left="0" right="0" />
                 </HBox.margin>
-                <Pane style="-fx-background-radius: 20; -fx-background-color: white;" minWidth="800" VBox.vgrow="ALWAYS">
-                    <VBox alignment="CENTER" spacing="10" minWidth="800" VBox.vgrow="ALWAYS">
+                <StackPane style="-fx-background-radius: 20; -fx-background-color: white;" minWidth="400" VBox.vgrow="ALWAYS">
+                    <VBox alignment="CENTER" spacing="10" minWidth="400" prefWidth="400" VBox.vgrow="ALWAYS">
                         <padding>
-                            <Insets top="20" right="20" bottom="20" left="20" />
+                            <Insets top="50" right="400" bottom="50" left="400" />
                         </padding>
                         <Text text="Partidas Existentes">
                             <font>
@@ -85,8 +86,14 @@
                             </font>
                         </Text>
                         
-                        <ListView fx:id="listaPartidas" VBox.vgrow="ALWAYS" 
-                                  style="-fx-background-color: transparent; -fx-border-color: #e0e0e0; -fx-border-radius: 5;" />
+                       <TableView fx:id="tablaPartidas" VBox.vgrow="ALWAYS" 
+                                  style="-fx-background-color: transparent; -fx-border-color: #e0e0e0; -fx-border-radius: 5;">
+                            <columns>
+                                <TableColumn fx:id="colID" text="ID" prefWidth="80"/>
+                                <TableColumn fx:id="colDiccionario" text="Diccionario" prefWidth="150"/>
+                                <TableColumn fx:id="colNumJugadores" text="Jugadores" prefWidth="100"/>
+                            </columns>
+                        </TableView>
                         
                         <HBox alignment="CENTER">
                             <Button fx:id="btnCargarPartida" 
@@ -96,7 +103,7 @@
                             </Button>
                         </HBox>
                     </VBox>
-                </Pane>
+                </StackPane>
             </StackPane>
         </HBox>
     </center>

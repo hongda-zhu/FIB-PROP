@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import scrabble.MainApplication;
+import scrabble.domain.controllers.ControladorDomain;
 import scrabble.excepciones.ExceptionDiccionarioExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
 import scrabble.helpers.Direction;
@@ -176,16 +177,21 @@ public void iniciarPartida() {
     System.err.println(size);
     if (diccionario == null) {
         mostrarAlerta("error", "Diccionacio null", "¡Por favor, selecciona un diccionario antes de continuar!");
-    } else if (jugadores.size() < 2) {
-        System.err.println("Error: Debe seleccionar al menos 2 jugadores");
+    } else if (jugadores.size() < 1) {
+        System.err.println("Error: Debe seleccionar al menos 1 jugadores");
         System.err.println("Jugadores actuales: " + jugadores.size());
-        mostrarAlerta("error","Jugadores insuficientes", "¡Por favor, selecciona al menos 2 jugadores antes de continuar!");
+        mostrarAlerta("error","Jugadores insuficientes", "¡Por favor, selecciona al menos 1 jugador antes de continuar!");
     } else if (size < 15) {
         mostrarAlerta("error","Tamaño incorrecto", "¡Por favor, configura un tamaño de tablero correcto antes de continuar!");        
     }
     else {
         boolean inicioExitoso = presentationController.iniciarPartida(jugadores, diccionario, size);
         if (inicioExitoso) {
+            
+            for (String nombre : jugadores) {
+                presentationController.clearSkipTrack(nombre);
+            }
+
             vistaConfig.reset();
             mostrarVistaTablero();
         } else {
@@ -202,6 +208,7 @@ public void iniciarPartida() {
             this.size = presentationController.getTableroSize();
             vistaConfig.reset();
             cargado = true;
+
             mostrarVistaTablero();
         } catch (Exception e) {
             mostrarAlerta("warning","Error al cargar partida", "No se pudo cargar la partida: " + e.getMessage());
@@ -251,6 +258,11 @@ public void iniciarPartida() {
 
     // Método utilizado por VistaTablero para finalizar el juego
     public String finalizarJuego(Map<String, Integer> jugadoresSeleccionados) {
+        
+        for (String nombre : jugadores) {
+            presentationController.clearSkipTrack(nombre);
+        }
+
         return presentationController.finalizarJuego(jugadoresSeleccionados);
     }
 
@@ -283,6 +295,25 @@ public void iniciarPartida() {
     public List<Integer> getPartidasGuardadasID() {
         return presentationController.getPartidasGuardadas();
     }
+
+    public String getDiccionarioPartida(Integer id) {
+        return presentationController.getDiccionarioPartida(id);
+    }
+
+    /**
+     * Obtiene el los carácteres y sus correspondientes valores del diccionario actual
+     * @param nombre Nombre del diccionario actual en partida
+     * @return Un mapa que contiene los caráteres y sus valores
+     */
+    public Integer obtenerPuntosPorLetra(String letra) {
+        Map<String, Integer> alpha = presentationController.getAlphabet(this.diccionario);
+        return alpha.get(letra);
+    }
+
+    public int getNumJugadoresPartida (Integer id) {
+        return presentationController.getNumJugadoresPartida(id);
+    }
+
 
     // Método para eliminar una partida guardada
     public boolean eliminarPartidaGuardada(Integer idPartida) {

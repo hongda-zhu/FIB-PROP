@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import scrabble.domain.controllers.ControladorDomain;
+import scrabble.excepciones.ExceptionDiccionarioNotExist;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Direction;
 import scrabble.helpers.Triple;
@@ -123,6 +124,13 @@ public class PresentationController {
     }
 
     /**
+    *  Resetea el skiptrack de un jugador
+    */
+    public void clearSkipTrack(String nombreJugador) {
+        ctrlDomain.clearSkipTrack(nombreJugador);
+    }
+
+    /**
     * Obtiene la representación en texto del rack del jugador
     */
     public String mostrarRackJugador(String nombreJugador) {
@@ -206,8 +214,12 @@ public class PresentationController {
         return ctrlDomain.getPartidasGuardadas();
     }
 
-    public String obtenerDiccionarioPartida(int idPartida) {
-        return ctrlDomain.obtenerDiccionarioPartida(idPartida);
+    public String getDiccionarioPartida(Integer id) {
+        return ctrlDomain.obtenerDiccionarioPartida(id);
+    }
+
+    public int getNumJugadoresPartida (Integer id) {
+        return ctrlDomain.getNumJugadoresPartida(id);
     }
 
     /**
@@ -225,6 +237,7 @@ public class PresentationController {
     public boolean eliminarPartidaGuardada(Integer idPartida) {
         return ctrlDomain.eliminarPartidaGuardada(idPartida);
     }
+
     public List<String> getAllJugadoresDisponibles() {
         Set<String> jugadores = ctrlDomain.getAllJugadores();
         List<String> disponibles  = new ArrayList<>();
@@ -232,11 +245,6 @@ public class PresentationController {
             if (!ctrlDomain.isEnPartida(nombre)) {
                 disponibles.add(nombre);
             }
-            System.err.println("Jugador existente: " + nombre);
-        }
-
-        if (jugadores.isEmpty()) {
-            System.err.println("No hay jugadores existentes");        
         }
 
         return disponibles;         
@@ -269,12 +277,7 @@ public class PresentationController {
     public void iniciarPartida(ArrayList<String> jugadores) {
         ctrlDomain.inicializarJugadoresPartida(jugadores);
     }
-    
-    // public void importDiccionaryDEBUG() throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida{
-    //     String name = "Español";
-    //     String path = "C:/Users/Xuanyi/Desktop/assig/PROP/subgrup-prop41.1/fonts/src/main/resources/diccionarios/ESP"; 
-    //     ctrlDomain.crearDiccionario(name, path);  
-    // }
+
   
     public boolean crearJugador(String nombre) {
         // Implementar llamada al modelo para crear un jugador
@@ -343,6 +346,40 @@ public class PresentationController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Obtiene el los carácteres y sus correspondientes valores del diccionario actual
+     * @param nombre Nombre del diccionario actual en partida
+     * @return Un mapa que contiene los caráteres y sus valores
+     */
+    public Map<String, Integer> getAlphabet(String nombre) {
+        try {
+            return ctrlDomain.getAlphabet(nombre);        
+        } catch (ExceptionDiccionarioNotExist | IOException e) {
+            mostrarAlerta("error", "Diccionario no existe", e.getMessage());
+            return null;
+        }        
+    }
+
+    /**
+     * Devuelve una lista con todas las palabras del diccionario.
+     * @param  dic Nombre de diccionario
+     * @return Lista de palabras.
+     */
+
+    public List<String> getListaPalabras(String dic) {
+        return ctrlDomain.getListaPalabras(dic);
+    }
+
+    /**
+     * Devuelve una lista de letras con su puntuación y frecuencia en formato: "letra puntuacion frecuencia" del diccionario.
+     * @param  dic Nombre de diccionario
+     * @return Lista de letras
+     */
+
+    public List<String> getListaAlfabeto(String dic) {
+        return ctrlDomain.getListaAlfabeto(dic);
     }
 
     /**

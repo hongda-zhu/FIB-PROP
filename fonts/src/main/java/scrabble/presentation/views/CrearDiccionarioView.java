@@ -28,7 +28,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.util.converter.DefaultStringConverter;
-import scrabble.presentation.viewControllers.ControladorDiccionario;
+import scrabble.presentation.viewControllers.ControladorDiccionarioView;
 
 /**
  * Clase que representa la vista para crear un nuevo diccionario.
@@ -38,7 +38,7 @@ import scrabble.presentation.viewControllers.ControladorDiccionario;
 public class CrearDiccionarioView {
     private Parent view;
 
-    private ControladorDiccionario controlador;
+    private ControladorDiccionarioView controlador;
     private Button btnCancelar;
     private Button btnConfirmar;
     private Button btnAñadirLetra;
@@ -59,7 +59,7 @@ public class CrearDiccionarioView {
      * @param controlador Controlador de la vista.
      */
 
-    public CrearDiccionarioView(ControladorDiccionario controlador) {
+    public CrearDiccionarioView(ControladorDiccionarioView controlador) {
         this.controlador = controlador;
 
         // Crear botones
@@ -98,11 +98,11 @@ public class CrearDiccionarioView {
 
         HBox botones = new HBox(10, btnCancelar, btnConfirmar);
         botones.setAlignment(Pos.CENTER);
-        botones.setPadding(new Insets(10));
+        botones.setPadding(new Insets(10, 40, 10, 10));
 
         VBox mainContent = new VBox(10, subtitle, campos, botones);
         mainContent.setAlignment(Pos.TOP_CENTER);
-        mainContent.setPadding(new Insets(20));
+        mainContent.setPadding(new Insets(20, 100, 20, 100));
         mainContent.setStyle("-fx-background-color: #ffffff;");
 
         VBox root = new VBox(10, topBar, mainContent);
@@ -122,10 +122,12 @@ public class CrearDiccionarioView {
 
         this.view = root;
 
+        estilizarTablas();
+
         //Cargar css
         try {
             List<String> cssResources = List.of(
-                "/styles/excel-table.css",
+                "/styles/table.css",
                 "/styles/button.css"
             );
 
@@ -252,6 +254,75 @@ public class CrearDiccionarioView {
     }
 
     /**
+    * Aplica estilos y configuraciones adicionales a ambas TableView
+    */
+    private void estilizarTablas() {
+        estilizarTablaAlfabeto();
+        estilizarTablaPalabras();
+    }
+
+    /**
+    * Aplica estilos y configuraciones adicionales a la TableView del alfabeto
+    */
+    private void estilizarTablaAlfabeto() {
+        if (alfabeto != null) {
+            // Aplicar clase CSS
+            alfabeto.getStyleClass().clear();            
+            alfabeto.getStyleClass().add("table-view");
+            
+            // Configurar dimensiones
+            alfabeto.setMinWidth(400);
+            alfabeto.setPrefWidth(600);
+            alfabeto.setMaxWidth(Double.MAX_VALUE);
+            
+            // Desactivar reordenamiento de columnas
+            for (TableColumn<ObservableList<String>, ?> column : alfabeto.getColumns()) {
+                column.setReorderable(false);
+            }
+            
+            // Configurar selección
+            alfabeto.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.SINGLE);
+            
+            // Configurar altura de filas 
+            alfabeto.setRowFactory(tv -> {
+                javafx.scene.control.TableRow<ObservableList<String>> row = new javafx.scene.control.TableRow<>();
+                row.setPrefHeight(alfabeto.getFixedCellSize()); // Usar el tamaño fijo ya configurado
+                return row;
+            });
+        }
+    }
+
+    /**
+    * Aplica estilos y configuraciones adicionales a la TableView de palabras
+    */
+    private void estilizarTablaPalabras() {
+        if (tablaPalabras != null) {
+            // Aplicar clase CSS
+            tablaPalabras.getStyleClass().clear();            
+            tablaPalabras.getStyleClass().add("table-view");
+            
+            // Configurar dimensiones
+            tablaPalabras.setMinWidth(400);
+            tablaPalabras.setPrefWidth(600);
+            tablaPalabras.setMaxWidth(Double.MAX_VALUE);
+            
+            // Desactivar reordenamiento de columnas
+            for (TableColumn<String, ?> column : tablaPalabras.getColumns()) {
+                column.setReorderable(false);
+            }
+            
+            // Configurar selección
+            tablaPalabras.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.SINGLE);
+            
+            // Configurar altura de filas 
+            tablaPalabras.setRowFactory(tv -> {
+                javafx.scene.control.TableRow<String> row = new javafx.scene.control.TableRow<>();
+                row.setPrefHeight(tablaPalabras.getFixedCellSize()); // Usar el tamaño fijo ya configurado
+                return row;
+            });
+        }
+    }
+    /**
      * Método para inicializar la tabla del alfabeto.
      */
 
@@ -360,9 +431,9 @@ public class CrearDiccionarioView {
         alfabeto.getColumns().addAll(colLetra, colPunt, colFreq, colEliminar);
         alfabeto.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         alfabeto.setPlaceholder(new Label("No hay letras añadidas."));
-        alfabeto.getStyleClass().add("excel-table");
+        // alfabeto.getStyleClass().add("excel-table");
 
-        alfabeto.setFixedCellSize(25);
+        alfabeto.setFixedCellSize(45);
         alfabeto.setPrefHeight(26); // Inicialmente solo 1 fila visible
         alfabeto.setMaxHeight(250);
 
@@ -438,7 +509,7 @@ public class CrearDiccionarioView {
     private void inicializarTablaPalabras() {
         this.palabrasOriginales = FXCollections.observableArrayList();
         this.tablaPalabras.setEditable(false);
-        this.tablaPalabras.getStyleClass().add("excel-table");
+        // this.tablaPalabras.getStyleClass().add("excel-table");
 
         FilteredList<String> filtrada = new FilteredList<>(palabrasOriginales, s -> true);
         tablaPalabras.setItems(filtrada);
@@ -484,7 +555,7 @@ public class CrearDiccionarioView {
         tablaPalabras.getColumns().addAll(palabraCol, colEliminar);
         tablaPalabras.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tablaPalabras.setPlaceholder(new Label("No hay palabras añadidas."));
-        tablaPalabras.setFixedCellSize(25);
+        tablaPalabras.setFixedCellSize(45);
         tablaPalabras.setPrefHeight(26); // Inicialmente solo 1 fila visible
         tablaPalabras.setMaxHeight(300);
 

@@ -1,8 +1,4 @@
 package scrabble.presentation.componentes;
-import java.awt.Cursor;
-
-import javafx.animation.TranslateTransition;
-import javafx.util.Duration;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -12,9 +8,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Duration;
 
 public class Ficha extends StackPane {
-    private char letra;
+    private String letra;
     private int puntos;
     private boolean seleccionada;
     private Rectangle fichaFondo;
@@ -25,11 +22,11 @@ public class Ficha extends StackPane {
     private int tamanoFicha = 40; 
     private static final double ELEVACION_ALTURA = -10.0; 
 
-    public Ficha(char letra, int puntos) {
+    public Ficha(String letra, int puntos) {
         this(letra, puntos, 40); // Tamaño predeterminado de 40px
     }
     
-    public Ficha(char letra, int puntos, int tamano) {
+    public Ficha(String letra, int puntos, int tamano) {
         this.letra = letra;
         this.puntos = puntos;
         this.seleccionada = false;
@@ -123,7 +120,7 @@ public class Ficha extends StackPane {
         actualizarApariencia();
     }
     
-    public char getLetra() {
+    public String getLetra() {
         return letra;
     }
     

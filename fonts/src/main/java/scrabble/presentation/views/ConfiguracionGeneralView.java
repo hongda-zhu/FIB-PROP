@@ -17,7 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import scrabble.MainApplication;
-import scrabble.presentation.componentes.MusicManager;
 import scrabble.presentation.viewControllers.ControladorConfiguracionView;
 
 public class ConfiguracionGeneralView {
@@ -126,13 +125,13 @@ public class ConfiguracionGeneralView {
         // Inicializar ComboBox
         if (comboIdioma != null) {
             comboIdioma.getItems().clear();
-            comboIdioma.getItems().addAll("Español", "English", "Français", "Deutsch");
+            comboIdioma.getItems().addAll("Español", "English");
             comboIdioma.setValue(config.getProperty("idioma", "Español"));
         }
         
         if (comboTema != null) {
             comboTema.getItems().clear();
-            comboTema.getItems().addAll("Claro", "Oscuro", "Azul", "Verde");
+            comboTema.getItems().addAll("Claro", "Oscuro");
             comboTema.setValue(config.getProperty("tema", "Claro"));
         }
         
@@ -207,7 +206,7 @@ public class ConfiguracionGeneralView {
             if (toggleBgMusica != null) {
                 toggleBgMusica.setStyle("-fx-background-color: #2ecc71; -fx-background-radius: 15;");
                 toggleBgMusica.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-                MusicManager.play();
+                // MusicManager.play();
             }
             if (lblEstadoMusica != null) {
                 lblEstadoMusica.setText("Activado");
@@ -217,7 +216,7 @@ public class ConfiguracionGeneralView {
             if (toggleBgMusica != null) {
                 toggleBgMusica.setStyle("-fx-background-color: #e74c3c; -fx-background-radius: 15;");
                 toggleBgMusica.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                MusicManager.pause();
+                // MusicManager.pause();
             }
             if (lblEstadoMusica != null) {
                 lblEstadoMusica.setText("Desactivado");

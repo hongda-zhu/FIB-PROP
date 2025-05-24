@@ -21,8 +21,6 @@ public class MainApplication extends Application {
             PresentationController.getInstance().initializeDefaultSettings();
             initialized = true;
         }
-        // MusicManager.initialize();
-        // MusicManager.play();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
        
@@ -44,6 +42,10 @@ public class MainApplication extends Application {
                 System.exit(0);
             }
         });
+
+
+        // MusicManager.initialize();
+        // MusicManager.play();
         
         stage.show();
     }

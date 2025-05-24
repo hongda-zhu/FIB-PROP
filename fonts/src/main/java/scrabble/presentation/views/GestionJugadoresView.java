@@ -31,6 +31,7 @@ public class GestionJugadoresView {
     private Button btnVolver;
     private TextField txtBuscar;
     private Button btnBuscar;
+    private Button btnRestablecer;    
     private TableView<JugadorRow> tablaJugadores;
     
     public GestionJugadoresView(ControladorJugadoresView controlador) {
@@ -66,6 +67,7 @@ public class GestionJugadoresView {
             btnVolver = (Button) view.lookup("#btnVolver");
             txtBuscar = (TextField) view.lookup("#txtBuscar");
             btnBuscar = (Button) view.lookup("#btnBuscar");
+            btnRestablecer = (Button) view.lookup("#btnRestablecer");            
             tablaJugadores = (TableView<JugadorRow>) view.lookup("#tablaJugadores");
             
             aplicarEstiloBotones();
@@ -102,6 +104,10 @@ public class GestionJugadoresView {
         if (btnBuscar != null) {
             btnBuscar.getStyleClass().addAll("btn-effect", "btn-primary");
         }
+
+        if (btnRestablecer != null) {
+            btnRestablecer.getStyleClass().add("btn-effect");
+        }        
     }
     
     /**
@@ -221,6 +227,20 @@ public class GestionJugadoresView {
                 buscarJugadores(patron);
             });
         }
+
+        if (btnRestablecer != null) {
+            btnRestablecer.setOnAction(e -> {
+                txtBuscar.clear(); 
+                cargarJugadores(); 
+            });
+        }        
+
+        if (txtBuscar != null) {
+            txtBuscar.setOnAction(e -> {
+                String patron = txtBuscar.getText();
+                buscarJugadores(patron);
+            });
+        }        
     }
     
     /**

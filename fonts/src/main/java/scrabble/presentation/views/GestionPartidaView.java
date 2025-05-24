@@ -4,16 +4,19 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import scrabble.MainApplication;
 import scrabble.excepciones.ExceptionDiccionarioExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
 import scrabble.presentation.viewControllers.ControladorPartidaView;
-import javafx.scene.layout.Region;
 /**
  * Vista para gestión de partidas
  */
@@ -26,13 +29,37 @@ public class GestionPartidaView {
     private Button btnEliminarPartida;
     private Button btnCargarPartida;
     private Button btnVolver;
-    private ListView<String> listaPartidas;
+    private TableView<PartidaRow> tablaPartidas;
     
     public GestionPartidaView(ControladorPartidaView controlador) {
         this.controlador = controlador;
         cargarVista();
     }
     
+    /**
+     * Clase para representar una fila en la tabla de partidas
+     */
+    public static class PartidaRow {
+        private Integer id;
+        private String diccionario;
+        private Integer numJugadores;
+        
+        public PartidaRow(Integer id, String diccionario, Integer numJugadores) {
+            this.id = id;
+            this.diccionario = diccionario;
+            this.numJugadores = numJugadores;
+        }
+        
+        public Integer getId() { return id; }
+        public void setId(Integer id) { this.id = id; }
+        
+        public String getDiccionario() { return diccionario; }
+        public void setDiccionario(String diccionario) { this.diccionario = diccionario; }
+        
+        public Integer getNumJugadores() { return numJugadores; }
+        public void setNumJugadores(Integer numJugadores) { this.numJugadores = numJugadores; }
+    } 
+
     private void cargarVista() {
         try {
             FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("/views/gestion-partida-view.fxml"));
@@ -49,7 +76,7 @@ public class GestionPartidaView {
                     System.err.println("No se pudo encontrar el recurso CSS: " + cssResource);
                 }
 
-                String tableCssResource = "/styles/tables.css";
+                String tableCssResource = "/styles/table.css";
                 URL tableCssUrl = getClass().getResource(tableCssResource);
                 if (tableCssUrl != null) {
                     view.getStylesheets().add(tableCssUrl.toExternalForm());
@@ -66,10 +93,11 @@ public class GestionPartidaView {
             btnEliminarPartida = (Button) view.lookup("#btnEliminarPartida");
             btnCargarPartida = (Button) view.lookup("#btnCargarPartida");
             btnVolver = (Button) view.lookup("#btnVolver");
-            listaPartidas = (ListView<String>) view.lookup("#listaPartidas");
+            tablaPartidas = (TableView<PartidaRow>) view.lookup("#tablaPartidas");
             
             aplicarEstiloBotones();  
-            estilizarListView();          
+            configurarTabla();
+            estilizarTabla();          
             configurarEventos();
             cargarPartidas();
             
@@ -79,75 +107,74 @@ public class GestionPartidaView {
         }
     }
     
+
     /**
-    * Aplica estilos modernos a la ListView similar a los de la tabla
-    */
-    private void estilizarListView() {
-        if (listaPartidas != null) {
-            listaPartidas.getStyleClass().add("modern-list");
+     * Configura la tabla de partidas
+     */
+    private void configurarTabla() {
+        if (tablaPartidas != null) {
+            tablaPartidas.getColumns().clear();
             
-            listaPartidas.setMinWidth(100);
-            listaPartidas.setPrefWidth(Region.USE_COMPUTED_SIZE);
-            listaPartidas.setMaxWidth(Double.MAX_VALUE);
+            tablaPartidas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+            tablaPartidas.getStyleClass().add("modern-table");
             
-            listaPartidas.setCellFactory(lv -> {
-                javafx.scene.control.ListCell<String> cell = new javafx.scene.control.ListCell<String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        
-                        if (empty || item == null) {
-                            setText(null);
-                            setGraphic(null);
-                            setStyle("-fx-background-color: transparent;");
-                        } else {
-                            setText(item);
-                            
-                            if (item.startsWith("--")) {
-                                setStyle("-fx-padding: 8px 15px; " +
-                                        "-fx-text-fill: #757575; " +
-                                        "-fx-font-style: italic; " +
-                                        "-fx-alignment: center;");
-                            } else {
-                                setStyle("-fx-padding: 8px 15px; " +
-                                        "-fx-text-fill: #2c3e50; " +
-                                        "-fx-border-color: transparent transparent #f0f0f0 transparent;");
-                            }
-                        }
-                    }
-                };
-                
-                // Estilo al pasar el mouse
-                cell.setOnMouseEntered(e -> {
-                    if (!cell.isEmpty()) {
-                        cell.setStyle(cell.getStyle() + "-fx-background-color: #f5f9ff;");
-                    }
-                });
-                
-                cell.setOnMouseExited(e -> {
-                    if (!cell.isEmpty()) {
-                        if (cell.getItem() != null && cell.getItem().startsWith("--")) {
-                            cell.setStyle("-fx-padding: 8px 15px; " +
-                                        "-fx-text-fill: #757575; " +
-                                        "-fx-font-style: italic; " +
-                                        "-fx-alignment: center;");
-                        } else {
-                            cell.setStyle("-fx-padding: 8px 15px; " +
-                                        "-fx-text-fill: #2c3e50; " +
-                                        "-fx-border-color: transparent transparent #f0f0f0 transparent;");
-                        }
-                    }
-                });
-                
-                return cell;
-            });
+            // Configurar columnas
+            TableColumn<PartidaRow, Integer> colID = new TableColumn<>("ID");
+            colID.setCellValueFactory(new PropertyValueFactory<>("id"));
             
-            // Configurar el placeholder cuando la lista está vacía
-            javafx.scene.control.Label placeholderLabel = new javafx.scene.control.Label("No hay partidas guardadas");
-            placeholderLabel.setStyle("-fx-text-fill: #757575; -fx-font-style: italic; -fx-font-size: 14px;");
-            listaPartidas.setPlaceholder(placeholderLabel);
+            TableColumn<PartidaRow, String> colDiccionario = new TableColumn<>("Diccionario");
+            colDiccionario.setCellValueFactory(new PropertyValueFactory<>("diccionario"));
+            
+            TableColumn<PartidaRow, Integer> colNumJugadores = new TableColumn<>("Jugadores");
+            colNumJugadores.setCellValueFactory(new PropertyValueFactory<>("numJugadores"));
+            
+            tablaPartidas.getColumns().addAll(colID, colDiccionario, colNumJugadores);
+            
+            // Configurar anchos proporcionales
+            colID.setMaxWidth(1f * Integer.MAX_VALUE * 20);
+            colDiccionario.setMaxWidth(1f * Integer.MAX_VALUE * 50);
+            colNumJugadores.setMaxWidth(1f * Integer.MAX_VALUE * 30);
+            
+            // Placeholder cuando no hay partidas
+            tablaPartidas.setPlaceholder(new javafx.scene.control.Label("No hay partidas guardadas"));
         }
     }    
+
+    /**
+    * Aplica estilos y configuraciones adicionales a la TableView
+    */
+    private void estilizarTabla() {
+        if (tablaPartidas != null) {
+            // Aplicar clase CSS
+            tablaPartidas.getStyleClass().add("modern-table");
+            
+            // Configurar dimensiones
+            tablaPartidas.setMinWidth(400);
+            tablaPartidas.setPrefWidth(600);
+            tablaPartidas.setMaxWidth(Double.MAX_VALUE);
+            
+            // Desactivar reordenamiento de columnas
+            for (TableColumn<PartidaRow, ?> column : tablaPartidas.getColumns()) {
+                column.setReorderable(false);
+            }
+            
+            // Configurar selección
+            tablaPartidas.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.SINGLE);
+            
+            // Placeholder personalizado
+            javafx.scene.control.Label placeholderLabel = new javafx.scene.control.Label("No hay partidas guardadas");
+            placeholderLabel.setStyle("-fx-text-fill: #757575; -fx-font-style: italic; -fx-font-size: 14px;");
+            tablaPartidas.setPlaceholder(placeholderLabel);
+            
+            // Event listener para habilitar/deshabilitar botones según selección
+            tablaPartidas.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+                boolean haySeleccion = newSelection != null;
+                if (btnCargarPartida != null) btnCargarPartida.setDisable(!haySeleccion);
+                if (btnEliminarPartida != null) btnEliminarPartida.setDisable(!haySeleccion);
+            });
+        }
+    }
+
     /**
      * Aplicar clases CSS a los botones
      */
@@ -190,11 +217,10 @@ public class GestionPartidaView {
         
         if (btnCargarPartida != null) {
             btnCargarPartida.setOnAction(e -> {
-                String partidaSeleccionada = listaPartidas.getSelectionModel().getSelectedItem();
+                PartidaRow partidaSeleccionada = tablaPartidas.getSelectionModel().getSelectedItem();
                 if (partidaSeleccionada != null) {
-                    System.out.println("CARGANDO PARTIDA " + partidaSeleccionada);
-                    Integer id = Integer.parseInt(partidaSeleccionada);
-                    controlador.cargarPartida(id);
+                    System.out.println("CARGANDO PARTIDA " + partidaSeleccionada.getId());
+                    controlador.cargarPartida(partidaSeleccionada.getId());
                 } else {
                     controlador.mostrarAlerta("warning", "Advertencia", "Por favor, seleccione una partida para cargar");
                 }
@@ -203,11 +229,9 @@ public class GestionPartidaView {
         
         if (btnEliminarPartida != null) {
             btnEliminarPartida.setOnAction(e -> {
-                String partidaSeleccionada = listaPartidas.getSelectionModel().getSelectedItem();
+                PartidaRow partidaSeleccionada = tablaPartidas.getSelectionModel().getSelectedItem();
                 if (partidaSeleccionada != null) {
-                    listaPartidas.getItems().remove(partidaSeleccionada);
-                    Integer id = Integer.parseInt(partidaSeleccionada);
-                    controlador.eliminarPartidaGuardada(id);
+                    controlador.eliminarPartidaGuardada(partidaSeleccionada.getId());
                     cargarPartidas();
                 } else {
                     controlador.mostrarAlerta("warning", "Advertencia", "Por favor, seleccione una partida para eliminar");
@@ -221,21 +245,23 @@ public class GestionPartidaView {
     }
     
     private void cargarPartidas() {
-        if (listaPartidas != null) {
-            listaPartidas.getItems().clear();
-            List <Integer> partidasGuardadas = controlador.getPartidasGuardadasID();
-            if (partidasGuardadas.size() < 1) {
-                listaPartidas.getItems().add("-- No hay partidas guardadas --");
-                return;
+        if (tablaPartidas != null) {
+            List<Integer> partidasGuardadas = controlador.getPartidasGuardadasID();
+            ObservableList<PartidaRow> datos = FXCollections.observableArrayList();
+            
+            for (Integer id : partidasGuardadas) {
+                 String diccionario = controlador.getDiccionarioPartida(id);
+                int numJugadores = controlador.getNumJugadoresPartida(id); 
+                
+                datos.add(new PartidaRow(id, diccionario, numJugadores));
             }
-
-            System.err.println("PARTIDAS GUARDADAS");
-            for (int i = 0; i < partidasGuardadas.size(); i++) {
-                // System.out.printf("| %2d. %-30s |\n", i + 1, partidasGuardadas.get(i));
-
-                listaPartidas.getItems().add(partidasGuardadas.get(i).toString());
+            
+            tablaPartidas.setItems(datos);
+            
+            // Seleccionar primer elemento si hay datos
+            if (!datos.isEmpty()) {
+                tablaPartidas.getSelectionModel().select(0);
             }
-
         }
     }
     

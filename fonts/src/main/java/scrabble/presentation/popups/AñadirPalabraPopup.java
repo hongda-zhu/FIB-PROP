@@ -13,11 +13,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import scrabble.presentation.viewControllers.ControladorDiccionarioView;
 
 public class AñadirPalabraPopup {
 
     private final ObservableList<String> palabras;
     private final Set<String> alfabeto;
+    private ControladorDiccionarioView controlador = ControladorDiccionarioView.getInstance();
 
     public AñadirPalabraPopup(ObservableList<String> palabras, Set<String> alfabeto) {
         this.palabras = palabras;
@@ -87,6 +89,7 @@ public class AñadirPalabraPopup {
             }
             if (valido) {
                 palabras.add(texto);
+                controlador.mostrarAlerta("success", "Palabra añadida", "La palabra \"" + texto + "\" se ha añadido correctamente al diccionario.");
                 popup.close();
             }
         });

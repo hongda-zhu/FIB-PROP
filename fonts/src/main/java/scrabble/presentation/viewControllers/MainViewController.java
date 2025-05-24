@@ -123,7 +123,7 @@ public class MainViewController {
         Stage stage = (Stage) btnGestionDiccionarios.getScene().getWindow();
         Parent vistaActual = stage.getScene().getRoot();
     
-        ControladorDiccionario controlador = ControladorDiccionario.getInstance();
+        ControladorDiccionarioView controlador = ControladorDiccionarioView.getInstance();
         controlador.setVistaAnterior(vistaActual);
         controlador.inicializar(stage);
 
@@ -150,7 +150,7 @@ public class MainViewController {
     private void onGestionRankingsClick(ActionEvent event) {
         Stage stage = (Stage) btnGestionRankings.getScene().getWindow();
         Parent vistaActual = stage.getScene().getRoot();
-        ControladorRanking controladorRanking = ControladorRanking.getInstance();
+        ControladorRankingView controladorRanking = ControladorRankingView.getInstance();
         controladorRanking.setVistaAnterior(vistaActual);
         controladorRanking.inicializar(stage);
     }
