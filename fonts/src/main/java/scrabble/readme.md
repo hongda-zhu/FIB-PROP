@@ -19,3 +19,6 @@ Este directorio (`scrabble`) es el paquete raíz del código fuente principal (`
 
 -   **`helpers/`**
     Proporciona clases auxiliares y estructuras de datos genéricas utilizadas en diferentes partes del proyecto (ej. `Tuple`, `Triple`, Enums como `Dificultad`).
+
+- **`MainApplication.java`**
+    Es el entry point para la aplicación.

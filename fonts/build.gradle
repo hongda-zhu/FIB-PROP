@@ -1,19 +1,25 @@
 plugins {
     id 'java'
     id 'application'
-    // id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'org.openjfx.javafxplugin' version '0.1.0' // javafx plugin
+}
+
+javafx {
+    version = '24.0.1' 
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.media' ] //added javafx dependency
 }
 
 group = 'scrabble'
 version = '1.0-SNAPSHOT'
 
-application {
-    mainClass = 'scrabble.domain.DomainDriver'
-}
-
+// aplication antigua
 // application {
-//     mainClass = 'scrabble.presentation.MainRanking'
+//     mainClass = 'scrabble.domain.DomainDriver'
 // }
+
+application {
+    mainClass = 'scrabble.MainApplication'
+}
 
 jar {
     manifest {
@@ -28,10 +34,6 @@ java {
     }
 }
 
-// javafx {
-//     version = '24.0.1' 
-//     modules = [ 'javafx.controls', 'javafx.fxml' ]
-// }
 
 repositories {
     mavenCentral()
@@ -44,17 +46,41 @@ dependencies {
 
 test {
     useJUnit()
+
+    testLogging {
+        events "passed", "failed", "skipped", "standardOut", "standardError"
+        showStandardStreams = true
+    }
 }
 
+
 sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources"]
+            includes = ["**/*.fxml", "**/*.css", "**/*.properties"]
+        }
+    }
     temp {
         java.srcDirs = ['src/main/java']
         resources.srcDirs = ['src/main/resources']
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += output + compileClasspath
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath
     }
     
 }
+
+// SourceSet antiguo
+// sourceSets {
+//     temp {
+//         java.srcDirs = ['src/main/java']
+//         resources.srcDirs = ['src/main/resources']
+//         compileClasspath += sourceSets.main.output
+//         runtimeClasspath += output + compileClasspath
+//     }
+    
+// }
+
 
 task runTemp(type: JavaExec) {
     classpath = sourceSets.temp.runtimeClasspath

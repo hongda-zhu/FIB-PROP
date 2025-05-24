@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tuproyecto.vista.VistaFinPartida" spacing="20" style="-fx-padding: 20;" alignment="TOP_CENTER">
+    <Label fx:id="tituloFin" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    
+    <HBox alignment="CENTER" spacing="20">
+        <ImageView fx:id="trofeoImagen" fitWidth="100" fitHeight="100" preserveRatio="true"/>
+        <Label fx:id="jugadorGanador" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    </HBox>
+    
+    <VBox spacing="10" style="-fx-padding: 10;">
+        <Label text="Clasificación Final" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+        <VBox fx:id="clasificacion" spacing="5">
+            <!-- La clasificación se llenará dinámicamente -->
+        </VBox>
+    </VBox>
+    
+    <VBox spacing="10" style="-fx-padding: 10;">
+        <Label text="Estadísticas de la Partida" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+        <HBox fx:id="estadisticas" spacing="20">
+            <!-- Las estadísticas se llenarán dinámicamente -->
+        </HBox>
+    </VBox>
+    
+    <HBox spacing="20" alignment="CENTER">
+        <Button fx:id="btnNuevaPartida" text="Nueva Partida" style="-fx-font-size: 14px; -fx-base: #4CAF50;"/>
+        <Button fx:id="btnMenuPrincipal" text="Menú Principal" style="-fx-font-size: 14px;"/>
+    </HBox>
+</VBox>

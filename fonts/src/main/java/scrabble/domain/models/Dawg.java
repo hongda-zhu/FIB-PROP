@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+
 import scrabble.helpers.Triple;
 
 /**
@@ -22,7 +23,7 @@ public class Dawg {
 
     /**
      * Constructor por defecto. Inicializa un DAWG vacío con un nodo raíz.
-     * 
+     *
      * @pre No hay precondiciones específicas.
      * @post Se crea una nueva instancia de DAWG con un nodo raíz vacío.
      */
@@ -31,10 +32,11 @@ public class Dawg {
     }
 
 
-    
+
     private int commonPrefix(String word)
     {
-        for (int commonPrefix = 0; commonPrefix < Math.min(word.length(), previousWord.length()); commonPrefix++)
+        int commonPrefix;
+        for (commonPrefix = 0; commonPrefix < Math.min(word.length(), previousWord.length()); commonPrefix++)
         {
             if (word.charAt(commonPrefix) != previousWord.charAt(commonPrefix))
             {
@@ -42,7 +44,7 @@ public class Dawg {
             }
         }
 
-        return 0;
+        return commonPrefix;
     }
 
 
@@ -73,26 +75,18 @@ public class Dawg {
 
     /**
      * Inserta una palabra en el DAWG.
-     * 
+     *
      * @pre La palabra no debe ser null.
      * @param word Palabra a insertar
      * @post Si la palabra no está vacía, se inserta en el DAWG, creando los nodos necesarios.
-     *       Si la palabra está vacía, no se realiza ninguna acción.
+     * Si la palabra está vacía, no se realiza ninguna acción.
      * @throws NullPointerException si word es null
      */
     public void insert(String word) {
-        // if (word.isEmpty()) {
-        //     return;
-        // }
-        
-        // DawgNode current = root;
-        // for (char c : word.toCharArray()) {
-        //     if (current.getEdge(String.valueOf(c)) == null) {
-        //         current.addEdge(String.valueOf(c), new DawgNode());
-        //     }
-        //     current = current.getEdge(String.valueOf(c));
-        // }
-        // current.setFinal(true);
+        // Add null check as per documentation comment
+        if (word == null || word.isEmpty()) {
+            throw new NullPointerException("Cannot insert null word.");
+        }
 
         int commonPrefix = commonPrefix(word);
         minimize(commonPrefix);
@@ -113,29 +107,35 @@ public class Dawg {
 
     /**
      * Busca una palabra en el DAWG.
-     * 
+     *
      * @pre La palabra no debe ser null.
      * @param word Palabra a buscar
      * @return true si la palabra existe en el DAWG, false en caso contrario
      * @post Se devuelve true si la palabra existe en el DAWG (es decir, si se puede seguir un camino
-     *       desde la raíz hasta un nodo final siguiendo las letras de la palabra).
-     *       Se devuelve false en caso contrario.
+     * desde la raíz hasta un nodo final siguiendo las letras de la palabra).
+     * Se devuelve false en caso contrario.
      * @throws NullPointerException si word es null
      */
     public boolean search(String word) {
+        // Add null check as per documentation comment
+        if (word == null) {
+            throw new NullPointerException("Cannot search for null word.");
+        }
         DawgNode current = root;
         for (char c : word.toCharArray()) {
-            if (current.getEdge(String.valueOf(c)) == null) {
+            // Assuming DawgNode.getEdge returns null if edge does not exist
+            DawgNode nextNode = current.getEdge(String.valueOf(c));
+            if (nextNode == null) {
                 return false;
             }
-            current = current.getEdge(String.valueOf(c));
+            current = nextNode;
         }
         return current.isFinal();
     }
 
     /**
      * Obtiene el nodo raíz del DAWG.
-     * 
+     *
      * @pre No hay precondiciones específicas.
      * @return Nodo raíz
      * @post Se devuelve el nodo raíz del DAWG.
@@ -146,27 +146,33 @@ public class Dawg {
 
     /**
      * Obtiene el nodo correspondiente al final de una secuencia de caracteres.
-     * 
+     *
      * @pre La palabra no debe ser null.
      * @param word Secuencia de caracteres a seguir
      * @return El nodo al final de la secuencia, o null si no existe tal secuencia
      * @post Si la palabra está vacía, se devuelve el nodo raíz.
-     *       Si se puede seguir un camino desde la raíz siguiendo las letras de la palabra,
-     *       se devuelve el nodo final de ese camino.
-     *       Si no existe tal camino, se devuelve null.
+     * Si se puede seguir un camino desde la raíz siguiendo las letras de la palabra,
+     * se devuelve el nodo final de ese camino.
+     * Si no existe tal camino, se devuelve null.
      * @throws NullPointerException si word es null
      */
     public DawgNode getNode(String word) {
+         // Add null check as per documentation comment
+        if (word == null) {
+            throw new NullPointerException("Cannot get node for null word.");
+        }
         if (word.isEmpty()) {
             return root;
         }
-        
+
         DawgNode current = root;
         for (char c : word.toCharArray()) {
-            if (current.getEdge(String.valueOf(c)) == null) {
+             // Assuming DawgNode.getEdge returns null if edge does not exist
+            DawgNode nextNode = current.getEdge(String.valueOf(c));
+            if (nextNode == null) {
                 return null;
             }
-            current = current.getEdge(String.valueOf(c));
+            current = nextNode;
         }
         return current;
     }
@@ -178,13 +184,17 @@ public class Dawg {
      * @pre La palabra parcial no debe ser null.
      * @param partialword La palabra parcial utilizada para localizar el nodo actual en el DAWG
      * @return Un conjunto de cadenas que representan los bordes disponibles desde el nodo actual,
-     *         o null si no se encuentra un nodo correspondiente
+     * o null si no se encuentra un nodo correspondiente
      * @post Si existe un nodo correspondiente a la palabra parcial, se devuelve un conjunto
-     *       con todas las etiquetas de aristas salientes de ese nodo.
-     *       Si no existe tal nodo, se devuelve null.
+     * con todas las etiquetas de aristas salientes de ese nodo.
+     * Si no existe tal nodo, se devuelve null.
      * @throws NullPointerException si partialword es null
      */
     public Set<String> getAvailableEdges(String partialword) {
+         // Add null check as per documentation comment
+        if (partialword == null) {
+            throw new NullPointerException("Cannot get available edges for null word.");
+        }
         DawgNode currentNode = getNode(partialword);
 
         return currentNode != null ? currentNode.getAllEdges() : null;
@@ -196,19 +206,23 @@ public class Dawg {
      * @pre La palabra parcial no debe ser null.
      * @param partialword La palabra parcial que se desea verificar
      * @return true si el nodo correspondiente a la palabra parcial existe y es final,
-     *         false en caso contrario
+     * false en caso contrario
      * @post Se devuelve true si existe un nodo correspondiente a la palabra parcial y ese nodo
-     *       está marcado como final. Se devuelve false en caso contrario.
+     * está marcado como final. Se devuelve false en caso contrario.
      * @throws NullPointerException si partialword es null
      */
     public boolean isFinal(String partialword) {
+         // Add null check as per documentation comment
+        if (partialword == null) {
+            throw new NullPointerException("Cannot check if null word is final.");
+        }
         DawgNode currentNode = getNode(partialword);
         return currentNode != null && currentNode.isFinal();
     }
 
     /**
      * Obtiene todas las palabras almacenadas en el DAWG.
-     * 
+     *
      * @pre No hay precondiciones específicas.
      * @return Lista de todas las palabras almacenadas en el DAWG
      * @post Se devuelve una lista (posiblemente vacía) con todas las palabras almacenadas en el DAWG.
@@ -221,7 +235,7 @@ public class Dawg {
 
     /**
      * Método auxiliar recursivo para recolectar todas las palabras del DAWG.
-     * 
+     *
      * @pre node no debe ser null, prefix y result no deben ser null.
      * @param node Nodo actual en la recursión
      * @param prefix Prefijo acumulado hasta el nodo actual
@@ -232,7 +246,6 @@ public class Dawg {
         if (node.isFinal()) {
             result.add(prefix);
         }
-        
         Set<String> edges = node.getAllEdges();
         for (String edge : edges) {
             DawgNode nextNode = node.getEdge(edge);
@@ -240,4 +253,5 @@ public class Dawg {
         }
     }
 
+   
 }

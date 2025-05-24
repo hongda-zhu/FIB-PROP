@@ -1,21 +1,36 @@
 package scrabble.domain.controllers;
 
 import java.io.IOException;
-import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import scrabble.domain.controllers.subcontrollers.ControladorConfiguracion;
 import scrabble.domain.controllers.subcontrollers.ControladorDiccionario;
 import scrabble.domain.controllers.subcontrollers.ControladorJuego;
-import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.domain.controllers.subcontrollers.ControladorJugador;
 import scrabble.domain.controllers.subcontrollers.ControladorRanking;
-import scrabble.domain.persistences.interfaces.RepositorioConfiguracion;
-import scrabble.domain.persistences.implementaciones.RepositorioConfiguracionImpl;
-import scrabble.excepciones.*;
+import scrabble.excepciones.ExceptionDiccionarioExist;
+import scrabble.excepciones.ExceptionDiccionarioNotExist;
+import scrabble.excepciones.ExceptionDiccionarioOperacionFallida;
+import scrabble.excepciones.ExceptionLoggingOperacion;
+import scrabble.excepciones.ExceptionPalabraExist;
+import scrabble.excepciones.ExceptionPalabraInvalida;
+import scrabble.excepciones.ExceptionPalabraNotExist;
+import scrabble.excepciones.ExceptionPalabraVacia;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
+import scrabble.excepciones.ExceptionRankingOperationFailed;
+import scrabble.excepciones.ExceptionUserEsIA;
+import scrabble.excepciones.ExceptionUserExist;
+import scrabble.excepciones.ExceptionUserInGame;
+import scrabble.excepciones.ExceptionUserNotExist;
 import scrabble.helpers.Dificultad;
+import scrabble.helpers.Direction;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 
@@ -41,9 +56,8 @@ public class ControladorDomain {
     */
     public ControladorDomain() {
         try {
-            // Creamos la implementación del repositorio y se la pasamos al controlador
-            RepositorioConfiguracion repoConfiguracion = new RepositorioConfiguracionImpl();
-            this.controladorConfiguracion = new ControladorConfiguracion(repoConfiguracion);
+            // ControladorConfiguracion ahora maneja su propio repositorio internamente
+            this.controladorConfiguracion = new ControladorConfiguracion();
             this.controladorJuego = new ControladorJuego();
             this.controladorRanking = ControladorRanking.getInstance();
             this.controladorJugador = ControladorJugador.getInstance();
@@ -212,6 +226,14 @@ public class ControladorDomain {
         return sb.toString();
     }
 
+   /**
+     * Obtiene el nombre de todos los jugadores
+     * 
+     * @pre No hay precondiciones específicas.
+     */
+    public Set<String> getAllJugadores() {
+        return controladorJugador.getNombresJugadoresFromMap();
+   }
     /**
      * Establece el idioma de la aplicación.
      * 
@@ -594,6 +616,15 @@ public class ControladorDomain {
     public boolean isJuegoTerminado() {
         return controladorJuego.isJuegoTerminado();
     }
+
+    /**
+     * Obtiene el tamaño del tablero de la partida actual
+     * @return El tamaño del tablero
+     */
+    public int getSize() {
+        return controladorJuego.getSize();
+    }
+
 
     // METODOS DE RANKING
 
@@ -1149,25 +1180,64 @@ public class ControladorDomain {
         return controladorJuego.mostrarStatusPartida(nombreJugador);
     }
 
+    public String getNombreDiccionario() {
+        return controladorJuego.getNombreDiccionario();
+    }
+    
     public boolean guardarPartida() {
-        return controladorJuego.guardar();
-    }
-    public void cargarPartida(Integer nombrePartida) {
-        controladorJuego.cargarDesdeArchivo(nombrePartida);
-    }
-    public List<Integer> getPartidasGuardadas() {
-        return ControladorJuego.listarArchivosGuardados();
-    }
-    public boolean eliminarPartidaGuardada(Integer nombrePartida) {
-        Map<String, Integer> jugadores = ControladorJuego.getJugadoresPorId(nombrePartida);
-        for (String jugador : jugadores.keySet()) {
-            if (!controladorJugador.esIA(jugador)) {
-                controladorJugador.setEnPartida(jugador, false);
-                controladorJugador.setNombrePartidaActual(jugador, "");
-            }
+        try {
+            return controladorJuego.guardar();
+        } catch (ExceptionPersistenciaFallida e) {
+            return false;
         }
-        return ControladorJuego.eliminarArchivoGuardado(nombrePartida);
     }
+
+    public void cargarPartida(Integer nombrePartida) {
+        try {
+            controladorJuego.cargarDesdeArchivo(nombrePartida);
+        } catch (ExceptionPersistenciaFallida e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Obtiene el nombre del diccionario asociado a una partida específica.
+     *
+     * @param idPartida el identificador único de la partida.
+     * @return el nombre del diccionario utilizado en la partida, o {@code null} si no se encuentra la partida.
+     */
+    public String obtenerDiccionarioPartida(int idPartida) {
+        try {
+            return ControladorJuego.obtenerDiccionarioPartida(idPartida);
+        }
+        catch (ExceptionPersistenciaFallida e) {
+            return null;
+        }
+    }
+
+    public List<Integer> getPartidasGuardadas() {
+        try {
+            return ControladorJuego.listarArchivosGuardados();
+        } catch (ExceptionPersistenciaFallida e) {
+            return new ArrayList<>(); // Devuelve lista vacía en caso de error
+        }
+    }
+
+    public boolean eliminarPartidaGuardada(Integer nombrePartida) {
+        try {
+            Map<String, Integer> jugadores = ControladorJuego.getJugadoresPorId(nombrePartida);
+            for (String jugador : jugadores.keySet()) {
+                if (!controladorJugador.esIA(jugador)) {
+                    controladorJugador.setEnPartida(jugador, false);
+                    controladorJugador.setNombrePartidaActual(jugador, "");
+                }
+            }
+            return ControladorJuego.eliminarArchivoGuardado(nombrePartida);
+        } catch (ExceptionPersistenciaFallida e) {
+            return false;
+        }
+    }
+
 
     public void aliberarJugadoresActuales() {
         Map<String, Integer> jugadoresSeleccionados = controladorJuego.getJugadoresActuales();

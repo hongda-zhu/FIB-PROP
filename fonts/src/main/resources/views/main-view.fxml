@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.Region?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="scrabble.presentation.viewControllers.MainViewController"
+            prefHeight="600" prefWidth="800">
+    
+    <!-- Fondo con gradiente -->
+    <style>
+        -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    </style>
+    
+    <center>
+        <StackPane>
+            <!-- Contenedor principal moderno -->
+            <VBox alignment="CENTER" spacing="35" prefWidth="600" maxWidth="600">
+                <StackPane.margin>
+                    <Insets top="50" bottom="50" left="100" right="100" />
+                </StackPane.margin>
+                
+                <!-- Título principal -->
+                <Label text="SCRABBLE" style="-fx-font-size: 64px; -fx-font-weight: 300; -fx-text-fill: #1a237e; -fx-letter-spacing: 8px;">
+                    <font>
+                        <Font name="System Light" size="64.0" />
+                    </font>
+                </Label>
+                
+                <!-- Subtítulo -->
+                <Label text="MENU PRINCIPAL" style="-fx-font-size: 18px; -fx-font-weight: 400; -fx-text-fill: #5f6368; -fx-letter-spacing: 4px;" />
+                
+                <!-- Separador -->
+                <Region prefHeight="30" />
+                
+                <!-- Contenedor de botones -->
+                <VBox spacing="20" alignment="CENTER" prefWidth="400">
+
+                    <Button fx:id="btnGestionPartidas" onAction="#onGestionPartidasClick" 
+                            prefHeight="56" prefWidth="400" text="Jugar"
+                            style="-fx-background-color: #ffffff; 
+                                   -fx-text-fill: #1a237e;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: 500;
+                                   -fx-background-radius: 28;
+                                   -fx-border-radius: 28;
+                                   -fx-border-color: rgba(26, 35, 126, 0.1);
+                                   -fx-border-width: 1;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+                                   -fx-cursor: hand;">
+                        <padding>
+                            <Insets left="24" right="24" />
+                        </padding>
+                    </Button> 
+
+                    <Button fx:id="btnGestionJugadores" onAction="#onGestionJugadoresClick" 
+                            prefHeight="56" prefWidth="400" text="Gestión de Jugadores"
+                            style="-fx-background-color: #ffffff; 
+                                   -fx-text-fill: #1a237e;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: 500;
+                                   -fx-background-radius: 28;
+                                   -fx-border-radius: 28;
+                                   -fx-border-color: rgba(26, 35, 126, 0.1);
+                                   -fx-border-width: 1;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+                                   -fx-cursor: hand;">
+                        <padding>
+                            <Insets left="24" right="24" />
+                        </padding>
+                    </Button>
+                    
+                    <Button fx:id="btnGestionDiccionarios" onAction="#onGestionDiccionariosClick" 
+                            prefHeight="56" prefWidth="400" text="Gestión de Diccionarios"
+                            style="-fx-background-color: #ffffff; 
+                                   -fx-text-fill: #1a237e;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: 500;
+                                   -fx-background-radius: 28;
+                                   -fx-border-radius: 28;
+                                   -fx-border-color: rgba(26, 35, 126, 0.1);
+                                   -fx-border-width: 1;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+                                   -fx-cursor: hand;">
+                        <padding>
+                            <Insets left="24" right="24" />
+                        </padding>
+                    </Button>
+                    
+                    <Button fx:id="btnGestionRankings" onAction="#onGestionRankingsClick" 
+                            prefHeight="56" prefWidth="400" text="Gestión de Rankings"
+                            style="-fx-background-color: #ffffff; 
+                                   -fx-text-fill: #1a237e;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: 500;
+                                   -fx-background-radius: 28;
+                                   -fx-border-radius: 28;
+                                   -fx-border-color: rgba(26, 35, 126, 0.1);
+                                   -fx-border-width: 1;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+                                   -fx-cursor: hand;">
+                        <padding>
+                            <Insets left="24" right="24" />
+                        </padding>
+                    </Button>
+                    
+                    <Button fx:id="btnConfiguracion" onAction="#onConfiguracionClick" 
+                            prefHeight="56" prefWidth="400" text="Configuración"
+                            style="-fx-background-color: #ffffff; 
+                                   -fx-text-fill: #1a237e;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: 500;
+                                   -fx-background-radius: 28;
+                                   -fx-border-radius: 28;
+                                   -fx-border-color: rgba(26, 35, 126, 0.1);
+                                   -fx-border-width: 1;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+                                   -fx-cursor: hand;">
+                        <padding>
+                            <Insets left="24" right="24" />
+                        </padding>
+                    </Button>
+                    
+                    <!-- Espaciador -->
+                    <Region prefHeight="40" />
+                    
+                    <Button fx:id="btnSalir" onAction="#onSalirClick" 
+                            prefHeight="56" prefWidth="200" text="Salir"
+                            style="-fx-background-color: #1a237e; 
+                                   -fx-text-fill: white;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: 500;
+                                   -fx-background-radius: 28;
+                                   -fx-border-radius: 28;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 4);
+                                   -fx-cursor: hand;">
+                    </Button>
+                </VBox>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

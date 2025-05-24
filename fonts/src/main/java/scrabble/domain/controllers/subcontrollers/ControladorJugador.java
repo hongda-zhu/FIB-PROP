@@ -447,7 +447,7 @@ public class ControladorJugador {
      * @return Conjunto con los nombres de todos los jugadores
      * @post Se devuelve un conjunto (posiblemente vacío) con los nombres de todos los jugadores.
      */
-    private Set<String> getNombresJugadoresFromMap() {
+    public Set<String> getNombresJugadoresFromMap() {
         return new HashSet<>(jugadores.keySet());
     }
 

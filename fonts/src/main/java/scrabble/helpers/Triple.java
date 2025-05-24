@@ -13,11 +13,11 @@ public class Triple<A, B, C> implements Serializable{
     private static final long serialVersionUID = 1L;
     
     /** El primer valor de la tupla. */
-    public final A x;
+    public A x;
     /** El segundo valor de la tupla. */ 
-    public final B y;
+    public B y;
     /** El tercer valor de la tupla. */   
-    public final C z;
+    public C z;
 
     /**
      * Crea una nueva tupla de tres elementos.
@@ -57,6 +57,17 @@ public class Triple<A, B, C> implements Serializable{
      */
     public C getz() {
         return z;
+    }
+
+    /**
+     * Actualiza todos los valores con los de otro Triple.
+     *
+     * @param triple el Triple de donde copiar los valores
+     */
+    public void setFromTriple(Triple<A, B, C> triple) {
+        this.x = triple.getx();
+        this.y = triple.gety();
+        this.z = triple.getz();
     }
 
     /**

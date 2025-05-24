@@ -39,13 +39,16 @@ public class DiccionarioTest {
         lineasAlphabetValido.add("CH 1 5"); // Ejemplo de letra compuesta
         lineasAlphabetValido.add("# 2 0"); // Comodín
 
-        // Datos de prueba válidos para las palabras
+        // Datos de prueba válidos para las palabras (ordenados alfabéticamente)
         palabrasValidas = new ArrayList<>();
         palabrasValidas.add("CASA");
+        palabrasValidas.add("CHAOS"); // Palabra con letra compuesta
         palabrasValidas.add("ESO");
         palabrasValidas.add("SAXO");
         palabrasValidas.add("SOL");
-        palabrasValidas.add("CHAOS"); // Palabra con letra compuesta
+
+        // Ordenar explícitamente por si el orden de inserción cambia en el futuro
+        palabrasValidas.sort(String::compareTo);
     }
 
     /**
@@ -73,6 +76,7 @@ public class DiccionarioTest {
      */
     @Test
     public void testSetDawgYGetDawg() {
+
         diccionario.setDawg(palabrasValidas);
         Dawg dawg = diccionario.getDawg();
         assertNotNull("El Dawg recuperado no debería ser null", dawg);

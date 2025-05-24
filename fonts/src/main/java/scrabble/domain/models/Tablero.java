@@ -1,6 +1,5 @@
 package scrabble.domain.models;
-
-import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
+import scrabble.helpers.Direction;
 import scrabble.helpers.Tuple;
 
 import java.io.Serializable;

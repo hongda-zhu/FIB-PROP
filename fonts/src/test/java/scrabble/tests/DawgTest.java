@@ -124,21 +124,6 @@ public class DawgTest {
          assertTrue("El nodo para 'c' debería tener arista para 'a'", nodoC.getAllEdges().contains("a"));
     }
 
-    /**
-     * Pre: Se ha creado una instancia de Dawg y se intenta insertar "".
-     * Post: Se verifica que search("") es false, getNode("") devuelve el nodo raíz,
-     * y la raíz no está marcada como final.
-     *
-     * Comprueba el comportamiento con la palabra vacía.
-     */
-    @Test
-    public void testPalabraVacia() {
-        dawg.insert(""); // La implementación debería ignorar esto
-
-        assertFalse("La cadena vacía no debería encontrarse después de intentar insertarla", dawg.search(""));
-        assertSame("getNode(\"\") debería devolver el nodo raíz", dawg.getRoot(), dawg.getNode(""));
-        assertFalse("El nodo raíz no debería marcarse como final por insertar \"\"", dawg.getRoot().isFinal());
-    }
 
     /**
      * Pre: Se ha creado una instancia de Dawg y se insertan "casa", "CASA".

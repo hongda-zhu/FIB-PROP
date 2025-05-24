@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.layout.Region?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+            prefHeight="700" prefWidth="1000" style="-fx-background-color: #f5f5f5;">
+    <top>
+        <BorderPane style="-fx-background-color: #2c3e50;">
+            <center>
+                <Text fill="WHITE" text="Configuración" textAlignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="30.0" />
+                    </font>
+                    <BorderPane.margin>
+                        <Insets bottom="30.0" top="30.0" />
+                    </BorderPane.margin>                    
+                </Text>
+            </center>
+        </BorderPane>
+    </top>
+    <left>
+        <VBox fx:id="menuLateral" alignment="TOP_CENTER" style="-fx-background-color: white;" prefWidth="300" minWidth = "300">
+            
+            <Button fx:id="btnGeneral" text="General" 
+                    prefWidth="300" prefHeight="100" 
+                    style="-fx-font-size: 20px; -fx-text-fill: black;-fx-background-color: white;" 
+                    onAction="#onGeneralClick"/>
+            
+            <Button fx:id="btnPartida" text="Partida" 
+                    prefWidth="300" prefHeight="100" 
+                    style="-fx-font-size: 20px; -fx-text-fill: black;-fx-background-color: white;" 
+                    onAction="#onPartidaClick"/>
+            
+            <Button fx:id="btnAyuda" text="Ayuda" 
+                    prefWidth="300" prefHeight="100" 
+                    style="-fx-background-color:rgb(0, 117, 196); -fx-text-fill: white; -fx-font-size: 20px;" 
+                    onAction="#onAyudaClick"/>
+            
+            
+            
+            <Button fx:id="btnVolver" text="Volver" 
+                    prefWidth="300" prefHeight="100" 
+                    style="-fx-font-size: 20px; -fx-text-fill: black; -fx-background-color: white;" 
+                    onAction="#onVolverClick">                                 <VBox.margin>
+                                    <Insets top="600" bottom = "10" />
+                                </VBox.margin>  </Button>
+        </VBox>
+    </left>
+    <center>
+        <BorderPane>
+            <center>
+                <StackPane>
+                    <BorderPane.margin>
+                        <Insets top="20" right="20" bottom="20" left="20" />
+                    </BorderPane.margin>
+                    
+                    <BorderPane>
+                        <top>
+                            <VBox spacing="10">
+                                <Text text="Ayuda y Documentación" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #2c3e50;">
+                                    <VBox.margin>
+                                        <Insets bottom="5" />
+                                    </VBox.margin>
+                                </Text>
+                                <HBox prefHeight="2" style="-fx-background-color: #bdc3c7;" />
+                            </VBox>
+                        </top>
+                        
+                        <center>
+                            <StackPane style="-fx-background-color: white; -fx-background-radius: 10;">
+                                <BorderPane.margin>
+                                    <Insets top="20" />
+                                </BorderPane.margin>
+                                <padding>
+                                    <Insets top="30" right="30" bottom="30" left="30" />
+                                </padding>
+                                
+                                <VBox spacing="20" alignment="TOP_LEFT">
+                                    <Accordion fx:id="acordeonAyuda" prefWidth="800">
+                                        <!-- Sección Reglas -->
+                                        <panes>
+                                            <TitledPane animated="true" text="Reglas de Scrabble">
+                                                <content>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-size: 14px;" text="Scrabble es un juego de palabras para 2-4 jugadores. Cada jugador intenta ganar más puntos mediante la construcción de palabras en un tablero de 15x15 casillas. Las palabras pueden formarse en horizontal o vertical, y deben leerse de izquierda a derecha o de arriba a abajo.&#10;&#10;Cada jugador recibe inicialmente 7 fichas con letras. En su turno, un jugador puede:&#10;- Formar una palabra usando sus fichas y las ya colocadas en el tablero&#10;- Pasar su turno&#10;- Cambiar algunas o todas sus fichas por nuevas del saco&#10;&#10;Los puntos se calculan basándose en el valor de las letras y los multiplicadores de las casillas donde se colocan las nuevas fichas. El juego termina cuando un jugador ha usado todas sus fichas y no quedan más en el saco, o cuando todos los jugadores pasan dos veces consecutivas." />
+                                                    </TextFlow>
+                                                </content>
+                                            </TitledPane>
+                                            
+                                            <!-- Sección Cómo Jugar -->
+                                            <TitledPane animated="true" text="Cómo jugar">
+                                                <content>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-size: 14px;" text="Para jugar a Scrabble en esta aplicación, sigue estos pasos:&#10;&#10;1. Desde el menú principal, selecciona 'Gestión de Partidas'&#10;2. Haz clic en 'Nueva Partida'&#10;3. Selecciona los jugadores que participarán&#10;4. Configura las opciones de la partida según tus preferencias&#10;5. Haz clic en 'Iniciar Partida'&#10;&#10;Durante tu turno, puedes:&#10;- Arrastrar fichas desde tu atril al tablero para formar palabras&#10;- Hacer clic en 'Validar' para comprobar si tu palabra es válida y recibir los puntos&#10;- Usar los botones 'Pasar' o 'Cambiar Fichas' según necesites&#10;&#10;Puedes guardar la partida en cualquier momento usando el botón 'Guardar Partida'." />
+                                                    </TextFlow>
+                                                </content>
+                                            </TitledPane>
+                                            
+                                            <!-- Sección Configuración -->
+                                            <TitledPane animated="true" text="Opciones de Configuración">
+                                                <content>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-size: 14px;" text="En la sección de Configuración, puedes personalizar varios aspectos de la aplicación:&#10;&#10;Configuración General:&#10;- Idioma: Cambia el idioma de la interfaz&#10;- Tema: Selecciona entre temas claro y oscuro&#10;- Música: Activa o desactiva la música de fondo&#10;- Sonido: Activa o desactiva los efectos de sonido&#10;&#10;Configuración de Partida:&#10;- Tamaño del tablero: Ajusta el tamaño entre 10x10 y 20x20&#10;- Dificultad: Selecciona el nivel de dificultad para los bots (Fácil, Media, Difícil)&#10;- Bots por partida: Configura el número de bots que participarán por defecto&#10;&#10;Estos ajustes se guardarán y aplicarán a todas las nuevas partidas creadas." />
+                                                    </TextFlow>
+                                                </content>
+                                            </TitledPane>
+                                            
+                                            <!-- Sección Problemas -->
+                                            <TitledPane animated="true" text="Solución de problemas">
+                                                <content>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-size: 14px;" text="Si encuentras algún problema en la aplicación, prueba estas soluciones:&#10;&#10;La aplicación no responde:&#10;- Cierra y vuelve a abrir la aplicación&#10;- Verifica que tu sistema cumple con los requisitos mínimos&#10;&#10;Problemas con el diccionario:&#10;- Verifica que has seleccionado el diccionario correcto en Gestión de Diccionarios&#10;- Intenta importar nuevamente el diccionario&#10;&#10;Problemas con la partida guardada:&#10;- Asegúrate de guardar la partida antes de cerrar la aplicación&#10;- Verifica que hay espacio suficiente en tu disco duro&#10;&#10;Si el problema persiste, usa el botón 'Contactar Soporte' para comunicarte con nuestro equipo técnico." />
+                                                    </TextFlow>
+                                                </content>
+                                            </TitledPane>
+                                        </panes>
+                                    </Accordion>
+                                    
+                                    <Region VBox.vgrow="ALWAYS" />
+                                    
+                                    <!-- Contenedor del botón con alignment="BOTTOM_RIGHT" -->
+                                    <HBox alignment="BOTTOM_RIGHT" spacing="20">
+                                        <padding>
+                                            <Insets bottom="20" />
+                                        </padding>
+                                        <Button fx:id="btnContacto" text="Contactar Soporte" 
+                                                prefWidth="180" prefHeight="40" 
+                                                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" 
+                                                onAction="#onContactoClick"/>
+                                    </HBox>                                       
+                                </VBox>
+                            </StackPane>
+                        </center>
+                    </BorderPane>
+                </StackPane>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

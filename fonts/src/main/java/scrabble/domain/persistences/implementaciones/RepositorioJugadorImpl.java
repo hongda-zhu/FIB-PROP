@@ -16,14 +16,23 @@ import scrabble.domain.models.Jugador;
 import scrabble.domain.persistences.interfaces.RepositorioJugador;
 
 /**
- * Implementación del repositorio de jugadores utilizando serialización Java.
+ * Implementació del repositori de jugadors.
+ * Gestiona la persistència de les dades dels jugadors utilitzant serialització Java.
+ * Un mapa de jugadors (nom -> {@link Jugador}) es guarda en un únic fitxer 
+ * anomenat {@code jugadores.dat}.
  */
 public class RepositorioJugadorImpl implements RepositorioJugador {
     
     private static final String JUGADORES_FILE = "src/main/resources/persistencias/jugadores.dat";
     
     /**
-     * Constructor que asegura que el directorio de persistencia existe.
+     * Constructor per a la classe {@code RepositorioJugadorImpl}.
+     * Assegura que el directori de persistència per als jugadors existeix.
+     * Si el directori no existeix, es crea.
+     * 
+     * @pre No hi ha precondicions específiques.
+     * @post S'ha creat una instància de {@code RepositorioJugadorImpl} i
+     *       s'ha assegurat l'existència del directori de persistència.
      */
     public RepositorioJugadorImpl() {
         // Asegurar que el directorio existe
@@ -33,6 +42,19 @@ public class RepositorioJugadorImpl implements RepositorioJugador {
         }
     }
     
+    /**
+     * Guarda un mapa de jugadors al sistema de persistència.
+     * Serialitza l'objecte {@code Map<String, Jugador>} complet al fitxer especificat
+     * per {@code JUGADORES_FILE}.
+     * 
+     * @pre {@code jugadores} no ha de ser nul.
+     * @param jugadores Un mapa on les claus són els noms dels jugadors i els valors són
+     *                  els objectes {@link Jugador} corresponents.
+     * @return {@code true} si tots els jugadors s'han guardat correctament,
+     *         {@code false} si s'ha produït un error durant el procés de guardat.
+     * @post Si l'operació té èxit, el mapa de jugadors es persisteix al fitxer.
+     *       En cas d'error, s'imprimeix un missatge d'error a la sortida d'errors estàndard.
+     */
     @Override
     public boolean guardarTodos(Map<String, Jugador> jugadores) {
         try {
@@ -53,6 +75,18 @@ public class RepositorioJugadorImpl implements RepositorioJugador {
         }
     }
     
+    /**
+     * Carrega tots els jugadors des del sistema de persistència.
+     * Deserialitza el mapa de jugadors des del fitxer {@code JUGADORES_FILE}.
+     * 
+     * @pre No hi ha precondicions específiques.
+     * @return Un {@code Map<String, Jugador>} amb tots els jugadors carregats. Si el fitxer
+     *         no existeix o es produeix un error durant la càrrega (per exemple,
+     *         {@link IOException} o {@link ClassNotFoundException}), es retorna un mapa buit.
+     * @post Es retorna el mapa de jugadors llegit o un mapa buit en cas d'error o inexistència.
+     *       En cas d'error durant la càrrega, s'imprimeix un missatge d'error a la
+     *       sortida d'errors estàndard.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, Jugador> cargarTodos() {
@@ -70,12 +104,30 @@ public class RepositorioJugadorImpl implements RepositorioJugador {
         }
     }
     
+    /**
+     * Busca un jugador pel seu nom dins dels jugadors carregats.
+     * 
+     * @pre {@code nombre} no ha de ser nul.
+     * @param nombre El nom del jugador a buscar.
+     * @return L'objecte {@link Jugador} corresponent al nom proporcionat, o {@code null}
+     *         si no es troba cap jugador amb aquest nom.
+     * @post Es retorna el jugador trobat o {@code null}.
+     */
     @Override
     public Jugador buscarPorNombre(String nombre) {
         Map<String, Jugador> jugadores = cargarTodos();
         return jugadores.get(nombre);
     }
     
+    /**
+     * Obté una llista amb els noms de tots els jugadors humans registrats.
+     * Filtra els jugadors carregats per identificar aquells que no són IA.
+     * 
+     * @pre No hi ha precondicions específiques.
+     * @return Una {@code List<String>} que conté els noms dels jugadors humans.
+     *         Si no hi ha jugadors humans, la llista serà buida.
+     * @post Es retorna una llista de noms de jugadors humans.
+     */
     @Override
     public List<String> obtenerNombresJugadoresHumanos() {
         Map<String, Jugador> jugadores = cargarTodos();
@@ -85,6 +137,15 @@ public class RepositorioJugadorImpl implements RepositorioJugador {
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Obté una llista amb els noms de tots els jugadors IA registrats.
+     * Filtra els jugadors carregats per identificar aquells que són IA.
+     * 
+     * @pre No hi ha precondicions específiques.
+     * @return Una {@code List<String>} que conté els noms dels jugadors IA.
+     *         Si no hi ha jugadors IA, la llista serà buida.
+     * @post Es retorna una llista de noms de jugadors IA.
+     */
     @Override
     public List<String> obtenerNombresJugadoresIA() {
         Map<String, Jugador> jugadores = cargarTodos();
@@ -94,6 +155,14 @@ public class RepositorioJugadorImpl implements RepositorioJugador {
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Obté una llista amb els noms de tots els jugadors registrats (humans i IA).
+     * 
+     * @pre No hi ha precondicions específiques.
+     * @return Una {@code List<String>} que conté els noms de tots els jugadors.
+     *         Si no hi ha jugadors, la llista serà buida.
+     * @post Es retorna una llista de noms de tots els jugadors.
+     */
     @Override
     public List<String> obtenerNombresTodosJugadores() {
         return new ArrayList<>(cargarTodos().keySet());

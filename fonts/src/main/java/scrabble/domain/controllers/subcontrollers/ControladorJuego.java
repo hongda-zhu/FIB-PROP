@@ -16,9 +16,13 @@ import java.util.Set;
 
 import scrabble.domain.models.Bolsa;
 import scrabble.domain.models.Tablero;
+import scrabble.domain.persistences.implementaciones.RepositorioPartidaImpl;
+import scrabble.domain.persistences.interfaces.RepositorioPartida;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.Dificultad;
+import scrabble.helpers.Direction;
 
 /**
  * Clase GestorJugada
@@ -29,15 +33,11 @@ import scrabble.helpers.Dificultad;
 public class ControladorJuego implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private int idPartida;
     /**
     * Controlador para la gestión de usuarios.
     * Implementa el patrón Singleton para garantizar una única instancia.
     */
-    public enum Direction {
-        HORIZONTAL,
-        VERTICAL
-    }
+
 
     private transient ControladorDiccionario controladorDiccionario;
     private Tablero tablero;
@@ -49,6 +49,8 @@ public class ControladorJuego implements Serializable {
     private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
     private String nombreDiccionario;
     private Map<String, Integer> jugadores;
+    private static RepositorioPartida repositorioPartida;
+    
 
     private Set<String> alfabeto = Set.of(
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
@@ -73,11 +75,27 @@ public class ControladorJuego implements Serializable {
         this.juegoIniciado = false;
         this.juegoTerminado = false;
         this.bolsa = null;
-        this.idPartida = -1;
         this.controladorDiccionario = ControladorDiccionario.getInstance();
+        repositorioPartida = new RepositorioPartidaImpl();
     }
 
+    /**
+     * Obtiene el nombre del diccionario de la partida actual.
+     * @return El nombre del diccionario empleado.
+     */
+    public String getNombreDiccionario() {
+        return this.nombreDiccionario;
+    }
 
+    /**
+     * Obtiene el tamaño del tablero de la partida actual.
+     * @return Un String que es el nombre del diccionario empleado.
+     */
+    public int getSize() {
+        return this.tablero.getSize();
+    }    
+
+    
     /**
      * Inicializa el juego configurando el tablero, diccionario, idioma y bolsa de fichas.
      *
@@ -96,7 +114,6 @@ public class ControladorJuego implements Serializable {
         this.jugadores = jugadores;
         this.juegoIniciado = false;
         this.juegoTerminado = false;
-        this.idPartida = -1;
         
         Map<String, Integer> fichas = controladorDiccionario.getFichas(nombreDiccionario);
         this.bolsa = new Bolsa();
@@ -636,13 +653,11 @@ public class ControladorJuego implements Serializable {
         Tuple<Integer, Integer> pos = move.y;
         Direction dir = move.z;
     
-        System.out.println("Verificando movimiento: " + word + " en posición " + pos + " con dirección " + dir);
     
         // Check if the word fits within the board boundaries
         Tuple<Integer, Integer> currentPos = new Tuple<>(pos.x, pos.y);
         for (int i = word.length() - 1; i >= 0; i--) {
             if (!tablero.validPosition(currentPos)) {
-                System.out.println("Posición fuera del tablero: " + currentPos);
                 return false;
             }
             currentPos = dir == Direction.HORIZONTAL
@@ -650,7 +665,6 @@ public class ControladorJuego implements Serializable {
                 : new Tuple<>(currentPos.x - 1, currentPos.y);
         }
     
-        System.out.println("La palabra cabe en el tablero.");
     
         // Reset position to the starting point
         currentPos = new Tuple<>(pos.x, pos.y);
@@ -660,7 +674,6 @@ public class ControladorJuego implements Serializable {
         for (int i = word.length() - 1; i >= 0; i--) {
             if (currentPos.equals(tablero.getCenter())) {
                 centerTileCovered = true;
-                System.out.println("La palabra pasa por el centro del tablero en " + currentPos);
             }
             currentPos = dir == Direction.HORIZONTAL
                 ? new Tuple<>(currentPos.x, currentPos.y - 1)
@@ -668,13 +681,11 @@ public class ControladorJuego implements Serializable {
         }
     
         if (!centerTileCovered) {
-            System.out.println("La palabra no pasa por el centro.");
             return false;
         }
     
         // Check if the word can be formed using the rack
         Map<String, Integer> tempRack = new HashMap<>(rack);
-        System.out.println("Comprobando si se puede formar la palabra con el atril: " + tempRack);
     
         for (int i = 0; i < word.length(); i++) {
             String letter = String.valueOf(word.charAt(i)).toUpperCase();
@@ -685,27 +696,23 @@ public class ControladorJuego implements Serializable {
     
             if (tempRack.containsKey(letter) || tempRack.containsKey(diletter)) {
                 String key = tempRack.containsKey(diletter) ? diletter : letter;
-                System.out.println("Usando ficha: " + key);
                 if (tempRack.get(key) == 1) {
                     tempRack.remove(key);
                 } else {
                     tempRack.put(key, tempRack.get(key) - 1);
                 }
             } else if (tempRack.containsKey("#")) { // Use blank tile
-                System.out.println("Usando ficha blanca para letra: " + letter);
                 if (tempRack.get("#") == 1) {
                     tempRack.remove("#");
                 } else {
                     tempRack.put("#", tempRack.get("#") - 1);
                 }
             } else {
-                System.out.println("No se puede formar la palabra. Letra faltante: " + letter);
                 return false;
             }
         }
     
         boolean found = this.controladorDiccionario.existePalabra(nombreDiccionario, word);
-        System.out.println("¿La palabra existe en el diccionario?: " + found);
         return found;
     }
     
@@ -748,6 +755,7 @@ public class ControladorJuego implements Serializable {
                     }
                 }
                 this.juegoIniciado = true;
+                move.setFromTriple(bestMove);
                 return new Tuple<Map<String,Integer>,Integer>(this.makeMove(bestMove, rack), bestMovePoints);
             }
         
@@ -876,45 +884,69 @@ public class ControladorJuego implements Serializable {
      *
      * @pre No hay precondiciones específicas, pero se recomienda que el juego esté en un estado válido.
      * @return {@code true} si el guardado fue exitoso, {@code false} en caso contrario.
+     * @throws ExceptionPersistenciaFallida 
      * @post Si la operación es exitosa, el estado del juego se guarda en el archivo y se asigna un ID de partida si no lo tenía.
      * @throws RuntimeException Si ocurre un error de I/O durante el proceso de guardado,
      * envolviendo la {@code IOException} original.
      */
-    @SuppressWarnings("unchecked")
-    public boolean guardar() {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        Map<Integer, ControladorJuego> mapa;
+    public boolean guardar() throws ExceptionPersistenciaFallida {
+        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
+        // File archivo = new File(nombreArchivo);
+        // Map<Integer, ControladorJuego> mapa;
     
-        if (!archivo.exists()) {
-            mapa = new HashMap<>();
-        } else {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-                Object obj = ois.readObject();
-                if (obj instanceof Map) {
-                    mapa = (Map<Integer, ControladorJuego>) obj;
-                } else {
-                    throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
-            }
-        }
+        // if (!archivo.exists()) {
+        //     mapa = new HashMap<>();
+        // } else {
+        //     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+        //         Object obj = ois.readObject();
+        //         if (obj instanceof Map) {
+        //             mapa = (Map<Integer, ControladorJuego>) obj;
+        //         } else {
+        //             throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+        //         }
+        //     } catch (IOException | ClassNotFoundException e) {
+        //         throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
+        //     }
+        // }
     
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
+        // try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
             
-            if (this.idPartida == -1) {
-                this.idPartida = mapa.size() + 1; // Asignar un nuevo ID de partida
-            }
-            mapa.put(this.idPartida, this);
+        //     if (this.idPartida == -1) {
+        //         this.idPartida = mapa.size() + 1; // Asignar un nuevo ID de partida
+        //     }
+        //     mapa.put(this.idPartida, this);
             
-            oos.writeObject(mapa);
-            return true;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar el archivo: " + nombreArchivo, e);
-        }
+        //     oos.writeObject(mapa);
+        //     return true;
+        // } catch (IOException e) {
+        //     throw new RuntimeException("Error al guardar el archivo: " + nombreArchivo, e);
+        // }
+
+        int id = repositorioPartida.generarNuevoId();
+        return repositorioPartida.guardar(id, this);
     }
     
+    /**
+    * Obtiene una copia de una partida específica por su ID.
+    *
+    * @pre Debe existir un archivo de partidas guardadas con el ID especificado.
+    * @param idPartida El ID de la partida a obtener.
+    * @return Una nueva instancia de {@code ControladorJuego} con el estado de la partida solicitada.
+    *         Devuelve null si no se encuentra ninguna partida con ese ID.
+    * @throws ExceptionPersistenciaFallida Si ocurre un error durante la carga de las partidas.
+    * @post Se devuelve una copia de la partida solicitada sin modificar el estado del objeto actual.
+    */
+    public ControladorJuego obtenerPartidaPorId(int idPartida) throws ExceptionPersistenciaFallida {
+        try {
+            ControladorJuego partida = repositorioPartida.cargar(idPartida);
+            if (partida != null) {
+                // TODO: Implementar lógica
+            }
+            return partida;
+        } catch (ExceptionPersistenciaFallida e) {
+            throw e;
+        }
+    }
 
     /**
      * Carga el estado del juego desde un archivo serializado previamente con {@code guardar},
@@ -922,42 +954,72 @@ public class ControladorJuego implements Serializable {
      *
      * @pre Debe existir un archivo de partidas guardadas con el ID especificado.
      * @param idPartida El ID de la partida a cargar.
+     * @throws ExceptionPersistenciaFallida 
      * @post Si la partida existe, el estado del objeto actual se actualiza con el estado guardado.
      * @throws RuntimeException Si ocurre un error de I/O o si la clase no se encuentra
      * durante la deserialización, envolviendo la excepción original
      * ({@code IOException} o {@code ClassNotFoundException}).
      */
-    @SuppressWarnings("unchecked")
-    public void cargarDesdeArchivo(int idPartida) {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        if (!archivo.exists()) {
-            return;
-        }
+    public void cargarDesdeArchivo(int idPartida) throws ExceptionPersistenciaFallida {
+        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
+        // File archivo = new File(nombreArchivo);
+        // if (!archivo.exists()) {
+        //     return;
+        // }
     
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
-                ControladorJuego controlador = mapa.get(idPartida);
-                if (controlador != null) {
-                    this.tablero = controlador.tablero;
-                    this.bolsa = controlador.bolsa;
-                    this.direction = controlador.direction;
-                    this.juegoTerminado = controlador.juegoTerminado;
-                    this.juegoIniciado = controlador.juegoIniciado;
-                    this.lastCrossCheck = controlador.lastCrossCheck;
-                    this.nombreDiccionario = controlador.nombreDiccionario;
-                    this.alfabeto = controlador.alfabeto;
-                    this.jugadores = controlador.jugadores;
-                    this.idPartida = controlador.idPartida;
-                }
-            } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+        //     Object obj = ois.readObject();
+        //     if (obj instanceof Map) {
+        //         Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
+        //         ControladorJuego controlador = mapa.get(idPartida);
+        //         if (controlador != null) {
+        //             this.tablero = controlador.tablero;
+        //             this.bolsa = controlador.bolsa;
+        //             this.direction = controlador.direction;
+        //             this.juegoTerminado = controlador.juegoTerminado;
+        //             this.juegoIniciado = controlador.juegoIniciado;
+        //             this.lastCrossCheck = controlador.lastCrossCheck;
+        //             this.nombreDiccionario = controlador.nombreDiccionario;
+        //             this.alfabeto = controlador.alfabeto;
+        //             this.jugadores = controlador.jugadores;
+        //             this.idPartida = controlador.idPartida;
+        //         }
+        //     } else {
+        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+        //     }
+        // } catch (IOException | ClassNotFoundException e) {
+        //     throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        // }
+
+        try {
+            ControladorJuego loadedGame = repositorioPartida.cargar(idPartida);
+            if (loadedGame != null) {
+            this.tablero = loadedGame.tablero;
+            this.bolsa = loadedGame.bolsa;
+            this.direction = loadedGame.direction;
+            this.juegoTerminado = loadedGame.juegoTerminado;
+            this.juegoIniciado = loadedGame.juegoIniciado;
+            this.lastCrossCheck = loadedGame.lastCrossCheck;
+            this.nombreDiccionario = loadedGame.nombreDiccionario;
+            this.alfabeto = loadedGame.alfabeto;
+            this.jugadores = loadedGame.jugadores;
             }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        } catch (ExceptionPersistenciaFallida e) {
+            throw e;
         }
+    }
+
+    /**
+     * Obtiene el nombre del diccionario asociado a una partida específica.
+     *
+     * @param idPartida el identificador único de la partida.
+     * @return el nombre del diccionario utilizado en la partida, o {@code null} si no se encuentra la partida.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al intentar cargar la partida desde el repositorio.
+     */
+    public static String obtenerDiccionarioPartida(int idPartida) throws ExceptionPersistenciaFallida {
+        ControladorJuego loadedGame = repositorioPartida.cargar(idPartida);
+        if (loadedGame != null) return loadedGame.nombreDiccionario;
+        return null;
     }
     
 
@@ -968,32 +1030,37 @@ public class ControladorJuego implements Serializable {
      * @pre No hay precondiciones específicas.
      * @return Una {@code List<Integer>} con los IDs de las partidas guardadas.
      * La lista estará vacía si el archivo no existe o no contiene partidas.
+     * @throws ExceptionPersistenciaFallida 
      * @post Se devuelve una lista con los IDs de las partidas guardadas sin modificar el estado del sistema.
      * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
-    @SuppressWarnings("unchecked")
-    public static List<Integer> listarArchivosGuardados() {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        List<Integer> archivosGuardados = new ArrayList<>();
+    public static List<Integer> listarArchivosGuardados() throws ExceptionPersistenciaFallida {
+        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
+        // File archivo = new File(nombreArchivo);
+        // List<Integer> archivosGuardados = new ArrayList<>();
     
-        if (!archivo.exists()) {
-            return archivosGuardados; // archivo vacío, lista vacía
+        // if (!archivo.exists()) {
+        //     return archivosGuardados; // archivo vacío, lista vacía
+        // }
+    
+        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+        //     Object obj = ois.readObject();
+        //     if (obj instanceof Map) {
+        //         Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
+        //         archivosGuardados.addAll(mapa.keySet());
+        //     } else {
+        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+        //     }
+        // } catch (IOException | ClassNotFoundException e) {
+        //     throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        // }
+    
+        // return archivosGuardados;
+        try {
+            return repositorioPartida.listarTodas();
+        } catch (ExceptionPersistenciaFallida e) {
+            return new ArrayList<>();
         }
-    
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
-                archivosGuardados.addAll(mapa.keySet());
-            } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
-        }
-    
-        return archivosGuardados;
     }
     
     /**
@@ -1003,41 +1070,49 @@ public class ControladorJuego implements Serializable {
      * @param idPartida El ID de la partida a eliminar.
      * @return {@code true} si la partida existía y fue eliminada con éxito,
      * {@code false} en caso contrario (ej., la partida no existía o hubo un problema de permisos).
+     * @throws ExceptionPersistenciaFallida 
      * @post Si la partida existía, se elimina del archivo de partidas guardadas.
      * @throws RuntimeException Si ocurre un error al manipular el archivo de partidas.
      */
-    @SuppressWarnings("unchecked")
-    public static boolean eliminarArchivoGuardado(int idPartida) {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
+    public static boolean eliminarArchivoGuardado(int idPartida) throws ExceptionPersistenciaFallida {
+        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
+        // File archivo = new File(nombreArchivo);
     
-        Map<Integer, ControladorJuego> mapa;
-        if (!archivo.exists()) {
-            return false; // no hay nada que eliminar
+        // Map<Integer, ControladorJuego> mapa;
+        // if (!archivo.exists()) {
+        //     return false; // no hay nada que eliminar
+        // }
+    
+        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+        //     Object obj = ois.readObject();
+        //     if (obj instanceof Map) {
+        //         mapa = (Map<Integer, ControladorJuego>) obj;
+        //     } else {
+        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+        //     }
+        // } catch (IOException | ClassNotFoundException e) {
+        //     throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
+        // }
+    
+        // if (mapa.containsKey(idPartida)) {
+        //     mapa.remove(idPartida);
+        //     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
+        //         oos.writeObject(mapa);
+        //         return true;
+        //     } catch (IOException e) {
+        //         throw new RuntimeException("Error al guardar el archivo tras eliminar partida.", e);
+        //     }
+        // }
+    
+        // return false;
+
+        try {
+            boolean success = repositorioPartida.eliminar(idPartida);
+            return success;
+        } catch (ExceptionPersistenciaFallida e) {
+            return false;
         }
-    
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                mapa = (Map<Integer, ControladorJuego>) obj;
-            } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
-        }
-    
-        if (mapa.containsKey(idPartida)) {
-            mapa.remove(idPartida);
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
-                oos.writeObject(mapa);
-                return true;
-            } catch (IOException e) {
-                throw new RuntimeException("Error al guardar el archivo tras eliminar partida.", e);
-            }
-        }
-    
-        return false;
+
     }
 
     /**
@@ -1047,31 +1122,42 @@ public class ControladorJuego implements Serializable {
      * @param idPartida El ID de la partida de la que se quieren obtener los jugadores.
      * @return Un {@code Set<String>} con los nombres de los jugadores de la partida.
      * Devuelve null si el archivo no existe o un conjunto vacío si la partida no existe.
+     * @throws ExceptionPersistenciaFallida 
      * @post Se devuelve un conjunto con los nombres de los jugadores sin modificar el estado del sistema.
      * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
-    @SuppressWarnings("unchecked")
-    public static Map<String, Integer> getJugadoresPorId(int idPartida) {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        Map<Integer, ControladorJuego> mapa;
+    public static Map<String, Integer> getJugadoresPorId(int idPartida) throws ExceptionPersistenciaFallida {
+        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
+        // File archivo = new File(nombreArchivo);
+        // Map<Integer, ControladorJuego> mapa;
     
-        if (!archivo.exists()) {
-            return null; // no hay nada que cargar
-        }
+        // if (!archivo.exists()) {
+        //     return null; // no hay nada que cargar
+        // }
     
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                mapa = (Map<Integer, ControladorJuego>) obj;
-                ControladorJuego controlador = mapa.get(idPartida);
-                return controlador != null ? controlador.getJugadoresActuales() : new HashMap<String, Integer>();
+        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
+        //     Object obj = ois.readObject();
+        //     if (obj instanceof Map) {
+        //         mapa = (Map<Integer, ControladorJuego>) obj;
+        //         ControladorJuego controlador = mapa.get(idPartida);
+        //         return controlador != null ? controlador.getJugadoresActuales() : new HashMap<String, Integer>();
+        //     } else {
+        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+        //     }
+        // } catch (IOException | ClassNotFoundException e) {
+        //     throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        // }
+        try {
+            ControladorJuego controlador = repositorioPartida.cargar(idPartida);
+            if (controlador != null) {
+            return controlador.getJugadoresActuales();
             } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+            return new HashMap<String, Integer>();
             }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        } catch (ExceptionPersistenciaFallida e) {
+            return new HashMap<String, Integer>();
         }
+        
     }
     
     /**

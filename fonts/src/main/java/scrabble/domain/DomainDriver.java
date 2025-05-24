@@ -9,18 +9,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Collections;
-import java.util.Arrays;
-import scrabble.helpers.Dificultad;
 
 import scrabble.domain.controllers.ControladorDomain;
-import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.excepciones.ExceptionDiccionarioExist;
 import scrabble.excepciones.ExceptionLanguageNotExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
@@ -30,6 +28,8 @@ import scrabble.excepciones.ExceptionUserExist;
 import scrabble.excepciones.ExceptionUserInGame;
 import scrabble.excepciones.ExceptionUserLoggedIn;
 import scrabble.excepciones.ExceptionUserNotExist;
+import scrabble.helpers.Dificultad;
+import scrabble.helpers.Direction;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 
@@ -935,7 +935,7 @@ public class DomainDriver {
         System.out.println("+------------------------------------------------------------------------------+");
         System.out.println("| JUGADORES REGISTRADOS                                                        |");
         System.out.println("+------------------------------------------------------------------------------+");
-        System.out.println("| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |");
+        System.out.println("| NOMBRE            | TIPO      | JUGANDO | 0    | PUNTOS TOTAL   |");
         System.out.println("+-------------------+-----------+---------+-------------------+----------------+");
         
         // Obtener la lista de usuarios humanos y ordenarla alfabéticamente
