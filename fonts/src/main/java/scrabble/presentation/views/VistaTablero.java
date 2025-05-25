@@ -31,7 +31,7 @@ import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.presentation.componentes.CasillaDisplay;
 import scrabble.presentation.componentes.Ficha;
-import scrabble.presentation.componentes.TipoCasilla;
+import scrabble.helpers.TipoCasilla;
 import scrabble.presentation.popups.CambiarFichasPopup;
 import scrabble.presentation.popups.PausaPopup;
 import scrabble.presentation.viewControllers.ControladorPartidaView;
@@ -196,6 +196,11 @@ private void iniciarPartida() {
         jugadoresPuntuaciones = controlador.getJugadoresActuales();
         jugadores = new ArrayList<>(jugadoresPuntuaciones.keySet());
         
+        if (controlador.getCargado()) {
+            System.out.println("Restaurando estado del tablero para partida cargada...");
+            restaurarEstadoTablero();
+        }  
+
         // Iniciar con el primer jugador
         jugadorActualIndex = -1; 
         siguienteTurno();
@@ -204,6 +209,77 @@ private void iniciarPartida() {
         controlador.mostrarAlerta("error", "Error", "Error al iniciar la partida: " + e.getMessage());
     }
 } 
+
+
+/**
+ *  método para restaurar el estado del tablero de una partida cargada
+ */
+private void restaurarEstadoTablero() {
+    try {
+        // Obtener el estado del tablero guardado
+        Map<Tuple<Integer, Integer>, String> estadoTablero = controlador.getEstadoTablero();
+        
+        if (estadoTablero == null || estadoTablero.isEmpty()) {
+            System.out.println("No hay fichas guardadas en el tablero");
+            return;
+        }
+        
+        System.out.println("Restaurando " + estadoTablero.size() + " fichas en el tablero");
+        
+        // Iterar sobre todas las posiciones con fichas guardadas
+        for (Map.Entry<Tuple<Integer, Integer>, String> entry : estadoTablero.entrySet()) {
+            Tuple<Integer, Integer> posicion = entry.getKey();
+            String letra = entry.getValue();
+            
+            if (letra != null && !letra.trim().isEmpty()) {
+                int fila = posicion.x;
+                int columna = posicion.y;
+                
+                // Buscar la casilla correspondiente en el tablero
+                CasillaDisplay casilla = encontrarCasilla(fila, columna);
+                
+                if (casilla != null) {
+                    int puntos = obtenerPuntosPorLetra(letra);
+                    casilla.colocarFicha(letra, puntos, true);                    
+                    posiciones.put(new Tuple<>(fila, columna), letra);
+                    
+                    System.out.println("Ficha restaurada: " + letra + " en posición (" + fila + "," + columna + ")");
+                } else {
+                    System.err.println("No se encontró casilla para posición (" + fila + "," + columna + ")");
+                }
+            }
+        }
+        
+        Platform.runLater(() -> {
+            tablero.requestLayout();
+            System.out.println("Tablero restaurado completamente");
+        });
+        
+        if (!estadoTablero.isEmpty()) {
+            firstMove = false;
+        }
+        
+    } catch (Exception e) {
+        System.err.println("Error al restaurar estado del tablero: " + e.getMessage());
+        e.printStackTrace();
+        controlador.mostrarAlerta("error", "Error", "Error al restaurar el estado del tablero: " + e.getMessage());
+    }
+}
+
+/**
+ * Método auxiliar para encontrar una casilla específica en el tablero
+ */
+private CasillaDisplay encontrarCasilla(int fila, int columna) {
+    for (Node node : tablero.getChildren()) {
+        if (node instanceof CasillaDisplay) {
+            CasillaDisplay casilla = (CasillaDisplay) node;
+            if (casilla.getFila() == fila && casilla.getColumna() == columna) {
+                return casilla;
+            }
+        }
+    }
+    return null;
+}
 
 /**
  * Limpia el estado de la jugada actual

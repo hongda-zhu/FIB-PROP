@@ -1,7 +1,7 @@
 package scrabble.presentation.views;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
 
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -72,6 +73,19 @@ public class ConfiguracionGeneralView {
     
     @FXML
     private StackPane toggleCircleSonido;
+
+    @FXML
+    private Slider sliderMusica;
+
+    @FXML
+    private Slider sliderSonido;
+
+    @FXML 
+    private Label labelVolumenMusica;
+
+    @FXML
+    private Label labelVolumenSonido;
+    
     
     public ConfiguracionGeneralView(ControladorConfiguracionView controlador) {
         this.controlador = controlador;
@@ -120,31 +134,49 @@ public class ConfiguracionGeneralView {
             btnGuardar.getStyleClass().add("btn-effect");
         }
 
-        Properties config = controlador.cargarConfiguracion();
+        Map<String, String> config = controlador.cargarConfiguracion();
         
         // Inicializar ComboBox
         if (comboIdioma != null) {
             comboIdioma.getItems().clear();
             comboIdioma.getItems().addAll("Español", "English");
-            comboIdioma.setValue(config.getProperty("idioma", "Español"));
+            comboIdioma.setValue(config.getOrDefault("idioma", "Español"));
         }
         
         if (comboTema != null) {
             comboTema.getItems().clear();
             comboTema.getItems().addAll("Claro", "Oscuro");
-            comboTema.setValue(config.getProperty("tema", "Claro"));
+            comboTema.setValue(config.getOrDefault("tema", "Claro"));
         }
         
         // Inicializar toggle música
         if (toggleMusica != null) {
-            toggleMusica.setSelected(Boolean.parseBoolean(config.getProperty("musica", "true")));
+            toggleMusica.setSelected(Boolean.parseBoolean(config.getOrDefault("musica", "true")));
             onToggleMusicaClick(null);
         }
         
         // Inicializar toggle sonido
         if (toggleSonido != null) {
-            toggleSonido.setSelected(Boolean.parseBoolean(config.getProperty("sonido", "true")));
+            toggleSonido.setSelected(Boolean.parseBoolean(config.getOrDefault("sonido", "true")));
             onToggleSonidoClick(null);
+        }
+
+        if (sliderMusica != null) {
+            String volumenMusicaStr = config.getOrDefault("volumenMusica", "50");
+            try {
+                sliderMusica.setValue(Double.parseDouble(volumenMusicaStr));
+            } catch (NumberFormatException e) {
+                sliderMusica.setValue(50);
+            }
+        }
+
+        if (sliderSonido != null) {
+            String volumenSonidoStr = config.getOrDefault("volumenSonido", "50");
+            try {
+                sliderSonido.setValue(Double.parseDouble(volumenSonidoStr));
+            } catch (NumberFormatException e) {
+                sliderSonido.setValue(50);
+            }
         }
     }
     
@@ -256,7 +288,9 @@ public class ConfiguracionGeneralView {
                     comboIdioma.getValue(),
                     comboTema.getValue(),
                     toggleMusica.isSelected(),
-                    toggleSonido.isSelected()
+                    toggleSonido.isSelected(),
+                    (int) sliderMusica.getValue(),
+                    (int) sliderSonido.getValue()
             );
             controlador.mostrarAlerta("success", "Configuración guardada", 
                     "La configuración general se ha guardado correctamente.");

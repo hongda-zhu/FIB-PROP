@@ -1,11 +1,5 @@
 package scrabble.domain.controllers.subcontrollers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +32,7 @@ public class ControladorJuego implements Serializable {
     * Implementa el patrón Singleton para garantizar una única instancia.
     */
 
-
+    private int idPartida = -1; // Identificador de la partida actual
     private transient ControladorDiccionario controladorDiccionario;
     private Tablero tablero;
     private Bolsa bolsa;
@@ -59,6 +53,7 @@ public class ControladorJuego implements Serializable {
 
     /**
      * Constructor por defecto para la clase ControladorJuego.
+     * @throws ExceptionPersistenciaFallida 
      * 
      * @pre No hay precondiciones específicas.
      * @post Se inicializa una nueva instancia de ControladorJuego con valores por defecto:
@@ -68,7 +63,7 @@ public class ControladorJuego implements Serializable {
      *       - idPartida es -1
      *       - Se obtiene la instancia del ControladorDiccionario
      */
-    public ControladorJuego() {
+    public ControladorJuego() throws ExceptionPersistenciaFallida {
         this.tablero = null;
         this.lastCrossCheck = null;
         this.direction = null;
@@ -103,17 +98,19 @@ public class ControladorJuego implements Serializable {
      * @param N                Tamaño del tablero (N x N).
      * @param jugadores        Conjunto de nombres de los jugadores que participan en el juego.
      * @param nombreDiccionario Nombre del diccionario que se utilizará para el juego.
+     * @throws ExceptionPersistenciaFallida 
      * @post Se inicializa el juego con un tablero de tamaño N×N, se asocia un diccionario
      *       y se crea la bolsa de fichas basada en la configuración del diccionario.
      * @throws NullPointerException Si alguno de los parámetros es null.
      * @throws IllegalArgumentException Si N es menor que 1 o si el conjunto de jugadores está vacío.
      */
-    public void inicializarJuego(int N, Map<String, Integer> jugadores, String nombreDiccionario) {
+    public void inicializarJuego(int N, Map<String, Integer> jugadores, String nombreDiccionario) throws ExceptionPersistenciaFallida {
         this.tablero = new Tablero(N);
         this.nombreDiccionario = nombreDiccionario;
         this.jugadores = jugadores;
         this.juegoIniciado = false;
         this.juegoTerminado = false;
+        this.idPartida = repositorioPartida.generarNuevoId();
         
         Map<String, Integer> fichas = controladorDiccionario.getFichas(nombreDiccionario);
         this.bolsa = new Bolsa();
@@ -121,6 +118,15 @@ public class ControladorJuego implements Serializable {
     }
 
     
+    /**
+    * @pre -
+    * @return estadoTablero Mapa de las posiciones con letra y la letra
+    * Método para obtener el estado actual del tablero 
+    */
+    public Map<Tuple<Integer, Integer>, String> getEstadoTablero() {
+        return tablero.getEstadoTablero();
+    } 
+
     /**
      * Obtiene una cantidad específica de fichas de la bolsa.
      * 
@@ -727,7 +733,6 @@ public class ControladorJuego implements Serializable {
      * @param isIA Indica si el jugador es una IA o un jugador humano
      * @param dificultad La dificultad de la IA (si aplica)
      * @param isFirst Indica si es el primer turno de la partida
-     * @param pausado Flag para indicar si la partida se pausa
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
@@ -768,7 +773,6 @@ public class ControladorJuego implements Serializable {
      * @param rack El rack del jugador, que contiene las letras disponibles para jugar
      * @param isIA Indica si el jugador es una IA o un jugador humano
      * @param dificultad La dificultad de la IA (si aplica)
-     * @param pausado Flag para indicar si la partida se pausa
      * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
      */
 
@@ -890,40 +894,7 @@ public class ControladorJuego implements Serializable {
      * envolviendo la {@code IOException} original.
      */
     public boolean guardar() throws ExceptionPersistenciaFallida {
-        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        // File archivo = new File(nombreArchivo);
-        // Map<Integer, ControladorJuego> mapa;
-    
-        // if (!archivo.exists()) {
-        //     mapa = new HashMap<>();
-        // } else {
-        //     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-        //         Object obj = ois.readObject();
-        //         if (obj instanceof Map) {
-        //             mapa = (Map<Integer, ControladorJuego>) obj;
-        //         } else {
-        //             throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-        //         }
-        //     } catch (IOException | ClassNotFoundException e) {
-        //         throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
-        //     }
-        // }
-    
-        // try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
-            
-        //     if (this.idPartida == -1) {
-        //         this.idPartida = mapa.size() + 1; // Asignar un nuevo ID de partida
-        //     }
-        //     mapa.put(this.idPartida, this);
-            
-        //     oos.writeObject(mapa);
-        //     return true;
-        // } catch (IOException e) {
-        //     throw new RuntimeException("Error al guardar el archivo: " + nombreArchivo, e);
-        // }
-
-        int id = repositorioPartida.generarNuevoId();
-        return repositorioPartida.guardar(id, this);
+        return repositorioPartida.guardar(this.idPartida, this);
     }
     
     /**
@@ -939,48 +910,22 @@ public class ControladorJuego implements Serializable {
      * ({@code IOException} o {@code ClassNotFoundException}).
      */
     public void cargarDesdeArchivo(int idPartida) throws ExceptionPersistenciaFallida {
-        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        // File archivo = new File(nombreArchivo);
-        // if (!archivo.exists()) {
-        //     return;
-        // }
     
-        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-        //     Object obj = ois.readObject();
-        //     if (obj instanceof Map) {
-        //         Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
-        //         ControladorJuego controlador = mapa.get(idPartida);
-        //         if (controlador != null) {
-        //             this.tablero = controlador.tablero;
-        //             this.bolsa = controlador.bolsa;
-        //             this.direction = controlador.direction;
-        //             this.juegoTerminado = controlador.juegoTerminado;
-        //             this.juegoIniciado = controlador.juegoIniciado;
-        //             this.lastCrossCheck = controlador.lastCrossCheck;
-        //             this.nombreDiccionario = controlador.nombreDiccionario;
-        //             this.alfabeto = controlador.alfabeto;
-        //             this.jugadores = controlador.jugadores;
-        //             this.idPartida = controlador.idPartida;
-        //         }
-        //     } else {
-        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-        //     }
-        // } catch (IOException | ClassNotFoundException e) {
-        //     throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
-        // }
-
         try {
             ControladorJuego loadedGame = repositorioPartida.cargar(idPartida);
             if (loadedGame != null) {
-            this.tablero = loadedGame.tablero;
-            this.bolsa = loadedGame.bolsa;
-            this.direction = loadedGame.direction;
-            this.juegoTerminado = loadedGame.juegoTerminado;
-            this.juegoIniciado = loadedGame.juegoIniciado;
-            this.lastCrossCheck = loadedGame.lastCrossCheck;
-            this.nombreDiccionario = loadedGame.nombreDiccionario;
-            this.alfabeto = loadedGame.alfabeto;
-            this.jugadores = loadedGame.jugadores;
+                this.tablero = loadedGame.tablero;
+                this.bolsa = loadedGame.bolsa;
+                this.direction = loadedGame.direction;
+                this.juegoTerminado = loadedGame.juegoTerminado;
+                this.juegoIniciado = loadedGame.juegoIniciado;
+                this.lastCrossCheck = loadedGame.lastCrossCheck;
+                this.nombreDiccionario = loadedGame.nombreDiccionario;
+                this.alfabeto = loadedGame.alfabeto;
+                this.jugadores = loadedGame.jugadores;
+                this.idPartida = loadedGame.idPartida;
+            } else {
+                throw new ExceptionPersistenciaFallida("Partida no encontrada con ID: " + idPartida);
             }
         } catch (ExceptionPersistenciaFallida e) {
             throw e;
@@ -1024,27 +969,7 @@ public class ControladorJuego implements Serializable {
      * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
     public static List<Integer> listarArchivosGuardados() throws ExceptionPersistenciaFallida {
-        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        // File archivo = new File(nombreArchivo);
-        // List<Integer> archivosGuardados = new ArrayList<>();
-    
-        // if (!archivo.exists()) {
-        //     return archivosGuardados; // archivo vacío, lista vacía
-        // }
-    
-        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-        //     Object obj = ois.readObject();
-        //     if (obj instanceof Map) {
-        //         Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
-        //         archivosGuardados.addAll(mapa.keySet());
-        //     } else {
-        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-        //     }
-        // } catch (IOException | ClassNotFoundException e) {
-        //     throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
-        // }
-    
-        // return archivosGuardados;
+
         try {
             return repositorioPartida.listarTodas();
         } catch (ExceptionPersistenciaFallida e) {
@@ -1064,37 +989,6 @@ public class ControladorJuego implements Serializable {
      * @throws RuntimeException Si ocurre un error al manipular el archivo de partidas.
      */
     public static boolean eliminarArchivoGuardado(int idPartida) throws ExceptionPersistenciaFallida {
-        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        // File archivo = new File(nombreArchivo);
-    
-        // Map<Integer, ControladorJuego> mapa;
-        // if (!archivo.exists()) {
-        //     return false; // no hay nada que eliminar
-        // }
-    
-        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-        //     Object obj = ois.readObject();
-        //     if (obj instanceof Map) {
-        //         mapa = (Map<Integer, ControladorJuego>) obj;
-        //     } else {
-        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-        //     }
-        // } catch (IOException | ClassNotFoundException e) {
-        //     throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
-        // }
-    
-        // if (mapa.containsKey(idPartida)) {
-        //     mapa.remove(idPartida);
-        //     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
-        //         oos.writeObject(mapa);
-        //         return true;
-        //     } catch (IOException e) {
-        //         throw new RuntimeException("Error al guardar el archivo tras eliminar partida.", e);
-        //     }
-        // }
-    
-        // return false;
-
         try {
             boolean success = repositorioPartida.eliminar(idPartida);
             return success;
@@ -1116,26 +1010,7 @@ public class ControladorJuego implements Serializable {
      * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
     public static Map<String, Integer> getJugadoresPorId(int idPartida) throws ExceptionPersistenciaFallida {
-        // String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        // File archivo = new File(nombreArchivo);
-        // Map<Integer, ControladorJuego> mapa;
-    
-        // if (!archivo.exists()) {
-        //     return null; // no hay nada que cargar
-        // }
-    
-        // try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-        //     Object obj = ois.readObject();
-        //     if (obj instanceof Map) {
-        //         mapa = (Map<Integer, ControladorJuego>) obj;
-        //         ControladorJuego controlador = mapa.get(idPartida);
-        //         return controlador != null ? controlador.getJugadoresActuales() : new HashMap<String, Integer>();
-        //     } else {
-        //         throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-        //     }
-        // } catch (IOException | ClassNotFoundException e) {
-        //     throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
-        // }
+
         try {
             ControladorJuego controlador = repositorioPartida.cargar(idPartida);
             if (controlador != null) {
@@ -1159,5 +1034,9 @@ public class ControladorJuego implements Serializable {
      */
     public Map<String, Integer> getJugadoresActuales() {
         return jugadores;
+    }
+
+    public int getIdPartida() {
+        return idPartida;
     }
  }

@@ -11,7 +11,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -19,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.FlowPane;
 import scrabble.MainApplication;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.presentation.viewControllers.ControladorPartidaView;
 
 /**
@@ -32,7 +32,6 @@ public class ConfigPartidaView {
     private ComboBox<String> cbDiccionario;
     private TextField txtTamanoTablero;
     private Label lblErrorTablero;
-    private CheckBox chkPenalizacion;
     private Button btnIniciarPartida;
     private Button btnVolver;
     private FlowPane jugadoresDisponibles;
@@ -74,7 +73,6 @@ public class ConfigPartidaView {
             cbDiccionario = (ComboBox<String>) view.lookup("#cbDiccionario");
             txtTamanoTablero = (TextField) view.lookup("#txtTamanoTablero");
             lblErrorTablero = (Label) view.lookup("#lblErrorTablero");
-            chkPenalizacion = (CheckBox) view.lookup("#chkPenalizacion");
             btnIniciarPartida = (Button) view.lookup("#btnIniciarPartida");
             btnVolver = (Button) view.lookup("#btnVolver");
             btnAgregarJugador = (Button) view.lookup("#btnAgregarJugador");
@@ -359,7 +357,11 @@ private void actualizarJugadoresDisponibles() {
             btnIniciarPartida.setOnAction(e -> {
                 confirmarTamanoTablero();
                 guardarConfiguracion();
-                ctrlPartida.iniciarPartida();
+                try {
+                    ctrlPartida.iniciarPartida();
+                } catch (ExceptionPersistenciaFallida e1) {
+                    e1.printStackTrace();
+                }
                 reset();                    
                 
             });

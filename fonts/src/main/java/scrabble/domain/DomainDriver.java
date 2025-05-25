@@ -22,6 +22,7 @@ import scrabble.domain.controllers.ControladorDomain;
 import scrabble.excepciones.ExceptionDiccionarioExist;
 import scrabble.excepciones.ExceptionLanguageNotExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.excepciones.ExceptionRankingOperationFailed;
 import scrabble.excepciones.ExceptionUserEsIA;
 import scrabble.excepciones.ExceptionUserExist;
@@ -243,7 +244,7 @@ public class DomainDriver {
     }
 
 
-    public static void managePartidaIniciar(String idiomaSeleccionado, Map<String, Integer> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException{
+    public static void managePartidaIniciar(String idiomaSeleccionado, Map<String, Integer> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException, ExceptionPersistenciaFallida{
 
         if (!cargado) controladorDomain.managePartidaIniciar(idiomaSeleccionado, jugadoresSeleccionados, N);
 
@@ -2335,7 +2336,7 @@ public class DomainDriver {
         }
     }
 
-    public static void managePartidaMenu() throws IOException{
+    public static void managePartidaMenu() throws IOException, ExceptionPersistenciaFallida{
         boolean volver = false;
 
         while (!volver) {
@@ -2413,7 +2414,7 @@ public class DomainDriver {
         }
     }
 
-    private static void managePartidaCargar() throws IOException {
+    private static void managePartidaCargar() throws IOException, ExceptionPersistenciaFallida {
         boolean volver = false;
 
         while (!volver) {
@@ -2466,7 +2467,7 @@ public class DomainDriver {
         }
     }
 
-    public static void managePartidaDefinir() throws IOException {
+    public static void managePartidaDefinir() throws IOException, ExceptionPersistenciaFallida {
         boolean volver = false;
         String idiomaSeleccionado = "";
         Map<String, Integer> jugadoresSeleccionados = new HashMap<>();

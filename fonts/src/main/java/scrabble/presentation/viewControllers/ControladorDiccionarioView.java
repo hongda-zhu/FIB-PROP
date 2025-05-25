@@ -31,7 +31,6 @@ import scrabble.presentation.PresentationController;
 import scrabble.presentation.componentes.DiccionarioVisual;
 import scrabble.presentation.popups.AñadirLetraPopup;
 import scrabble.presentation.popups.AñadirPalabraPopup;
-import scrabble.presentation.popups.ImportarDiccionarioPopup;
 import scrabble.presentation.popups.ModificarPalabraPopup;
 import scrabble.presentation.views.CrearDiccionarioView;
 import scrabble.presentation.views.GestionDiccionariosView;
@@ -120,10 +119,10 @@ public class ControladorDiccionarioView {
      * Muestra un popup para importar un diccionario.
      */
 
-    public void mostrarPopupImportar() {
-        ImportarDiccionarioPopup popup = new ImportarDiccionarioPopup();
-        popup.mostrar(stage);
-    }
+    // public void mostrarPopupImportar() {
+    //     ImportarDiccionarioPopup popup = new ImportarDiccionarioPopup();
+    //     popup.mostrar(stage);
+    // }
 
     /**
      * Muestra un popup para añadir una nueva letra al alfabeto.

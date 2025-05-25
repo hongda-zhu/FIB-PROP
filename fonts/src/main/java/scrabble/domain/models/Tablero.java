@@ -1,12 +1,12 @@
 package scrabble.domain.models;
-import scrabble.helpers.Direction;
-import scrabble.helpers.Tuple;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import scrabble.helpers.Direction;
+import scrabble.helpers.Tuple;
 
 /**
  * Clase que representa el tablero de juego de Scrabble.
@@ -239,6 +239,32 @@ public class Tablero implements Serializable{
         return sb.toString();
     }
     
+    /**
+    * @pre -
+    * @return estadoTablero Mapa de las posiciones con letra y la letra
+    * Método para obtener el estado actual del tablero 
+    */
+    public Map<Tuple<Integer, Integer>, String> getEstadoTablero() {
+        Map<Tuple<Integer, Integer>, String> estadoTablero = new HashMap<>();
+            
+            if (tablero == null) {
+                System.err.println("Tablero null");
+                return estadoTablero; 
+            }
+            
+            for (int fila = 0; fila < N; fila++) {
+                for (int columna = 0; columna < N; columna++) {
+                    String letra = tablero[fila][columna];
+                    
+                    if (letra != null && !letra.trim().isEmpty()) {
+                        Tuple<Integer, Integer> posicion = new Tuple<>(fila, columna);
+                        estadoTablero.put(posicion, letra);
+                    }
+                }
+            }
+            
+            return estadoTablero;
+    }      
     /**
      * Obtiene la ficha en una posición específica del tablero.
      * 

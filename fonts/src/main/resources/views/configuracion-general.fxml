@@ -13,6 +13,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.Slider?>
+
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
             prefHeight="700" prefWidth="1000" style="-fx-background-color: #f5f5f5;">
@@ -120,6 +122,12 @@
                                                              onAction="#onToggleMusicaClick"/>
                                             </StackPane>
                                             <Label fx:id="lblEstadoMusica" text="Desactivado" style="-fx-font-size: 16px;"/>
+                                            <!-- Slider en la misma fila -->
+                                            <Slider fx:id="sliderMusica" min="0" max="100" value="50" blockIncrement="1"
+                                                    prefWidth="200" style="-fx-control-inner-background: #ecf0f1;" />
+
+                                            <!-- Texto de volumen opcional -->
+                                            <Label fx:id="labelVolumenMusica" text="50%" style="-fx-font-size: 16px;" />
                                         </HBox>
                                     </VBox>
                                     
@@ -137,6 +145,12 @@
                                                               onAction="#onToggleSonidoClick"/>
                                             </StackPane>
                                             <Label fx:id="lblEstadoSonido" text="Activado" style="-fx-font-size: 16px;"/>
+                                            <!-- Slider en la misma fila -->
+                                            <Slider fx:id="sliderSonido" min="0" max="100" value="50" blockIncrement="1"
+                                                    prefWidth="200" style="-fx-control-inner-background: #ecf0f1;" />
+
+                                            <!-- Texto de volumen opcional -->
+                                            <Label fx:id="labelVolumenSonido" text="50%" style="-fx-font-size: 16px;" />
                                         </HBox>
                                     </VBox>
 

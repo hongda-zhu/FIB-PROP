@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import scrabble.presentation.PresentationController;
 import scrabble.presentation.viewControllers.MainViewController;
-
 /**
  * Entry point para la aplicación
  */
@@ -21,6 +20,7 @@ public class MainApplication extends Application {
             PresentationController.getInstance().initializeDefaultSettings();
             initialized = true;
         }
+
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
        

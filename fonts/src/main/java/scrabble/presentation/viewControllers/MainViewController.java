@@ -5,7 +5,6 @@ import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -107,7 +106,6 @@ public class MainViewController {
      */
     @FXML
     private void onGestionJugadoresClick(ActionEvent event) {
-        // TODO: Implement player management screen navigation
         Stage stage = (Stage) btnGestionJugadores.getScene().getWindow();
         Parent vistaActual = stage.getScene().getRoot();
         
@@ -174,17 +172,6 @@ public class MainViewController {
     private void onSalirClick(ActionEvent event) {
         Stage stage = (Stage) btnSalir.getScene().getWindow();
         stage.close();
-    }
-    
-    /**
-     * Muestra alerta con los params especificados
-     */
-    private void showErrorAlert(String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
     
     /**

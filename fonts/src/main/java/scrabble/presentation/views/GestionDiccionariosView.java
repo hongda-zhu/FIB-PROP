@@ -125,13 +125,13 @@ public class GestionDiccionariosView {
         listaDiccionarios = new TableView<>();
         listaDiccionarios.setPlaceholder(new Label("No hay diccionarios disponibles"));
         listaDiccionarios.setItems(FXCollections.observableArrayList(controlador.getDiccionarios()));
-        if (listaDiccionarios.getItems().isEmpty()) {
-           listaDiccionarios.getItems().addAll(
-            new DiccionarioVisual("Diccionario 1", List.of("A", "B", "C"), List.of("AB", "BC", "CA")),
-            new DiccionarioVisual("Diccionario 2", List.of("X", "Y", "Z"), List.of("XY", "YZ", "ZX")),
-            new DiccionarioVisual("Diccionario 3", List.of("M", "N", "O"), List.of("MN", "NO", "OM"))
-            ); 
-        }
+        // if (listaDiccionarios.getItems().isEmpty()) {
+        //    listaDiccionarios.getItems().addAll(
+        //     new DiccionarioVisual("Diccionario 1", List.of("A", "B", "C"), List.of("AB", "BC", "CA")),
+        //     new DiccionarioVisual("Diccionario 2", List.of("X", "Y", "Z"), List.of("XY", "YZ", "ZX")),
+        //     new DiccionarioVisual("Diccionario 3", List.of("M", "N", "O"), List.of("MN", "NO", "OM"))
+        //     ); 
+        // }
         
         estilizarTabla();        
         

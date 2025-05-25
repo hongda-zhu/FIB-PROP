@@ -17,6 +17,7 @@ import scrabble.MainApplication;
 import scrabble.domain.controllers.ControladorDomain;
 import scrabble.excepciones.ExceptionDiccionarioExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.helpers.Direction;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
@@ -108,6 +109,7 @@ public class ControladorPartidaView {
     public void mostrarVistaTablero() {
         
         VistaTablero vistaTablero = new VistaTablero(this);
+
         Parent viewTablero = vistaTablero.getView();
         vistaTablero.setTableroSize(size);
         layout.setCenter(viewTablero);
@@ -173,7 +175,7 @@ public class ControladorPartidaView {
         mostrarVistaConfiguracion();
     }
     
-public void iniciarPartida() {
+public void iniciarPartida() throws ExceptionPersistenciaFallida {
     System.err.println(size);
     if (diccionario == null) {
         mostrarAlerta("error", "Diccionacio null", "¡Por favor, selecciona un diccionario antes de continuar!");
@@ -214,6 +216,13 @@ public void iniciarPartida() {
             mostrarAlerta("warning","Error al cargar partida", "No se pudo cargar la partida: " + e.getMessage());
         }
     }
+
+    /**
+    * Método para obtener el estado del tablero guardado
+    */
+    public Map<Tuple<Integer, Integer>, String> getEstadoTablero() {
+        return presentationController.getEstadoTablero();
+    }  
 
     /**
     * Obtiene la cantidad de fichas restantes en la bolsa

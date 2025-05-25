@@ -38,7 +38,11 @@ public class ControladorDiccionario {
     
     /**
      * Constructor privado para implementar el patrón Singleton.
-     * Inicializa los mapas de diccionarios y paths.
+     * Inicializa los mapas de diccionarios y paths, y verifica los diccionarios existentes.
+     * @throws ExceptionPersistenciaFallida Si ocurre un error al inicializar el repositorio de diccionarios o al verificar/cargar diccionarios existentes.
+     *
+     * @pre No hay precondiciones específicas.
+     * @post Se inicializa una nueva instancia con mapas vacíos y se cargan o verifican los diccionarios persistidos.
      */
     private ControladorDiccionario() {
         this.diccionarios = new HashMap<>();
@@ -82,15 +86,15 @@ public class ControladorDiccionario {
     /**
      * Crea o carga un diccionario en memoria desde el path especificado.
      * 
-     * @pre El path debe corresponder a un directorio existente que contenga los archivos alpha.txt y words.txt.
+     * @pre El path debe corresponder a un directorio existente que contenga los archivos alpha.txt y words.txt, y el nombre del diccionario no debe existir previamente.
      * @param nombre Nombre identificador del diccionario
      * @param path Ruta al directorio del diccionario
-     * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre
-     * @throws IOException Si hay problemas con la lectura/escritura de archivos
-     * @throws ExceptionPalabraInvalida Si alguna palabra contiene caracteres no válidos
-     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la creación
-     * @post Si no ocurre ninguna excepción, un nuevo diccionario es creado y cargado en memoria.
+     * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre.
+     * @throws IOException Si hay problemas con la lectura/escritura de archivos (directorios/archivos no encontrados, permisos, etc.).
+     * @throws ExceptionPalabraInvalida Si alguna palabra en words.txt contiene caracteres no válidos según alpha.txt.
+     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la creación o al guardar en el repositorio.
      * @throws NullPointerException Si alguno de los parámetros es null.
+     * @post Si no ocurre ninguna excepción, un nuevo diccionario es creado, validado, cargado en memoria y guardado persistentemente.
      */
     public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida, ExceptionDiccionarioOperacionFallida {
         if (repositorio.existe(nombre) || diccionarios.containsKey(nombre)) {
@@ -167,16 +171,16 @@ public class ControladorDiccionario {
      * Crea un diccionario a partir de las rutas específicas de los archivos de alfabeto y palabras.
      * Este método es utilizado principalmente por ControladorJuego.
      * 
-     * @pre Las rutas deben corresponder a archivos existentes y accesibles.
+     * @pre Las rutas deben corresponder a archivos existentes y accesibles, y el nombre del diccionario no debe existir previamente en memoria.
      * @param nombre Nombre identificador del diccionario
      * @param rutaArchivoAlpha Ruta al archivo de alfabeto
      * @param rutaArchivoWords Ruta al archivo de palabras
-     * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre
-     * @throws IOException Si hay problemas con la lectura/escritura de archivos
-     * @throws ExceptionPalabraInvalida Si alguna palabra contiene caracteres no válidos
-     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la creación
-     * @post Si no ocurre ninguna excepción, un nuevo diccionario es creado y cargado en memoria.
+     * @throws ExceptionDiccionarioExist Si ya existe un diccionario con ese nombre en memoria.
+     * @throws IOException Si hay problemas con la lectura de los archivos (archivos no encontrados, permisos, etc.).
+     * @throws ExceptionPalabraInvalida Si alguna palabra en el archivo de palabras contiene caracteres no válidos según el alfabeto.
+     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la creación.
      * @throws NullPointerException Si alguno de los parámetros es null.
+     * @post Si no ocurre ninguna excepción, un nuevo diccionario es creado, validado y cargado en memoria con su path derivado.
      */
     public void crearDiccionario(String nombre, String rutaArchivoAlpha, String rutaArchivoWords) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida, ExceptionDiccionarioOperacionFallida {
         if (diccionarios.containsKey(nombre)) {
@@ -241,15 +245,15 @@ public class ControladorDiccionario {
     }
     
     /**
-     * Elimina un diccionario de memoria y su directorio asociado.
+     * Elimina un diccionario de memoria y su persistencia asociada.
      * 
-     * @pre El diccionario con el nombre especificado debe existir.
+     * @pre El diccionario con el nombre especificado debe existir en memoria.
      * @param nombre Nombre del diccionario a eliminar
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws IOException Si hay problemas eliminando los archivos
-     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error durante la eliminación
-     * @post Si no ocurre ninguna excepción, el diccionario es eliminado de memoria y su directorio eliminado del sistema de archivos.
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
+     * @throws IOException Si hay problemas eliminando los archivos físicos asociados.
+     * @throws ExceptionDiccionarioOperacionFallida Si ocurre algún error al eliminar del repositorio (lo que también implica un fallo en la eliminación física).
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @post Si no ocurre ninguna excepción, el diccionario es eliminado de memoria y de su representación persistente (archivos y índice del repositorio).
      */
     public void eliminarDiccionario(String nombre) throws ExceptionDiccionarioNotExist, IOException, ExceptionDiccionarioOperacionFallida {
         if (!diccionarios.containsKey(nombre)) {
@@ -284,11 +288,11 @@ public class ControladorDiccionario {
     /**
      * Verifica si existe un diccionario con el nombre especificado.
      * 
-     * @pre No hay precondiciones específicas.
+     * @pre El nombre del diccionario no debe ser null.
      * @param nombre Nombre del diccionario
-     * @return true si existe, false en caso contrario
-     * @post Se devuelve un valor booleano indicando si el diccionario existe.
+     * @return true si existe en memoria o en el repositorio, false en caso contrario.
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @post Se devuelve un valor booleano indicando si el diccionario existe en el sistema (memoria o persistencia) sin modificar su estado.
      */
     public boolean existeDiccionario(String nombre) {
         // Verificar primero en memoria
@@ -323,19 +327,22 @@ public class ControladorDiccionario {
     
     /**
      * Modifica un diccionario añadiendo o eliminando una palabra.
+     * 待办: Clarificar si actualiza el DAWG y si la ExceptionLoggingOperacion se lanza siempre o solo en caso de error específico no controlado.
      * 
-     * @pre El diccionario especificado debe existir y la palabra no debe estar vacía.
-     * @param nombre Nombre del diccionario
-     * @param palabra Palabra a añadir o eliminar
-     * @param anadir true para añadir, false para eliminar
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws ExceptionPalabraVacia Si la palabra está vacía
-     * @throws ExceptionPalabraInvalida Si la palabra contiene caracteres no válidos
-     * @throws ExceptionPalabraExist Si la palabra ya existe (al añadir)
-     * @throws ExceptionPalabraNotExist Si la palabra no existe (al eliminar)
-     * @throws IOException Si hay problemas con la lectura/escritura de archivos
-     * @post Si no ocurre ninguna excepción, la palabra es añadida o eliminada del diccionario y los cambios se persisten.
+     * @pre El diccionario especificado debe existir en memoria, la palabra no debe estar vacía, y la palabra a añadir/eliminar debe ser sintácticamente válida con el alfabeto del diccionario.
+     * @param nombre Nombre del diccionario (debe estar en memoria).
+     * @param palabra Palabra a añadir o eliminar (no vacía).
+     * @param anadir true para añadir la palabra, false para eliminarla.
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
+     * @throws ExceptionPalabraVacia Si la palabra está vacía después de trim.
+     * @throws ExceptionPalabraInvalida Si la palabra no puede formarse con los tokens del alfabeto del diccionario.
+     * @throws ExceptionPalabraExist Si al añadir, la palabra ya existe en el archivo words.txt.
+     * @throws ExceptionPalabraNotExist Si al eliminar, la palabra no existe en el archivo words.txt.
+     * @throws IOException Si hay problemas con la lectura/escritura del archivo words.txt.
+     * @throws IllegalStateException Si el path del diccionario no se encuentra en memoria (error interno).
+     * @throws ExceptionLoggingOperacion Indicando el resultado de la operación (éxito o fallo específico durante la persistencia/DAWG).
      * @throws NullPointerException Si alguno de los parámetros es null.
+     * @post Si no ocurre ninguna excepción (excepto ExceptionLoggingOperacion informativa), la palabra es añadida/eliminada del archivo words.txt, el DAWG en memoria se actualiza, y los cambios se persisten en el repositorio.
      */
     public void modificarPalabraDiccionario(String nombre, String palabra, boolean anadir)
             throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida, 
@@ -429,19 +436,22 @@ public class ControladorDiccionario {
     
     /**
      * Modifica una palabra existente en el diccionario.
+     * 待办: Clarificar si actualiza el DAWG y si la ExceptionLoggingOperacion es solo informativa o indica un error.
      * 
-     * @pre El diccionario debe existir, la palabra original debe existir en el diccionario, y la palabra nueva no debe existir.
-     * @param nombre Nombre del diccionario
-     * @param palabraOriginal Palabra a modificar
-     * @param palabraNueva Nueva palabra que reemplazará a la original
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws ExceptionPalabraVacia Si alguna de las palabras está vacía
-     * @throws ExceptionPalabraInvalida Si la nueva palabra contiene caracteres no válidos
-     * @throws ExceptionPalabraNotExist Si la palabra original no existe
-     * @throws ExceptionPalabraExist Si la nueva palabra ya existe en el diccionario
-     * @throws IOException Si hay problemas con la lectura/escritura de archivos
-     * @post Si no ocurre ninguna excepción, la palabra original es reemplazada por la nueva en el diccionario y los cambios se persisten.
+     * @pre El diccionario debe existir en memoria, las palabras original y nueva no deben estar vacías y ser sintácticamente válidas, la palabra original debe existir en el archivo words.txt, y la palabra nueva no debe existir en el archivo words.txt.
+     * @param nombre Nombre del diccionario (debe estar en memoria).
+     * @param palabraOriginal Palabra a modificar (debe existir en words.txt y no vacía).
+     * @param palabraNueva Nueva palabra que reemplazará a la original (no vacía y no debe existir en words.txt).
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
+     * @throws ExceptionPalabraVacia Si alguna de las palabras está vacía después de trim.
+     * @throws ExceptionPalabraInvalida Si la nueva palabra no puede formarse con los tokens del alfabeto.
+     * @throws ExceptionPalabraNotExist Si la palabra original no existe en el archivo words.txt.
+     * @throws ExceptionPalabraExist Si la nueva palabra ya existe en el archivo words.txt.
+     * @throws IOException Si hay problemas con la lectura/escritura del archivo words.txt.
+     * @throws IllegalStateException Si el path del diccionario no se encuentra en memoria (error interno).
+     * @throws ExceptionLoggingOperacion Indicando el resultado de la operación (éxito).
      * @throws NullPointerException Si alguno de los parámetros es null.
+     * @post Si no ocurre ninguna excepción (excepto ExceptionLoggingOperacion informativa), la palabra original es reemplazada por la nueva en el archivo words.txt, el DAWG en memoria se actualiza, y los cambios se persisten en el repositorio.
      */
     public void modificarPalabra(String nombre, String palabraOriginal, String palabraNueva) 
             throws ExceptionDiccionarioNotExist, ExceptionPalabraVacia, ExceptionPalabraInvalida,
@@ -524,14 +534,16 @@ public class ControladorDiccionario {
     
     /**
      * Obtiene los caracteres válidos del alfabeto de un diccionario.
+     * Método privado auxiliar.
      * 
-     * @pre El diccionario especificado debe existir.
-     * @param nombre Nombre del diccionario
-     * @return Conjunto de caracteres válidos
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws IOException Si hay problemas leyendo alpha.txt
-     * @post Si no ocurre ninguna excepción, se devuelve un conjunto no nulo con los caracteres válidos del alfabeto.
+     * @pre El nombre del diccionario debe ser válido y su path debe estar en diccionarioPaths. El archivo alpha.txt debe existir en ese path.
+     * @param nombre Nombre del diccionario.
+     * @return Conjunto de caracteres válidos (mayúsculas) definidos en el alpha.txt del diccionario.
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
+     * @throws IOException Si hay problemas leyendo alpha.txt (archivo no encontrado, permisos, etc.).
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @throws IllegalStateException Si el path del diccionario no se encuentra en memoria.
+     * @post Se devuelve un conjunto no nulo (posiblemente vacío) con los caracteres válidos del alfabeto sin modificar el estado del diccionario.
      */
     private Set<Character> getAlphabetChars(String nombre) throws ExceptionDiccionarioNotExist, IOException {
         if (!diccionarios.containsKey(nombre)) {
@@ -545,15 +557,15 @@ public class ControladorDiccionario {
     }
     
     /**
-     * Obtiene los caracteres válidos del alfabeto junto a sus valores correspondientes
+     * Obtiene los caracteres y sus valores asociados del alfabeto de un diccionario.
      * 
-     * @pre El diccionario especificado debe existir.
-     * @param nombre Nombre del diccionario
-     * @return Mapa de pares de character-valor
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws IOException Si hay problemas leyendo alpha.txt
-     * @post Si no ocurre ninguna excepción, se devuelve un mapa no nulo con los caracteres y su valores válidos del alfabeto.
+     * @pre El diccionario especificado debe existir en memoria.
+     * @param nombre Nombre del diccionario.
+     * @return Mapa donde las claves son los tokens del alfabeto (String) y los valores son sus puntuaciones (Integer).
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
+     * @throws IOException Si hay problemas internos al obtener el alfabeto del objeto Diccionario.
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @post Si no ocurre ninguna excepción, se devuelve un mapa no nulo (posiblemente vacío) con el alfabeto y sus valores sin modificar el estado del diccionario.
      */
     public Map<String, Integer> getAlphabet(String nombre) throws ExceptionDiccionarioNotExist, IOException {
         if (!diccionarios.containsKey(nombre)) {
@@ -566,40 +578,14 @@ public class ControladorDiccionario {
 
     /**
      * Obtiene los caracteres válidos del alfabeto a partir de un archivo alpha.txt.
+     * Método privado auxiliar.
+     * 待办: Este método no usa el objeto Diccionario, solo lee el archivo directamente.
      * 
-     * @param alphaPath Ruta al archivo alpha.txt
-     * @return Conjunto de caracteres válidos
-     * @throws IOException Si hay problemas leyendo el archivo
-     */
-    // private Map<Character, Integer> getAlphabet(Path alphaPath) throws IOException {
-    //     HashMap<Character, Integer> chars = new HashMap<>();
-    //     List<String> lines = Files.readAllLines(alphaPath, StandardCharsets.UTF_8);
-        
-    //     for (String line : lines) {
-    //         line = line.trim();
-    //         if (line.isEmpty() || line.startsWith("#")) {
-    //             continue;
-    //         }
-            
-    //         String[] parts = line.split("\\s+", 2);
-    //         if (parts.length > 0 && !parts[0].isEmpty()) {
-    //             // Si es un comodín "#", lo agregamos al conjunto para validar el alfabeto
-    //             // pero al validar palabras se excluye en isValidWordSyntax
-    //             for (char c : parts[0].toUpperCase().toCharArray()) {
-                
-    //             }
-    //         }
-    //     }
-        
-    //     return chars;
-    // }
-
-    /**
-     * Obtiene los caracteres válidos del alfabeto a partir de un archivo alpha.txt.
-     * 
-     * @param alphaPath Ruta al archivo alpha.txt
-     * @return Conjunto de caracteres válidos
-     * @throws IOException Si hay problemas leyendo el archivo
+     * @param alphaPath Ruta al archivo alpha.txt.
+     * @return Conjunto de caracteres válidos (mayúsculas) definidos en el archivo.
+     * @throws IOException Si hay problemas leyendo el archivo.
+     * @throws NullPointerException Si el parámetro alphaPath es null.
+     * @post Se devuelve un conjunto no nulo (posiblemente vacío) con los caracteres válidos extraídos del archivo.
      */
     private Set<Character> getAlphabetChars(Path alphaPath) throws IOException {
         Set<Character> chars = new HashSet<>();
@@ -625,9 +611,12 @@ public class ControladorDiccionario {
     }
 
     /**
-     * Devuelve una lista con todas las palabras del diccionario.
-     * @param  dic Nombre de diccionario
-     * @return Lista de palabras.
+     * Devuelve una lista con todas las palabras del diccionario leyendo directamente desde el archivo words.txt.
+     * @pre El directorio del diccionario debe existir y contener el archivo words.txt.
+     * @param  dic Nombre de diccionario (se usa para construir la ruta).
+     * @return Lista de palabras (String) del archivo words.txt. Si el archivo no existe o hay error, devuelve una lista vacía.
+     * @post Se devuelve una lista con las palabras del archivo words.txt sin modificar el estado del diccionario en memoria.
+     * @throws NullPointerException Si el parámetro dic es null.
      */
     public List<String> getListaPalabras(String dic) {
         List<String> palabras = new ArrayList<>();
@@ -649,9 +638,13 @@ public class ControladorDiccionario {
     }
 
     /**
-     * Devuelve una lista de letras con su puntuación y frecuencia en formato: "letra puntuacion frecuencia" del diccionario.
-     * @param  dic Nombre de diccionario
-     * @return Lista de letras
+     * Devuelve una lista de letras (tokens) con su puntuación y frecuencia leyendo directamente desde el archivo alpha.txt.
+     * El formato de cada String en la lista es "letra puntuacion frecuencia".
+     * @pre El directorio del diccionario debe existir y contener el archivo alpha.txt.
+     * @param  dic Nombre de diccionario (se usa para construir la ruta).
+     * @return Lista de Strings, cada uno representando una entrada del alfabeto del archivo alpha.txt (excluyendo líneas que empiezan con #).
+     * @post Se devuelve una lista con las entradas del alfabeto del archivo alpha.txt sin modificar el estado del diccionario en memoria.
+     * @throws NullPointerException Si el parámetro dic es null.
      */
     public List<String> getListaAlfabeto(String dic) {
         List<String> alfabeto = new ArrayList<>();
@@ -673,12 +666,15 @@ public class ControladorDiccionario {
     }    
     
     /**
-     * Verifica si una palabra contiene solo caracteres válidos.
-     * Los comodines ("#") no son válidos en palabras, sólo en fichas durante el juego.
+     * Verifica si una palabra contiene solo caracteres válidos definidos en el alfabeto (excluyendo comodines).
+     * Método privado auxiliar para la validación sintáctica de palabras.
      * 
-     * @param palabra Palabra a verificar
-     * @param validChars Conjunto de caracteres válidos
-     * @return true si la palabra es válida, false en caso contrario
+     * @pre La palabra no debe ser null y el conjunto de caracteres válidos no debe ser null.
+     * @param palabra Palabra a verificar.
+     * @param validChars Conjunto de caracteres válidos permitidos en palabras.
+     * @return true si la palabra solo contiene caracteres de validChars y no contiene '#', false en caso contrario.
+     * @throws NullPointerException Si alguno de los parámetros es null.
+     * @post Se devuelve un valor booleano indicando la validez sintáctica de la palabra sin modificar ningún estado.
      */
     private boolean isValidWordSyntax(String palabra, Set<Character> validChars) {
         for (char c : palabra.toCharArray()) {
@@ -695,13 +691,15 @@ public class ControladorDiccionario {
     }
     
     /**
-     * Verifica si una palabra puede formarse utilizando exclusivamente los tokens completos
-     * definidos en el alfabeto. Por ejemplo, si solo tenemos el token "CC" en el alfabeto,
-     * solo se pueden formar palabras como "CC", "CCCC", "CCCCCC", etc.
+     * Verifica si una palabra puede formarse concatenando tokens válidos del alfabeto.
+     * Método privado auxiliar para la validación de la estructura de palabras compuestas.
      * 
-     * @param palabra Palabra a verificar
-     * @param validTokens Conjunto de tokens válidos del alfabeto
-     * @return true si la palabra puede formarse con los tokens del alfabeto, false en caso contrario
+     * @pre La palabra no debe ser null y el conjunto de tokens válidos no debe ser null.
+     * @param palabra Palabra a verificar (no debe contener '#').
+     * @param validTokens Conjunto de tokens válidos del alfabeto (String).
+     * @return true si la palabra puede ser completamente construida a partir de concatenaciones de validTokens, false en caso contrario.
+     * @throws NullPointerException Si alguno de los parámetros es null.
+     * @post Se devuelve un valor booleano indicando si la palabra puede formarse con los tokens sin modificar ningún estado.
      */
     private boolean isValidWordWithTokens(String palabra, Set<String> validTokens) {
         if (palabra == null || palabra.isEmpty()) {
@@ -742,16 +740,16 @@ public class ControladorDiccionario {
     }
     
     /**
-     * Obtiene el conjunto de caracteres válidos del alfabeto de un diccionario.
-     * Método público para ser usado por otros controladores.
+     * Obtiene el conjunto de caracteres válidos (individuales) del alfabeto de un diccionario.
+     * Método público que delega en el método privado getAlphabetChars(String nombre).
      * 
-     * @pre El diccionario especificado debe existir.
-     * @param nombre Nombre del diccionario
-     * @return Conjunto de caracteres válidos
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @throws IOException Si hay problemas leyendo alpha.txt
-     * @post Si no ocurre ninguna excepción, se devuelve un conjunto no nulo con los caracteres válidos del alfabeto.
+     * @pre El diccionario especificado debe existir en memoria y su archivo alpha.txt debe ser accesible.
+     * @param nombre Nombre del diccionario.
+     * @return Conjunto de caracteres válidos (mayúsculas) del alfabeto.
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
+     * @throws IOException Si hay problemas leyendo alpha.txt.
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @post Se devuelve un conjunto no nulo (posiblemente vacío) con los caracteres individuales válidos del alfabeto sin modificar el estado del diccionario.
      */
     public Set<Character> getCaracteresAlfabeto(String nombre) throws ExceptionDiccionarioNotExist, IOException {
         return getAlphabetChars(nombre);
@@ -760,12 +758,12 @@ public class ControladorDiccionario {
     /**
      * Obtiene el conjunto de tokens (letras, incluyendo multicarácter como CH, RR) del alfabeto de un diccionario.
      * 
-     * @pre El diccionario especificado debe existir.
-     * @param nombre Nombre del diccionario
-     * @return Conjunto de tokens del alfabeto (ejemplo: A, B, CH, RR)
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @post Si no ocurre ninguna excepción, se devuelve un conjunto no nulo con los tokens del alfabeto.
+     * @pre El diccionario especificado debe existir en memoria.
+     * @param nombre Nombre del diccionario.
+     * @return Conjunto de tokens del alfabeto (String).
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @post Se devuelve un conjunto no nulo (posiblemente vacío) con los tokens del alfabeto sin modificar el estado del diccionario.
      */
     public Set<String> getTokensAlfabeto(String nombre) throws ExceptionDiccionarioNotExist {
         if (!diccionarios.containsKey(nombre)) {
@@ -777,14 +775,14 @@ public class ControladorDiccionario {
     }
     
     /**
-     * Verifica si una palabra existe en el diccionario.
-     * Comprueba en DAWG, en el archivo words.txt, y en la caché en memoria.
+     * Verifica si una palabra existe en el diccionario utilizando el DAWG en memoria.
      * 
-     * @pre No hay precondiciones específicas fuertes, pero el nombre del diccionario y la palabra no deberían ser null.
-     * @param nombre Nombre del diccionario
-     * @param palabra Palabra a verificar
-     * @return true si la palabra existe, false en caso contrario
-     * @post Se devuelve un valor booleano indicando si la palabra existe en el diccionario.
+     * @pre El diccionario especificado debe existir en memoria.
+     * @param nombre Nombre del diccionario (debe estar en memoria).
+     * @param palabra Palabra a verificar (no nula).
+     * @return true si la palabra existe en el DAWG del diccionario, false en caso contrario o si el diccionario no existe en memoria o la palabra es vacía.
+     * @throws NullPointerException Si el parámetro nombre o palabra es null.
+     * @post Se devuelve un valor booleano indicando si la palabra existe en el DAWG sin modificar el estado del diccionario.
      */
     public boolean existePalabra(String nombre, String palabra) {
         if (!diccionarios.containsKey(nombre)) {
@@ -811,13 +809,13 @@ public class ControladorDiccionario {
     }
     
     /**
-     * Verifica si un diccionario continúa siendo válido (sus archivos existen).
+     * Verifica si un diccionario configurado sigue siendo válido (sus archivos existen) comprobando el repositorio.
      * 
-     * @pre No hay precondiciones específicas fuertes.
-     * @param nombre Nombre del diccionario a verificar
-     * @return true si el diccionario es válido, false si falta algún archivo necesario
-     * @post Se devuelve un valor booleano indicando si el diccionario sigue siendo válido.
+     * @pre El nombre del diccionario no debe ser null.
+     * @param nombre Nombre del diccionario a verificar.
+     * @return true si el diccionario existe en el repositorio y sus archivos son válidos, false en caso contrario.
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @post Se devuelve un valor booleano indicando si el diccionario es válido en el sistema persistente sin modificar su estado.
      */
     public boolean verificarDiccionarioValido(String nombre) {
         // Si está en memoria, lo consideramos válido
@@ -830,9 +828,11 @@ public class ControladorDiccionario {
     }
     
     /**
-     * Verifica todos los diccionarios y elimina aquellos que ya no son válidos.
-     * Se ejecuta al iniciar el controlador.
-     * @throws ExceptionLoggingOperacion Con información sobre los diccionarios eliminados
+     * Verifica todos los diccionarios registrados en el repositorio al iniciar el controlador, eliminando aquellos cuyos archivos no son válidos y cargando los válidos en memoria.
+     * 
+     * @pre El repositorio de diccionarios debe estar inicializado.
+     * @throws ExceptionLoggingOperacion Con información sobre los diccionarios que fueron encontrados como inválidos y eliminados.
+     * @post El mapa de diccionarios en memoria (diccionarios) y sus paths (diccionarioPaths) se actualizan para contener solo los diccionarios válidos encontrados en el repositorio. Los diccionarios inválidos se eliminan del repositorio y sus paths de memoria.
      */
     private void verificarTodosDiccionarios() {
         // Cargar índice de diccionarios desde el repositorio
@@ -879,13 +879,13 @@ public class ControladorDiccionario {
     /**
      * Verifica si un carácter es un comodín en el diccionario especificado.
      * 
-     * @pre El diccionario especificado debe existir.
-     * @param nombre Nombre del diccionario
-     * @param caracter Carácter a verificar
-     * @return true si es un comodín, false en caso contrario
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @post Se devuelve un valor booleano indicando si el carácter es un comodín en el diccionario.
+     * @pre El diccionario especificado debe existir en memoria y el carácter no debe ser null.
+     * @param nombre Nombre del diccionario (debe estar en memoria).
+     * @param caracter Carácter a verificar (no null).
+     * @return true si el carácter es un comodín definido en el alfabeto del diccionario, false en caso contrario o si el diccionario no existe en memoria.
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
      * @throws NullPointerException Si alguno de los parámetros es null.
+     * @post Se devuelve un valor booleano indicando si el carácter es un comodín sin modificar el estado del diccionario.
      */
     public boolean esComodin(String nombre, String caracter) throws ExceptionDiccionarioNotExist {
         if (!diccionarios.containsKey(nombre)) {
@@ -899,12 +899,11 @@ public class ControladorDiccionario {
     /**
      * Obtiene las fichas asociadas a un diccionario específico.
      *
-     * @pre El diccionario debe existir para devolver un mapa válido, en caso contrario devolverá null.
-     * @param nombreDiccionario El nombre del diccionario del cual se desean obtener las fichas.
-     * @return Un mapa que asocia las fichas (como claves) con su cantidad (como valores) 
-     *         si el diccionario existe, o {@code null} si el diccionario no está registrado.
-     * @post Si el diccionario existe, se devuelve un mapa no nulo con las fichas y sus cantidades.
+     * @pre El diccionario especificado debe existir en memoria.
+     * @param nombreDiccionario El nombre del diccionario (debe estar en memoria).
+     * @return Un mapa donde las claves son los tokens de las fichas (String) y los valores son su cantidad inicial (Integer) si el diccionario existe. Devuelve {@code null} si el diccionario no está en memoria.
      * @throws NullPointerException Si el parámetro nombreDiccionario es null.
+     * @post Si el diccionario existe en memoria, se devuelve un mapa no nulo con las fichas y sus cantidades sin modificar el estado del diccionario.
      */
     public Map<String, Integer> getFichas(String nombreDiccionario) {
         if (!diccionarios.containsKey(nombreDiccionario)) {
@@ -921,15 +920,14 @@ public class ControladorDiccionario {
     }
 
     /**
-     * Obtiene el puntaje de una palabra en un diccionario específico.
+     * Obtiene el puntaje de un token (letra o multi-carácter) en un diccionario específico.
      *
-     * @pre La palabra debe existir en el diccionario para devolver un puntaje válido, en caso contrario devolverá 0.
-     * @param nombreDiccionario El nombre del diccionario donde se buscará la palabra.
-     * @param valueOf La palabra cuyo puntaje se desea obtener.
-     * @return El puntaje de la palabra si el diccionario existe y contiene la palabra,
-     *         o 0 si el diccionario no existe o no contiene la palabra.
-     * @post Se devuelve un entero no negativo que representa el puntaje de la palabra.
+     * @pre El diccionario debe existir en memoria y el token (valueOf) no debe ser null.
+     * @param nombreDiccionario El nombre del diccionario (debe estar en memoria).
+     * @param valueOf El token (String) cuyo puntaje se desea obtener.
+     * @return El puntaje del token si el diccionario existe y contiene el token, o 0 si el diccionario no existe en memoria o no contiene el token.
      * @throws NullPointerException Si cualquiera de los parámetros es null.
+     * @post Se devuelve un entero no negativo que representa el puntaje del token sin modificar el estado del diccionario.
      */
     public int getPuntaje(String nombreDiccionario, String valueOf) {
         if (!diccionarios.containsKey(nombreDiccionario)) {
@@ -946,16 +944,14 @@ public class ControladorDiccionario {
     }
 
     /**
-     * Obtiene los bordes disponibles para continuar una palabra parcial en un diccionario específico.
+     * Obtiene los bordes disponibles para continuar una palabra parcial en el DAWG de un diccionario específico.
      *
-     * @pre La palabra parcial debe ser válida según la estructura del diccionario para obtener bordes disponibles.
-     * @param nombreDiccionario El nombre del diccionario en el que se buscarán los bordes disponibles.
-     * @param palabraParcial La palabra parcial para la cual se desean obtener los bordes disponibles.
-     * @return Un conjunto de cadenas que representan los bordes disponibles para continuar la palabra parcial.
-     *         Devuelve {@code null} si el diccionario especificado no existe.
-     * @post Si el diccionario existe y la palabra parcial es válida, se devuelve un conjunto (posiblemente vacío) 
-     *       de caracteres que pueden continuar la palabra.
+     * @pre El diccionario especificado debe existir en memoria y la palabra parcial no debe ser null.
+     * @param nombreDiccionario El nombre del diccionario (debe estar en memoria).
+     * @param palabraParcial La palabra parcial (String) para la cual se desean obtener los bordes disponibles.
+     * @return Un conjunto de cadenas (String) que representan los tokens disponibles para continuar la palabra parcial en el DAWG. Devuelve {@code null} si el diccionario especificado no existe en memoria.
      * @throws NullPointerException Si cualquiera de los parámetros es null.
+     * @post Si el diccionario existe en memoria y la palabra parcial corresponde a un nodo válido en el DAWG, se devuelve un conjunto (posiblemente vacío) de tokens que pueden continuar la palabra. En caso contrario, devuelve null.
      */
     public Set<String> getAvailableEdges(String nombreDiccionario, String palabraParcial) {
         if (!diccionarios.containsKey(nombreDiccionario)) {
@@ -972,15 +968,14 @@ public class ControladorDiccionario {
     }
 
     /**
-     * Verifica si una palabra parcial es el final de una palabra válida en el diccionario especificado.
+     * Verifica si una palabra parcial es el final de una palabra válida en el DAWG del diccionario especificado.
      *
-     * @pre La palabra parcial debe ser una cadena no nula para realizar la verificación.
-     * @param nombreDiccionario El nombre del diccionario en el que se realizará la búsqueda.
-     * @param palabraParcial La palabra parcial que se desea verificar.
-     * @return {@code true} si la palabra parcial es el final de una palabra válida en el diccionario,
-     *         {@code false} si el diccionario no existe o si la palabra parcial no es un final válido.
-     * @post Se devuelve un valor booleano que indica si la palabra parcial es un final válido.
+     * @pre El diccionario especificado debe existir en memoria y la palabra parcial no debe ser null.
+     * @param nombreDiccionario El nombre del diccionario (debe estar en memoria).
+     * @param palabraParcial La palabra parcial (String) que se desea verificar.
+     * @return {@code true} si la palabra parcial corresponde a un nodo final en el DAWG del diccionario, {@code false} si el diccionario no existe en memoria o si la palabra parcial no es un nodo final válido.
      * @throws NullPointerException Si cualquiera de los parámetros es null.
+     * @post Se devuelve un valor booleano que indica si la palabra parcial es un final válido en el DAWG sin modificar el estado del diccionario.
      */
     public boolean isFinal(String nombreDiccionario, String palabraParcial) {
         if (!diccionarios.containsKey(nombreDiccionario)) {
@@ -997,16 +992,14 @@ public class ControladorDiccionario {
     }
 
     /**
-     * Verifica si existe un nodo en el diccionario especificado que coincide con 
-     * la palabra parcial proporcionada.
+     * Verifica si existe un nodo en el DAWG del diccionario especificado que coincide con la palabra parcial proporcionada.
      *
-     * @pre La palabra parcial debe ser una cadena no nula para realizar la verificación.
-     * @param nombreDiccionario El nombre del diccionario en el que se buscará.
-     * @param palabraParcial La palabra parcial que se desea verificar.
-     * @return {@code true} si el nodo existe en el diccionario, {@code false} en caso contrario 
-     *         o si el diccionario no está registrado.
-     * @post Se devuelve un valor booleano que indica si el nodo correspondiente a la palabra parcial existe.
+     * @pre El diccionario especificado debe existir en memoria y la palabra parcial no debe ser null.
+     * @param nombreDiccionario El nombre del diccionario (debe estar en memoria).
+     * @param palabraParcial La palabra parcial (String) que se desea verificar.
+     * @return {@code true} si el nodo correspondiente a la palabra parcial existe en el DAWG del diccionario, {@code false} en caso contrario o si el diccionario no está en memoria.
      * @throws NullPointerException Si cualquiera de los parámetros es null.
+     * @post Se devuelve un valor booleano que indica si el nodo correspondiente a la palabra parcial existe en el DAWG sin modificar el estado del diccionario.
      */
     public boolean nodeExists(String nombreDiccionario, String palabraParcial) {
         if (!diccionarios.containsKey(nombreDiccionario)) {
@@ -1023,14 +1016,14 @@ public class ControladorDiccionario {
     }
 
     /**
-     * Obtiene un diccionario por su nombre.
+     * Obtiene un diccionario por su nombre desde la memoria.
      * 
-     * @pre No hay precondiciones específicas fuertes.
-     * @param nombre Nombre del diccionario
-     * @return El objeto Diccionario correspondiente
-     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe
-     * @post Si el diccionario existe, devuelve una referencia al objeto Diccionario; en caso contrario, lanza una excepción.
+     * @pre El diccionario con el nombre especificado debe existir en memoria.
+     * @param nombre Nombre del diccionario (debe estar en memoria).
+     * @return El objeto Diccionario correspondiente a la clave dada.
+     * @throws ExceptionDiccionarioNotExist Si el diccionario no existe en memoria.
      * @throws NullPointerException Si el parámetro nombre es null.
+     * @post Si el diccionario existe en memoria, devuelve una referencia al objeto Diccionario; en caso contrario, lanza una excepción.
      */
     public Diccionario getDiccionario(String nombre) throws ExceptionDiccionarioNotExist {
         if (!diccionarios.containsKey(nombre)) {

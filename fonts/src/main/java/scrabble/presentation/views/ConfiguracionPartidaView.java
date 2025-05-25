@@ -47,13 +47,8 @@ public class ConfiguracionPartidaView {
     private Label lblErrorTablero;
     
     @FXML
-    private ComboBox<String> comboDificultad;
+    private ComboBox<String> comboDiccionario;
     
-    @FXML
-    private TextField txtBots;
-    
-    @FXML
-    private Label lblErrorBots;
     
     public ConfiguracionPartidaView(ControladorConfiguracionView controlador) {
         this.controlador = controlador;
@@ -130,38 +125,12 @@ public class ConfiguracionPartidaView {
         }
         
         // Inicializar ComboBox
-        if (comboDificultad != null) {
-            comboDificultad.getItems().clear();
-            comboDificultad.getItems().addAll("Fácil", "Difícil");
-            comboDificultad.setValue("Fácil");
+        if (comboDiccionario != null) {
+            comboDiccionario.getItems().clear();
+            comboDiccionario.getItems().addAll("Fácil", "Difícil");
+            comboDiccionario.setValue("Fácil");
         }
-        
-        // Configurar campo de bots
-        if (txtBots != null) {
-            txtBots.setText("2");
-            
-            // Permitir solo números
-            txtBots.addEventFilter(javafx.scene.input.KeyEvent.KEY_TYPED, event -> {
-                if (!event.getCharacter().matches("[0-9]")) {
-                    event.consume();
-                }
-            });
-            
-            // Validar cuando cambia el texto
-            txtBots.textProperty().addListener((observable, oldValue, newValue) -> {
-                validarNumeroBots(newValue);
-            });
-            
-            // Validar al perder el foco
-            txtBots.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue) {
-                    confirmarNumeroBots();
-                }
-            });
-            
-            // Validar al presionar Enter
-            txtBots.setOnAction(e -> confirmarNumeroBots());
-        }
+
     }
     
     /**
@@ -231,44 +200,6 @@ public class ConfiguracionPartidaView {
         }
     }
     
-    /**
-     * Valida el número de bots ingresado
-     */
-    private boolean validarNumeroBots(String valor) {
-        if (lblErrorBots == null) return true;
-        
-        try {
-            int numBots = Integer.parseInt(valor);
-            if (numBots < 0 || numBots > 4) {
-                lblErrorBots.setText("El número de bots debe estar entre 0 y 4");
-                lblErrorBots.setVisible(true);
-                return false;
-            } else {
-                lblErrorBots.setVisible(false);
-                return true;
-            }
-        } catch (NumberFormatException e) {
-            if (valor.isEmpty()) {
-                lblErrorBots.setText("Debes introducir un número de bots");
-            } else {
-                lblErrorBots.setText("Por favor, introduce un número válido");
-            }
-            lblErrorBots.setVisible(true);
-            return false;
-        }
-    }
-    
-    /**
-     * Confirma el número de bots cuando se pierde el foco o se presiona Enter
-     */
-    private void confirmarNumeroBots() {
-        if (txtBots != null && !txtBots.getText().isEmpty()) {
-            if (validarNumeroBots(txtBots.getText())) {
-                System.out.println("Número de bots confirmado: " + txtBots.getText());
-            }
-        }
-    }
-    
     @FXML
     public void onGeneralClick(ActionEvent event) {
         controlador.mostrarVistaGeneral();
@@ -293,20 +224,17 @@ public class ConfiguracionPartidaView {
         try {
             // Validar campos
             boolean tamanioValido = validarTamanioTablero(txtTamanioTablero.getText());
-            boolean botsValidos = validarNumeroBots(txtBots.getText());
             
-            if (!tamanioValido || !botsValidos) {
+            if (!tamanioValido) {
                 return;
             }
             
             int tamanioTablero = Integer.parseInt(txtTamanioTablero.getText());
-            int numBots = Integer.parseInt(txtBots.getText());
             
             // Guardar configuración
             controlador.guardarConfiguracionPartida(
                     tamanioTablero,
-                    comboDificultad.getValue(),
-                    numBots
+                    comboDiccionario.getValue()
             );
             
         } catch (NumberFormatException e) {
@@ -324,15 +252,9 @@ public class ConfiguracionPartidaView {
             }
         }
         
-        if (comboDificultad != null) {
-            comboDificultad.setValue("Fácil");
-        }
-        
-        if (txtBots != null) {
-            txtBots.setText("2");
-            if (lblErrorBots != null) {
-                lblErrorBots.setVisible(false);
-            }
+        if (comboDiccionario != null) {
+
+            comboDiccionario.setValue("Fácil");
         }
         
         controlador.showAlert(javafx.scene.control.Alert.AlertType.INFORMATION, "Valores restablecidos", 

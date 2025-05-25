@@ -9,6 +9,7 @@ import java.util.Set;
 
 import scrabble.domain.controllers.ControladorDomain;
 import scrabble.excepciones.ExceptionDiccionarioNotExist;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Direction;
 import scrabble.helpers.Triple;
@@ -70,8 +71,9 @@ public class PresentationController {
 
     /**
     * Método para iniciar una partida con los jugadores seleccionados
+     * @throws ExceptionPersistenciaFallida 
     */
-    public boolean iniciarPartida(List<String> jugadores, String diccionario, Integer tamanioTablero) {
+    public boolean iniciarPartida(List<String> jugadores, String diccionario, Integer tamanioTablero) throws ExceptionPersistenciaFallida {
         try {
             // Crear un mapa con los jugadores y sus IDs
             Map<String, Integer> jugadoresMap = new HashMap<>();
@@ -115,6 +117,13 @@ public class PresentationController {
     public String getEstadoPartida(String nombreJugador) {
         return ctrlDomain.mostrarStatusPartida(nombreJugador);
     }
+
+    /**
+    * Método para obtener el estado del tablero guardado
+    */
+    public Map<Tuple<Integer, Integer>, String> getEstadoTablero() {
+        return ctrlDomain.getEstadoTablero();
+    }    
 
     /**
     * Obtiene el rack de un jugador
@@ -456,9 +465,41 @@ public class PresentationController {
     public List<Integer> getPuntuacionesUsuario(String nombre) {
         return ctrlDomain.getPuntuacionesUsuario(nombre);
     }
+
+    /**
+     * Guarda la configuración general de la aplicación en un archivo de propiedades.
+     * 
+     * @param idioma           El idioma seleccionado por el usuario.
+     * @param tema             El tema visual seleccionado por el usuario.
+     * @param musicaActivada   Indica si la música está activada (true) o desactivada (false).
+     * @param sonidoActivado   Indica si los efectos de sonido están activados (true) o desactivados (false).
+     * @param volumenMusica    El volumen establecido de la música.
+     * @param volumenSonido    El volumen establecido del sonido.
+     * 
+     * Este método almacena los valores proporcionados en un archivo de configuración,
+     * sobrescribiendo cualquier configuración previa. Si ocurre un error de entrada/salida
+     * durante el proceso de guardado, se imprime la traza de la excepción.
+     */
+
+    public void guardarConfiguracionGeneral(String idioma, String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
+        ctrlDomain.guardarConfiguracionGeneral(idioma, tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
+    }
+
+    /**
+     * Carga la configuración desde un archivo de propiedades especificado por CONFIG_FILE.
+     * Si el archivo no se puede cargar, se utilizarán valores por defecto.
+     *
+     * @return Un mapa que contiene las claves y valores de configuración cargados.
+     */
+
+    public Map<String, String>  cargarConfiguracion() {
+        return ctrlDomain.cargarConfiguracion();
+    }
+
     /**
     * Método centralizado para mostrar alertas en todo el controlador
     */
+
     public void mostrarAlerta(String tipo, String titulo, String mensaje) {
         switch (tipo.toLowerCase()) {
             case "info":

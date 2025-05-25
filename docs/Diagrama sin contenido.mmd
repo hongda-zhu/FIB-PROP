@@ -1,3 +1,7 @@
+---
+config:
+  layout: elk
+---
 classDiagram
 direction TB
     %% CAPA 1: CONTROLLERS (Superior)
@@ -14,7 +18,7 @@ direction TB
     class ControladorDiccionario {
     }
 
-    %% CAPA 2: REPOSITORIES
+    %% CAPA 2: REPOSITORIES (NUEVAS CLASES)
     class RepositorioJugador {
     }
     class RepositorioPartida {
@@ -26,7 +30,7 @@ direction TB
     class RepositorioConfiguracion {
     }
 
-    %% IMPLEMENTACIONES
+    %% IMPLEMENTACIONES (NUEVAS CLASES)
     class RepositorioJugadorImpl {
     }
     class RepositorioPartidaImpl {
@@ -82,8 +86,21 @@ direction TB
     class PuntuacionTotalStrategy {
     }
 
-    %% HELPERS
+    %% HELPERS (NUEVA CLASE)
     class Dificultad {
+    }
+    class Direction {
+    }
+    class Idioma {
+    }
+    class Tema {
+    }
+    class TipoCasilla {
+    }
+    class Triple {
+    }
+    class Tuple {
+
     }
 
     %% ESTEREOTIPOS
@@ -106,6 +123,34 @@ direction TB
     <<Strategy>> VictoriasStrategy
     <<Strategy>> PuntuacionTotalStrategy
     <<enumeration>> Dificultad
+    <<enumeration>> Tema
+    <<enumeration>> Direction
+    <<enumeration>> Tuple
+    <<enumeration>> Triple
+    <<enumeration>> Idioma
+    <<enumeration>> TipoCasilla
+    <<repository>> RepositorioJugadorImpl
+    <<repository>> RepositorioPartidaImpl
+    <<repository>> RepositorioDiccionarioImpl
+    <<repository>> RepositorioRankingImpl
+    <<repository>> RepositorioConfiguracionImpl
+
+    %% DEFINIR ESTILOS PARA CLASES NUEVAS
+    classDef nuevaRepo fill:#e8f4fd,stroke:#4a90e2,stroke-width:2px
+    classDef nuevaEnum fill:#fff2e8,stroke:#d4681a,stroke-width:2px
+    
+    %% APLICAR ESTILOS A CLASES NUEVAS
+    class RepositorioJugador:::nuevaRepo
+    class RepositorioPartida:::nuevaRepo
+    class RepositorioDiccionario:::nuevaRepo
+    class RepositorioRanking:::nuevaRepo
+    class RepositorioConfiguracion:::nuevaRepo
+    class RepositorioJugadorImpl:::nuevaRepo
+    class RepositorioPartidaImpl:::nuevaRepo
+    class RepositorioDiccionarioImpl:::nuevaRepo
+    class RepositorioRankingImpl:::nuevaRepo
+    class RepositorioConfiguracionImpl:::nuevaRepo
+    class Dificultad:::nuevaEnum
 
     %% RELACIONES CONTROLADORES CON MULTIPLICIDAD
     ControladorDomain "1" --> "1" ControladorConfiguracion : usa

@@ -1,10 +1,14 @@
 package scrabble.domain.controllers;
 
 import java.io.IOException;
-import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import scrabble.domain.controllers.subcontrollers.ControladorConfiguracion;
 import scrabble.domain.controllers.subcontrollers.ControladorDiccionario;
@@ -12,7 +16,19 @@ import scrabble.domain.controllers.subcontrollers.ControladorJuego;
 import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.domain.controllers.subcontrollers.ControladorJugador;
 import scrabble.domain.controllers.subcontrollers.ControladorRanking;
-import scrabble.excepciones.*;
+import scrabble.excepciones.ExceptionDiccionarioExist;
+import scrabble.excepciones.ExceptionDiccionarioNotExist;
+import scrabble.excepciones.ExceptionDiccionarioOperacionFallida;
+import scrabble.excepciones.ExceptionLoggingOperacion;
+import scrabble.excepciones.ExceptionPalabraExist;
+import scrabble.excepciones.ExceptionPalabraInvalida;
+import scrabble.excepciones.ExceptionPalabraNotExist;
+import scrabble.excepciones.ExceptionPalabraVacia;
+import scrabble.excepciones.ExceptionRankingOperationFailed;
+import scrabble.excepciones.ExceptionUserEsIA;
+import scrabble.excepciones.ExceptionUserExist;
+import scrabble.excepciones.ExceptionUserInGame;
+import scrabble.excepciones.ExceptionUserNotExist;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;

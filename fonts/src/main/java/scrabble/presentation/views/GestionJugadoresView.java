@@ -282,8 +282,7 @@ public class GestionJugadoresView {
             
             // Generar filas para cada jugador
             for (String jugador : jugadoresFiltrados) {
-                String tipo = jugador.equals("jiahao") ? "Sb" : "Humano";
-                datos.add(new JugadorRow(jugador, tipo, "No", "-", 0));
+                datos.add(new JugadorRow(jugador, "Humano", "No", "-", 0));
             }
             
             tablaJugadores.setItems(datos);

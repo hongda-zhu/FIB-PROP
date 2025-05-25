@@ -1,9 +1,7 @@
 package scrabble.presentation.viewControllers;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -212,39 +210,23 @@ public class ControladorConfiguracionView {
     /**
      * Guarda la configuración general
      */
-    public void guardarConfiguracionGeneral(String idioma, String tema, boolean musicaActivada, boolean sonidoActivado) {
-        Properties props = new Properties();
-        props.setProperty("idioma", idioma);
-        props.setProperty("tema", tema);
-        props.setProperty("musica", Boolean.toString(musicaActivada));
-        props.setProperty("sonido", Boolean.toString(sonidoActivado));
-
-        try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
-            props.store(out, "Configuración de la aplicación");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void guardarConfiguracionGeneral(String idioma, String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
+        presentationController.guardarConfiguracionGeneral(idioma, tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
     }
 
     /**
      * Carga la configuración de la aplicación
      */
 
-    public static Properties cargarConfiguracion() {
-        Properties props = new Properties();
-        try (FileInputStream in = new FileInputStream(CONFIG_FILE)) {
-            props.load(in);
-        } catch (IOException e) {
-            System.out.println("No se pudo cargar configuración, se usarán valores por defecto.");
-        }
-        return props;
+    public Map<String, String> cargarConfiguracion() {
+        return presentationController.cargarConfiguracion();
     }
     
     
     /**
      * Guarda la configuración de partida
      */
-    public void guardarConfiguracionPartida(int tamanioTablero, String dificultad, int numBots) {
+    public void guardarConfiguracionPartida(int tamanioTablero, String diccionario) {
         showAlert(Alert.AlertType.INFORMATION, "Configuración guardada", 
                 "La configuración de partida ha sido guardada correctamente.");
     }

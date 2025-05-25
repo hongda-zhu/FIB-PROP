@@ -102,27 +102,12 @@
 
                                     <!-- Dificultad -->
                                     <VBox spacing="10">
-                                        <Label text="Dificultad:" style="-fx-font-size: 18px; -fx-text-fill: #34495e;"/>
+                                        <Label text="Diccionario:" style="-fx-font-size: 18px; -fx-text-fill: #34495e;"/>
                                         <HBox>
-                                            <ComboBox fx:id="comboDificultad" prefWidth="400" prefHeight="40"
+                                            <ComboBox fx:id="comboDiccionario" prefWidth="400" prefHeight="40"
                                                     style="-fx-background-color: #f5f5f5; -fx-border-radius: 8; -fx-font-size: 16px;"/>
                                         </HBox>
                                     </VBox>
-
-                                    <!-- Bots por partida -->
-                                    <VBox spacing="10">
-                                        <HBox spacing="10" alignment="CENTER_LEFT">
-                                            <Label text="Bots por partida:" style="-fx-font-size: 18px; -fx-text-fill: #34495e;"/>
-                                            <Label fx:id="lblErrorBots" style="-fx-font-size: 14px; -fx-text-fill: #e74c3c; -fx-font-style: italic;" 
-                                                visible="false" text="Por favor, introduce un número válido entre 0 y 4"/>
-                                        </HBox>
-                                        <HBox spacing="15">
-                                            <TextField fx:id="txtBots" prefWidth="200" prefHeight="40" text="2"
-                                                    style="-fx-background-color: #f5f5f5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 16px; -fx-padding: 5 10;"
-                                                    promptText="Ej: 2"/>
-                                            <Label text="(Valor entre 0 y 4)" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d; -fx-padding: 10 0 0 0;"/>
-                                        </HBox>
-                                    </VBox>                                   
 
                                     <HBox alignment="CENTER" spacing="20">
                                         <BorderPane.margin>
