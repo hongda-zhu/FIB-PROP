@@ -1,25 +1,27 @@
 package scrabble.domain.models.rankingStrategy;
 
+import scrabble.domain.models.Ranking;
+
 /**
  * Implementación de RankingOrderStrategy que ordena por puntuación media.
  */
 public class MediaScoreStrategy implements RankingOrderStrategy {
     private static final long serialVersionUID = 1L;
-    private final RankingDataProvider dataProvider;
+    private final Ranking ranking;
     
     /**
-     * Constructor que recibe el proveedor de datos para acceder a las estadísticas.
+     * Constructor que recibe el objeto ranking para acceder a las estadísticas.
      * 
-     * @pre El dataProvider no debe ser null.
-     * @param dataProvider Proveedor de datos de ranking
-     * @post Se inicializa la estrategia con el proveedor de datos especificado.
-     * @throws NullPointerException si dataProvider es null
+     * @pre El ranking no debe ser null.
+     * @param ranking Objeto ranking
+     * @post Se inicializa la estrategia con el ranking especificado.
+     * @throws NullPointerException si ranking es null
      */
-    public MediaScoreStrategy(RankingDataProvider dataProvider) {
-        if (dataProvider == null) {
-            throw new NullPointerException("El proveedor de datos no puede ser null");
+    public MediaScoreStrategy(Ranking ranking) {
+        if (ranking == null) {
+            throw new NullPointerException("El ranking no puede ser null");
         }
-        this.dataProvider = dataProvider;
+        this.ranking = ranking;
     }
     
     @Override
@@ -41,8 +43,8 @@ public class MediaScoreStrategy implements RankingOrderStrategy {
         }
         
         // Obtener las puntuaciones medias de cada usuario
-        double score1 = dataProvider.getPuntuacionMedia(username1);
-        double score2 = dataProvider.getPuntuacionMedia(username2);
+        double score1 = ranking.getPuntuacionMedia(username1);
+        double score2 = ranking.getPuntuacionMedia(username2);
         
         // Comparar por puntuación media (orden descendente)
         int comparacion = Double.compare(score2, score1);

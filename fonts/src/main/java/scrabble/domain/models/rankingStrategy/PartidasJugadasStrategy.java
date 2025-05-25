@@ -1,25 +1,27 @@
 package scrabble.domain.models.rankingStrategy;
 
+import scrabble.domain.models.Ranking;
+
 /**
  * Implementación de RankingOrderStrategy que ordena por número de partidas jugadas.
  */
 public class PartidasJugadasStrategy implements RankingOrderStrategy {
     private static final long serialVersionUID = 1L;
-    private final RankingDataProvider dataProvider;
+    private final Ranking ranking;
     
     /**
-     * Constructor que recibe el proveedor de datos para acceder a las estadísticas.
+     * Constructor que recibe el objeto ranking para acceder a las estadísticas.
      * 
-     * @pre El dataProvider no debe ser null.
-     * @param dataProvider Proveedor de datos de ranking
-     * @post Se inicializa la estrategia con el proveedor de datos especificado.
-     * @throws NullPointerException si dataProvider es null
+     * @pre El ranking no debe ser null.
+     * @param ranking Objeto ranking
+     * @post Se inicializa la estrategia con el ranking especificado.
+     * @throws NullPointerException si ranking es null
      */
-    public PartidasJugadasStrategy(RankingDataProvider dataProvider) {
-        if (dataProvider == null) {
-            throw new NullPointerException("El proveedor de datos no puede ser null");
+    public PartidasJugadasStrategy(Ranking ranking) {
+        if (ranking == null) {
+            throw new NullPointerException("El ranking no puede ser null");
         }
-        this.dataProvider = dataProvider;
+        this.ranking = ranking;
     }
     
     @Override
@@ -41,8 +43,8 @@ public class PartidasJugadasStrategy implements RankingOrderStrategy {
         }
         
         // Obtener el número de partidas jugadas de cada usuario
-        int partidas1 = dataProvider.getPartidasJugadas(username1);
-        int partidas2 = dataProvider.getPartidasJugadas(username2);
+        int partidas1 = ranking.getPartidasJugadas(username1);
+        int partidas2 = ranking.getPartidasJugadas(username2);
         
         // Comparar por número de partidas (orden descendente)
         int comparacion = Integer.compare(partidas2, partidas1);

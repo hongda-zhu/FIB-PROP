@@ -10,7 +10,7 @@ import scrabble.excepciones.ExceptionPersistenciaFallida;
 
 /**
  * Controlador para la gestión de la configuración de la aplicación.
- * Encapsula el acceso a los parámetros configurables como idioma, tema y volumen.
+ * Encapsula el acceso a los parámetros configurables como tema y volumen.
  */
 public class ControladorConfiguracion {
     /**
@@ -45,18 +45,6 @@ public class ControladorConfiguracion {
             throw new NullPointerException("El repositorio no puede ser null");
         }
         this.repositorio = repositorio;
-    }
-
-    /**
-     * Obtiene el idioma actual configurado en la aplicación.
-     *
-     * @pre No hay precondiciones específicas.
-     * @return Idioma actual
-     * @post Se devuelve un String que representa el idioma actual configurado en la aplicación,
-     *       obtenido del objeto Configuracion cargado.
-     */
-    public String obteneridioma() {
-        return this.repositorio.cargar().getIdioma();
     }
 
     /**
@@ -152,21 +140,6 @@ public class ControladorConfiguracion {
         return this.repositorio.cargar().getVolumenSonido();
     }
 
-    /**
-     * Establece un nuevo idioma para la configuración.
-     *
-     * @pre El idioma a establecer no es null.
-     * @param i Idioma a establecer
-     * @post El idioma de la configuración se actualiza al valor especificado y
-     *       la configuración se guarda persistentemente.
-     * @throws ExceptionPersistenciaFallida Si ocurre un error al guardar la configuración.
-     * @throws NullPointerException si el parámetro i es null
-     */
-    public void setIdioma(String i) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setIdioma(i);
-        repositorio.guardar(configuracion);
-    }
 
     /**
      * Establece un nuevo tema visual para la configuración.
@@ -312,8 +285,7 @@ public class ControladorConfiguracion {
     /**
      * Guarda la configuración general de la aplicación en un archivo de propiedades.
      *
-     * @pre El idioma, tema, musicaActivada, sonidoActivado, volumenMusica y volumenSonido son valores que pueden ser procesados por los métodos set correspondientes.
-     * @param idioma           El idioma seleccionado por el usuario.
+     * @pre El tema, musicaActivada, sonidoActivado, volumenMusica y volumenSonido son valores que pueden ser procesados por los métodos set correspondientes.
      * @param tema             El tema visual seleccionado por el usuario.
      * @param musicaActivada   Indica si la música está activada (true) o desactivada (false).
      * @param sonidoActivado   Indica si los efectos de sonido están activados (true) o desactivados (false).
@@ -324,13 +296,12 @@ public class ControladorConfiguracion {
      * sobrescribiendo cualquier configuración previa. Si ocurre un error de entrada/salida
      * durante el proceso de guardado, se imprime la traza de la excepción.
      *
-     * @post La configuración (idioma, tema, estado de música/sonido, volumen de música/sonido)
+     * @post La configuración (tema, estado de música/sonido, volumen de música/sonido)
      *       se intenta actualizar y guardar persistentemente mediante llamadas individuales a los métodos set.
      *       En caso de error de persistencia en cualquier llamada set, se imprime la traza de la excepción.
      */
-    public void guardarConfiguracionGeneral(String idioma, String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
+    public void guardarConfiguracionGeneral(String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
         try {
-            setIdioma(idioma);
             setTema(tema);
             setMusica(musicaActivada);
             setSonido(sonidoActivado);
@@ -345,14 +316,13 @@ public class ControladorConfiguracion {
      * Devuelve un mapa que contiene las claves y valores de configuración cargados.
      *
      * @pre No hay precondiciones específicas.
-     * @return Un mapa que contiene las claves ('idioma', 'tema', 'musica', 'sonido', 'volumenMusica', 'volumenSonido')
+     * @return Un mapa que contiene las claves ('tema', 'musica', 'sonido', 'volumenMusica', 'volumenSonido')
      *         y sus valores de configuración cargados.
      * @post Se devuelve un mapa no nulo con la información de configuración actual.
      */
     public Map<String, String> getConfMap() {
         Configuracion c = repositorio.cargar();
         Map<String, String> m = new HashMap<>();
-        m.put("idioma", c.getIdioma());
         m.put("tema", c.getTema());
         m.put("musica", String.valueOf(c.isMusica()));
         m.put("sonido", String.valueOf(c.isSonido()));

@@ -45,9 +45,6 @@ public class ConfiguracionGeneralView {
     private Button btnRestablecer;
     
     @FXML
-    private ComboBox<String> comboIdioma;
-    
-    @FXML
     private ComboBox<String> comboTema;
     
     @FXML
@@ -135,13 +132,6 @@ public class ConfiguracionGeneralView {
         }
 
         Map<String, String> config = controlador.cargarConfiguracion();
-        
-        // Inicializar ComboBox
-        if (comboIdioma != null) {
-            comboIdioma.getItems().clear();
-            comboIdioma.getItems().addAll("Español", "English");
-            comboIdioma.setValue(config.getOrDefault("idioma", "Español"));
-        }
         
         if (comboTema != null) {
             comboTema.getItems().clear();
@@ -282,10 +272,9 @@ public class ConfiguracionGeneralView {
     }
     
     public void onGuardarClick(ActionEvent event) {
-        if (comboIdioma != null && comboTema != null && toggleMusica != null && toggleSonido != null) {
+        if (comboTema != null && toggleMusica != null && toggleSonido != null) {
             // Guardar configuración general a través del controlador
             controlador.guardarConfiguracionGeneral(
-                    comboIdioma.getValue(),
                     comboTema.getValue(),
                     toggleMusica.isSelected(),
                     toggleSonido.isSelected(),
@@ -301,7 +290,6 @@ public class ConfiguracionGeneralView {
     
     public void onRestablecerClick(ActionEvent event) {
         // Restablecer valores por defecto
-        if (comboIdioma != null) comboIdioma.setValue("Español");
         if (comboTema != null) comboTema.setValue("Claro");
         
         if (toggleMusica != null) {

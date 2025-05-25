@@ -248,19 +248,6 @@ public class ControladorDomain {
    }
 
     /**
-     * Establece el idioma de la aplicación.
-     * 
-     * @pre El idioma debe ser una opción válida soportada por la aplicación.
-     * @param idioma El idioma a establecer
-     * @post El idioma de la configuración se actualiza y se persiste.
-     * @throws ExceptionPersistenciaFallida si ocurre un error durante la persistencia
-     * @throws NullPointerException si el idioma es null
-     */
-    public void setIdioma(String idioma) throws ExceptionPersistenciaFallida {
-        controladorConfiguracion.setIdioma(idioma);
-    }
-
-    /**
      * Establece el tema visual de la aplicación.
      * 
      * @pre El tema debe ser una opción válida soportada por la aplicación.
@@ -893,15 +880,6 @@ public class ControladorDomain {
         controladorJuego.actualizarPuntuaciones(nombre, puntuacion);
     }
 
-    /**
-     * Guarda los datos del ranking en el sistema de persistencia.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @post Los datos del ranking se persisten en el almacenamiento.
-     */
-    public void guardarRanking() {
-        controladorRanking.guardarDatos();
-    }
 
     /**
      * Obtiene la lista de todos los usuarios registrados en el ranking.
@@ -1735,16 +1713,6 @@ public class ControladorDomain {
     }
 
     /* == Getters y setters de la configuración == */
-    /**
-    * Obtiene el idioma actual configurado en la aplicación.
-    * 
-    * @pre No hay precondiciones específicas.
-    * @return String que representa el idioma actual configurado
-    * @post Se devuelve el idioma actual sin modificar el estado de la configuración.
-    */
-    public String obtenerIdioma() {
-        return controladorConfiguracion.obteneridioma();
-    }
 
     /**
     * Obtiene el tema visual actual configurado en la aplicación.
@@ -1788,20 +1756,6 @@ public class ControladorDomain {
     */
     public int obtenerTamano() {
         return controladorConfiguracion.obtenerTamano();
-    }
-
-    /**
-    * Establece un nuevo idioma para la configuración de la aplicación.
-    * 
-    * @pre El idioma debe ser una de las opciones válidas soportadas por la aplicación.
-    * @param idioma String que representa el nuevo idioma a configurar
-    * @post El idioma de la configuración se actualiza al valor especificado y se persiste.
-    * @throws ExceptionPersistenciaFallida si ocurre un error al guardar la configuración
-    * @throws IllegalArgumentException si el idioma no es uno de los valores permitidos
-    * @throws NullPointerException si el parámetro idioma es null
-    */
-    public void establecerIdioma(String idioma) throws ExceptionPersistenciaFallida {
-        controladorConfiguracion.setIdioma(idioma);
     }
 
     /**
@@ -1862,7 +1816,6 @@ public class ControladorDomain {
      * Guarda la configuración general de la aplicación en un archivo de propiedades.
      * 
      * @pre Los parámetros de volumen deben estar en rangos válidos.
-     * @param idioma El idioma seleccionado por el usuario
      * @param tema El tema visual seleccionado por el usuario
      * @param musicaActivada Indica si la música está activada (true) o desactivada (false)
      * @param sonidoActivado Indica si los efectos de sonido están activados (true) o desactivados (false)
@@ -1871,9 +1824,10 @@ public class ControladorDomain {
      * @post Los valores se almacenan en un archivo de configuración, sobrescribiendo cualquier configuración previa.
      *       Si ocurre un error de E/S durante el guardado, se imprime la traza de la excepción.
      */
-    public void guardarConfiguracionGeneral(String idioma, String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
-        controladorConfiguracion.guardarConfiguracionGeneral(idioma, tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
+    public void guardarConfiguracionGeneral(String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
+        controladorConfiguracion.guardarConfiguracionGeneral(tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
     }
+
 
     /**
      * Carga la configuración desde un archivo de propiedades.

@@ -477,8 +477,6 @@ public class DomainDriver {
         List<String> ganadoresPartida6 = Arrays.asList("jiahao");
         controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida6, ganadoresPartida6);
         
-        // Guardar los datos del ranking
-        controladorDomain.guardarRanking();
         System.out.println("Datos de ranking inicializados correctamente.");
         
         // Mostrar un resumen de las estadísticas generadas
@@ -2906,8 +2904,6 @@ public class DomainDriver {
             }
         } while (!opcion.equals("0"));
         
-        // Guardar los datos del ranking al salir del menú
-        controladorDomain.guardarRanking();
         
         // Mostrar el menú principal al volver
         ShowMenu("principal");
@@ -2983,8 +2979,6 @@ public class DomainDriver {
                 // Intentar eliminar jugador del ranking
                 boolean eliminado = controladorDomain.eliminarUsuarioRanking(nombreJugador);
                 
-                // Guardar los cambios inmediatamente
-                controladorDomain.guardarRanking();
                 
                 // Verificar estado después de la eliminación
                 boolean existeDespues = controladorDomain.perteneceRanking(nombreJugador);
@@ -3017,8 +3011,6 @@ public class DomainDriver {
             System.out.println("\nOperación cancelada.");
         }
         
-        // Guardar los cambios en el ranking una vez más para asegurar que se guardan
-        controladorDomain.guardarRanking();
     }
 
     /**
@@ -3146,8 +3138,6 @@ public class DomainDriver {
             }
         }
         
-        // Guardar los datos del ranking al salir del menú
-        controladorDomain.guardarRanking();
         
         // Mostrar el menú principal al volver
         ShowMenu("principal");
@@ -3714,9 +3704,7 @@ public class DomainDriver {
             } else {
                 System.out.println("✗ ERROR: La puntuación total NO ha sido reseteada a 0");
             }
-            
-            // 9. Guardar cambios en el ranking
-            controladorDomain.guardarRanking();
+            ;
             System.out.println("\nPrueba de eliminación de usuario del ranking completada.");
             
         } catch (Exception e) {

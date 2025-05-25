@@ -1,25 +1,27 @@
 package scrabble.domain.models.rankingStrategy;
 
+import scrabble.domain.models.Ranking;
+
 /**
  * Implementación de RankingOrderStrategy que ordena por puntuación máxima.
  */
 public class MaximaScoreStrategy implements RankingOrderStrategy {
     private static final long serialVersionUID = 1L;
-    private final RankingDataProvider dataProvider;
+    private final Ranking ranking;
     
     /**
-     * Constructor que recibe el proveedor de datos para acceder a las estadísticas.
+     * Constructor que recibe el objeto ranking para acceder a las estadísticas.
      * 
-     * @pre El dataProvider no debe ser null.
-     * @param dataProvider Proveedor de datos de ranking
-     * @post Se inicializa la estrategia con el proveedor de datos especificado.
-     * @throws NullPointerException si dataProvider es null
+     * @pre El ranking no debe ser null.
+     * @param ranking Objeto ranking
+     * @post Se inicializa la estrategia con el ranking especificado.
+     * @throws NullPointerException si ranking es null
      */
-    public MaximaScoreStrategy(RankingDataProvider dataProvider) {
-        if (dataProvider == null) {
-            throw new NullPointerException("El proveedor de datos no puede ser null");
+    public MaximaScoreStrategy(Ranking ranking) {
+        if (ranking == null) {
+            throw new NullPointerException("El ranking no puede ser null");
         }
-        this.dataProvider = dataProvider;
+        this.ranking = ranking;
     }
     
     @Override
@@ -41,8 +43,8 @@ public class MaximaScoreStrategy implements RankingOrderStrategy {
         }
         
         // Obtener las puntuaciones máximas de cada usuario
-        int score1 = dataProvider.getPuntuacionMaxima(username1);
-        int score2 = dataProvider.getPuntuacionMaxima(username2);
+        int score1 = ranking.getPuntuacionMaxima(username1);
+        int score2 = ranking.getPuntuacionMaxima(username2);
         
         // Comparar por puntuación máxima (orden descendente)
         int comparacion = Integer.compare(score2, score1);

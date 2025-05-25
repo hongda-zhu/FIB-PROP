@@ -6,11 +6,15 @@ import java.util.Comparator;
 /**
  * Interfaz que define la estrategia para ordenar el ranking de jugadores.
  * Actúa como un Comparator especializado para nombres de usuario (String).
+ * Las implementaciones de esta interfaz reciben directamente un objeto Ranking
+ * para acceder a las estadísticas de los jugadores.
  */
 public interface RankingOrderStrategy extends Serializable, Comparator<String> {
     /**
      * Compara dos nombres de usuario según la estrategia específica.
      * Implementación del método compare de Comparator.
+     * Las implementaciones utilizan un objeto Ranking para obtener las estadísticas
+     * necesarias para la comparación.
      * 
      * @pre Los nombres de usuario no deben ser null.
      * @param username1 Nombre del primer jugador

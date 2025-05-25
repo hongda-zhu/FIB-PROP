@@ -1,5 +1,9 @@
 package scrabble.domain.models;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import scrabble.domain.models.rankingStrategy.PlayerRankingStats;
-import scrabble.domain.models.rankingStrategy.RankingDataProvider;
 import scrabble.domain.models.rankingStrategy.RankingOrderStrategy;
 import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
 
@@ -17,12 +20,17 @@ import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
  * Clase que representa el ranking del juego Scrabble.
  * Almacena y gestiona las puntuaciones de los usuarios utilizando el patrón Strategy.
  */
-public class Ranking implements RankingDataProvider {
+public class Ranking implements Serializable {
     private static final long serialVersionUID = 1L;
     
     // Estructura simplificada para almacenar las estadísticas de los usuarios
     private Map<String, PlayerRankingStats> estadisticasUsuarios;
-    private RankingOrderStrategy estrategiaActual;
+    
+    // Marcamos como transient para evitar problemas de serialización con referencias circulares
+    private transient RankingOrderStrategy estrategiaActual;
+    
+    // Guardamos el nombre de la estrategia para poder recrearla después de la deserialización
+    private String nombreEstrategiaActual = "total"; // Por defecto puntuación total
     
     /**
      * Constructor de la clase Ranking.
@@ -37,6 +45,7 @@ public class Ranking implements RankingDataProvider {
         
         // Por defecto usamos la estrategia de puntuación total
         this.estrategiaActual = RankingOrderStrategyFactory.createStrategy("total", this);
+        this.nombreEstrategiaActual = "total";
     }
     
     /**
@@ -53,6 +62,7 @@ public class Ranking implements RankingDataProvider {
             throw new NullPointerException("El criterio no puede ser null");
         }
         this.estrategiaActual = RankingOrderStrategyFactory.createStrategy(criterio, this);
+        this.nombreEstrategiaActual = criterio;
     }
     
     /**
@@ -63,7 +73,39 @@ public class Ranking implements RankingDataProvider {
      * @post Se devuelve el nombre de la estrategia actual de ordenación del ranking.
      */
     public String getEstrategiaActual() {
+        // Asegurar que la estrategia esté inicializada
+        if (estrategiaActual == null) {
+            estrategiaActual = RankingOrderStrategyFactory.createStrategy(nombreEstrategiaActual, this);
+        }
         return estrategiaActual.getNombre();
+    }
+    
+    /**
+     * Método de serialización personalizado.
+     * 
+     * @param out Stream de salida para la serialización
+     * @throws IOException si ocurre un error durante la serialización
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
+    
+    /**
+     * Método de deserialización personalizado.
+     * Recrea la estrategia después de la deserialización.
+     * 
+     * @param in Stream de entrada para la deserialización
+     * @throws IOException si ocurre un error durante la deserialización
+     * @throws ClassNotFoundException si no se encuentra una clase durante la deserialización
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        
+        // Recrear la estrategia después de la deserialización
+        if (nombreEstrategiaActual == null) {
+            nombreEstrategiaActual = "total"; // Valor por defecto
+        }
+        this.estrategiaActual = RankingOrderStrategyFactory.createStrategy(nombreEstrategiaActual, this);
     }
     
     /**
@@ -191,7 +233,6 @@ public class Ranking implements RankingDataProvider {
      * @post Se devuelve la puntuación máxima del usuario si existe, o 0 si no existe.
      * @throws NullPointerException si nombre es null
      */
-    @Override
     public int getPuntuacionMaxima(String nombre) {
         if (nombre == null) {
             throw new NullPointerException("El nombre del usuario no puede ser null");
@@ -210,7 +251,6 @@ public class Ranking implements RankingDataProvider {
      * @post Se devuelve la puntuación media del usuario si existe, o 0.0 si no existe.
      * @throws NullPointerException si nombre es null
      */
-    @Override
     public double getPuntuacionMedia(String nombre) {
         if (nombre == null) {
             throw new NullPointerException("El nombre del usuario no puede ser null");
@@ -229,7 +269,6 @@ public class Ranking implements RankingDataProvider {
      * @post Se devuelve el número de partidas jugadas por el usuario si existe, o 0 si no existe.
      * @throws NullPointerException si nombre es null
      */
-    @Override
     public int getPartidasJugadas(String nombre) {
         if (nombre == null) {
             throw new NullPointerException("El nombre del usuario no puede ser null");
@@ -248,7 +287,6 @@ public class Ranking implements RankingDataProvider {
      * @post Se devuelve el número de victorias del usuario si existe, o 0 si no existe.
      * @throws NullPointerException si nombre es null
      */
-    @Override
     public int getVictorias(String nombre) {
         if (nombre == null) {
             throw new NullPointerException("El nombre del usuario no puede ser null");
@@ -267,6 +305,11 @@ public class Ranking implements RankingDataProvider {
      *       según la estrategia de ordenación actual.
      */
     public List<String> getRanking() {
+        // Asegurar que la estrategia esté inicializada
+        if (estrategiaActual == null) {
+            estrategiaActual = RankingOrderStrategyFactory.createStrategy(nombreEstrategiaActual, this);
+        }
+        
         // Obtener los nombres de usuario
         List<String> usuarios = new ArrayList<>(estadisticasUsuarios.keySet());
         
@@ -428,7 +471,6 @@ public class Ranking implements RankingDataProvider {
      * @post Se devuelve la puntuación total acumulada del usuario si existe, o 0 si no existe.
      * @throws NullPointerException si nombre es null
      */
-    @Override
     public int getPuntuacionTotal(String nombre) {
         if (nombre == null) {
             throw new NullPointerException("El nombre del usuario no puede ser null");

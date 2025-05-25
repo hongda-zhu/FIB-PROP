@@ -19,7 +19,7 @@ import scrabble.helpers.Dificultad;
 import scrabble.helpers.Direction;
 
 /**
- * Clase GestorJugada
+ * Clase ControladorJuego
  * Esta clase se encarga de gestionar las jugadas en el juego de Scrabble.
  * Permite buscar movimientos válidos, calcular puntos y realizar jugadas en el tablero.
  */
@@ -28,8 +28,8 @@ public class ControladorJuego implements Serializable {
 
     private static final long serialVersionUID = 1L;
     /**
-    * Controlador para la gestión de usuarios.
-    * Implementa el patrón Singleton para garantizar una única instancia.
+    * Controlador para la gestión del juego de Scrabble.
+    * Implementa Serializable para permitir la persistencia del estado del juego.
     */
 
     private int idPartida = -1; // Identificador de la partida actual
@@ -53,8 +53,8 @@ public class ControladorJuego implements Serializable {
 
     /**
      * Constructor por defecto para la clase ControladorJuego.
-     * @throws ExceptionPersistenciaFallida 
      * 
+     * @throws ExceptionPersistenciaFallida si ocurre un error al inicializar el repositorio de partidas
      * @pre No hay precondiciones específicas.
      * @post Se inicializa una nueva instancia de ControladorJuego con valores por defecto:
      *       - tablero, lastCrossCheck y direction son null
@@ -76,7 +76,8 @@ public class ControladorJuego implements Serializable {
 
     /**
      * Obtiene el nombre del diccionario de la partida actual.
-     * @return El nombre del diccionario empleado.
+     * 
+     * @return El nombre del diccionario empleado en la partida actual.
      */
     public String getNombreDiccionario() {
         return this.nombreDiccionario;
@@ -84,7 +85,8 @@ public class ControladorJuego implements Serializable {
 
     /**
      * Obtiene el tamaño del tablero de la partida actual.
-     * @return Un String que es el nombre del diccionario empleado.
+     * 
+     * @return El tamaño del tablero (número entero que representa las dimensiones N×N).
      */
     public int getSize() {
         return this.tablero.getSize();
@@ -94,15 +96,15 @@ public class ControladorJuego implements Serializable {
     /**
      * Inicializa el juego configurando el tablero, diccionario, idioma y bolsa de fichas.
      *
-     * @pre El diccionario con nombreDiccionario debe existir en el sistema.
      * @param N                Tamaño del tablero (N x N).
-     * @param jugadores        Conjunto de nombres de los jugadores que participan en el juego.
+     * @param jugadores        Mapa de nombres de los jugadores con sus puntuaciones iniciales.
      * @param nombreDiccionario Nombre del diccionario que se utilizará para el juego.
-     * @throws ExceptionPersistenciaFallida 
+     * @throws ExceptionPersistenciaFallida si ocurre un error al generar el ID de partida
+     * @pre El diccionario con nombreDiccionario debe existir en el sistema.
      * @post Se inicializa el juego con un tablero de tamaño N×N, se asocia un diccionario
      *       y se crea la bolsa de fichas basada en la configuración del diccionario.
      * @throws NullPointerException Si alguno de los parámetros es null.
-     * @throws IllegalArgumentException Si N es menor que 1 o si el conjunto de jugadores está vacío.
+     * @throws IllegalArgumentException Si N es menor que 1 o si el mapa de jugadores está vacío.
      */
     public void inicializarJuego(int N, Map<String, Integer> jugadores, String nombreDiccionario) throws ExceptionPersistenciaFallida {
         this.tablero = new Tablero(N);
@@ -119,10 +121,12 @@ public class ControladorJuego implements Serializable {
 
     
     /**
-    * @pre -
-    * @return estadoTablero Mapa de las posiciones con letra y la letra
-    * Método para obtener el estado actual del tablero 
-    */
+     * Obtiene el estado actual del tablero.
+     * 
+     * @return Mapa de las posiciones ocupadas con sus respectivas letras
+     * @pre El tablero debe estar inicializado.
+     * @post Se devuelve el estado actual del tablero sin modificarlo.
+     */
     public Map<Tuple<Integer, Integer>, String> getEstadoTablero() {
         return tablero.getEstadoTablero();
     } 
@@ -277,14 +281,15 @@ public class ControladorJuego implements Serializable {
         return anchors;
     }
 
-    /*
-     * Método para extender la palabra hacia la izquierda.
-     * @param partialWord Palabra parcial.
-     * @param rack Mapa de letras disponibles.
-     * @param currenNode Nodo actual en el DAWG.
-     * @param nextPos Posición siguiente.
-     * @param limit Límite de letras a usar.
-     * @return Conjunto de palabras extendidas.
+    /**
+     * Extiende una palabra hacia la izquierda añadiendo letras disponibles del atril.
+     * Método auxiliar para la búsqueda de movimientos válidos.
+     * 
+     * @param partialWord Palabra parcial que se está formando.
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param nextPos Posición siguiente a explorar en el tablero.
+     * @param limit Límite máximo de letras que se pueden añadir a la izquierda.
+     * @return Conjunto de movimientos válidos encontrados.
      */
 
     /**
@@ -324,14 +329,15 @@ public class ControladorJuego implements Serializable {
         return words;
     }
 
-    /*
-     * Método para extender la palabra hacia la derecha.
-     * @param partialWord Palabra parcial.
-     * @param rack Mapa de letras disponibles.
-     * @param currenNode Nodo actual en el DAWG.
-     * @param nextPos Posición siguiente.
-     * @param archorFilled Indica si el anclaje está lleno.
-     * @return Conjunto de palabras extendidas.
+    /**
+     * Extiende una palabra hacia la derecha añadiendo letras disponibles del atril.
+     * Método auxiliar para la búsqueda de movimientos válidos.
+     * 
+     * @param partialWord Palabra parcial que se está formando.
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param nextPos Posición siguiente a explorar en el tablero.
+     * @param archorFilled Indica si la posición de anclaje ya está ocupada.
+     * @return Conjunto de movimientos válidos encontrados.
      */
 
     /**
@@ -383,9 +389,12 @@ public class ControladorJuego implements Serializable {
         return words;
     }
 
-    /*
-     * Método para realizar una verificación cruzada en el tablero.
-     * @return Mapa de posiciones y conjuntos de palabras posibles.
+    /**
+     * Realiza una verificación cruzada en el tablero para determinar letras válidas.
+     * Analiza cada posición vacía para determinar qué letras pueden formar palabras válidas
+     * en la dirección perpendicular a la jugada principal.
+     * 
+     * @return Mapa que asocia posiciones con conjuntos de letras válidas en esa posición.
      */
 
     /**
@@ -437,10 +446,14 @@ public class ControladorJuego implements Serializable {
         return words;
     }
 
-    /*
-     * Método para buscar todos los movimientos posibles en el tablero.
-     * @param rack Mapa de letras disponibles.
-     * @return Conjunto de movimientos posibles.
+    /**
+     * Busca todos los movimientos posibles en el tablero con las fichas disponibles.
+     * Método central para la lógica del juego que utiliza los métodos auxiliares
+     * find_anchors, extendLeft/Right y crossCheck.
+     * 
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param juegoIniciado Indica si el juego ya ha comenzado.
+     * @return Conjunto de movimientos válidos posibles.
      */
 
     /**
@@ -450,7 +463,7 @@ public class ControladorJuego implements Serializable {
      *
      * @pre El tablero, diccionario y dirección deben estar inicializados.
      * @param rack Mapa de letras disponibles en el atril del jugador.
-     * @param isFirst Indica si es el primer turno del juego.
+     * @param juegoIniciado Indica si el juego ya ha comenzado.
      * @return Conjunto de tripletas (palabra, posición, dirección) que representan movimientos válidos.
      * @post Se devuelve un conjunto (posiblemente vacío) de todos los movimientos válidos posibles.
      * @throws NullPointerException Si el rack es null o si el tablero o diccionario no están inicializados.
@@ -498,11 +511,13 @@ public class ControladorJuego implements Serializable {
         return answers;
     }
 
-    /*
-     * Método para realizar un movimiento en el tablero.
-     * @param move Movimiento a realizar.
-     * @param rack Mapa de letras disponibles.
-     * @return Mapa actualizado de letras disponibles.
+    /**
+     * Realiza un movimiento en el tablero colocando las letras correspondientes.
+     * Actualiza el tablero con las letras del movimiento y modifica el atril del jugador.
+     * 
+     * @param move Movimiento a realizar (palabra, posición, dirección).
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @return Mapa actualizado con las letras restantes después del movimiento.
      */
 
     /**
@@ -547,10 +562,12 @@ public class ControladorJuego implements Serializable {
         return newRack;
     }
 
-    /*
-     * Método para calcular los puntos de un movimiento.
-     * @param move Movimiento a evaluar.
-     * @return Puntos obtenidos por el movimiento.
+    /**
+     * Calcula los puntos obtenidos por un movimiento específico.
+     * Tiene en cuenta los multiplicadores de letra y palabra del tablero.
+     * 
+     * @param move Movimiento a evaluar (palabra, posición, dirección).
+     * @return Puntos totales obtenidos por el movimiento.
      */
 
     /**
@@ -606,10 +623,13 @@ public class ControladorJuego implements Serializable {
         return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes); 
     }
 
-    /*
-     * Método para verificar si un movimiento es válido.
-     * @param move Movimiento a evaluar.
-     * @param rack Mapa de letras disponibles.
+    /**
+     * Verifica si un movimiento es válido según las reglas del juego.
+     * Utiliza el método searchAllMoves para determinar si el movimiento está
+     * entre los movimientos válidos posibles.
+     * 
+     * @param move Movimiento a evaluar (palabra, posición, dirección).
+     * @param rack Mapa de letras disponibles en el atril del jugador.
      * @return true si el movimiento es válido, false en caso contrario.
      */
 
@@ -631,11 +651,14 @@ public class ControladorJuego implements Serializable {
         return possibleWords.contains(move);
     }
 
-    /*
-     * Método para verificar si es un movimiento válido en el primer turno.
-     * @param move Movimiento a evaluar.
-     * @param rack Mapa de letras disponibles.
-     * @return true si el movimiento es válido, false en caso contrario.
+    /**
+     * Verifica si un movimiento es válido específicamente para el primer turno del juego.
+     * En el primer turno, la palabra debe pasar por el centro del tablero y ser válida
+     * según el diccionario.
+     * 
+     * @param move Movimiento a evaluar (palabra, posición, dirección).
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @return true si el movimiento es válido para el primer turno, false en caso contrario.
      */
 
      /**
@@ -724,16 +747,18 @@ public class ControladorJuego implements Serializable {
     
     
 
-    /*
-     * Método para realizar una acción en el juego.
-     * Este método permite al jugador realizar una acción, ya sea colocar palabras, pasar o intercambiar fichas.
-     * @param move El movimiento a realizar, que incluye la palabra, posición y dirección
-     * @param nombreJugador El nombre del jugador que está realizando la acción
-     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
-     * @param isIA Indica si el jugador es una IA o un jugador humano
-     * @param dificultad La dificultad de la IA (si aplica)
-     * @param isFirst Indica si es el primer turno de la partida
-     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
+    /**
+     * Realiza una acción en el juego, ya sea por un jugador humano o por la IA.
+     * Para jugadores humanos, ejecuta el movimiento proporcionado.
+     * Para la IA, busca y ejecuta el mejor movimiento posible según la dificultad.
+     * 
+     * @param move El movimiento a realizar (palabra, posición, dirección).
+     * @param nombreJugador El nombre del jugador que está realizando la acción.
+     * @param rack El atril del jugador con las letras disponibles para jugar.
+     * @param isIA Indica si el jugador es una IA o un jugador humano.
+     * @param dificultad La dificultad de la IA (si aplica).
+     * @param isFirst Indica si es el primer turno de la partida.
+     * @return Tupla con el nuevo atril del jugador y los puntos obtenidos, o null si no se puede realizar la acción.
      */
 
      private Tuple<Map<String, Integer>, Integer> realizarAccion(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst) {
@@ -766,14 +791,16 @@ public class ControladorJuego implements Serializable {
         
         }
     }
-    /*
-     * Método para realizar un turno en el juego.
-     * Este método permite al jugador realizar su turno, ya sea humano o IA.
-     * @param nombreJugador El nombre del jugador que está realizando el movimiento
-     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
-     * @param isIA Indica si el jugador es una IA o un jugador humano
-     * @param dificultad La dificultad de la IA (si aplica)
-     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
+    /**
+     * Realiza un turno en el juego procesando la acción del jugador o de la IA.
+     * Método público que delega en realizarAccion para ejecutar la lógica del turno.
+     * 
+     * @param move El movimiento a realizar (puede ser null para la IA).
+     * @param nombreJugador El nombre del jugador que está realizando el turno.
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param isIA Indica si el jugador es una IA o un jugador humano.
+     * @param dificultad La dificultad de la IA (si aplica).
+     * @return Tupla con el nuevo atril del jugador y los puntos obtenidos, o null si no se puede realizar la acción.
      */
 
     /**
@@ -795,10 +822,10 @@ public class ControladorJuego implements Serializable {
         return realizarAccion(move, nombreJugador, rack, isIA, dificultad, juegoIniciado);
     }
 
-    /*
-     * Método para finalizar el juego.
-     * Este método se llama cuando el juego ha terminado, ya sea porque un jugador ha ganado o porque no hay más fichas en la bolsa.
-     * En este caso, se muestra un mensaje indicando que el juego ha terminado.
+    /**
+     * Finaliza el juego marcándolo como terminado.
+     * Este método se llama cuando el juego debe terminar por cualquier razón
+     * (victoria de un jugador, bolsa vacía, etc.).
      */
 
      /**
@@ -812,9 +839,9 @@ public class ControladorJuego implements Serializable {
         juegoTerminado = true;
     }
 
-    /*
-     * Método para reiniciar el juego.
-     * Este método reinicia el juego, restableciendo el estado del juego y la bolsa de fichas.
+    /**
+     * Reinicia el estado del juego para comenzar una nueva partida.
+     * Restablece los flags de estado pero mantiene la configuración del tablero y jugadores.
      */
 
     /**
@@ -854,6 +881,14 @@ public class ControladorJuego implements Serializable {
         return juegoIniciado;
     }
 
+    /**
+     * Actualiza las puntuaciones de un jugador específico.
+     * 
+     * @param nombre El nombre del jugador cuya puntuación se va a actualizar.
+     * @param puntuacion Los puntos a añadir a la puntuación actual del jugador.
+     * @pre El jugador debe existir en el mapa de jugadores.
+     * @post La puntuación del jugador se incrementa con el valor especificado.
+     */
     public void actualizarPuntuaciones(String nombre, int puntuacion) {
         this.jugadores.put(nombre, this.jugadores.get(nombre) + puntuacion);
     }
@@ -881,33 +916,26 @@ public class ControladorJuego implements Serializable {
 
 
     /**
-     * Guarda el estado completo del objeto actual (que contiene el estado del juego)
-     * en un archivo especificado usando serialización Java.
-     * IMPORTANTE: La clase que contiene este método y todas las clases de sus
-     * atributos no transitorios deben implementar {@code java.io.Serializable}.
+     * Guarda el estado completo del juego actual usando el repositorio de partidas.
+     * Utiliza el ID de partida actual para identificar el archivo de guardado.
      *
      * @pre No hay precondiciones específicas, pero se recomienda que el juego esté en un estado válido.
      * @return {@code true} si el guardado fue exitoso, {@code false} en caso contrario.
-     * @throws ExceptionPersistenciaFallida 
-     * @post Si la operación es exitosa, el estado del juego se guarda en el archivo y se asigna un ID de partida si no lo tenía.
-     * @throws RuntimeException Si ocurre un error de I/O durante el proceso de guardado,
-     * envolviendo la {@code IOException} original.
+     * @throws ExceptionPersistenciaFallida si ocurre un error durante el proceso de guardado.
+     * @post Si la operación es exitosa, el estado del juego se guarda en el repositorio.
      */
     public boolean guardar() throws ExceptionPersistenciaFallida {
         return repositorioPartida.guardar(this.idPartida, this);
     }
     
     /**
-     * Carga el estado del juego desde un archivo serializado previamente con {@code guardar},
+     * Carga el estado del juego desde el repositorio de partidas,
      * sobrescribiendo el estado del objeto actual.
      *
-     * @pre Debe existir un archivo de partidas guardadas con el ID especificado.
+     * @pre Debe existir una partida guardada con el ID especificado.
      * @param idPartida El ID de la partida a cargar.
-     * @throws ExceptionPersistenciaFallida 
+     * @throws ExceptionPersistenciaFallida si ocurre un error al cargar la partida o si no se encuentra.
      * @post Si la partida existe, el estado del objeto actual se actualiza con el estado guardado.
-     * @throws RuntimeException Si ocurre un error de I/O o si la clase no se encuentra
-     * durante la deserialización, envolviendo la excepción original
-     * ({@code IOException} o {@code ClassNotFoundException}).
      */
     public void cargarDesdeArchivo(int idPartida) throws ExceptionPersistenciaFallida {
     
@@ -959,14 +987,13 @@ public class ControladorJuego implements Serializable {
     }
 
     /**
-     * Lista todos los IDs de partidas guardadas disponibles.
+     * Lista todos los IDs de partidas guardadas disponibles en el repositorio.
      *
      * @pre No hay precondiciones específicas.
      * @return Una {@code List<Integer>} con los IDs de las partidas guardadas.
-     * La lista estará vacía si el archivo no existe o no contiene partidas.
-     * @throws ExceptionPersistenciaFallida 
+     * La lista estará vacía si no existen partidas guardadas.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al acceder al repositorio.
      * @post Se devuelve una lista con los IDs de las partidas guardadas sin modificar el estado del sistema.
-     * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
     public static List<Integer> listarArchivosGuardados() throws ExceptionPersistenciaFallida {
 
@@ -978,15 +1005,14 @@ public class ControladorJuego implements Serializable {
     }
     
     /**
-     * Intenta eliminar una partida guardada especificada por su ID.
+     * Intenta eliminar una partida guardada especificada por su ID del repositorio.
      *
      * @pre No hay precondiciones específicas.
      * @param idPartida El ID de la partida a eliminar.
      * @return {@code true} si la partida existía y fue eliminada con éxito,
-     * {@code false} en caso contrario (ej., la partida no existía o hubo un problema de permisos).
-     * @throws ExceptionPersistenciaFallida 
-     * @post Si la partida existía, se elimina del archivo de partidas guardadas.
-     * @throws RuntimeException Si ocurre un error al manipular el archivo de partidas.
+     * {@code false} en caso contrario (ej., la partida no existía o hubo un error).
+     * @throws ExceptionPersistenciaFallida si ocurre un error al acceder al repositorio.
+     * @post Si la partida existía, se elimina del repositorio de partidas guardadas.
      */
     public static boolean eliminarArchivoGuardado(int idPartida) throws ExceptionPersistenciaFallida {
         try {
@@ -999,15 +1025,14 @@ public class ControladorJuego implements Serializable {
     }
 
     /**
-     * Obtiene el conjunto de jugadores asociados a una partida guardada específica.
+     * Obtiene el mapa de jugadores asociados a una partida guardada específica.
      *
      * @pre No hay precondiciones específicas.
      * @param idPartida El ID de la partida de la que se quieren obtener los jugadores.
-     * @return Un {@code Set<String>} con los nombres de los jugadores de la partida.
-     * Devuelve null si el archivo no existe o un conjunto vacío si la partida no existe.
-     * @throws ExceptionPersistenciaFallida 
-     * @post Se devuelve un conjunto con los nombres de los jugadores sin modificar el estado del sistema.
-     * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
+     * @return Un {@code Map<String, Integer>} con los nombres de los jugadores y sus puntuaciones.
+     * Devuelve un mapa vacío si el archivo no existe o si la partida no existe.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al cargar la partida desde el repositorio.
+     * @post Se devuelve un mapa con los jugadores y sus puntuaciones sin modificar el estado del sistema.
      */
     public static Map<String, Integer> getJugadoresPorId(int idPartida) throws ExceptionPersistenciaFallida {
 
@@ -1036,6 +1061,13 @@ public class ControladorJuego implements Serializable {
         return jugadores;
     }
 
+    /**
+     * Obtiene el identificador único de la partida actual.
+     * 
+     * @return El ID de la partida actual, o -1 si no se ha asignado un ID.
+     * @pre No hay precondiciones específicas.
+     * @post Se devuelve el ID de la partida sin modificar el estado del juego.
+     */
     public int getIdPartida() {
         return idPartida;
     }

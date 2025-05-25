@@ -6,6 +6,10 @@ import java.util.List;
 
 /**
  * Clase que encapsula todas las estadísticas de un jugador para el ranking.
+ * Esta clase centraliza la gestión de puntuaciones, partidas y victorias,
+ * proporcionando una interfaz limpia para el acceso y actualización de datos.
+ * Se utiliza internamente por la clase Ranking para almacenar las estadísticas
+ * de cada jugador de forma organizada.
  */
 public class PlayerRankingStats implements Serializable {
     private static final long serialVersionUID = 1L;

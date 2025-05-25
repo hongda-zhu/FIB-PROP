@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import scrabble.domain.models.Ranking;
 import scrabble.domain.models.rankingStrategy.*;
 
 /**
@@ -19,82 +20,64 @@ import scrabble.domain.models.rankingStrategy.*;
  */
 public class RankingStrategyTest {
 
-    private MockRankingDataProvider dataProvider;
+    private Ranking ranking;
     private List<String> jugadores;
-    
-    /**
-     * Implementación simple de un RankingDataProvider para pruebas
-     */
-    private static class MockRankingDataProvider implements RankingDataProvider {
-        private static final long serialVersionUID = 1L;
-        
-        // Datos de prueba
-        private final java.util.Map<String, PlayerRankingStats> stats = new java.util.HashMap<>();
-        
-        public void addPlayerStats(String username, int[] puntuaciones, int partidasJugadas, int victorias) {
-            PlayerRankingStats playerStats = new PlayerRankingStats(username);
-            
-            // Añadir puntuaciones
-            for (int puntuacion : puntuaciones) {
-                playerStats.addPuntuacion(puntuacion);
-            }
-            
-            // Simular partidas jugadas y victorias
-            for (int i = 0; i < partidasJugadas; i++) {
-                playerStats.actualizarEstadisticas(i < victorias);
-            }
-            
-            stats.put(username, playerStats);
-        }
-        
-        @Override
-        public int getPuntuacionMaxima(String username) {
-            return stats.containsKey(username) ? stats.get(username).getPuntuacionMaxima() : 0;
-        }
-        
-        @Override
-        public double getPuntuacionMedia(String username) {
-            return stats.containsKey(username) ? stats.get(username).getPuntuacionMedia() : 0.0;
-        }
-        
-        @Override
-        public int getPartidasJugadas(String username) {
-            return stats.containsKey(username) ? stats.get(username).getPartidasJugadas() : 0;
-        }
-        
-        @Override
-        public int getVictorias(String username) {
-            return stats.containsKey(username) ? stats.get(username).getVictorias() : 0;
-        }
-        
-        @Override
-        public int getPuntuacionTotal(String username) {
-            return stats.containsKey(username) ? stats.get(username).getPuntuacionTotal() : 0;
-        }
-    }
     
     /**
      * Método que se ejecuta antes de cada test.
      * Prepara el entorno para la prueba.
-     * Pre:  Se necesita crear un proveedor de datos de prueba y una lista de jugadores
+     * Pre:  Se necesita crear un ranking de prueba y una lista de jugadores
      * para verificar el comportamiento de las estrategias de ordenación.
      */
     @Before
     public void setUp() {
-        dataProvider = new MockRankingDataProvider();
+        ranking = new Ranking();
         jugadores = new ArrayList<>(Arrays.asList("Jugador1", "Jugador2", "Jugador3", "Jugador4"));
         
         // Jugador1: Puntuación máxima alta, media baja, pocas partidas, pocas victorias
-        dataProvider.addPlayerStats("Jugador1", new int[]{100, 20, 30}, 5, 1);
+        ranking.agregarPuntuacion("Jugador1", 100);
+        ranking.agregarPuntuacion("Jugador1", 20);
+        ranking.agregarPuntuacion("Jugador1", 30);
+        ranking.actualizarEstadisticasUsuario("Jugador1", true);  // 1 victoria
+        ranking.actualizarEstadisticasUsuario("Jugador1", false); // 4 derrotas más
+        ranking.actualizarEstadisticasUsuario("Jugador1", false);
+        ranking.actualizarEstadisticasUsuario("Jugador1", false);
+        ranking.actualizarEstadisticasUsuario("Jugador1", false);
         
         // Jugador2: Puntuación máxima media, media alta, muchas partidas, muchas victorias
-        dataProvider.addPlayerStats("Jugador2", new int[]{60, 70, 80, 90}, 20, 15);
+        ranking.agregarPuntuacion("Jugador2", 60);
+        ranking.agregarPuntuacion("Jugador2", 70);
+        ranking.agregarPuntuacion("Jugador2", 80);
+        ranking.agregarPuntuacion("Jugador2", 90);
+        // 15 victorias y 5 derrotas (20 partidas total)
+        for (int i = 0; i < 15; i++) {
+            ranking.actualizarEstadisticasUsuario("Jugador2", true);
+        }
+        for (int i = 0; i < 5; i++) {
+            ranking.actualizarEstadisticasUsuario("Jugador2", false);
+        }
         
         // Jugador3: Puntuación máxima baja, media media, partidas medias, victorias medias
-        dataProvider.addPlayerStats("Jugador3", new int[]{50, 50, 50, 50}, 10, 5);
+        ranking.agregarPuntuacion("Jugador3", 50);
+        ranking.agregarPuntuacion("Jugador3", 50);
+        ranking.agregarPuntuacion("Jugador3", 50);
+        ranking.agregarPuntuacion("Jugador3", 50);
+        // 5 victorias y 5 derrotas (10 partidas total)
+        for (int i = 0; i < 5; i++) {
+            ranking.actualizarEstadisticasUsuario("Jugador3", true);
+        }
+        for (int i = 0; i < 5; i++) {
+            ranking.actualizarEstadisticasUsuario("Jugador3", false);
+        }
         
         // Jugador4: Sin puntuaciones, muchas partidas, pocas victorias
-        dataProvider.addPlayerStats("Jugador4", new int[]{}, 15, 2);
+        // 2 victorias y 13 derrotas (15 partidas total)
+        for (int i = 0; i < 2; i++) {
+            ranking.actualizarEstadisticasUsuario("Jugador4", true);
+        }
+        for (int i = 0; i < 13; i++) {
+            ranking.actualizarEstadisticasUsuario("Jugador4", false);
+        }
     }
     
     /**
@@ -105,13 +88,13 @@ public class RankingStrategyTest {
      */
     @After
     public void tearDown() {
-        dataProvider = null;
+        ranking = null;
         jugadores = null;
     }
     
     /**
      * Prueba la estrategia de ordenación por puntuación máxima.
-     * Pre:  Existe un proveedor de datos con estadísticas de jugadores y una lista de nombres
+     * Pre:  Existe un ranking con estadísticas de jugadores y una lista de nombres
      * de jugadores. La estrategia MaximaScoreStrategy debe ordenar los jugadores por su
      * puntuación máxima en orden descendente.
      * Post:  La lista ha sido ordenada correctamente según la puntuación máxima de cada jugador
@@ -119,7 +102,7 @@ public class RankingStrategyTest {
      */
     @Test
     public void testMaximaScoreStrategy() {
-        RankingOrderStrategy strategy = new MaximaScoreStrategy(dataProvider);
+        RankingOrderStrategy strategy = new MaximaScoreStrategy(ranking);
         
         // Ordenamos la lista según la estrategia
         Collections.sort(jugadores, strategy);
@@ -137,7 +120,7 @@ public class RankingStrategyTest {
     
     /**
      * Prueba la estrategia de ordenación por puntuación media.
-     * Pre:  Existe un proveedor de datos con estadísticas de jugadores y una lista de nombres
+     * Pre:  Existe un ranking con estadísticas de jugadores y una lista de nombres
      * de jugadores. La estrategia MediaScoreStrategy debe ordenar los jugadores por su
      * puntuación media en orden descendente.
      * Post:  La lista ha sido ordenada correctamente según la puntuación media de cada jugador
@@ -145,14 +128,14 @@ public class RankingStrategyTest {
      */
     @Test
     public void testMediaScoreStrategy() {
-        RankingOrderStrategy strategy = new MediaScoreStrategy(dataProvider);
+        RankingOrderStrategy strategy = new MediaScoreStrategy(ranking);
         
         // Ordenamos la lista según la estrategia
         Collections.sort(jugadores, strategy);
         
         // Verificamos que el orden es el esperado según las puntuaciones medias:
-        // Jugador2 (75) > Jugador3 (50) > Jugador1 (50) > Jugador4 (0)
-        // Nota: Jugador3 y Jugador1 tienen la misma media, pero se ordenan alfabéticamente
+        // Jugador2 (75) > Jugador1 (50) > Jugador3 (50) > Jugador4 (0)
+        // Nota: Jugador1 y Jugador3 tienen la misma media, pero se ordenan alfabéticamente
         assertEquals("El primer jugador debe ser el de mayor puntuación media", "Jugador2", jugadores.get(0));
         assertEquals("El segundo jugador debe ser el siguiente en puntuación media", "Jugador1", jugadores.get(1));
         assertEquals("El tercer jugador debe ser el siguiente en puntuación media", "Jugador3", jugadores.get(2));
@@ -164,7 +147,7 @@ public class RankingStrategyTest {
     
     /**
      * Prueba la estrategia de ordenación por partidas jugadas.
-     * Pre:  Existe un proveedor de datos con estadísticas de jugadores y una lista de nombres
+     * Pre:  Existe un ranking con estadísticas de jugadores y una lista de nombres
      * de jugadores. La estrategia PartidasJugadasStrategy debe ordenar los jugadores por el
      * número de partidas jugadas en orden descendente.
      * Post:  La lista ha sido ordenada correctamente según el número de partidas jugadas por
@@ -173,7 +156,7 @@ public class RankingStrategyTest {
      */
     @Test
     public void testPartidasJugadasStrategy() {
-        RankingOrderStrategy strategy = new PartidasJugadasStrategy(dataProvider);
+        RankingOrderStrategy strategy = new PartidasJugadasStrategy(ranking);
         
         // Ordenamos la lista según la estrategia
         Collections.sort(jugadores, strategy);
@@ -191,7 +174,7 @@ public class RankingStrategyTest {
     
     /**
      * Prueba la estrategia de ordenación por victorias.
-     * Pre:  Existe un proveedor de datos con estadísticas de jugadores y una lista de nombres
+     * Pre:  Existe un ranking con estadísticas de jugadores y una lista de nombres
      * de jugadores. La estrategia VictoriasStrategy debe ordenar los jugadores por el
      * número de victorias en orden descendente.
      * Post:  La lista ha sido ordenada correctamente según el número de victorias de cada
@@ -200,7 +183,7 @@ public class RankingStrategyTest {
      */
     @Test
     public void testVictoriasStrategy() {
-        RankingOrderStrategy strategy = new VictoriasStrategy(dataProvider);
+        RankingOrderStrategy strategy = new VictoriasStrategy(ranking);
         
         // Ordenamos la lista según la estrategia
         Collections.sort(jugadores, strategy);
@@ -218,7 +201,7 @@ public class RankingStrategyTest {
     
     /**
      * Prueba la estrategia de ordenación por puntuación total.
-     * Pre:  Existe un proveedor de datos con estadísticas de jugadores y una lista de nombres
+     * Pre:  Existe un ranking con estadísticas de jugadores y una lista de nombres
      * de jugadores. La estrategia PuntuacionTotalStrategy debe ordenar los jugadores por su
      * puntuación total acumulada en orden descendente.
      * Post:  La lista ha sido ordenada correctamente según la puntuación total acumulada de
@@ -227,7 +210,7 @@ public class RankingStrategyTest {
      */
     @Test
     public void testPuntuacionTotalStrategy() {
-        RankingOrderStrategy strategy = new PuntuacionTotalStrategy(dataProvider);
+        RankingOrderStrategy strategy = new PuntuacionTotalStrategy(ranking);
         
         // Ordenamos la lista según la estrategia
         Collections.sort(jugadores, strategy);
@@ -245,7 +228,7 @@ public class RankingStrategyTest {
     
     /**
      * Prueba el patrón Factory con la creación de diferentes estrategias.
-     * Pre:  Existe un proveedor de datos con estadísticas de jugadores. La factory
+     * Pre:  Existe un ranking con estadísticas de jugadores. La factory
      * RankingOrderStrategyFactory debe crear instancias de las diferentes estrategias
      * según el criterio especificado.
      * Post:  La factory ha creado correctamente instancias de las diferentes estrategias
@@ -254,12 +237,12 @@ public class RankingStrategyTest {
     @Test
     public void testRankingOrderStrategyFactory() {
         // Creamos diferentes estrategias usando la factory
-        RankingOrderStrategy maximaStrategy = RankingOrderStrategyFactory.createStrategy("maxima", dataProvider);
-        RankingOrderStrategy mediaStrategy = RankingOrderStrategyFactory.createStrategy("media", dataProvider);
-        RankingOrderStrategy partidasStrategy = RankingOrderStrategyFactory.createStrategy("partidas", dataProvider);
-        RankingOrderStrategy victoriasStrategy = RankingOrderStrategyFactory.createStrategy("victorias", dataProvider);
-        RankingOrderStrategy totalStrategy = RankingOrderStrategyFactory.createStrategy("total", dataProvider);
-        RankingOrderStrategy defaultStrategy = RankingOrderStrategyFactory.createStrategy(null, dataProvider);
+        RankingOrderStrategy maximaStrategy = RankingOrderStrategyFactory.createStrategy("maxima", ranking);
+        RankingOrderStrategy mediaStrategy = RankingOrderStrategyFactory.createStrategy("media", ranking);
+        RankingOrderStrategy partidasStrategy = RankingOrderStrategyFactory.createStrategy("partidas", ranking);
+        RankingOrderStrategy victoriasStrategy = RankingOrderStrategyFactory.createStrategy("victorias", ranking);
+        RankingOrderStrategy totalStrategy = RankingOrderStrategyFactory.createStrategy("total", ranking);
+        RankingOrderStrategy defaultStrategy = RankingOrderStrategyFactory.createStrategy(null, ranking);
         
         // Verificamos que se han creado las estrategias correctas
         assertTrue("Debe ser instancia de MaximaScoreStrategy", maximaStrategy instanceof MaximaScoreStrategy);
@@ -280,7 +263,7 @@ public class RankingStrategyTest {
     
     /**
      * Prueba el comportamiento de las estrategias cuando no hay datos para algunos jugadores.
-     * Pre:  Existe un proveedor de datos y una lista de jugadores donde uno no tiene
+     * Pre:  Existe un ranking y una lista de jugadores donde uno no tiene
      * estadísticas registradas. Las estrategias deben manejar correctamente esta situación.
      * Post:  Todas las estrategias han manejado correctamente la situación de un jugador
      * sin datos, colocándolo en último lugar en el ranking.
@@ -291,37 +274,37 @@ public class RankingStrategyTest {
         jugadores.add("JugadorSinDatos");
         
         // Probamos cada estrategia con el nuevo jugador
-        RankingOrderStrategy maximaStrategy = new MaximaScoreStrategy(dataProvider);
+        RankingOrderStrategy maximaStrategy = new MaximaScoreStrategy(ranking);
         Collections.sort(jugadores, maximaStrategy);
         assertEquals("El jugador sin datos debe quedar en último lugar por puntuación máxima", "JugadorSinDatos", jugadores.get(4));
         
-        RankingOrderStrategy mediaStrategy = new MediaScoreStrategy(dataProvider);
+        RankingOrderStrategy mediaStrategy = new MediaScoreStrategy(ranking);
         Collections.sort(jugadores, mediaStrategy);
         assertEquals("El jugador sin datos debe quedar en último lugar por puntuación media", "JugadorSinDatos", jugadores.get(4));
         
-        RankingOrderStrategy partidasStrategy = new PartidasJugadasStrategy(dataProvider);
+        RankingOrderStrategy partidasStrategy = new PartidasJugadasStrategy(ranking);
         Collections.sort(jugadores, partidasStrategy);
         assertEquals("El jugador sin datos debe quedar en último lugar por partidas jugadas", "JugadorSinDatos", jugadores.get(4));
         
-        RankingOrderStrategy victoriasStrategy = new VictoriasStrategy(dataProvider);
+        RankingOrderStrategy victoriasStrategy = new VictoriasStrategy(ranking);
         Collections.sort(jugadores, victoriasStrategy);
         assertEquals("El jugador sin datos debe quedar en último lugar por victorias", "JugadorSinDatos", jugadores.get(4));
         
-        RankingOrderStrategy totalStrategy = new PuntuacionTotalStrategy(dataProvider);
+        RankingOrderStrategy totalStrategy = new PuntuacionTotalStrategy(ranking);
         Collections.sort(jugadores, totalStrategy);
         assertEquals("El jugador sin datos debe quedar en último lugar por puntuación total", "JugadorSinDatos", jugadores.get(4));
     }
     
     /**
      * Prueba la estrategia factory con un criterio inválido.
-     * Pre:  Existe un proveedor de datos con estadísticas de jugadores. La factory
+     * Pre:  Existe un ranking con estadísticas de jugadores. La factory
      * debe usar la estrategia por defecto cuando se proporciona un criterio inválido.
      * Post:  La factory ha utilizado la estrategia por defecto (PuntuacionTotalStrategy)
      * cuando se ha proporcionado un criterio inválido.
      */
     @Test
     public void testFactoryConCriterioInvalido() {
-        RankingOrderStrategy strategy = RankingOrderStrategyFactory.createStrategy("criterio_invalido", dataProvider);
+        RankingOrderStrategy strategy = RankingOrderStrategyFactory.createStrategy("criterio_invalido", ranking);
         
         // Verificamos que se ha creado la estrategia por defecto
         assertTrue("La estrategia para un criterio inválido debe ser PuntuacionTotalStrategy", 
@@ -330,14 +313,14 @@ public class RankingStrategyTest {
     }
     
     /**
-     * Prueba la validación de data provider null en la factory.
-     * Pre:  Se intenta crear una estrategia con un dataProvider null.
+     * Prueba la validación de ranking null en la factory.
+     * Pre:  Se intenta crear una estrategia con un ranking null.
      * Esto debería lanzar una IllegalArgumentException.
      * Post:  Se ha lanzado la excepción esperada al intentar crear una estrategia
-     * con un dataProvider null.
+     * con un ranking null.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testFactoryConDataProviderNull() {
+    public void testFactoryConRankingNull() {
         RankingOrderStrategyFactory.createStrategy("maxima", null);
     }
     
@@ -390,36 +373,36 @@ public class RankingStrategyTest {
     
     /**
      * Prueba el comportamiento de RankingOrderStrategyFactory ante casos especiales y errores.
-     * Pre: Existe un proveedor de datos con estadísticas de jugadores.
+     * Pre: Existe un ranking con estadísticas de jugadores.
      * Post: Se verifica el comportamiento de la factory ante criterios inválidos y 
      * se comprueba que lanza las excepciones esperadas.
      */
     @Test
     public void testRankingOrderStrategyFactoryEdgeCases() {
         // Criterio desconocido debería devolver la estrategia por defecto
-        RankingOrderStrategy unknownStrategy = RankingOrderStrategyFactory.createStrategy("criterio_desconocido", dataProvider);
+        RankingOrderStrategy unknownStrategy = RankingOrderStrategyFactory.createStrategy("criterio_desconocido", ranking);
         assertTrue("La estrategia para un criterio desconocido debe ser PuntuacionTotalStrategy", 
                   unknownStrategy instanceof PuntuacionTotalStrategy);
         
         // Criterio con otra capitalización debería funcionar igual
-        RankingOrderStrategy capitalizationStrategy = RankingOrderStrategyFactory.createStrategy("MaXiMa", dataProvider);
+        RankingOrderStrategy capitalizationStrategy = RankingOrderStrategyFactory.createStrategy("MaXiMa", ranking);
         assertTrue("La estrategia debe ser insensible a mayúsculas/minúsculas", 
                   capitalizationStrategy instanceof MaximaScoreStrategy);
         
         // Criterio vacío debería dar la estrategia por defecto
-        RankingOrderStrategy emptyStrategy = RankingOrderStrategyFactory.createStrategy("", dataProvider);
+        RankingOrderStrategy emptyStrategy = RankingOrderStrategyFactory.createStrategy("", ranking);
         assertTrue("La estrategia para un criterio vacío debe ser PuntuacionTotalStrategy", 
                   emptyStrategy instanceof PuntuacionTotalStrategy);
         
         // Criterio null debería dar la estrategia por defecto
-        RankingOrderStrategy nullStrategy = RankingOrderStrategyFactory.createStrategy(null, dataProvider);
+        RankingOrderStrategy nullStrategy = RankingOrderStrategyFactory.createStrategy(null, ranking);
         assertTrue("La estrategia para un criterio null debe ser PuntuacionTotalStrategy", 
                   nullStrategy instanceof PuntuacionTotalStrategy);
         
         try {
-            // DataProvider null debería lanzar IllegalArgumentException
+            // Ranking null debería lanzar IllegalArgumentException
             RankingOrderStrategyFactory.createStrategy("maxima", null);
-            fail("Debería lanzar IllegalArgumentException con dataProvider null");
+            fail("Debería lanzar IllegalArgumentException con ranking null");
         } catch (IllegalArgumentException e) {
             // Comportamiento esperado
         }

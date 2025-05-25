@@ -210,8 +210,8 @@ public class ControladorConfiguracionView {
     /**
      * Guarda la configuración general
      */
-    public void guardarConfiguracionGeneral(String idioma, String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
-        presentationController.guardarConfiguracionGeneral(idioma, tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
+    public void guardarConfiguracionGeneral(String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
+        presentationController.guardarConfiguracionGeneral( tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
     }
 
     /**

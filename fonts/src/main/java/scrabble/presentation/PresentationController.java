@@ -29,40 +29,9 @@ public class PresentationController {
     }
 
     public void initializeDefaultSettings() {
-
-        String resourcesPath = "src/main/resources/diccionarios/";
-        java.io.File resourcesDir = new java.io.File(resourcesPath);
-
-        if (resourcesDir.exists() && resourcesDir.isDirectory()) {
-            java.io.File[] directories = resourcesDir.listFiles(java.io.File::isDirectory);
-
-            if (directories != null) {
-                for (java.io.File dir : directories) {
-                    String languageName = dir.getName();
-                    java.io.File alphaFile = new java.io.File(dir, "alpha.txt");
-                    java.io.File wordsFile = new java.io.File(dir, "words.txt");
-
-                    if (alphaFile.exists() && wordsFile.exists()) {
-                        try {
-                            if (!ctrlDomain.existeLenguaje(languageName)) {
-                                ctrlDomain.anadirLenguaje(languageName, alphaFile.getPath(), wordsFile.getPath());
-                            }
-                        } catch (Exception e) {
-                            System.err.println("Error al cargar el lenguaje '" + languageName + "': " + e.getMessage());
-                        }
-                    } else {
-                        System.err.println("Faltan archivos en el directorio '" + dir.getName() + "'. Se requieren 'alpha.txt' y 'words.txt'.");
-                    }
-                }
-            }
-        } else {
-            System.err.println("El directorio de recursos no existe o no es válido: " + resourcesPath);
-        }    
-
         // Registrar algunos usuarios por defecto para testing solo si no existen
         if (!ctrlDomain.existeJugador("xuanyi")) ctrlDomain.registrarUsuario("xuanyi");
         if (!ctrlDomain.existeJugador("jiahao")) ctrlDomain.registrarUsuario("jiahao");
-        if (!ctrlDomain.existeJugador("admin")) ctrlDomain.registrarUsuario("admin");
         if (!ctrlDomain.existeJugador("songhe")) ctrlDomain.registrarUsuario("songhe");
         if (!ctrlDomain.existeJugador("hongda")) ctrlDomain.registrarUsuario("hongda");
         ctrlDomain.crearJugadorIA(Dificultad.FACIL, "DummyEZ");
@@ -469,7 +438,6 @@ public class PresentationController {
     /**
      * Guarda la configuración general de la aplicación en un archivo de propiedades.
      * 
-     * @param idioma           El idioma seleccionado por el usuario.
      * @param tema             El tema visual seleccionado por el usuario.
      * @param musicaActivada   Indica si la música está activada (true) o desactivada (false).
      * @param sonidoActivado   Indica si los efectos de sonido están activados (true) o desactivados (false).
@@ -481,8 +449,8 @@ public class PresentationController {
      * durante el proceso de guardado, se imprime la traza de la excepción.
      */
 
-    public void guardarConfiguracionGeneral(String idioma, String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
-        ctrlDomain.guardarConfiguracionGeneral(idioma, tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
+    public void guardarConfiguracionGeneral( String tema, boolean musicaActivada, boolean sonidoActivado, int volumenMusica, int volumenSonido) {
+        ctrlDomain.guardarConfiguracionGeneral( tema, musicaActivada, sonidoActivado, volumenMusica, volumenSonido);
     }
 
     /**

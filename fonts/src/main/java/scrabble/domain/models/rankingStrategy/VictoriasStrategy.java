@@ -1,25 +1,27 @@
 package scrabble.domain.models.rankingStrategy;
 
+import scrabble.domain.models.Ranking;
+
 /**
  * Implementación de RankingOrderStrategy que ordena por total de victorias.
  */
 public class VictoriasStrategy implements RankingOrderStrategy {
     private static final long serialVersionUID = 1L;
-    private final RankingDataProvider dataProvider;
+    private final Ranking ranking;
     
     /**
-     * Constructor que recibe el proveedor de datos para acceder a las estadísticas.
+     * Constructor que recibe el objeto ranking para acceder a las estadísticas.
      * 
-     * @pre El dataProvider no debe ser null.
-     * @param dataProvider Proveedor de datos de ranking
-     * @post Se inicializa la estrategia con el proveedor de datos especificado.
-     * @throws NullPointerException si dataProvider es null
+     * @pre El ranking no debe ser null.
+     * @param ranking Objeto ranking
+     * @post Se inicializa la estrategia con el ranking especificado.
+     * @throws NullPointerException si ranking es null
      */
-    public VictoriasStrategy(RankingDataProvider dataProvider) {
-        if (dataProvider == null) {
-            throw new NullPointerException("El proveedor de datos no puede ser null");
+    public VictoriasStrategy(Ranking ranking) {
+        if (ranking == null) {
+            throw new NullPointerException("El ranking no puede ser null");
         }
-        this.dataProvider = dataProvider;
+        this.ranking = ranking;
     }
     
     @Override
@@ -41,8 +43,8 @@ public class VictoriasStrategy implements RankingOrderStrategy {
         }
         
         // Obtener el número de victorias de cada usuario
-        int victorias1 = dataProvider.getVictorias(username1);
-        int victorias2 = dataProvider.getVictorias(username2);
+        int victorias1 = ranking.getVictorias(username1);
+        int victorias2 = ranking.getVictorias(username2);
         
         // Comparar por número de victorias (orden descendente)
         int comparacion = Integer.compare(victorias2, victorias1);

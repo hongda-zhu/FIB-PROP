@@ -7,58 +7,42 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import scrabble.domain.models.Ranking;
-import scrabble.domain.models.rankingStrategy.RankingDataProvider;
-import scrabble.excepciones.ExceptionLoggingOperacion;
 import scrabble.domain.persistences.interfaces.RepositorioRanking;
 import scrabble.domain.persistences.implementaciones.RepositorioRankingImpl;
 
 /**
- * Controlador para la gestión del ranking de jugadores.
- * Implementa el patrón Singleton para garantizar una única instancia.
- * Delega toda la lógica de negocio al modelo Ranking.
+ * Controller for managing player rankings.
+ * Implements the Singleton pattern to ensure a single instance.
+ * Delegates all business logic to the Ranking model and uses Repository pattern for persistence.
  */
-public class ControladorRanking implements RankingDataProvider {
-    private static final long serialVersionUID = 1L;
+public class ControladorRanking {
     private static transient ControladorRanking instance;
     
-    // Referencia al modelo de Ranking
+    // Reference to the Ranking model
     private Ranking ranking;
-    private RepositorioRanking repositorio;
+    
+    // Repository for persistence operations
+    private RepositorioRanking repositorioRanking;
     
     /**
-     * Constructor privado para implementar el patrón Singleton.
-     * Inicializa el modelo de Ranking y carga los datos existentes.
+     * Private constructor to implement the Singleton pattern.
+     * Initializes the Ranking model and loads existing data through repository.
      * 
-     * @pre No hay precondiciones específicas.
-     * @post Se inicializa una nueva instancia con un modelo de Ranking
-     *       y se cargan los datos persistentes si están disponibles.
+     * @pre No specific preconditions.
+     * @post A new instance is initialized with a Ranking model
+     *       and persistent data is loaded if available.
      */
     private ControladorRanking() {
-        this(new RepositorioRankingImpl());
+        this.repositorioRanking = new RepositorioRankingImpl();
+        this.ranking = repositorioRanking.cargar();
     }
     
     /**
-     * Constructor privado con inyección de repositorio para pruebas.
+     * Gets the unique instance of the controller (Singleton).
      * 
-     * @param repositorio El repositorio a utilizar para la persistencia
-     * @pre El repositorio no debe ser null.
-     * @post Se inicializa una nueva instancia con un modelo de Ranking cargado desde el repositorio.
-     * @throws NullPointerException si el repositorio es null
-     */
-    private ControladorRanking(RepositorioRanking repositorio) {
-        if (repositorio == null) {
-            throw new NullPointerException("El repositorio no puede ser null");
-        }
-        this.repositorio = repositorio;
-        this.ranking = repositorio.cargar();
-    }
-    
-    /**
-     * Obtiene la instancia única del controlador (Singleton).
-     * 
-     * @pre No hay precondiciones específicas.
-     * @return Instancia de ControladorRanking
-     * @post Se devuelve la única instancia de ControladorRanking que existe en la aplicación.
+     * @pre No specific preconditions.
+     * @return ControladorRanking instance
+     * @post Returns the unique instance of ControladorRanking that exists in the application.
      */
     public static synchronized ControladorRanking getInstance() {
         if (instance == null) {
@@ -68,47 +52,33 @@ public class ControladorRanking implements RankingDataProvider {
     }
     
     /**
-     * Obtiene la instancia única del controlador con repositorio personalizado (para pruebas).
+     * Adds a score for a specific user to the list of individual scores.
+     * This score will affect statistics (maximum, average) and also the total score.
      * 
-     * @param repositorio El repositorio a utilizar
-     * @return Instancia de ControladorRanking
-     * @pre El repositorio no debe ser null.
-     * @post Se devuelve una instancia de ControladorRanking configurada con el repositorio especificado.
-     * @throws NullPointerException Si el repositorio es null
-     */
-    public static synchronized ControladorRanking getInstance(RepositorioRanking repositorio) {
-        instance = new ControladorRanking(repositorio);
-        return instance;
-    }
-    
-    /**
-     * Agrega una puntuación para un usuario específico a la lista de puntuaciones individuales.
-     * Esta puntuación afectará las estadísticas (máxima, media) y también la puntuación total.
-     * 
-     * @pre El nombre debe ser no nulo y no vacío, y la puntuación debe ser no negativa.
-     * @param nombre Nombre del usuario
-     * @param puntuacion Puntuación a agregar
-     * @return true si se agregó correctamente, false en caso contrario
-     * @post Si el nombre es válido y la puntuación no es negativa, se agrega la puntuación
-     *       al usuario y se devuelve true. En caso contrario, se devuelve false.
-     * @throws NullPointerException Si el nombre es null.
+     * @pre The name must be non-null and non-empty, and the score must be non-negative.
+     * @param nombre User name
+     * @param puntuacion Score to add
+     * @return true if added correctly, false otherwise
+     * @post If the name is valid and the score is non-negative, the score is added
+     *       to the user and true is returned. Otherwise, false is returned.
+     * @throws NullPointerException If the name is null.
      */
     public boolean agregarPuntuacion(String nombre, int puntuacion) {
-        // Verificar que se proporciona un usuario válido
+        // Verify that a valid user is provided
         if (nombre == null || nombre.isEmpty()) {
             return false;
         }
         
         if (puntuacion < 0) {
-            return false; // No se permiten puntuaciones negativas
+            return false; // Negative scores are not allowed
         }
         
-        // Delegar al modelo de Ranking
+        // Delegate to the Ranking model
         boolean resultado = ranking.agregarPuntuacion(nombre, puntuacion);
         
-        // Guardar cambios si la operación fue exitosa
+        // Save changes if the operation was successful
         if (resultado) {
-            repositorio.guardar(ranking);
+            repositorioRanking.guardar(ranking);
         }
         
         return resultado;
@@ -145,7 +115,7 @@ public class ControladorRanking implements RankingDataProvider {
             }
             
             // Guardar cambios
-            repositorio.guardar(ranking);
+            repositorioRanking.guardar(ranking);
             
             return true;
         } catch (Exception e) {
@@ -200,7 +170,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            repositorio.guardar(ranking);
+            repositorioRanking.guardar(ranking);
         }
         
         return resultado;
@@ -236,7 +206,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            repositorio.guardar(ranking);
+            repositorioRanking.guardar(ranking);
         }
         
         return resultado;
@@ -253,7 +223,7 @@ public class ControladorRanking implements RankingDataProvider {
      */
     public void setEstrategia(String criterio) {
         ranking.setEstrategia(criterio);
-        repositorio.guardar(ranking);
+        repositorioRanking.guardar(ranking);
     }
     
     /**
@@ -337,7 +307,7 @@ public class ControladorRanking implements RankingDataProvider {
     }
     
     /**
-     * Implementación de RankingDataProvider. Obtiene la puntuación máxima de un usuario.
+     * Obtiene la puntuación máxima de un usuario.
      * 
      * @pre No hay precondiciones específicas fuertes.
      * @param nombre Nombre del usuario
@@ -345,13 +315,12 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve un entero no negativo que representa la puntuación máxima del usuario.
      * @throws NullPointerException Si el nombre es null.
      */
-    @Override
     public int getPuntuacionMaxima(String nombre) {
         return ranking.getPuntuacionMaxima(nombre);
     }
     
     /**
-     * Implementación de RankingDataProvider. Obtiene la puntuación media de un usuario.
+     * Obtiene la puntuación media de un usuario.
      * 
      * @pre No hay precondiciones específicas fuertes.
      * @param nombre Nombre del usuario
@@ -359,13 +328,12 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve un valor de punto flotante no negativo que representa la puntuación media del usuario.
      * @throws NullPointerException Si el nombre es null.
      */
-    @Override
     public double getPuntuacionMedia(String nombre) {
         return ranking.getPuntuacionMedia(nombre);
     }
     
     /**
-     * Implementación de RankingDataProvider. Obtiene el número de partidas jugadas por un usuario.
+     * Obtiene el número de partidas jugadas por un usuario.
      * 
      * @pre No hay precondiciones específicas fuertes.
      * @param nombre Nombre del usuario
@@ -373,13 +341,12 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve un entero no negativo que representa el número de partidas jugadas por el usuario.
      * @throws NullPointerException Si el nombre es null.
      */
-    @Override
     public int getPartidasJugadas(String nombre) {
         return ranking.getPartidasJugadas(nombre);
     }
     
     /**
-     * Implementación de RankingDataProvider. Obtiene el número de victorias de un usuario.
+     * Obtiene el número de victorias de un usuario.
      * 
      * @pre No hay precondiciones específicas fuertes.
      * @param nombre Nombre del usuario
@@ -387,7 +354,6 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve un entero no negativo que representa el número de victorias del usuario.
      * @throws NullPointerException Si el nombre es null.
      */
-    @Override
     public int getVictorias(String nombre) {
         return ranking.getVictorias(nombre);
     }
@@ -402,7 +368,6 @@ public class ControladorRanking implements RankingDataProvider {
      * @post Se devuelve un entero no negativo que representa la puntuación total acumulada del usuario.
      * @throws NullPointerException Si el nombre es null.
      */
-    @Override
     public int getPuntuacionTotal(String nombre) {
         return ranking.getPuntuacionTotal(nombre);
     }
@@ -433,7 +398,7 @@ public class ControladorRanking implements RankingDataProvider {
                 // En este caso sí queremos incrementar el contador de partidas
                 // ya que es la primera vez que se registra al usuario
                 ranking.agregarPuntuacion(username, nuevaPuntuacion);
-                repositorio.guardar(ranking);
+                repositorioRanking.guardar(ranking);
                 return true;
             }
             
@@ -450,7 +415,7 @@ public class ControladorRanking implements RankingDataProvider {
             
             // Guardar cambios si la operación fue exitosa
             if (resultado) {
-                repositorio.guardar(ranking);
+                repositorioRanking.guardar(ranking);
             }
             
             return resultado;
@@ -521,73 +486,6 @@ public class ControladorRanking implements RankingDataProvider {
                .collect(Collectors.toList());
     }
     
-    /**
-     * Guarda los datos del ranking utilizando el repositorio.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @post Los datos del ranking se guardan a través del repositorio.
-     *       En caso de error, se registra el mensaje en la consola de error.
-     */
-    public void guardarDatos() {
-        try {
-            repositorio.guardar(ranking);
-        } catch (Exception e) {
-            throw new ExceptionLoggingOperacion("Error al guardar el ranking: " + e.getMessage(), "persistencia", true);
-        }
-    }
-    
-    /**
-     * Para compatibilidad con código existente.
-     * Devuelve un mapa con las puntuaciones máximas por usuario.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @return Mapa de usuarios y sus puntuaciones máximas
-     * @post Se devuelve un mapa donde las claves son los nombres de usuario
-     *       y los valores son sus puntuaciones máximas.
-     */
-    public Map<String, Integer> getMapaPuntuacionesMaximas() {
-        return ranking.getMapaPuntuacionesMaximas();
-    }
-    
-    /**
-     * Para compatibilidad con código existente.
-     * Devuelve un mapa con las puntuaciones medias por usuario.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @return Mapa de usuarios y sus puntuaciones medias
-     * @post Se devuelve un mapa donde las claves son los nombres de usuario
-     *       y los valores son sus puntuaciones medias.
-     */
-    public Map<String, Double> getMapaPuntuacionesMedias() {
-        return ranking.getMapaPuntuacionesMedias();
-    }
-    
-    /**
-     * Para compatibilidad con código existente.
-     * Devuelve un mapa con las partidas jugadas por usuario.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @return Mapa de usuarios y su número de partidas jugadas
-     * @post Se devuelve un mapa donde las claves son los nombres de usuario
-     *       y los valores son sus números de partidas jugadas.
-     */
-    public Map<String, Integer> getMapaPartidasJugadas() {
-        return ranking.getMapaPartidasJugadas();
-    }
-    
-    /**
-     * Para compatibilidad con código existente.
-     * Devuelve un mapa con las victorias por usuario.
-     * 
-     * @pre No hay precondiciones específicas.
-     * @return Mapa de usuarios y su número de victorias
-     * @post Se devuelve un mapa donde las claves son los nombres de usuario
-     *       y los valores son sus números de victorias.
-     */
-    public Map<String, Integer> getMapaVictorias() {
-        return ranking.getMapaVictorias();
-    }
-
     /**
      * Ordena una lista de usuarios según el criterio de ranking especificado.
      * 
@@ -664,7 +562,7 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            repositorio.guardar(ranking);
+            repositorioRanking.guardar(ranking);
         }
         
         return resultado;
@@ -699,9 +597,61 @@ public class ControladorRanking implements RankingDataProvider {
         
         // Guardar cambios si la operación fue exitosa
         if (resultado) {
-            repositorio.guardar(ranking);
+            repositorioRanking.guardar(ranking);
         }
         
         return resultado;
+    }
+
+    /**
+     * Para compatibilidad con código existente.
+     * Devuelve un mapa con las puntuaciones máximas por usuario.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Mapa de usuarios y sus puntuaciones máximas
+     * @post Se devuelve un mapa donde las claves son los nombres de usuario
+     *       y los valores son sus puntuaciones máximas.
+     */
+    public Map<String, Integer> getMapaPuntuacionesMaximas() {
+        return ranking.getMapaPuntuacionesMaximas();
+    }
+    
+    /**
+     * Para compatibilidad con código existente.
+     * Devuelve un mapa con las puntuaciones medias por usuario.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Mapa de usuarios y sus puntuaciones medias
+     * @post Se devuelve un mapa donde las claves son los nombres de usuario
+     *       y los valores son sus puntuaciones medias.
+     */
+    public Map<String, Double> getMapaPuntuacionesMedias() {
+        return ranking.getMapaPuntuacionesMedias();
+    }
+    
+    /**
+     * Para compatibilidad con código existente.
+     * Devuelve un mapa con las partidas jugadas por usuario.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Mapa de usuarios y su número de partidas jugadas
+     * @post Se devuelve un mapa donde las claves son los nombres de usuario
+     *       y los valores son sus números de partidas jugadas.
+     */
+    public Map<String, Integer> getMapaPartidasJugadas() {
+        return ranking.getMapaPartidasJugadas();
+    }
+    
+    /**
+     * Para compatibilidad con código existente.
+     * Devuelve un mapa con las victorias por usuario.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @return Mapa de usuarios y su número de victorias
+     * @post Se devuelve un mapa donde las claves son los nombres de usuario
+     *       y los valores son sus números de victorias.
+     */
+    public Map<String, Integer> getMapaVictorias() {
+        return ranking.getMapaVictorias();
     }
 }

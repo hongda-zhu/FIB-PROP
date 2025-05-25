@@ -1217,7 +1217,7 @@ private void finalizarPartida() {
         } else {
             controlador.setCargado(false);
         }
-        
+        controlador.finalizarJuego(jugadoresPuntuaciones);
         mostrarResultadoFinal(mensajeCompleto);
         
     } catch (Exception e) {
