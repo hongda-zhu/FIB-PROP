@@ -1,46 +1,48 @@
-# Directori d'Implementacions de Persistència (`implementaciones`)
+# Directorio de Implementaciones de Persistencia (`implementaciones`)
 
-## Descripció General
+## Descripción General
 
-Aquest directori (`scrabble.domain.persistences.implementaciones`) conté les classes que proporcionen les implementacions concretes per a les interfícies de repositori definides a la carpeta `interfaces/`. Cada classe aquí és responsable de la lògica específica per guardar i carregar dades per a una entitat particular del domini, utilitzant mecanismes de persistència específics.
+Este directorio (`scrabble.domain.persistences.implementaciones`) contiene las clases que proporcionan las implementaciones concretas para las interfaces de repositorio definidas en la carpeta `interfaces/`. Cada clase aquí es responsable de la lógica específica para guardar y cargar datos para una entidad particular del dominio, utilizando mecanismos de persistencia específicos.
 
-En la implementació actual, la majoria d'aquestes classes utilitzen la **serialització d'objectes Java** per emmagatzemar dades en fitxers binaris (normalment amb extensió `.dat`) i, en el cas dels diccionaris, també gestionen fitxers de text directament.
+En la implementación actual, la mayoría de estas clases utilizan la **serialización de objetos Java** para almacenar datos en archivos binarios (normalmente con extensión `.dat`) y, en el caso de los diccionarios, también gestionan archivos de texto directamente. Todas las implementaciones siguen el patrón Repository y proporcionan manejo automático de directorios, gestión de errores robusta y operaciones CRUD completas.
 
-## Fitxers Clau i les Seves Responsabilitats
+## Archivos Clave y sus Responsabilidades
 
 -   **`RepositorioConfiguracionImpl.java`**
-    -   **Descripció:** Implementa la interfície `RepositorioConfiguracion`.
-    -   **Responsabilitat:** Gestiona la persistència de l'objecte `Configuracion` de l'aplicació.
-    -   **Mecanisme:** Serialitza i deserialitza l'objecte `Configuracion` cap a/des d'un fitxer anomenat `configuracion.dat`.
-    -   **Fitxer de dades:** `src/main/resources/persistencias/configuracion.dat`
+    -   **Descripción:** Implementa la interfaz `RepositorioConfiguracion` para la gestión de configuraciones del sistema.
+    -   **Responsabilidad:** Gestiona la persistencia completa del objeto `Configuracion` de la aplicación, incluyendo tema visual, configuración de audio, diccionario por defecto y tamaño del tablero.
+    -   **Mecanismo:** Serializa y deserializa el objeto `Configuracion` hacia/desde un archivo llamado `configuracion.dat`. Proporciona valores por defecto en caso de errores.
+    -   **Archivo de datos:** `src/main/resources/persistencias/configuracion.dat`
 
 -   **`RepositorioDiccionarioImpl.java`**
-    -   **Descripció:** Implementa la interfície `RepositorioDiccionario`.
-    -   **Responsabilitat:** Gestiona la persistència dels diccionaris de paraules. Emmagatzema un índex de diccionaris (nom a ruta) i gestiona els fitxers individuals de cada diccionari (`alpha.txt`, `words.txt`).
-    -   **Mecanisme:** L'índex de diccionaris es serialitza (`diccionarios_index.dat`). Els fitxers de cada diccionari es gestionen directament al sistema de fitxers.
-    -   **Fitxer d'índex:** `src/main/resources/persistencias/diccionarios_index.dat`
-    -   **Fitxers de diccionari:** Emmagatzemats en subdirectoris dins de `src/main/resources/diccionarios/` (la ruta específica es desa a l'índex).
+    -   **Descripción:** Implementa la interfaz `RepositorioDiccionario` para la gestión completa de diccionarios.
+    -   **Responsabilidad:** Gestiona la persistencia de diccionarios de palabras con estructura DAWG. Mantiene un índice de diccionarios (nombre a ruta) y gestiona los archivos individuales de cada diccionario (`alpha.txt`, `words.txt`). Incluye validación de integridad y operaciones CRUD completas.
+    -   **Mecanismo:** El índice de diccionarios se serializa (`diccionarios_index.dat`). Los archivos de cada diccionario se gestionan directamente en el sistema de archivos con verificación de validez.
+    -   **Archivo de índice:** `src/main/resources/persistencias/diccionarios_index.dat`
+    -   **Archivos de diccionario:** Almacenados en subdirectorios dentro de `src/main/resources/diccionarios/` (la ruta específica se guarda en el índice).
 
 -   **`RepositorioJugadorImpl.java`**
-    -   **Descripció:** Implementa la interfície `RepositorioJugador`.
-    -   **Responsabilitat:** Gestiona la persistència d'un mapa de jugadors (nom del jugador a objecte `Jugador`).
-    -   **Mecanisme:** Serialitza i deserialitza el mapa complet de jugadors cap a/des d'un fitxer anomenat `jugadores.dat`.
-    -   **Fitxer de dades:** `src/main/resources/persistencias/jugadores.dat`
+    -   **Descripción:** Implementa la interfaz `RepositorioJugador` para la gestión de jugadores humanos e IA.
+    -   **Responsabilidad:** Gestiona la persistencia de un mapa completo de jugadores (nombre del jugador a objeto `Jugador`). Proporciona operaciones de búsqueda y filtrado por tipo de jugador (humano/IA).
+    -   **Mecanismo:** Serializa y deserializa el mapa completo de jugadores hacia/desde un archivo llamado `jugadores.dat`. Incluye métodos de consulta especializados.
+    -   **Archivo de datos:** `src/main/resources/persistencias/jugadores.dat`
 
 -   **`RepositorioPartidaImpl.java`**
-    -   **Descripció:** Implementa la interfície `RepositorioPartida`.
-    -   **Responsabilitat:** Gestiona la persistència dels estats de les partides de Scrabble (objectes `ControladorJuego`). Permet guardar, carregar, eliminar i llistar partides.
-    -   **Mecanisme:** Serialitza i deserialitza un mapa d'identificadors de partida a objectes `ControladorJuego` cap a/des d'un fitxer anomenat `partidas.dat`.
-    -   **Fitxer de dades:** `src/main/resources/persistencias/partidas.dat`
+    -   **Descripción:** Implementa la interfaz `RepositorioPartida` para la gestión completa de partidas guardadas.
+    -   **Responsabilidad:** Gestiona la persistencia de los estados completos de las partidas de Scrabble (objetos `ControladorJuego`). Permite guardar, cargar, eliminar y listar partidas con generación automática de IDs únicos.
+    -   **Mecanismo:** Serializa y deserializa un mapa de identificadores de partida a objetos `ControladorJuego` hacia/desde un archivo llamado `partidas.dat`. Incluye gestión robusta de errores.
+    -   **Archivo de datos:** `src/main/resources/persistencias/partidas.dat`
 
 -   **`RepositorioRankingImpl.java`**
-    -   **Descripció:** Implementa la interfície `RepositorioRanking`.
-    -   **Responsabilitat:** Gestiona la persistència de l'objecte `Ranking` que conté les estadístiques i classificacions dels jugadors.
-    -   **Mecanisme:** Serialitza i deserialitza l'objecte `Ranking` complet cap a/des d'un fitxer anomenat `ranking.dat`.
-    -   **Fitxer de dades:** `src/main/resources/persistencias/ranking.dat`
+    -   **Descripción:** Implementa la interfaz `RepositorioRanking` para la gestión del sistema de clasificación.
+    -   **Responsabilidad:** Gestiona la persistencia del objeto `Ranking` que contiene las estadísticas completas y clasificaciones de los jugadores. Proporciona operaciones especializadas para consultas de estadísticas individuales.
+    -   **Mecanismo:** Serializa y deserializa el objeto `Ranking` completo hacia/desde un archivo llamado `ranking.dat`. Incluye métodos de consulta optimizados para diferentes criterios de ranking.
+    -   **Archivo de datos:** `src/main/resources/persistencias/ranking.dat`
 
-## Consideracions
+## Consideraciones
 
--   **Gestió de Directoris:** Cada implementació s'encarrega d'assegurar que els directoris necessaris per a la persistència existeixin abans d'intentar operacions d'escriptura.
--   **Gestió d'Errors:** Els mètodes generalment retornen un booleà indicant l'èxit o fracàs de l'operació i imprimeixen missatges d'error a `System.err` o llancen excepcions específiques (com `ExceptionPersistenciaFallida`) en cas de problemes.
--   **Dependències:** Aquestes classes depenen dels models definits a `scrabble.domain.models`, dels controladors (com `ControladorJuego`) i de les interfícies a `scrabble.domain.persistences.interfaces`. 
+-   **Gestión de Directorios:** Cada implementación se encarga de asegurar que los directorios necesarios para la persistencia existan antes de intentar operaciones de escritura. Se crean automáticamente si no existen.
+-   **Gestión de Errores:** Los métodos generalmente retornan un booleano indicando el éxito o fracaso de la operación e imprimen mensajes de error a `System.err` o lanzan excepciones específicas (como `ExceptionPersistenciaFallida`) en caso de problemas. Incluyen manejo robusto de excepciones de E/S.
+-   **Dependencias:** Estas clases dependen de los modelos definidos en `scrabble.domain.models`, de los controladores (como `ControladorJuego`) y de las interfaces en `scrabble.domain.persistences.interfaces`. Siguen el principio de inversión de dependencias.
+-   **Rendimiento:** Las implementaciones están optimizadas para operaciones frecuentes de lectura/escritura y manejan eficientemente la serialización de objetos complejos.
+-   **Integridad de Datos:** Incluyen verificaciones de integridad y validación de datos para asegurar la consistencia del estado persistido. 

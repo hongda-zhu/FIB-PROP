@@ -12,7 +12,18 @@ import scrabble.helpers.Triple;
 
 /**
  * Clase que implementa un Grafo Acíclico Dirigido para Palabras (DAWG, Directed Acyclic Word Graph).
- * Esta estructura es eficiente para almacenar y buscar palabras en un diccionario.
+ * Esta estructura es eficiente para almacenar y buscar palabras en un diccionario, optimizando
+ * tanto el uso de memoria como la velocidad de búsqueda. El DAWG permite compartir sufijos
+ * comunes entre palabras, reduciendo significativamente el espacio requerido comparado con
+ * un trie tradicional.
+ * 
+ * La implementación utiliza un algoritmo de minimización incremental que construye el DAWG
+ * de manera eficiente mientras se insertan las palabras. Es especialmente útil para
+ * diccionarios grandes donde muchas palabras comparten terminaciones comunes.
+ * 
+ * 
+ * @version 1.0
+ * @since 1.0
  */
 public class Dawg {
 
@@ -23,6 +34,9 @@ public class Dawg {
 
     /**
      * Constructor por defecto. Inicializa un DAWG vacío con un nodo raíz.
+     * Crea las estructuras de datos necesarias para la construcción incremental
+     * del DAWG, incluyendo el mapa de nodos minimizados y la pila de nodos
+     * no verificados para el proceso de minimización.
      *
      * @pre No hay precondiciones específicas.
      * @post Se crea una nueva instancia de DAWG con un nodo raíz vacío.
@@ -66,6 +80,16 @@ public class Dawg {
         }
     }
 
+    /**
+     * Finaliza la construcción del DAWG.
+     * Completa el proceso de minimización para todos los nodos restantes
+     * y limpia las estructuras de datos temporales utilizadas durante la construcción.
+     * Este método debe ser llamado después de insertar todas las palabras
+     * para garantizar que el DAWG esté completamente optimizado.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @post El DAWG queda completamente minimizado y las estructuras temporales se limpian.
+     */
     public void finish() {
         minimize(0);
         minimizedNodes.clear();
@@ -75,9 +99,14 @@ public class Dawg {
 
     /**
      * Inserta una palabra en el DAWG.
+     * Añade una nueva palabra al DAWG utilizando el algoritmo de construcción incremental.
+     * La palabra se inserta carácter por carácter, creando los nodos necesarios y
+     * aplicando minimización cuando es posible para optimizar la estructura.
+     * Las palabras deben insertarse en orden lexicográfico para que la minimización
+     * funcione correctamente.
      *
+     * @param word Palabra a insertar en el DAWG
      * @pre La palabra no debe ser null.
-     * @param word Palabra a insertar
      * @post Si la palabra no está vacía, se inserta en el DAWG, creando los nodos necesarios.
      * Si la palabra está vacía, no se realiza ninguna acción.
      * @throws NullPointerException si word es null
@@ -107,10 +136,13 @@ public class Dawg {
 
     /**
      * Busca una palabra en el DAWG.
+     * Verifica si una palabra específica existe en el DAWG siguiendo el camino
+     * desde la raíz hasta un nodo final. La búsqueda es eficiente con complejidad
+     * O(m) donde m es la longitud de la palabra.
      *
-     * @pre La palabra no debe ser null.
-     * @param word Palabra a buscar
+     * @param word Palabra a buscar en el DAWG
      * @return true si la palabra existe en el DAWG, false en caso contrario
+     * @pre La palabra no debe ser null.
      * @post Se devuelve true si la palabra existe en el DAWG (es decir, si se puede seguir un camino
      * desde la raíz hasta un nodo final siguiendo las letras de la palabra).
      * Se devuelve false en caso contrario.
@@ -135,9 +167,11 @@ public class Dawg {
 
     /**
      * Obtiene el nodo raíz del DAWG.
+     * Proporciona acceso al nodo raíz desde el cual se pueden realizar
+     * traversals y búsquedas en la estructura del DAWG.
      *
+     * @return Nodo raíz del DAWG
      * @pre No hay precondiciones específicas.
-     * @return Nodo raíz
      * @post Se devuelve el nodo raíz del DAWG.
      */
     public DawgNode getRoot() {
@@ -146,10 +180,13 @@ public class Dawg {
 
     /**
      * Obtiene el nodo correspondiente al final de una secuencia de caracteres.
+     * Sigue el camino desde la raíz siguiendo los caracteres de la palabra
+     * y devuelve el nodo final alcanzado. Útil para verificar prefijos
+     * y obtener información sobre palabras parciales.
      *
-     * @pre La palabra no debe ser null.
-     * @param word Secuencia de caracteres a seguir
+     * @param word Secuencia de caracteres a seguir desde la raíz
      * @return El nodo al final de la secuencia, o null si no existe tal secuencia
+     * @pre La palabra no debe ser null.
      * @post Si la palabra está vacía, se devuelve el nodo raíz.
      * Si se puede seguir un camino desde la raíz siguiendo las letras de la palabra,
      * se devuelve el nodo final de ese camino.
@@ -180,11 +217,14 @@ public class Dawg {
 
     /**
      * Obtiene los bordes disponibles desde el nodo actual en función de la palabra parcial proporcionada.
+     * Encuentra el nodo correspondiente a la palabra parcial y devuelve todas las
+     * aristas salientes disponibles desde ese nodo. Útil para implementar
+     * autocompletado y validación de prefijos en tiempo real.
      *
-     * @pre La palabra parcial no debe ser null.
      * @param partialword La palabra parcial utilizada para localizar el nodo actual en el DAWG
      * @return Un conjunto de cadenas que representan los bordes disponibles desde el nodo actual,
      * o null si no se encuentra un nodo correspondiente
+     * @pre La palabra parcial no debe ser null.
      * @post Si existe un nodo correspondiente a la palabra parcial, se devuelve un conjunto
      * con todas las etiquetas de aristas salientes de ese nodo.
      * Si no existe tal nodo, se devuelve null.
@@ -202,11 +242,14 @@ public class Dawg {
 
     /**
      * Verifica si una palabra parcial es final en el DAWG (Directed Acyclic Word Graph).
+     * Determina si la palabra parcial corresponde a una palabra completa válida
+     * en el diccionario, es decir, si el nodo alcanzado está marcado como final.
+     * Útil para validar palabras durante la construcción de jugadas.
      *
-     * @pre La palabra parcial no debe ser null.
      * @param partialword La palabra parcial que se desea verificar
      * @return true si el nodo correspondiente a la palabra parcial existe y es final,
      * false en caso contrario
+     * @pre La palabra parcial no debe ser null.
      * @post Se devuelve true si existe un nodo correspondiente a la palabra parcial y ese nodo
      * está marcado como final. Se devuelve false en caso contrario.
      * @throws NullPointerException si partialword es null
@@ -222,9 +265,12 @@ public class Dawg {
 
     /**
      * Obtiene todas las palabras almacenadas en el DAWG.
+     * Realiza un recorrido completo del DAWG para extraer todas las palabras
+     * válidas almacenadas en la estructura. Útil para debugging, exportación
+     * de diccionarios y análisis de contenido.
      *
-     * @pre No hay precondiciones específicas.
      * @return Lista de todas las palabras almacenadas en el DAWG
+     * @pre No hay precondiciones específicas.
      * @post Se devuelve una lista (posiblemente vacía) con todas las palabras almacenadas en el DAWG.
      */
     public List<String> getAllWords() {
@@ -235,11 +281,14 @@ public class Dawg {
 
     /**
      * Método auxiliar recursivo para recolectar todas las palabras del DAWG.
+     * Realiza un recorrido en profundidad del DAWG para encontrar todas las
+     * palabras válidas, construyendo cada palabra carácter por carácter
+     * mientras navega por la estructura.
      *
-     * @pre node no debe ser null, prefix y result no deben ser null.
      * @param node Nodo actual en la recursión
      * @param prefix Prefijo acumulado hasta el nodo actual
      * @param result Lista donde se almacenan las palabras encontradas
+     * @pre node no debe ser null, prefix y result no deben ser null.
      * @post La lista result se actualiza con todas las palabras encontradas a partir del nodo actual.
      */
     private void collectWords(DawgNode node, String prefix, List<String> result) {

@@ -14,8 +14,18 @@ import scrabble.domain.persistences.interfaces.RepositorioJugador;
 import scrabble.helpers.Dificultad;
 
 /**
- * Controlador para la gestión de usuarios.
+ * Controlador para la gestión de jugadores en el sistema.
  * Implementa el patrón Singleton para garantizar una única instancia.
+ * 
+ * Este controlador centraliza toda la gestión de jugadores humanos e IA,
+ * incluyendo registro, eliminación, gestión de racks de fichas, seguimiento
+ * de puntuaciones y estados de partida. Utiliza el patrón Repository para
+ * la persistencia de datos y mantiene un caché en memoria para acceso rápido.
+ * Gestiona tanto jugadores temporales (IA) como permanentes (humanos).
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class ControladorJugador {
     private static ControladorJugador instance;

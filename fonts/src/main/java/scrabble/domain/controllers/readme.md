@@ -9,8 +9,8 @@ El objetivo principal de los controladores es gestionar el flujo de la aplicaci�
 ## Ficheros clave y su responsabilidad
 
 -   **`ControladorDomain.java`**
-    -   **Descripció:** Es el controlador principal del dominio.
-    -   **Responsabilitat:** Actúa como un **Façade** para toda la lógica del dominio, proporcionando un punto de entrada unificado para las operaciones de alto nivel desde otras capas (como la capa de presentación o los drivers). Coordina las interacciones entre los diferentes subcontroladores y modelos.
+    -   **Descripción:** Es el controlador principal del dominio que actúa como fachada unificada.
+    -   **Responsabilidad:** Implementa el patrón Facade proporcionando un punto de entrada único y simplificado para toda la lógica del dominio. Coordina y orquesta las interacciones entre los diferentes subcontroladores especializados, manteniendo la cohesión del sistema y ocultando la complejidad interna de las operaciones del dominio a las capas superiores (presentación, drivers). Gestiona el flujo de datos entre controladores y asegura la consistencia del estado global de la aplicación.
 
 ## Subdirectorios
 

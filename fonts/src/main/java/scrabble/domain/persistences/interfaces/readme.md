@@ -1,43 +1,46 @@
-# Directori d'Interfícies de Persistència (`interfaces`)
+# Directorio de Interfaces de Persistencia (`interfaces`)
 
-## Descripció General
+## Descripción General
 
-Aquest directori (`scrabble.domain.persistences.interfaces`) conté les interfícies Java que defineixen els **contractes** per a les operacions de persistència de dades dins de l'aplicació Scrabble. Aquestes interfícies estableixen un nivell d'abstracció entre la lògica de negoci (controladors i serveis del domini) i els mecanismes concrets d'emmagatzematge de dades.
+Este directorio (`scrabble.domain.persistences.interfaces`) contiene las interfaces Java que definen los **contratos** para las operaciones de persistencia de datos dentro de la aplicación Scrabble. Estas interfaces establecen un nivel de abstracción entre la lógica de negocio (controladores y servicios del dominio) y los mecanismos concretos de almacenamiento de datos.
 
-L'ús d'interfícies per a la persistència és una pràctica clau en el disseny d'aplicacions robustes i mantenibles, ja que:
--   **Desacobla** la lògica de domini de les implementacions específiques de persistència.
--   Facilita la ** intercanviabilitat** de les implementacions de persistència (p.ex., canviar de serialització de fitxers a una base de dades SQL o NoSQL) sense afectar la resta del codi que depèn d'aquestes interfícies.
--   Promou la **testeabilitat**, permetent l'ús d'implementacions "mock" o "fake" dels repositoris durant les proves unitàries o d'integració.
+El uso de interfaces para la persistencia es una práctica clave en el diseño de aplicaciones robustas y mantenibles, ya que:
+-   **Desacopla** la lógica de dominio de las implementaciones específicas de persistencia.
+-   Facilita la **intercambiabilidad** de las implementaciones de persistencia (cambiar de serialización de archivos a una base de datos SQL o NoSQL) sin afectar el resto del código que depende de estas interfaces.
+-   Promueve la **testabilidad**, permitiendo el uso de implementaciones "mock" o "fake" de los repositorios durante las pruebas unitarias o de integración.
+-   Implementa el **patrón Repository**, proporcionando una interfaz uniforme para el acceso a datos independientemente del mecanismo de almacenamiento subyacente.
+-   **Abstrae detalles de persistencia**, permitiendo que los controladores se enfoquen en la lógica de negocio sin preocuparse por los mecanismos de almacenamiento.
+-   **Facilita el mantenimiento** al centralizar los contratos de persistencia en interfaces bien definidas.
 
-## Interfícies Clau i el Seu Propòsit
+## Interfaces Clave y su Propósito
 
-Cada interfície en aquest directori correspon generalment a una entitat o agregat principal del domini, definint les operacions CRUD (Crear, Llegir, Actualitzar, Esborrar) i altres consultes rellevants per a aquesta entitat.
+Cada interfaz en este directorio corresponde generalmente a una entidad o agregado principal del dominio, definiendo las operaciones CRUD (Crear, Leer, Actualizar, Eliminar) y otras consultas relevantes para esa entidad. Todas las interfaces siguen principios de diseño sólidos y proporcionan contratos claros para la persistencia de datos.
 
 -   **`RepositorioConfiguracion.java`**
-    -   **Propòsit:** Defineix el contracte per a la persistència de l'objecte `Configuracion` de l'aplicació.
-    -   **Mètodes clau:** `guardar(Configuracion configuracion)`, `cargar()`.
-    -   **Descripció:** Permet guardar l'estat actual de la configuració de l'aplicació i carregar-la en iniciar o quan sigui necessari.
+    -   **Propósito:** Define el contrato para la persistencia del objeto `Configuracion` de la aplicación.
+    -   **Métodos clave:** `guardar(Configuracion configuracion)`, `cargar()`.
+    -   **Descripción:** Permite guardar el estado actual de la configuración de la aplicación y cargarla al iniciar o cuando sea necesario. Implementa el patrón Repository para abstraer los detalles de persistencia.
 
 -   **`RepositorioDiccionario.java`**
-    -   **Propòsit:** Defineix el contracte per a la gestió i persistència dels diccionaris de paraules utilitzats en el joc.
-    -   **Mètodes clau:** `guardar(String nombre, Diccionario diccionario, String path)`, `guardarIndice(Map<String, String> diccionariosPaths)`, `cargar(String nombre)`, `cargarIndice()`, `eliminar(String nombre)`, `existe(String nombre)`, `listarDiccionarios()`, `verificarDiccionarioValido(String nombre)`.
-    -   **Descripció:** Especifica com s'han de guardar, carregar, llistar, eliminar i verificar els diccionaris, incloent la gestió d'un índex de diccionaris.
+    -   **Propósito:** Define el contrato para la gestión y persistencia completa de los diccionarios de palabras utilizados en el juego.
+    -   **Métodos clave:** `guardar(String nombre, Diccionario diccionario, String path)`, `guardarIndice(Map<String, String> diccionariosPaths)`, `cargar(String nombre)`, `cargarIndice()`, `eliminar(String nombre)`, `existe(String nombre)`, `listarDiccionarios()`, `verificarDiccionarioValido(String nombre)`.
+    -   **Descripción:** Especifica cómo se deben guardar, cargar, listar, eliminar y verificar los diccionarios, incluyendo la gestión de un índice centralizado de diccionarios y validación de integridad de estructuras DAWG.
 
 -   **`RepositorioJugador.java`**
-    -   **Propòsit:** Defineix el contracte per a la persistència de la informació dels jugadors.
-    -   **Mètodes clau:** `guardarTodos(Map<String, Jugador> jugadores)`, `cargarTodos()`, `buscarPorNombre(String nombre)`, `obtenerNombresJugadoresHumanos()`, `obtenerNombresJugadoresIA()`, `obtenerNombresTodosJugadores()`.
-    -   **Descripció:** Permet emmagatzemar i recuperar informació sobre els jugadors registrats, buscar-los pel nom i obtenir llistes de noms segons el tipus de jugador.
+    -   **Propósito:** Define el contrato para la persistencia de la información completa de los jugadores.
+    -   **Métodos clave:** `guardarTodos(Map<String, Jugador> jugadores)`, `cargarTodos()`, `buscarPorNombre(String nombre)`, `obtenerNombresJugadoresHumanos()`, `obtenerNombresJugadoresIA()`, `obtenerNombresTodosJugadores()`.
+    -   **Descripción:** Permite almacenar y recuperar información sobre los jugadores registrados, buscarlos por nombre y obtener listas de nombres según el tipo de jugador (humano/IA). Proporciona operaciones especializadas para diferentes categorías de usuarios.
 
 -   **`RepositorioPartida.java`**
-    -   **Propòsit:** Defineix el contracte per a la persistència dels estats de les partides de Scrabble (objectes `ControladorJuego`).
-    -   **Mètodes clau:** `guardar(int id, ControladorJuego partida)`, `cargar(int id)`, `eliminar(int id)`, `listarTodas()`, `generarNuevoId()`.
-    -   **Descripció:** Especifica com guardar, carregar, eliminar i llistar les partides. També defineix un mètode per generar identificadors únics per a noves partides.
+    -   **Propósito:** Define el contrato para la persistencia de los estados completos de las partidas de Scrabble (objetos `ControladorJuego`).
+    -   **Métodos clave:** `guardar(int id, ControladorJuego partida)`, `cargar(int id)`, `eliminar(int id)`, `listarTodas()`, `generarNuevoId()`.
+    -   **Descripción:** Especifica cómo guardar, cargar, eliminar y listar las partidas con todo su estado. También define un método para generar identificadores únicos para nuevas partidas y manejo de excepciones específicas de persistencia.
 
 -   **`RepositorioRanking.java`**
-    -   **Propòsit:** Defineix el contracte per a la persistència de l'objecte `Ranking`, que emmagatzema les puntuacions i estadístiques dels jugadors.
-    -   **Mètodes clau:** `guardar(Ranking ranking)`, `cargar()`, `actualizarEstadisticasJugador(String nombre, PlayerRankingStats stats)`, `eliminarJugador(String nombre)`, `obtenerRankingOrdenado(String criterio)`, i diversos mètodes per obtenir estadístiques específiques d'un jugador.
-    -   **Descripció:** Especifica com guardar i carregar l'estat complet del rànquing, així com actualitzar i consultar les dades del rànquing.
+    -   **Propósito:** Define el contrato para la persistencia del objeto `Ranking`, que almacena las puntuaciones y estadísticas completas de los jugadores.
+    -   **Métodos clave:** `guardar(Ranking ranking)`, `cargar()`, `actualizarEstadisticasJugador(String nombre, PlayerRankingStats stats)`, `eliminarJugador(String nombre)`, `obtenerRankingOrdenado(String criterio)`, y diversos métodos para obtener estadísticas específicas de un jugador.
+    -   **Descripción:** Especifica cómo guardar y cargar el estado completo del ranking, así como actualizar y consultar las datos del ranking con diferentes criterios de ordenación y estadísticas detalladas por jugador.
 
-## Ús
+## Uso
 
-Les classes que necessiten interactuar amb la capa de persistència (principalment els controladors del domini) haurien de dependre d'aquestes interfícies, no de les seves implementacions concretes. Això s'aconsegueix normalment mitjançant la injecció de dependències, on es proporciona una instància d'una implementació del repositori a la classe client. 
+Las clases que necesitan interactuar con la capa de persistencia (principalmente los controladores del dominio) deberían depender de estas interfaces, no de sus implementaciones concretas. Esto se logra normalmente mediante la inyección de dependencias, donde se proporciona una instancia de una implementación del repositorio a la clase cliente. Este enfoque facilita el testing, el mantenimiento y la flexibilidad del sistema, permitiendo cambiar implementaciones sin afectar el código cliente. 

@@ -11,6 +11,15 @@ import scrabble.excepciones.ExceptionPersistenciaFallida;
 /**
  * Controlador para la gestión de la configuración de la aplicación.
  * Encapsula el acceso a los parámetros configurables como tema y volumen.
+ * 
+ * Este controlador implementa el patrón Repository para la persistencia de configuraciones,
+ * proporcionando una interfaz unificada para el acceso y modificación de parámetros
+ * de configuración como tema visual, configuración de audio, diccionario por defecto
+ * y tamaño del tablero. Gestiona la carga y guardado automático de configuraciones.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class ControladorConfiguracion {
     /**
@@ -21,10 +30,12 @@ public class ControladorConfiguracion {
     /**
      * Constructor para la clase ControladorConfiguracion.
      * Inicializa una nueva instancia de Configuracion y carga los valores guardados si existen.
+     * Utiliza la implementación por defecto del repositorio de configuración.
      *
      * @pre No hay precondiciones específicas.
      * @post Se crea una instancia de {@code ControladorConfiguracion} y se inicializa con la configuración
      *       cargada desde el repositorio por defecto (o una nueva si no hay datos guardados).
+     *       El repositorio queda configurado y listo para operaciones de persistencia.
      */
     public ControladorConfiguracion() {
         this(new RepositorioConfiguracionImpl());

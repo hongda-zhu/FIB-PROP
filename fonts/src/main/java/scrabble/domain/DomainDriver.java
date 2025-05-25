@@ -37,7 +37,7 @@ import scrabble.helpers.Tuple;
 /**
  * Clase principal para probar el dominio de Scrabble.
  * Proporciona una interfaz de línea de comandos para interactuar con las funcionalidades del juego.
- * @author Equipo Scrabble
+ * 
  */
 public class DomainDriver {
 

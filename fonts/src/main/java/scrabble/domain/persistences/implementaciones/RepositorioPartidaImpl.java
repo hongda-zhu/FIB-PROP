@@ -16,11 +16,28 @@ import scrabble.domain.persistences.interfaces.RepositorioPartida;
 import scrabble.excepciones.ExceptionPersistenciaFallida;
 
 /**
- * Implementació de la interfície {@link RepositorioPartida} que utilitza serialització Java.
- * Gestiona la persistència de les partides (objectes {@link ControladorJuego}) 
- * desant-les i recuperant-les des d'un fitxer binari anomenat {@code partidas.dat}.
- * Les partides s'emmagatzemen en un mapa on la clau és l'ID de la partida (un enter)
- * i el valor és l'objecte {@code ControladorJuego} corresponent.
+ * Implementación de la interfaz {@link RepositorioPartida} con gestión completa de partidas guardadas.
+ * 
+ * Gestiona la persistencia de partidas (objetos {@link ControladorJuego}) utilizando serialización Java,
+ * guardándolas y recuperándolas desde un archivo binario llamado {@code partidas.dat}.
+ * Las partidas se almacenan en un mapa donde la clave es el ID de la partida (un entero)
+ * y el valor es el objeto {@code ControladorJuego} correspondiente con todo su estado.
+ * 
+ * Funcionalidades principales:
+ * - Persistencia completa del estado de partidas de Scrabble
+ * - Generación automática de IDs únicos para nuevas partidas
+ * - Operaciones CRUD completas (crear, leer, actualizar, eliminar)
+ * - Listado y gestión de múltiples partidas guardadas
+ * - Manejo robusto de errores con excepciones específicas
+ * - Gestión automática de directorios de persistencia
+ * - Serialización eficiente de estados complejos de juego
+ * 
+ * Esta implementación permite a los jugadores guardar y reanudar partidas en cualquier
+ * momento, manteniendo la integridad completa del estado del juego incluyendo tablero,
+ * jugadores, puntuaciones y configuración.
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class RepositorioPartidaImpl implements RepositorioPartida {
     

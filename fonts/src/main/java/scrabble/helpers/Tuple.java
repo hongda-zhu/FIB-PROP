@@ -3,10 +3,31 @@ package scrabble.helpers;
 import java.io.Serializable;
 import java.util.Objects;
 /**
- * Una clase genérica que representa una tupla inmutable de dos elementos.
- *
- * @param <X> el tipo del primer elemento
- * @param <Y> el tipo del segundo elemento
+ * Clase genérica que representa una tupla inmutable de dos elementos.
+ * 
+ * Esta clase proporciona una estructura de datos simple para agrupar dos valores
+ * relacionados de tipos potencialmente diferentes. Es fundamental en el sistema
+ * para representar coordenadas, pares clave-valor y otros conjuntos de datos
+ * relacionados que necesitan ser tratados como una unidad.
+ * 
+ * Características principales:
+ * - Genérica: soporta cualquier tipo de datos para cada elemento
+ * - Inmutable: los valores no pueden ser modificados después de la creación
+ * - Serializable: puede ser persistida y transmitida
+ * - Implementa equals() y hashCode() para comparaciones correctas
+ * - Campos públicos finales para acceso directo y eficiente
+ * 
+ * Casos de uso típicos:
+ * - Coordenadas en el tablero: (fila, columna)
+ * - Pares de resultados: (éxito, valor)
+ * - Rangos: (mínimo, máximo)
+ * - Asociaciones: (clave, valor)
+ * 
+ * @param <X> Tipo del primer elemento (x)
+ * @param <Y> Tipo del segundo elemento (y)
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class Tuple<X, Y> implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -18,10 +39,12 @@ public class Tuple<X, Y> implements Serializable {
     public final Y y; 
 
     /**
-     * Crea una nueva tupla de dos elementos.
+     * Constructor que crea una nueva tupla inmutable de dos elementos.
      *
-     * @param x el primer valor
-     * @param y el segundo valor
+     * @param x El primer valor de la tupla.
+     * @param y El segundo valor de la tupla.
+     * @post Se crea una nueva instancia de Tuple con los valores proporcionados,
+     *       que permanecerán inmutables durante toda la vida del objeto.
      */
     public Tuple(X x, Y y) { 
         this.x = x; 

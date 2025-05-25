@@ -11,9 +11,18 @@ import scrabble.domain.persistences.interfaces.RepositorioRanking;
 import scrabble.domain.persistences.implementaciones.RepositorioRankingImpl;
 
 /**
- * Controller for managing player rankings.
- * Implements the Singleton pattern to ensure a single instance.
- * Delegates all business logic to the Ranking model and uses Repository pattern for persistence.
+ * Controlador para la gestión del ranking de jugadores.
+ * Implementa el patrón Singleton para garantizar una única instancia.
+ * Delega toda la lógica de negocio al modelo Ranking y utiliza el patrón Repository para la persistencia.
+ * 
+ * Este controlador gestiona todas las operaciones relacionadas con el sistema de ranking,
+ * incluyendo la adición y eliminación de puntuaciones, actualización de estadísticas
+ * de jugadores, gestión de diferentes estrategias de ordenación y persistencia de datos.
+ * Utiliza el patrón Strategy para permitir diferentes criterios de ordenación del ranking.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class ControladorRanking {
     private static transient ControladorRanking instance;

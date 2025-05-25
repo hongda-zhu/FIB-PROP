@@ -18,7 +18,23 @@ import scrabble.domain.models.rankingStrategy.RankingOrderStrategyFactory;
 
 /**
  * Clase que representa el ranking del juego Scrabble.
- * Almacena y gestiona las puntuaciones de los usuarios utilizando el patrón Strategy.
+ * Almacena y gestiona las puntuaciones de los usuarios utilizando el patrón Strategy
+ * para permitir diferentes criterios de ordenación. Mantiene estadísticas completas
+ * de cada jugador incluyendo puntuaciones individuales, máximas, medias, totales,
+ * número de partidas jugadas y victorias.
+ * 
+ * La clase utiliza el patrón Strategy a través de RankingOrderStrategy para permitir
+ * ordenar el ranking según diferentes criterios como puntuación máxima, media, total,
+ * número de partidas o victorias. Las estadísticas de cada jugador se encapsulan
+ * en objetos PlayerRankingStats para una mejor organización y mantenimiento.
+ * 
+ * Implementa Serializable para permitir la persistencia del ranking entre sesiones,
+ * con métodos personalizados de serialización para manejar correctamente las
+ * referencias a estrategias.
+ * 
+ * 
+ * @version 1.0
+ * @since 1.0
  */
 public class Ranking implements Serializable {
     private static final long serialVersionUID = 1L;

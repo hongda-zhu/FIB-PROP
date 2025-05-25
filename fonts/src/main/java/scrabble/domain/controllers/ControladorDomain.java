@@ -35,10 +35,21 @@ import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 
 /**
-* Controlador principal del dominio que actúa como fachada para los subcontroladores.
-* Coordina la interacción entre los diferentes componentes del sistema de Scrabble.
-* Implementa el patrón Singleton para garantizar una única instancia del controlador.
-*/
+ * Controlador principal del dominio que actúa como fachada para los subcontroladores.
+ * Coordina la interacción entre los diferentes componentes del sistema de Scrabble.
+ * Implementa el patrón Singleton para garantizar una única instancia del controlador.
+ * 
+ * Este controlador centraliza el acceso a todas las funcionalidades del sistema,
+ * incluyendo gestión de usuarios, partidas, diccionarios, configuración y ranking.
+ * Actúa como punto de entrada único para la capa de presentación, proporcionando
+ * una interfaz unificada y simplificada para todas las operaciones del dominio.
+ * Coordina las interacciones entre los diferentes subcontroladores y maneja
+ * las excepciones específicas del dominio.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
+ */
 public class ControladorDomain {
     private ControladorConfiguracion controladorConfiguracion;
     private ControladorJuego controladorJuego;
@@ -49,13 +60,14 @@ public class ControladorDomain {
     private static ControladorDomain instance;
 
     /**
-    * Constructor del controlador del dominio.
-    * Inicializa todos los subcontroladores necesarios para el funcionamiento del sistema.
-    * 
-    * @pre No hay precondiciones específicas.
-    * @post Se inicializan todos los subcontroladores y el sistema queda listo para su uso.
-    *       En caso de error durante la inicialización, se imprime el error en la consola.
-    */
+     * Constructor del controlador del dominio.
+     * Inicializa todos los subcontroladores necesarios para el funcionamiento del sistema.
+     * Crea las instancias de todos los controladores especializados y establece las conexiones necesarias.
+     * 
+     * @pre No hay precondiciones específicas.
+     * @post Se inicializan todos los subcontroladores y el sistema queda listo para su uso.
+     *       En caso de error durante la inicialización, se imprime el error en la consola.
+     */
     public ControladorDomain() {
         try {
             // ControladorConfiguracion ahora maneja su propio repositorio internamente

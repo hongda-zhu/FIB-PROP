@@ -11,7 +11,26 @@ import scrabble.helpers.Tuple;
 /**
  * Clase que representa el tablero de juego de Scrabble.
  * Gestiona la disposición de fichas, bonificaciones especiales y cálculo de puntuaciones.
- * Permite crear tableros de diferentes tamaños, siendo el estándar de 15x15.
+ * Permite crear tableros de diferentes tamaños, siendo el estándar de 15x15, y proporciona
+ * toda la funcionalidad necesaria para el desarrollo de una partida de Scrabble.
+ * 
+ * El tablero mantiene dos matrices principales: una para las fichas colocadas y otra
+ * para las bonificaciones de cada casilla. Las bonificaciones incluyen multiplicadores
+ * de letra (DL, TL) y de palabra (DW, TW), así como la casilla especial central.
+ * 
+ * La clase proporciona métodos para:
+ * - Colocar y obtener fichas en posiciones específicas
+ * - Validar posiciones y verificar si están ocupadas
+ * - Calcular puntuaciones considerando bonificaciones
+ * - Realizar movimientos completos con cálculo automático de puntos
+ * - Obtener el estado actual del tablero para persistencia
+ * 
+ * Implementa Serializable para permitir la persistencia de partidas en curso,
+ * manteniendo el estado completo del tablero entre sesiones.
+ * 
+ * 
+ * @version 1.0
+ * @since 1.0
  */
 public class Tablero implements Serializable{
     private static final long serialVersionUID = 1L;

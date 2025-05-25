@@ -18,24 +18,40 @@ import scrabble.domain.models.Diccionario;
 import scrabble.domain.persistences.interfaces.RepositorioDiccionario;
 
 /**
- * Implementació del repositori de diccionaris.
- * Gestiona la persistència dels diccionaris utilitzant serialització Java per a un índex
- * i emmagatzematge directe dels fitxers de diccionari ({@code alpha.txt}, {@code words.txt}).
- * L'índex de diccionaris ({@code diccionarios_index.dat}) manté una correspondència
- * entre el nom del diccionari i la ruta al directori que conté els seus fitxers.
+ * Implementación del repositorio de diccionarios con gestión completa de estructuras DAWG.
+ * 
+ * Gestiona la persistencia de diccionarios utilizando un enfoque híbrido: serialización Java
+ * para un índice centralizado y almacenamiento directo de archivos de diccionario
+ * ({@code alpha.txt}, {@code words.txt}). El índice de diccionarios ({@code diccionarios_index.dat})
+ * mantiene una correspondencia entre el nombre del diccionario y la ruta al directorio
+ * que contiene sus archivos.
+ * 
+ * Funcionalidades principales:
+ * - Gestión de índice centralizado de diccionarios
+ * - Validación de integridad de archivos de diccionario
+ * - Operaciones CRUD completas para diccionarios
+ * - Manejo automático de directorios y rutas
+ * - Verificación de validez de estructuras DAWG
+ * - Gestión robusta de errores y excepciones
+ * 
+ * La arquitectura permite escalabilidad y mantenimiento eficiente de múltiples
+ * diccionarios con diferentes idiomas y configuraciones de alfabeto.
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class RepositorioDiccionarioImpl implements RepositorioDiccionario {
     
     private static final String DICCIONARIOS_INDEX_FILE = "src/main/resources/persistencias/diccionarios_index.dat";
     
     /**
-     * Constructor per a la classe {@code RepositorioDiccionarioImpl}.
-     * Assegura que el directori de persistència per als diccionaris existeix.
-     * Si el directori no existeix, es crea.
+     * Constructor para la clase {@code RepositorioDiccionarioImpl}.
+     * Asegura que el directorio de persistencia para los diccionarios existe.
+     * Si el directorio no existe, se crea automáticamente.
      * 
-     * @pre No hi ha precondicions específiques.
-     * @post S'ha creat una instància de {@code RepositorioDiccionarioImpl} i
-     *       s'ha assegurat l'existència del directori de persistència base.
+     * @pre No hay precondiciones específicas.
+     * @post Se ha creado una instancia de {@code RepositorioDiccionarioImpl} y
+     *       se ha asegurado la existencia del directorio de persistencia base.
      */
     public RepositorioDiccionarioImpl() {
         // Asegurar que el directorio existe

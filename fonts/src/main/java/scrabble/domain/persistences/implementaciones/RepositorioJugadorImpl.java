@@ -16,10 +16,26 @@ import scrabble.domain.models.Jugador;
 import scrabble.domain.persistences.interfaces.RepositorioJugador;
 
 /**
- * Implementació del repositori de jugadors.
- * Gestiona la persistència de les dades dels jugadors utilitzant serialització Java.
- * Un mapa de jugadors (nom -> {@link Jugador}) es guarda en un únic fitxer 
- * anomenat {@code jugadores.dat}.
+ * Implementación del repositorio de jugadores con gestión completa de usuarios humanos e IA.
+ * 
+ * Gestiona la persistencia de las datos de jugadores utilizando serialización Java.
+ * Un mapa completo de jugadores (nombre -> {@link Jugador}) se guarda en un único archivo
+ * llamado {@code jugadores.dat}. Proporciona operaciones especializadas para diferentes
+ * tipos de jugadores y consultas optimizadas.
+ * 
+ * Funcionalidades principales:
+ * - Persistencia unificada de jugadores humanos e IA
+ * - Operaciones de búsqueda y filtrado por tipo de jugador
+ * - Gestión automática de directorios de persistencia
+ * - Consultas especializadas para diferentes categorías de usuarios
+ * - Manejo robusto de errores con mapas vacíos por defecto
+ * - Operaciones de carga/guardado optimizadas para grandes volúmenes
+ * 
+ * Esta implementación centraliza toda la información de jugadores en un solo
+ * archivo para garantizar consistencia y facilitar operaciones de backup.
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class RepositorioJugadorImpl implements RepositorioJugador {
     

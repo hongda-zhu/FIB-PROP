@@ -29,6 +29,16 @@ import scrabble.excepciones.ExceptionPalabraVacia;
  * Controlador para la gestión de diccionarios en el juego de Scrabble.
  * Implementa el patrón Singleton para garantizar una única instancia.
  * Este controlador es responsable de la lectura/escritura de archivos relacionados con diccionarios.
+ * 
+ * Gestiona la creación, carga, modificación y eliminación de diccionarios, incluyendo
+ * la validación de palabras y alfabetos, el manejo de estructuras DAWG para búsquedas
+ * eficientes, y la persistencia de datos mediante el patrón Repository. Proporciona
+ * métodos para consultar palabras, obtener estadísticas de alfabetos y gestionar
+ * la integridad de los diccionarios del sistema.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class ControladorDiccionario {
     private static ControladorDiccionario instance;

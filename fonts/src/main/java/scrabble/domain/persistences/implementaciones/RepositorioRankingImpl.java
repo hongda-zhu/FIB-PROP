@@ -14,26 +14,34 @@ import scrabble.domain.models.rankingStrategy.PlayerRankingStats;
 import scrabble.domain.persistences.interfaces.RepositorioRanking;
 
 /**
- * Implementació del repositori de rànquing.
- * Gestiona la persistència de l'objecte {@link Ranking} utilitzant serialització Java.
- * L'objecte de rànquing complet es guarda en un únic fitxer anomenat {@code ranking.dat}.
- * Aquesta classe no té un constructor explícit, utilitza el constructor per defecte.
+ * Implementación del repositorio de ranking.
+ * Gestiona la persistencia del objeto {@link Ranking} utilizando serialización Java.
+ * El objeto de ranking completo se guarda en un único archivo llamado {@code ranking.dat}.
+ * 
+ * Esta clase proporciona operaciones completas de persistencia para el sistema de ranking,
+ * incluyendo guardado y carga del ranking completo, así como operaciones específicas
+ * para consultar estadísticas individuales de jugadores. Maneja automáticamente la
+ * creación de directorios necesarios y proporciona valores por defecto en caso de errores.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class RepositorioRankingImpl implements RepositorioRanking {
     
     private static final String RANKING_FILE = "src/main/resources/persistencias/ranking.dat";
     
     /**
-     * Guarda l'objecte de rànquing complet al sistema de persistència.
-     * Serialitza l'objecte {@link Ranking} al fitxer especificat per {@code RANKING_FILE}.
-     * Assegura que el directori de persistència existeix abans de guardar.
+     * Guarda el objeto de ranking completo al sistema de persistencia.
+     * Serializa el objeto {@link Ranking} al archivo especificado por {@code RANKING_FILE}.
+     * Asegura que el directorio de persistencia existe antes de guardar.
      * 
-     * @pre {@code ranking} no ha de ser nul.
-     * @param ranking L'objecte {@link Ranking} que es vol guardar.
-     * @return {@code true} si el rànquing s'ha guardat correctament,
-     *         {@code false} si s'ha produït un error durant el procés de guardat.
-     * @post Si l'operació té èxit, l'objecte {@code ranking} es persisteix al fitxer.
-     *       En cas d'error, s'imprimeix un missatge d'error a la sortida d'errors estàndard.
+     * @pre {@code ranking} no debe ser null.
+     * @param ranking El objeto {@link Ranking} que se quiere guardar.
+     * @return {@code true} si el ranking se ha guardado correctamente,
+     *         {@code false} si se ha producido un error durante el proceso de guardado.
+     * @post Si la operación tiene éxito, el objeto {@code ranking} se persiste al archivo.
+     *       En caso de error, se imprime un mensaje de error a la salida de errores estándar.
      */
     @Override
     public boolean guardar(Ranking ranking) {

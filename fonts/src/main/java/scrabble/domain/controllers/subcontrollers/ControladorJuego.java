@@ -19,18 +19,32 @@ import scrabble.helpers.Dificultad;
 import scrabble.helpers.Direction;
 
 /**
- * Clase ControladorJuego
- * Esta clase se encarga de gestionar las jugadas en el juego de Scrabble.
- * Permite buscar movimientos válidos, calcular puntos y realizar jugadas en el tablero.
+ * Controlador principal para la gestión completa de partidas de Scrabble.
+ * 
+ * Esta clase centraliza toda la lógica de juego, incluyendo la gestión del tablero,
+ * validación de movimientos, cálculo de puntuaciones, manejo de turnos y persistencia
+ * del estado de la partida. Coordina las interacciones entre el tablero, la bolsa de fichas,
+ * los jugadores y el diccionario para implementar las reglas completas del Scrabble.
+ * 
+ * Funcionalidades principales:
+ * - Inicialización y configuración de partidas
+ * - Validación de movimientos según las reglas del juego
+ * - Cálculo automático de puntuaciones con multiplicadores
+ * - Gestión de turnos para jugadores humanos e IA
+ * - Búsqueda algorítmica de movimientos válidos
+ * - Persistencia y carga del estado de partidas
+ * - Detección automática de fin de juego
+ * 
+ * Implementa Serializable para permitir el guardado y carga completa del estado
+ * de la partida, incluyendo el tablero, bolsa, jugadores y configuración.
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 
 public class ControladorJuego implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /**
-    * Controlador para la gestión del juego de Scrabble.
-    * Implementa Serializable para permitir la persistencia del estado del juego.
-    */
 
     private int idPartida = -1; // Identificador de la partida actual
     private transient ControladorDiccionario controladorDiccionario;

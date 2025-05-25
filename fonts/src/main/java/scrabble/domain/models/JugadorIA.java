@@ -9,6 +9,15 @@ import scrabble.helpers.Dificultad;
  * Clase que representa a un jugador controlado por IA en el sistema.
  * Los jugadores IA se crean para una única partida y no mantienen estadísticas de juego
  * entre sesiones.
+ * 
+ * Esta clase extiende la funcionalidad base de Jugador añadiendo características específicas
+ * para jugadores controlados por inteligencia artificial, incluyendo niveles de dificultad
+ * y generación automática de nombres únicos. Los jugadores IA son temporales y se eliminan
+ * al finalizar la partida.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class JugadorIA extends Jugador {
     private static final long serialVersionUID = 1L;
@@ -20,11 +29,14 @@ public class JugadorIA extends Jugador {
 
     /**
      * Constructor de la clase JugadorIA.
+     * Crea un jugador IA con el nombre especificado o genera uno automáticamente
+     * basado en la dificultad y un contador global.
      * 
      * @param nombre Nombre para identificar la IA (opcional, se genera uno automáticamente)
-     * @param dificultad Nivel de dificultad de la IA
+     * @param dificultad Nivel de dificultad de la IA (FACIL o DIFICIL)
      * @pre dificultad no puede ser null
-     * @post Se crea una instancia de JugadorIA con el nombre dado o uno generado automáticamente
+     * @post Se crea una instancia de JugadorIA con el nombre dado o uno generado automáticamente,
+     *       configurada con la dificultad especificada y un rack vacío inicializado.
      * @throws NullPointerException si dificultad es null
      */
     public JugadorIA(String nombre, Dificultad dificultad) {

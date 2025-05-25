@@ -10,6 +10,15 @@ import java.util.List;
  * proporcionando una interfaz limpia para el acceso y actualización de datos.
  * Se utiliza internamente por la clase Ranking para almacenar las estadísticas
  * de cada jugador de forma organizada.
+ * 
+ * La clase mantiene un historial completo de puntuaciones, calcula automáticamente
+ * estadísticas derivadas como puntuación máxima y media, y gestiona contadores
+ * de partidas jugadas y victorias. Implementa Serializable para permitir la
+ * persistencia de datos del ranking.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class PlayerRankingStats implements Serializable {
     private static final long serialVersionUID = 1L;

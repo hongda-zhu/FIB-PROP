@@ -7,7 +7,22 @@ import scrabble.helpers.Tuple;
 
 /**
  * Clase abstracta que define las operaciones y atributos básicos comunes a todos los jugadores.
- * Implementa la interfaz Serializable para permitir la persistencia de las partidas.
+ * Proporciona la funcionalidad base para la gestión de fichas, puntuaciones y estadísticas
+ * de juego que es compartida entre jugadores humanos y controlados por IA. Actúa como
+ * clase base en una jerarquía que incluye JugadorHumano y JugadorIA.
+ * 
+ * La clase encapsula el estado fundamental de un jugador durante una partida, incluyendo
+ * su atril de fichas (rack), el contador de turnos pasados consecutivamente, y el nombre
+ * que sirve como identificador único. Implementa Serializable para permitir la persistencia
+ * de las partidas en curso.
+ * 
+ * Las subclases deben implementar el método esIA() para distinguir entre jugadores
+ * humanos y controlados por inteligencia artificial, permitiendo al sistema aplicar
+ * lógicas específicas según el tipo de jugador.
+ * 
+ * 
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class Jugador implements Serializable {
     private static final long serialVersionUID = 1L;
