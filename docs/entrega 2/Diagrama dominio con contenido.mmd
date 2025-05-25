@@ -121,9 +121,8 @@ direction TB
     
     class ControladorRanking {
         -Ranking ranking
-        -RepositorioRanking repositorio
+        -RepositorioRanking repositorioRanking
         +getInstance() ControladorRanking
-        +getInstance(RepositorioRanking) ControladorRanking
         +agregarPuntuacion(String, int) boolean
         +actualizarEstadisticasUsuario(String, boolean, int) boolean
         +actualizarEstadisticasUsuario(String, boolean) boolean
@@ -144,10 +143,13 @@ direction TB
         +setPuntuacionTotal(String, int) boolean
         +addPuntuacionTotal(String, int) boolean
         +getUsuarios() List
-        +guardarDatos() void
         +ordenarUsuariosPorCriterio(List, String) List
         +agregarPuntuacionSinIncrementarPartidas(String, int) boolean
         +agregarPuntuacionIndividual(String, int) boolean
+        +getMapaPuntuacionesMaximas() Map
+        +getMapaPuntuacionesMedias() Map
+        +getMapaPartidasJugadas() Map
+        +getMapaVictorias() Map
     }
     
     class ControladorDiccionario {
@@ -374,6 +376,7 @@ direction TB
     class Ranking {
         -estadisticasUsuarios: Map<String, PlayerRankingStats>
         -estrategiaActual: RankingOrderStrategy
+        -nombreEstrategiaActual: String
         +setEstrategia(String criterio): void
         +agregarPuntuacion(String nombre, int puntuacion): boolean
         +actualizarEstadisticasUsuario(String nombre, boolean esVictoria): void
@@ -390,6 +393,13 @@ direction TB
         +eliminarUsuario(String nombre): boolean
         +setPuntuacionTotal(String nombre, int puntuacionAgregada): boolean
         +agregarPuntuacionSinIncrementarPartidas(String nombre, int puntuacion): boolean
+        +getPuntuacionMaxima(String nombre): int
+        +getPuntuacionMedia(String nombre): double
+        +getPartidasJugadas(String nombre): int
+        +getVictorias(String nombre): int
+        +getPuntuacionTotal(String nombre): int
+        +getUsuarios(): Set<String>
+        +getEstrategiaActual(): String
     }
 
     %% MODELOS SECUNDARIOS
@@ -432,44 +442,47 @@ direction TB
         +actualizarEstadisticas(boolean esVictoria): void
         +setPuntuacionTotal(int puntuacionTotal): void
         +contienePuntuacion(int puntuacion): boolean
-        -recalcularMedia(): void
-        -recalcularPuntuacionMaxima(): void
+        +getPuntuaciones(): List<Integer>
+        +getPuntuacionMaxima(): int
+        +getPuntuacionMedia(): double
+        +getPartidasJugadas(): int
+        +getVictorias(): int
+        +getPuntuacionTotal(): int
+        +getUsername(): String
     }
 
     %% SUBSISTEMA RANKING
-    class RankingDataProvider {
-        +getPuntuacionMaxima(String username): int
-        +getPuntuacionMedia(String username): double
-        +getPartidasJugadas(String username): int
-        +getVictorias(String username): int
-        +getPuntuacionTotal(String username): int
-    }
     class RankingOrderStrategy {
         +compare(String username1, String username2): int
         +getNombre(): String
     }
     class RankingOrderStrategyFactory {
-        +createStrategy(String criterio, RankingDataProvider dataProvider): RankingOrderStrategy
+        +createStrategy(String criterio, Ranking ranking): RankingOrderStrategy
     }
     class MaximaScoreStrategy {
-        -dataProvider: RankingDataProvider
+        -ranking: Ranking
         +compare(String username1, String username2): int
+        +getNombre(): String
     }
     class MediaScoreStrategy {
-        -dataProvider: RankingDataProvider
+        -ranking: Ranking
         +compare(String username1, String username2): int
+        +getNombre(): String
     }
     class PartidasJugadasStrategy {
-        -dataProvider: RankingDataProvider
+        -ranking: Ranking
         +compare(String username1, String username2): int
+        +getNombre(): String
     }
     class VictoriasStrategy {
-        -dataProvider: RankingDataProvider
+        -ranking: Ranking
         +compare(String username1, String username2): int
+        +getNombre(): String
     }
     class PuntuacionTotalStrategy {
-        -dataProvider: RankingDataProvider
+        -ranking: Ranking
         +compare(String username1, String username2): int
+        +getNombre(): String
     }
 
     %% HELPERS (ACTUALIZADAS)
@@ -529,7 +542,6 @@ direction TB
     <<interface>> RepositorioRanking
     <<interface>> RepositorioConfiguracion
     <<Abstract>> Jugador
-    <<interface>> RankingDataProvider
     <<interface>> RankingOrderStrategy
     <<Factory>> RankingOrderStrategyFactory
     <<Strategy>> MaximaScoreStrategy
@@ -616,13 +628,11 @@ direction TB
 
     RankingOrderStrategyFactory "1" ..> "1..*" RankingOrderStrategy : crea >
 
-    ControladorRanking ..|> RankingDataProvider : implementa
-
-    MaximaScoreStrategy "1" --> "1" RankingDataProvider : utiliza
-    MediaScoreStrategy "1" --> "1" RankingDataProvider : utiliza
-    PartidasJugadasStrategy "1" --> "1" RankingDataProvider : utiliza
-    VictoriasStrategy "1" --> "1" RankingDataProvider : utiliza
-    PuntuacionTotalStrategy "1" --> "1" RankingDataProvider : utiliza
+    MaximaScoreStrategy "1" --> "1" Ranking : utiliza
+    MediaScoreStrategy "1" --> "1" Ranking : utiliza
+    PartidasJugadasStrategy "1" --> "1" Ranking : utiliza
+    VictoriasStrategy "1" --> "1" Ranking : utiliza
+    PuntuacionTotalStrategy "1" --> "1" Ranking : utiliza
 
     %% RELACIONES REPOSITORIOS-MODELOS
     RepositorioJugadorImpl ..> Jugador : serializa/deserializa
@@ -630,4 +640,3 @@ direction TB
     RepositorioDiccionarioImpl ..> Diccionario : serializa/deserializa
     RepositorioRankingImpl ..> Ranking : serializa/deserializa
     RepositorioConfiguracionImpl ..> Configuracion : serializa/deserializa
-```

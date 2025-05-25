@@ -43,7 +43,6 @@ La implementación utiliza una arquitectura simplificada donde:
 1. Las **estrategias** reciben directamente un objeto `Ranking` en lugar de depender de una interfaz abstracta.
 2. El objeto `Ranking` proporciona todos los métodos necesarios para acceder a las estadísticas de los jugadores.
 3. La inyección del objeto ranking se realiza a través del constructor de cada estrategia.
-4. Se elimina la complejidad del acoplamiento circular que existía anteriormente con `RankingDataProvider`.
 
 ## Criterios de Ordenación Disponibles
 
@@ -55,7 +54,6 @@ La implementación utiliza una arquitectura simplificada donde:
 
 ## Ventajas de la Nueva Arquitectura
 
-1. **Simplicidad**: Eliminación de la interfaz `RankingDataProvider` reduce la complejidad del código.
-2. **Acoplamiento directo**: Las estrategias trabajan directamente con el objeto `Ranking`, eliminando capas de abstracción innecesarias.
-3. **Mantenibilidad**: Menos archivos y dependencias hacen el código más fácil de mantener.
-4. **Claridad**: La relación entre estrategias y datos es más directa y comprensible.
+1. **Acoplamiento directo**: Las estrategias trabajan directamente con el objeto `Ranking`, eliminando capas de abstracción innecesarias.
+2. **Mantenibilidad**: Menos archivos y dependencias hacen el código más fácil de mantener.
+3. **Claridad**: La relación entre estrategias y datos es más directa y comprensible.

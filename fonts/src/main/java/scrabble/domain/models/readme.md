@@ -37,7 +37,7 @@ Este directorio contiene las clases de modelo que representan las entidades prin
 ### Subcarpetas
 
 -   **rankingStrategy/**
-    Contiene las implementaciones de diferentes estrategias (`RankingOrderStrategy`) para ordenar el ranking de jugadores, la interfaz `RankingDataProvider` para obtener datos, y la clase `PlayerRankingStats` para almacenar estadísticas, siguiendo el patrón Strategy.
+    Contiene las implementaciones de diferentes estrategias (`RankingOrderStrategy`) para ordenar el ranking de jugadores y la clase `PlayerRankingStats` para almacenar estadísticas, siguiendo el patrón Strategy. Las estrategias reciben directamente un objeto `Ranking` para acceder a los datos necesarios.
 
 ## Relación con los Controladores
 

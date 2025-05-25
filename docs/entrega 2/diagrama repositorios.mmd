@@ -1,0 +1,210 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+direction TB
+
+    %% INTERFACES DE REPOSITORIO
+    class RepositorioJugador {
+        +guardarTodos(Map~String, Jugador~ jugadores) boolean
+        +cargarTodos() Map~String, Jugador~
+        +buscarPorNombre(String nombre) Jugador
+        +obtenerNombresJugadoresHumanos() List~String~
+        +obtenerNombresJugadoresIA() List~String~
+        +obtenerNombresTodosJugadores() List~String~
+    }
+
+    class RepositorioPartida {
+        +guardar(int id, ControladorJuego partida) boolean
+        +cargar(int id) ControladorJuego
+        +eliminar(int id) boolean
+        +listarTodas() List~Integer~
+        +generarNuevoId() int
+    }
+
+    class RepositorioDiccionario {
+        +guardar(String nombre, Diccionario diccionario, String path) boolean
+        +guardarIndice(Map~String, String~ diccionariosPaths) boolean
+        +cargar(String nombre) Diccionario
+        +cargarIndice() Map~String, String~
+        +eliminar(String nombre) boolean
+        +existe(String nombre) boolean
+        +listarDiccionarios() List~String~
+        +verificarDiccionarioValido(String nombre) boolean
+    }
+
+    class RepositorioRanking {
+        +guardar(Ranking ranking) boolean
+        +cargar() Ranking
+        +actualizarEstadisticasJugador(String nombre, PlayerRankingStats stats) boolean
+        +eliminarJugador(String nombre) boolean
+        +obtenerRankingOrdenado(String criterio) List~String~
+        +obtenerTodosJugadores() Set~String~
+        +obtenerPuntuacionMaxima(String nombre) int
+        +obtenerPuntuacionMedia(String nombre) double
+        +obtenerPartidasJugadas(String nombre) int
+        +obtenerVictorias(String nombre) int
+        +obtenerPuntuacionTotal(String nombre) int
+        +existeJugador(String nombre) boolean
+    }
+
+    class RepositorioConfiguracion {
+        +guardar(Configuracion configuracion) boolean
+        +cargar() Configuracion
+    }
+
+    %% IMPLEMENTACIONES CONCRETAS
+    class RepositorioJugadorImpl {
+        -JUGADORES_FILE String
+        +guardarTodos(Map~String, Jugador~ jugadores) boolean
+        +cargarTodos() Map~String, Jugador~
+        +buscarPorNombre(String nombre) Jugador
+        +obtenerNombresJugadoresHumanos() List~String~
+        +obtenerNombresJugadoresIA() List~String~
+        +obtenerNombresTodosJugadores() List~String~
+        -validarJugador(Jugador jugador) boolean
+        -serializarJugadores(Map~String, Jugador~ jugadores, String archivo) boolean
+        -deserializarJugadores(String archivo) Map~String, Jugador~
+    }
+
+    class RepositorioPartidaImpl {
+        -DIRECTORIO_PERSISTENCIA String
+        -ARCHIVO_PARTIDAS String
+        +guardar(int id, ControladorJuego partida) boolean
+        +cargar(int id) ControladorJuego
+        +eliminar(int id) boolean
+        +listarTodas() List~Integer~
+        +generarNuevoId() int
+        -cargarTodasLasPartidas() Map~Integer, ControladorJuego~
+        -guardarTodasLasPartidas(Map~Integer, ControladorJuego~ mapaPartidas) boolean
+        -validarDirectorio() boolean
+        -limpiarPartidaObsoleta(int id) void
+    }
+
+    class RepositorioDiccionarioImpl {
+        -DICCIONARIOS_INDEX_FILE String
+        -DIRECTORIO_DICCIONARIOS String
+        +guardar(String nombre, Diccionario diccionario, String path) boolean
+        +guardarIndice(Map~String, String~ diccionariosPaths) boolean
+        +cargar(String nombre) Diccionario
+        +cargarIndice() Map~String, String~
+        +eliminar(String nombre) boolean
+        +existe(String nombre) boolean
+        +listarDiccionarios() List~String~
+        +verificarDiccionarioValido(String nombre) boolean
+        -validarNombreDiccionario(String nombre) boolean
+        -construirRutaDiccionario(String nombre) String
+        -serializarDiccionario(Diccionario diccionario, String ruta) boolean
+        -deserializarDiccionario(String ruta) Diccionario
+    }
+
+    class RepositorioRankingImpl {
+        -RANKING_FILE String
+        -DIRECTORIO_DATOS String
+        +guardar(Ranking ranking) boolean
+        +cargar() Ranking
+        +actualizarEstadisticasJugador(String nombre, PlayerRankingStats stats) boolean
+        +eliminarJugador(String nombre) boolean
+        +obtenerRankingOrdenado(String criterio) List~String~
+        +obtenerTodosJugadores() Set~String~
+        +obtenerPuntuacionMaxima(String nombre) int
+        +obtenerPuntuacionMedia(String nombre) double
+        +obtenerPartidasJugadas(String nombre) int
+        +obtenerVictorias(String nombre) int
+        +obtenerPuntuacionTotal(String nombre) int
+        +existeJugador(String nombre) boolean
+        -crearRankingVacio() Ranking
+        -validarEstructuraRanking(Ranking ranking) boolean
+        -serializarRanking(Ranking ranking, String archivo) boolean
+        -deserializarRanking(String archivo) Ranking
+    }
+
+    class RepositorioConfiguracionImpl {
+        -CONFIG_FILE String
+        -CONFIGURACION_POR_DEFECTO Map~String, Object~
+        +guardar(Configuracion configuracion) boolean
+        +cargar() Configuracion
+        -crearConfiguracionPorDefecto() Configuracion
+        -validarConfiguracion(Configuracion config) boolean
+        -serializarConfiguracion(Configuracion config, String archivo) boolean
+        -deserializarConfiguracion(String archivo) Configuracion
+        -aplicarValoresPorDefecto(Configuracion config) void
+    }
+
+    %% CLASES DE DOMINIO RELACIONADAS (referencias mínimas)
+    class Jugador {
+        +esIA() boolean
+    }
+
+    class ControladorJuego {
+        +getIdPartida() int
+    }
+
+    class Diccionario {
+        +getNombre() String
+    }
+
+    class Ranking {
+        +getUsuarios() Set~String~
+    }
+
+    class Configuracion {
+        +getIdioma() String
+    }
+
+    class PlayerRankingStats {
+        +getUsername() String
+    }
+
+    %% ESTEREOTIPOS
+    <<interface>> RepositorioJugador
+    <<interface>> RepositorioPartida
+    <<interface>> RepositorioDiccionario
+    <<interface>> RepositorioRanking
+    <<interface>> RepositorioConfiguracion
+    <<repository>> RepositorioJugadorImpl
+    <<repository>> RepositorioPartidaImpl
+    <<repository>> RepositorioDiccionarioImpl
+    <<repository>> RepositorioRankingImpl
+    <<repository>> RepositorioConfiguracionImpl
+
+    %% ESTILOS
+    classDef interfaceRepo fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef implRepo fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef domainRef fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,stroke-dasharray: 5 5
+
+    %% APLICAR ESTILOS
+    class RepositorioJugador:::interfaceRepo
+    class RepositorioPartida:::interfaceRepo
+    class RepositorioDiccionario:::interfaceRepo
+    class RepositorioRanking:::interfaceRepo
+    class RepositorioConfiguracion:::interfaceRepo
+    
+    class RepositorioJugadorImpl:::implRepo
+    class RepositorioPartidaImpl:::implRepo
+    class RepositorioDiccionarioImpl:::implRepo
+    class RepositorioRankingImpl:::implRepo
+    class RepositorioConfiguracionImpl:::implRepo
+
+    class Jugador:::domainRef
+    class ControladorJuego:::domainRef
+    class Diccionario:::domainRef
+    class Ranking:::domainRef
+    class Configuracion:::domainRef
+    class PlayerRankingStats:::domainRef
+
+    %% RELACIONES DE IMPLEMENTACIÓN
+    RepositorioJugador <|.. RepositorioJugadorImpl : implementa
+    RepositorioPartida <|.. RepositorioPartidaImpl : implementa
+    RepositorioDiccionario <|.. RepositorioDiccionarioImpl : implementa
+    RepositorioRanking <|.. RepositorioRankingImpl : implementa
+    RepositorioConfiguracion <|.. RepositorioConfiguracionImpl : implementa
+
+    %% RELACIONES CON MODELOS DE DOMINIO (solo referencias de serialización)
+    RepositorioJugadorImpl ..> Jugador : serializa/deserializa
+    RepositorioPartidaImpl ..> ControladorJuego : serializa/deserializa
+    RepositorioDiccionarioImpl ..> Diccionario : serializa/deserializa
+    RepositorioRankingImpl ..> Ranking : serializa/deserializa
+    RepositorioRankingImpl ..> PlayerRankingStats : serializa/deserializa
+    RepositorioConfiguracionImpl ..> Configuracion : serializa/deserializa

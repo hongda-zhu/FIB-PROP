@@ -7,18 +7,23 @@ direction TB
     %% CAPA 1: CONTROLLERS (Superior)
     class ControladorDomain {
     }
+    
     class ControladorConfiguracion {
     }
+    
     class ControladorJuego {
     }
+    
     class ControladorJugador {
     }
+    
     class ControladorRanking {
     }
+    
     class ControladorDiccionario {
     }
 
-    %% CAPA 2: REPOSITORIES (NUEVAS CLASES)
+    %% CAPA 2: REPOSITORIES (INTERFACES)
     class RepositorioJugador {
     }
     class RepositorioPartida {
@@ -30,7 +35,7 @@ direction TB
     class RepositorioConfiguracion {
     }
 
-    %% IMPLEMENTACIONES (NUEVAS CLASES)
+    %% IMPLEMENTACIONES
     class RepositorioJugadorImpl {
     }
     class RepositorioPartidaImpl {
@@ -69,8 +74,6 @@ direction TB
     }
 
     %% SUBSISTEMA RANKING
-    class RankingDataProvider {
-    }
     class RankingOrderStrategy {
     }
     class RankingOrderStrategyFactory {
@@ -86,7 +89,7 @@ direction TB
     class PuntuacionTotalStrategy {
     }
 
-    %% HELPERS (NUEVA CLASE)
+    %% HELPERS
     class Dificultad {
     }
     class Direction {
@@ -100,7 +103,6 @@ direction TB
     class Triple {
     }
     class Tuple {
-
     }
 
     %% ESTEREOTIPOS
@@ -114,7 +116,6 @@ direction TB
     <<interface>> RepositorioRanking
     <<interface>> RepositorioConfiguracion
     <<Abstract>> Jugador
-    <<interface>> RankingDataProvider
     <<interface>> RankingOrderStrategy
     <<Factory>> RankingOrderStrategyFactory
     <<Strategy>> MaximaScoreStrategy
@@ -201,13 +202,11 @@ direction TB
 
     RankingOrderStrategyFactory "1" ..> "1..*" RankingOrderStrategy : crea >
 
-    ControladorRanking ..|> RankingDataProvider : implementa
-
-    MaximaScoreStrategy "1" --> "1" RankingDataProvider : utiliza
-    MediaScoreStrategy "1" --> "1" RankingDataProvider : utiliza
-    PartidasJugadasStrategy "1" --> "1" RankingDataProvider : utiliza
-    VictoriasStrategy "1" --> "1" RankingDataProvider : utiliza
-    PuntuacionTotalStrategy "1" --> "1" RankingDataProvider : utiliza
+    MaximaScoreStrategy "1" --> "1" Ranking : utiliza
+    MediaScoreStrategy "1" --> "1" Ranking : utiliza
+    PartidasJugadasStrategy "1" --> "1" Ranking : utiliza
+    VictoriasStrategy "1" --> "1" Ranking : utiliza
+    PuntuacionTotalStrategy "1" --> "1" Ranking : utiliza
 
     %% RELACIONES REPOSITORIOS-MODELOS
     RepositorioJugadorImpl ..> Jugador : serializa/deserializa
