@@ -76,7 +76,7 @@ public class Diccionario implements Serializable {
             throw new NullPointerException("La lista de palabras no puede ser null");
         }
         
-        Dawg newDawg = new Dawg();
+        Dawg newDawg = new Dawg(this.alphabet.keySet());
         inicializarDawg(newDawg, palabras);
         this.dawg = newDawg;
     }
@@ -449,7 +449,7 @@ public class Diccionario implements Serializable {
         palabras.remove(palabra);
         
         // Reconstruimos el DAWG
-        Dawg newDawg = new Dawg();
+        Dawg newDawg = new Dawg(this.alphabet.keySet());
         inicializarDawg(newDawg, palabras);
         this.dawg = newDawg;
         

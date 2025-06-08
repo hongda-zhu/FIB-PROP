@@ -1,13 +1,8 @@
 package scrabble.domain.controllers.subcontrollers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,29 +11,44 @@ import java.util.Set;
 
 import scrabble.domain.models.Bolsa;
 import scrabble.domain.models.Tablero;
+import scrabble.domain.persistences.implementaciones.RepositorioPartidaImpl;
+import scrabble.domain.persistences.interfaces.RepositorioPartida;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.Dificultad;
+import scrabble.helpers.Direction;
+import scrabble.helpers.Bonus;
 
 /**
- * Clase GestorJugada
- * Esta clase se encarga de gestionar las jugadas en el juego de Scrabble.
- * Permite buscar movimientos válidos, calcular puntos y realizar jugadas en el tablero.
+ * Controlador principal para la gestión completa de partidas de Scrabble.
+ * 
+ * Esta clase centraliza toda la lógica de juego, incluyendo la gestión del tablero,
+ * validación de movimientos, cálculo de puntuaciones, manejo de turnos y persistencia
+ * del estado de la partida. Coordina las interacciones entre el tablero, la bolsa de fichas,
+ * los jugadores y el diccionario para implementar las reglas completas del Scrabble.
+ * 
+ * Funcionalidades principales:
+ * - Inicialización y configuración de partidas
+ * - Validación de movimientos según las reglas del juego
+ * - Cálculo automático de puntuaciones con multiplicadores
+ * - Gestión de turnos para jugadores humanos e IA
+ * - Búsqueda algorítmica de movimientos válidos
+ * - Persistencia y carga del estado de partidas
+ * - Detección automática de fin de juego
+ * 
+ * Implementa Serializable para permitir el guardado y carga completa del estado
+ * de la partida, incluyendo el tablero, bolsa, jugadores y configuración.
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 
 public class ControladorJuego implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private int idPartida;
-    /**
-    * Controlador para la gestión de usuarios.
-    * Implementa el patrón Singleton para garantizar una única instancia.
-    */
-    public enum Direction {
-        HORIZONTAL,
-        VERTICAL
-    }
 
+    private int idPartida = -1; // Identificador de la partida actual
     private transient ControladorDiccionario controladorDiccionario;
     private Tablero tablero;
     private Bolsa bolsa;
@@ -49,15 +59,15 @@ public class ControladorJuego implements Serializable {
     private Map<Tuple<Integer, Integer>, Set<String>> lastCrossCheck;
     private String nombreDiccionario;
     private Map<String, Integer> jugadores;
-
-    private Set<String> alfabeto = Set.of(
-        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
-        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
-    );
+    private static RepositorioPartida repositorioPartida;
+    private List<String> jugadoresOrdenados;
+    private int turnoActual = 0;
+    private Set<String> alfabeto;
 
     /**
      * Constructor por defecto para la clase ControladorJuego.
      * 
+     * @throws ExceptionPersistenciaFallida si ocurre un error al inicializar el repositorio de partidas
      * @pre No hay precondiciones específicas.
      * @post Se inicializa una nueva instancia de ControladorJuego con valores por defecto:
      *       - tablero, lastCrossCheck y direction son null
@@ -66,37 +76,66 @@ public class ControladorJuego implements Serializable {
      *       - idPartida es -1
      *       - Se obtiene la instancia del ControladorDiccionario
      */
-    public ControladorJuego() {
+    public ControladorJuego() throws ExceptionPersistenciaFallida {
         this.tablero = null;
         this.lastCrossCheck = null;
         this.direction = null;
         this.juegoIniciado = false;
         this.juegoTerminado = false;
         this.bolsa = null;
-        this.idPartida = -1;
         this.controladorDiccionario = ControladorDiccionario.getInstance();
+        repositorioPartida = new RepositorioPartidaImpl();
+        this.alfabeto = new HashSet<>();
     }
 
+    /**
+     * Obtiene el nombre del diccionario de la partida actual.
+     * 
+     * @return El nombre del diccionario empleado en la partida actual.
+     */
+    public String getNombreDiccionario() {
+        return this.nombreDiccionario;
+    }
 
+    /**
+     * Obtiene el tamaño del tablero de la partida actual.
+     * 
+     * @return El tamaño del tablero (número entero que representa las dimensiones N×N).
+     */
+    public int getSize() {
+        return this.tablero.getSize();
+    }    
+
+   /**
+     * Obtiene el índice en la lista del jugador a quien le toca jugar 
+     * 
+     * @return  El índice turnoActual
+     */
+    public int getTurnoActual() {
+        return this.turnoActual;
+    }
+    
     /**
      * Inicializa el juego configurando el tablero, diccionario, idioma y bolsa de fichas.
      *
-     * @pre El diccionario con nombreDiccionario debe existir en el sistema.
      * @param N                Tamaño del tablero (N x N).
-     * @param jugadores        Conjunto de nombres de los jugadores que participan en el juego.
+     * @param jugadores        Mapa de nombres de los jugadores con sus puntuaciones iniciales.
      * @param nombreDiccionario Nombre del diccionario que se utilizará para el juego.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al generar el ID de partida
+     * @pre El diccionario con nombreDiccionario debe existir en el sistema.
      * @post Se inicializa el juego con un tablero de tamaño N×N, se asocia un diccionario
      *       y se crea la bolsa de fichas basada en la configuración del diccionario.
      * @throws NullPointerException Si alguno de los parámetros es null.
-     * @throws IllegalArgumentException Si N es menor que 1 o si el conjunto de jugadores está vacío.
+     * @throws IllegalArgumentException Si N es menor que 1 o si el mapa de jugadores está vacío.
      */
-    public void inicializarJuego(int N, Map<String, Integer> jugadores, String nombreDiccionario) {
+    public void inicializarJuego(int N, Map<String, Integer> jugadores, String nombreDiccionario) throws ExceptionPersistenciaFallida {
         this.tablero = new Tablero(N);
         this.nombreDiccionario = nombreDiccionario;
         this.jugadores = jugadores;
         this.juegoIniciado = false;
         this.juegoTerminado = false;
-        this.idPartida = -1;
+        this.idPartida = repositorioPartida.generarNuevoId();
+        this.alfabeto = controladorDiccionario.getTokensAlfabeto(nombreDiccionario);
         
         Map<String, Integer> fichas = controladorDiccionario.getFichas(nombreDiccionario);
         this.bolsa = new Bolsa();
@@ -104,6 +143,17 @@ public class ControladorJuego implements Serializable {
     }
 
     
+    /**
+     * Obtiene el estado actual del tablero.
+     * 
+     * @return Mapa de las posiciones ocupadas con sus respectivas letras
+     * @pre El tablero debe estar inicializado.
+     * @post Se devuelve el estado actual del tablero sin modificarlo.
+     */
+    public Map<Tuple<Integer, Integer>, String> getEstadoTablero() {
+        return tablero.getEstadoTablero();
+    } 
+
     /**
      * Obtiene una cantidad específica de fichas de la bolsa.
      * 
@@ -143,9 +193,7 @@ public class ControladorJuego implements Serializable {
         for (Map.Entry<String, Integer> entry : fichas.entrySet()) {
             String ficha = entry.getKey();
             int cantidad = entry.getValue();
-            for (int i = 0; i < cantidad; i++) {
-                this.bolsa.agregarFichas(ficha, cantidad);
-            }
+            this.bolsa.agregarFichas(ficha, cantidad);
         }
     }
 
@@ -254,14 +302,15 @@ public class ControladorJuego implements Serializable {
         return anchors;
     }
 
-    /*
-     * Método para extender la palabra hacia la izquierda.
-     * @param partialWord Palabra parcial.
-     * @param rack Mapa de letras disponibles.
-     * @param currenNode Nodo actual en el DAWG.
-     * @param nextPos Posición siguiente.
-     * @param limit Límite de letras a usar.
-     * @return Conjunto de palabras extendidas.
+    /**
+     * Extiende una palabra hacia la izquierda añadiendo letras disponibles del atril.
+     * Método auxiliar para la búsqueda de movimientos válidos.
+     * 
+     * @param partialWord Palabra parcial que se está formando.
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param nextPos Posición siguiente a explorar en el tablero.
+     * @param limit Límite máximo de letras que se pueden añadir a la izquierda.
+     * @return Conjunto de movimientos válidos encontrados.
      */
 
     /**
@@ -279,36 +328,44 @@ public class ControladorJuego implements Serializable {
      */
     public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendLeft(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, int limit) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
+    
         words.addAll(extendRight(partialWord, rack, nextPos, false));
-
+    
         if (limit > 0){
-            for (String c : this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord)) {
-                if (rack.containsKey(c) ||rack.containsKey("#")) {
+            Set<String> posibles = this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord);
+    
+            for (String c : posibles) {
+                if (rack.containsKey(c) || rack.containsKey("#")) {
+    
                     String newPartialWord = partialWord + c;
                     Map<String, Integer> newRack = new HashMap<>(rack);
-
-                    if (!rack.containsKey(c)) c = "#";
-
-                    if (newRack.get(c) == 1) {
-                        newRack.remove(c);
+                    String usada = c;
+    
+                    if (!rack.containsKey(c)) usada = "#";
+    
+                    if (newRack.get(usada) == 1) {
+                        newRack.remove(usada);
                     } else {
-                        newRack.put(c, newRack.get(c) - 1);
+                        newRack.put(usada, newRack.get(usada) - 1);
                     }
+    
                     words.addAll(extendLeft(newPartialWord, newRack, nextPos, limit - 1));
                 }
             }
         }
         return words;
     }
+    
 
-    /*
-     * Método para extender la palabra hacia la derecha.
-     * @param partialWord Palabra parcial.
-     * @param rack Mapa de letras disponibles.
-     * @param currenNode Nodo actual en el DAWG.
-     * @param nextPos Posición siguiente.
-     * @param archorFilled Indica si el anclaje está lleno.
-     * @return Conjunto de palabras extendidas.
+    /**
+     * Extiende una palabra hacia la derecha añadiendo letras disponibles del atril.
+     * Método auxiliar para la búsqueda de movimientos válidos.
+     * 
+     * @param partialWord Palabra parcial que se está formando.
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param nextPos Posición siguiente a explorar en el tablero.
+     * @param archorFilled Indica si la posición de anclaje ya está ocupada.
+     * @return Conjunto de movimientos válidos encontrados.
      */
 
     /**
@@ -324,26 +381,28 @@ public class ControladorJuego implements Serializable {
      * @post Se devuelve un conjunto (posiblemente vacío) de jugadas válidas.
      * @throws NullPointerException Si alguno de los parámetros es null.
      */
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, boolean anchorFilled) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
-
-        if(!this.tablero.isFilled(nextPos) && this.controladorDiccionario.isFinal(nombreDiccionario, partialWord) && archorFilled) {
+    
+        if (!this.tablero.isFilled(nextPos) && this.controladorDiccionario.isFinal(nombreDiccionario, partialWord) && anchorFilled) {
             words.add(new Triple<>(partialWord, before(nextPos), this.direction));
         }
-        if (this.tablero.validPosition(nextPos)){
+    
+        if (this.tablero.validPosition(nextPos)) {
             if (this.tablero.isEmpty(nextPos)) {
-
                 for (String c : this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord)) {
                     Set<String> allowedChars = this.lastCrossCheck.get(nextPos);
-                    if ((rack.containsKey(c) || rack.containsKey("#")) && allowedChars != null && allowedChars.contains(c)) {
+                    if ((rack.containsKey(c) || rack.containsKey("#")) && allowedChars != null && allowedChars.contains(c)) {    
                         String newPartialWord = partialWord + c;
                         Map<String, Integer> newRack = new HashMap<>(rack);
-
-                        if (!rack.containsKey(c)) c = "#";
-                        if (newRack.get(c) == 1) {
-                            newRack.remove(c);
+                        String usada = c;
+    
+                        if (!rack.containsKey(c)) usada = "#";
+    
+                        if (newRack.get(usada) == 1) {
+                            newRack.remove(usada);
                         } else {
-                            newRack.put(c, newRack.get(c) - 1);
+                            newRack.put(usada, newRack.get(usada) - 1);
                         }
                         words.addAll(extendRight(newPartialWord, newRack, after(nextPos), true));
                     }
@@ -352,17 +411,21 @@ public class ControladorJuego implements Serializable {
                 String c = String.valueOf(this.tablero.getTile(nextPos));
                 if (this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord).contains(c)) {
                     String newPartialWord = partialWord + c;
-                    
                     words.addAll(extendRight(newPartialWord, rack, after(nextPos), true));
                 }
             }
         }
+    
         return words;
     }
+    
 
-    /*
-     * Método para realizar una verificación cruzada en el tablero.
-     * @return Mapa de posiciones y conjuntos de palabras posibles.
+    /**
+     * Realiza una verificación cruzada en el tablero para determinar letras válidas.
+     * Analiza cada posición vacía para determinar qué letras pueden formar palabras válidas
+     * en la dirección perpendicular a la jugada principal.
+     * 
+     * @return Mapa que asocia posiciones con conjuntos de letras válidas en esa posición.
      */
 
     /**
@@ -414,10 +477,14 @@ public class ControladorJuego implements Serializable {
         return words;
     }
 
-    /*
-     * Método para buscar todos los movimientos posibles en el tablero.
-     * @param rack Mapa de letras disponibles.
-     * @return Conjunto de movimientos posibles.
+    /**
+     * Busca todos los movimientos posibles en el tablero con las fichas disponibles.
+     * Método central para la lógica del juego que utiliza los métodos auxiliares
+     * find_anchors, extendLeft/Right y crossCheck.
+     * 
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param juegoIniciado Indica si el juego ya ha comenzado.
+     * @return Conjunto de movimientos válidos posibles.
      */
 
     /**
@@ -427,59 +494,55 @@ public class ControladorJuego implements Serializable {
      *
      * @pre El tablero, diccionario y dirección deben estar inicializados.
      * @param rack Mapa de letras disponibles en el atril del jugador.
-     * @param isFirst Indica si es el primer turno del juego.
+     * @param juegoIniciado Indica si el juego ya ha comenzado.
      * @return Conjunto de tripletas (palabra, posición, dirección) que representan movimientos válidos.
      * @post Se devuelve un conjunto (posiblemente vacío) de todos los movimientos válidos posibles.
      * @throws NullPointerException Si el rack es null o si el tablero o diccionario no están inicializados.
      */
     public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack, boolean juegoIniciado) {
+
+
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> answers = new HashSet<>();
         Set<Tuple<Integer, Integer>> anchors = find_anchors(juegoIniciado);
-
+        
         for (Direction dir : Direction.values()) {
-
             this.direction = dir;
-
             this.lastCrossCheck = crossCheck();
-            
+    
             for (Tuple<Integer, Integer> pos : anchors) {
-                
                 if (this.tablero.isFilled(before(pos))) {
-                    
                     String partial_word = "";
                     Tuple<Integer, Integer> before_pos = pos;
-                    
-                while(tablero.isFilled(before(before_pos))) {
-                    partial_word = tablero.getTile(before(before_pos)) + partial_word;
-                    before_pos = before(before_pos);
-                }
-                
-                if (this.controladorDiccionario.nodeExists(nombreDiccionario, partial_word)) {
-                    answers.addAll(this.extendRight(partial_word, rack, pos, false));
-                }
+                    while (tablero.isFilled(before(before_pos))) {
+                        partial_word = tablero.getTile(before(before_pos)) + partial_word;
+                        before_pos = before(before_pos);
+                    }
+                    if (this.controladorDiccionario.nodeExists(nombreDiccionario, partial_word)) {
+                        answers.addAll(this.extendRight(partial_word, rack, pos, false));
+                    }
                 } else {
-
                     Tuple<Integer, Integer> before_pos = pos;
                     int limit = 0;
-                    while(tablero.isEmpty(before(before_pos)) && !anchors.contains(before(before_pos))) {
+                    while (tablero.isEmpty(before(before_pos)) && !anchors.contains(before(before_pos))) {
                         limit += 1;
                         before_pos = before(before_pos);
                     }
-                    
-                    answers.addAll(extendLeft("", rack, pos, limit)); //areglable
-                    
+                    answers.addAll(extendLeft("", rack, pos, limit));
                 }
-                
             }
         }
+    
         return answers;
     }
+    
 
-    /*
-     * Método para realizar un movimiento en el tablero.
-     * @param move Movimiento a realizar.
-     * @param rack Mapa de letras disponibles.
-     * @return Mapa actualizado de letras disponibles.
+    /**
+     * Realiza un movimiento en el tablero colocando las letras correspondientes.
+     * Actualiza el tablero con las letras del movimiento y modifica el atril del jugador.
+     * 
+     * @param move Movimiento a realizar (palabra, posición, dirección).
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @return Mapa actualizado con las letras restantes después del movimiento.
      */
 
     /**
@@ -494,40 +557,66 @@ public class ControladorJuego implements Serializable {
      * @throws NullPointerException Si alguno de los parámetros es null.
      * @throws IllegalArgumentException Si el movimiento intenta colocar letras fuera del tablero.
      */
-    public Map<String, Integer> makeMove(Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        String word = move.x.toUpperCase();
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
+public Map<String, Integer> makeMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+    String word = move.x.toUpperCase();
+    Tuple<Integer, Integer> pos = move.y;
+    Direction dir = move.z;
 
-        Map<String, Integer> newRack = new HashMap<>(rack);
+    Map<String, Integer> newRack = new HashMap<>(rack);
 
-        for (int i = word.length() - 1; i >= 0; i--) {
-            String letter = String.valueOf(word.charAt(i)).toUpperCase();
-            
-            if ((newRack.containsKey(letter) || newRack.containsKey("#")) && this.tablero.isEmpty(pos)) {
-                String letraParaEliminar = letter;
-                if (!newRack.containsKey(letter)) letraParaEliminar = "#";
+    int i = word.length() - 1;
+    while (i >= 0) {
+        String letter;
 
-                if (newRack.get(letraParaEliminar) == 1) {
-                    newRack.remove(letraParaEliminar);
-                } else {
-                    newRack.put(letraParaEliminar, newRack.get(letraParaEliminar) - 1);
-                }
-            }
-            this.tablero.setTile(pos, String.valueOf(letter));
-            if (dir == Direction.HORIZONTAL) {
-                pos = new Tuple<Integer, Integer>(pos.x, pos.y - 1); 
+        // Intentar extraer un dígrafo de dos letras
+        if (i > 0) {
+            String potentialDiletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(potentialDiletter)) {
+                letter = potentialDiletter;
+                i -= 2;
             } else {
-                pos = new Tuple<Integer, Integer>(pos.x - 1, pos.y);
+                letter = String.valueOf(word.charAt(i));
+                i -= 1;
+            }
+        } else {
+            letter = String.valueOf(word.charAt(i));
+            i -= 1;
+        }
+
+
+        if (this.tablero.isEmpty(pos)) {
+            if (newRack.containsKey(letter) || newRack.containsKey("#")) {
+                String fichaUsada = newRack.containsKey(letter) ? letter : "#";
+
+                if (newRack.get(fichaUsada) == 1) {
+                    newRack.remove(fichaUsada);
+                } else {
+                    newRack.put(fichaUsada, newRack.get(fichaUsada) - 1);
+                }
+            } else {
+                throw new IllegalStateException("No tienes la letra '" + letter + "' en el atril.");
             }
         }
-        return newRack;
+
+        this.tablero.setTile(pos, letter);
+
+        // Avanzar posición
+        pos = (dir == Direction.HORIZONTAL)
+            ? new Tuple<>(pos.x, pos.y - 1)
+            : new Tuple<>(pos.x - 1, pos.y);
     }
 
-    /*
-     * Método para calcular los puntos de un movimiento.
-     * @param move Movimiento a evaluar.
-     * @return Puntos obtenidos por el movimiento.
+    return newRack;
+}
+
+
+
+    /**
+     * Calcula los puntos obtenidos por un movimiento específico.
+     * Tiene en cuenta los multiplicadores de letra y palabra del tablero.
+     * 
+     * @param move Movimiento a evaluar (palabra, posición, dirección).
+     * @return Puntos totales obtenidos por el movimiento.
      */
 
     /**
@@ -540,55 +629,78 @@ public class ControladorJuego implements Serializable {
      * @post Se devuelve un entero no negativo que representa la puntuación del movimiento.
      * @throws NullPointerException Si el parámetro move es null o si el tablero no está inicializado.
      */
-    public int calculateMovePoints(Triple<String,Tuple<Integer, Integer>, Direction> move) {
+    /**
+ * Calcula los puntos obtenidos por una jugada según las bonificaciones del tablero.
+ * Compatible con letras multicaracter (e.g., "CH", "LL", "RR").
+ *
+ * @param move Triple con palabra, posición inicial y dirección.
+ * @return Total de puntos obtenidos por la jugada.
+ */
+public int calculateMovePoints(Triple<String, Tuple<Integer, Integer>, Direction> move) {
+    int points = 0;
+    int doubleTimes = 0;
+    int tripleTimes = 0;
 
-        int points = 0;
-        int doubleTimes = 0;
-        int tripleTimes = 0;
-        
-        String word = move.x;
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
+    String word = move.x.toUpperCase();
+    Tuple<Integer, Integer> pos = move.y;
+    Direction dir = move.z;
 
-        for (int i = word.length() - 1; i >= 0; i--) {
-            int letterPoint = controladorDiccionario.getPuntaje(nombreDiccionario, String.valueOf(word.charAt(i)));
-            if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
-                points += letterPoint;
+    int i = word.length() - 1;
+    while (i >= 0) {
+
+
+        String symbol;
+
+        if (i > 0) {
+            String potentialDiletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(potentialDiletter)) {
+                symbol = potentialDiletter;
+                i -= 2;
             } else {
-                switch (this.tablero.getBonus(pos)) {
-                    case TW:
-                        points += letterPoint;
-                        tripleTimes++;
-                        break;
-                    case TL:
-                        points += letterPoint * 3;
-                        break;
-                    case DW:
-                        points += letterPoint;
-                        doubleTimes++;
-                        break;
-                    case DL:
-                        points += letterPoint * 2;
-                        break;
-                    case X:
-                        points += letterPoint * 2;
-                        break;
-                    default:
-                        points += letterPoint;
-                        break;
-                }
+                symbol = String.valueOf(word.charAt(i));
+                i -= 1;
             }
-            pos = dir == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i -= 1;
         }
-        return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes); 
+
+        int letterPoint = controladorDiccionario.getPuntaje(nombreDiccionario, symbol);
+
+        if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
+            points += letterPoint;
+        } else {
+            switch (this.tablero.getBonus(pos)) {
+                case TW:
+                    points += letterPoint;
+                    tripleTimes++;
+                    break;
+                case TL:
+                    points += letterPoint * 3;
+                    break;
+                case DW:
+                    points += letterPoint;
+                    doubleTimes++;
+                    break;
+                case DL:
+                    points += letterPoint * 2;
+                    break;
+                case X:
+                    points += letterPoint * 2;
+                    break;
+                default:
+                    points += letterPoint;
+                    break;
+            }
+        }
+
+        // Avanzar posición en sentido inverso
+        pos = (dir == Direction.HORIZONTAL) ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
     }
 
-    /*
-     * Método para verificar si un movimiento es válido.
-     * @param move Movimiento a evaluar.
-     * @param rack Mapa de letras disponibles.
-     * @return true si el movimiento es válido, false en caso contrario.
-     */
+    return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes);
+}
+
 
     /**
      * Verifica si un movimiento es válido según las reglas del juego.
@@ -608,11 +720,14 @@ public class ControladorJuego implements Serializable {
         return possibleWords.contains(move);
     }
 
-    /*
-     * Método para verificar si es un movimiento válido en el primer turno.
-     * @param move Movimiento a evaluar.
-     * @param rack Mapa de letras disponibles.
-     * @return true si el movimiento es válido, false en caso contrario.
+    /**
+     * Verifica si un movimiento es válido específicamente para el primer turno del juego.
+     * En el primer turno, la palabra debe pasar por el centro del tablero y ser válida
+     * según el diccionario.
+     * 
+     * @param move Movimiento a evaluar (palabra, posición, dirección).
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @return true si el movimiento es válido para el primer turno, false en caso contrario.
      */
 
      /**
@@ -627,107 +742,140 @@ public class ControladorJuego implements Serializable {
       *       para el primer turno del juego.
       * @throws NullPointerException Si alguno de los parámetros es null.
       */
-      public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        if (move == null || rack == null) {
-            throw new NullPointerException("Move o rack es null");
-        }
-    
-        String word = move.x;
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
-    
-        System.out.println("Verificando movimiento: " + word + " en posición " + pos + " con dirección " + dir);
-    
-        // Check if the word fits within the board boundaries
-        Tuple<Integer, Integer> currentPos = new Tuple<>(pos.x, pos.y);
-        for (int i = word.length() - 1; i >= 0; i--) {
-            if (!tablero.validPosition(currentPos)) {
-                System.out.println("Posición fuera del tablero: " + currentPos);
-                return false;
+public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+    if (move == null || rack == null) {
+        throw new NullPointerException("Move o rack es null");
+    }
+
+    String word = move.x.toUpperCase();
+    Tuple<Integer, Integer> pos = move.y;
+    Direction dir = move.z;
+
+    // Verificar si la palabra cabe dentro del tablero
+    Tuple<Integer, Integer> currentPos = new Tuple<>(pos.x, pos.y);
+    int i = word.length() - 1;
+    while (i >= 0) {
+        String symbol;
+        if (i > 0) {
+            String diletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(diletter)) {
+                symbol = diletter;
+                i -= 2;
+            } else {
+                symbol = String.valueOf(word.charAt(i));
+                i -= 1;
             }
-            currentPos = dir == Direction.HORIZONTAL
-                ? new Tuple<>(currentPos.x, currentPos.y - 1)
-                : new Tuple<>(currentPos.x - 1, currentPos.y);
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i -= 1;
         }
-    
-        System.out.println("La palabra cabe en el tablero.");
-    
-        // Reset position to the starting point
-        currentPos = new Tuple<>(pos.x, pos.y);
-    
-        // Check if the word is placed on the center tile
-        boolean centerTileCovered = false;
-        for (int i = word.length() - 1; i >= 0; i--) {
-            if (currentPos.equals(tablero.getCenter())) {
-                centerTileCovered = true;
-                System.out.println("La palabra pasa por el centro del tablero en " + currentPos);
-            }
-            currentPos = dir == Direction.HORIZONTAL
-                ? new Tuple<>(currentPos.x, currentPos.y - 1)
-                : new Tuple<>(currentPos.x - 1, currentPos.y);
-        }
-    
-        if (!centerTileCovered) {
-            System.out.println("La palabra no pasa por el centro.");
+
+        if (!tablero.validPosition(currentPos)) {
             return false;
         }
-    
-        // Check if the word can be formed using the rack
-        Map<String, Integer> tempRack = new HashMap<>(rack);
-        System.out.println("Comprobando si se puede formar la palabra con el atril: " + tempRack);
-    
-        for (int i = 0; i < word.length(); i++) {
-            String letter = String.valueOf(word.charAt(i)).toUpperCase();
-            String diletter = "";
-            if (i + 1 < word.length()) {
-                diletter = letter + String.valueOf(word.charAt(i + 1)).toUpperCase();
-            }
-    
-            if (tempRack.containsKey(letter) || tempRack.containsKey(diletter)) {
-                String key = tempRack.containsKey(diletter) ? diletter : letter;
-                System.out.println("Usando ficha: " + key);
-                if (tempRack.get(key) == 1) {
-                    tempRack.remove(key);
-                } else {
-                    tempRack.put(key, tempRack.get(key) - 1);
-                }
-            } else if (tempRack.containsKey("#")) { // Use blank tile
-                System.out.println("Usando ficha blanca para letra: " + letter);
-                if (tempRack.get("#") == 1) {
-                    tempRack.remove("#");
-                } else {
-                    tempRack.put("#", tempRack.get("#") - 1);
-                }
-            } else {
-                System.out.println("No se puede formar la palabra. Letra faltante: " + letter);
-                return false;
-            }
-        }
-    
-        boolean found = this.controladorDiccionario.existePalabra(nombreDiccionario, word);
-        System.out.println("¿La palabra existe en el diccionario?: " + found);
-        return found;
+
+        currentPos = dir == Direction.HORIZONTAL
+            ? new Tuple<>(currentPos.x, currentPos.y - 1)
+            : new Tuple<>(currentPos.x - 1, currentPos.y);
     }
-    
+
+    // Verificar si cubre la casilla central
+    currentPos = new Tuple<>(pos.x, pos.y);
+    i = word.length() - 1;
+    boolean centerTileCovered = false;
+
+    while (i >= 0) {
+        String symbol;
+        if (i > 0) {
+            String diletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(diletter)) {
+                symbol = diletter;
+                i -= 2;
+            } else {
+                symbol = String.valueOf(word.charAt(i));
+                i -= 1;
+            }
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i -= 1;
+        }
+
+        if (currentPos.equals(tablero.getCenter())) {
+            centerTileCovered = true;
+        }
+
+        currentPos = dir == Direction.HORIZONTAL
+            ? new Tuple<>(currentPos.x, currentPos.y - 1)
+            : new Tuple<>(currentPos.x - 1, currentPos.y);
+    }
+
+    if (!centerTileCovered) return false;
+
+    // Verificar si la palabra se puede formar con el atril
+    Map<String, Integer> tempRack = new HashMap<>(rack);
+    i = 0;
+    while (i < word.length()) {
+        String symbol;
+
+        if (i + 1 < word.length()) {
+            String diletter = word.substring(i, i + 2);
+            if (alfabeto.contains(diletter)) {
+                symbol = diletter;
+                i += 2;
+            } else {
+                symbol = String.valueOf(word.charAt(i));
+                i += 1;
+            }
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i += 1;
+        }
+
+        if (tempRack.containsKey(symbol)) {
+            int count = tempRack.get(symbol);
+            if (count == 1) {
+                tempRack.remove(symbol);
+            } else {
+                tempRack.put(symbol, count - 1);
+            }
+        } else if (tempRack.containsKey("#")) { // Comodín
+            int count = tempRack.get("#");
+            if (count == 1) {
+                tempRack.remove("#");
+            } else {
+                tempRack.put("#", count - 1);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // Verificar si la palabra existe en el diccionario
+    return this.controladorDiccionario.existePalabra(nombreDiccionario, word);
+}
+
     
 
-    /*
-     * Método para realizar una acción en el juego.
-     * Este método permite al jugador realizar una acción, ya sea colocar palabras, pasar o intercambiar fichas.
-     * @param move El movimiento a realizar, que incluye la palabra, posición y dirección
-     * @param nombreJugador El nombre del jugador que está realizando la acción
-     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
-     * @param isIA Indica si el jugador es una IA o un jugador humano
-     * @param dificultad La dificultad de la IA (si aplica)
-     * @param isFirst Indica si es el primer turno de la partida
-     * @param pausado Flag para indicar si la partida se pausa
-     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
+    /**
+     * Realiza una acción en el juego, ya sea por un jugador humano o por la IA.
+     * Para jugadores humanos, ejecuta el movimiento proporcionado.
+     * Para la IA, busca y ejecuta el mejor movimiento posible según la dificultad.
+     * 
+     * @param move El movimiento a realizar (palabra, posición, dirección).
+     * @param nombreJugador El nombre del jugador que está realizando la acción.
+     * @param rack El atril del jugador con las letras disponibles para jugar.
+     * @param isIA Indica si el jugador es una IA o un jugador humano.
+     * @param dificultad La dificultad de la IA (si aplica).
+     * @param isFirst Indica si es el primer turno de la partida.
+     * @return Tupla con el nuevo atril del jugador y los puntos obtenidos, o null si no se puede realizar la acción.
      */
 
      private Tuple<Map<String, Integer>, Integer> realizarAccion(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst) {
         if (!isIA) { 
             this.juegoIniciado = true;
-            return new Tuple<Map<String,Integer>,Integer>(this.makeMove(move, rack), this.calculateMovePoints(move));
+            int points = calculateMovePoints(move);
+            Map <String, Integer> newRack = this.makeMove(move, rack);
+            return new Tuple<Map<String,Integer>,Integer>(newRack, points);
         } else {
             Set<Triple<String,Tuple<Integer, Integer>, Direction>> moves = this.searchAllMoves(rack, this.juegoIniciado);
             if (moves == null || moves.isEmpty()) {
@@ -748,20 +896,22 @@ public class ControladorJuego implements Serializable {
                     }
                 }
                 this.juegoIniciado = true;
+                move.setFromTriple(bestMove);
                 return new Tuple<Map<String,Integer>,Integer>(this.makeMove(bestMove, rack), bestMovePoints);
             }
         
         }
     }
-    /*
-     * Método para realizar un turno en el juego.
-     * Este método permite al jugador realizar su turno, ya sea humano o IA.
-     * @param nombreJugador El nombre del jugador que está realizando el movimiento
-     * @param rack El rack del jugador, que contiene las letras disponibles para jugar
-     * @param isIA Indica si el jugador es una IA o un jugador humano
-     * @param dificultad La dificultad de la IA (si aplica)
-     * @param pausado Flag para indicar si la partida se pausa
-     * @return Un objeto Tuple que contiene el nuevo rack del jugador y los puntos obtenidos por la jugada
+    /**
+     * Realiza un turno en el juego procesando la acción del jugador o de la IA.
+     * Método público que delega en realizarAccion para ejecutar la lógica del turno.
+     * 
+     * @param move El movimiento a realizar (puede ser null para la IA).
+     * @param nombreJugador El nombre del jugador que está realizando el turno.
+     * @param rack Mapa de letras disponibles en el atril del jugador.
+     * @param isIA Indica si el jugador es una IA o un jugador humano.
+     * @param dificultad La dificultad de la IA (si aplica).
+     * @return Tupla con el nuevo atril del jugador y los puntos obtenidos, o null si no se puede realizar la acción.
      */
 
     /**
@@ -783,10 +933,10 @@ public class ControladorJuego implements Serializable {
         return realizarAccion(move, nombreJugador, rack, isIA, dificultad, juegoIniciado);
     }
 
-    /*
-     * Método para finalizar el juego.
-     * Este método se llama cuando el juego ha terminado, ya sea porque un jugador ha ganado o porque no hay más fichas en la bolsa.
-     * En este caso, se muestra un mensaje indicando que el juego ha terminado.
+    /**
+     * Finaliza el juego marcándolo como terminado.
+     * Este método se llama cuando el juego debe terminar por cualquier razón
+     * (victoria de un jugador, bolsa vacía, etc.).
      */
 
      /**
@@ -800,9 +950,9 @@ public class ControladorJuego implements Serializable {
         juegoTerminado = true;
     }
 
-    /*
-     * Método para reiniciar el juego.
-     * Este método reinicia el juego, restableciendo el estado del juego y la bolsa de fichas.
+    /**
+     * Reinicia el estado del juego para comenzar una nueva partida.
+     * Restablece los flags de estado pero mantiene la configuración del tablero y jugadores.
      */
 
     /**
@@ -842,6 +992,14 @@ public class ControladorJuego implements Serializable {
         return juegoIniciado;
     }
 
+    /**
+     * Actualiza las puntuaciones de un jugador específico.
+     * 
+     * @param nombre El nombre del jugador cuya puntuación se va a actualizar.
+     * @param puntuacion Los puntos a añadir a la puntuación actual del jugador.
+     * @pre El jugador debe existir en el mapa de jugadores.
+     * @post La puntuación del jugador se incrementa con el valor especificado.
+     */
     public void actualizarPuntuaciones(String nombre, int puntuacion) {
         this.jugadores.put(nombre, this.jugadores.get(nombre) + puntuacion);
     }
@@ -869,221 +1027,170 @@ public class ControladorJuego implements Serializable {
 
 
     /**
-     * Guarda el estado completo del objeto actual (que contiene el estado del juego)
-     * en un archivo especificado usando serialización Java.
-     * IMPORTANTE: La clase que contiene este método y todas las clases de sus
-     * atributos no transitorios deben implementar {@code java.io.Serializable}.
+     * Guarda el estado completo del juego actual usando el repositorio de partidas.
+     * Utiliza el ID de partida actual para identificar el archivo de guardado.
      *
      * @pre No hay precondiciones específicas, pero se recomienda que el juego esté en un estado válido.
      * @return {@code true} si el guardado fue exitoso, {@code false} en caso contrario.
-     * @post Si la operación es exitosa, el estado del juego se guarda en el archivo y se asigna un ID de partida si no lo tenía.
-     * @throws RuntimeException Si ocurre un error de I/O durante el proceso de guardado,
-     * envolviendo la {@code IOException} original.
+     * @throws ExceptionPersistenciaFallida si ocurre un error durante el proceso de guardado.
+     * @post Si la operación es exitosa, el estado del juego se guarda en el repositorio.
      */
-    @SuppressWarnings("unchecked")
-    public boolean guardar() {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        Map<Integer, ControladorJuego> mapa;
-    
-        if (!archivo.exists()) {
-            mapa = new HashMap<>();
-        } else {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-                Object obj = ois.readObject();
-                if (obj instanceof Map) {
-                    mapa = (Map<Integer, ControladorJuego>) obj;
-                } else {
-                    throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
-            }
-        }
-    
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
-            
-            if (this.idPartida == -1) {
-                this.idPartida = mapa.size() + 1; // Asignar un nuevo ID de partida
-            }
-            mapa.put(this.idPartida, this);
-            
-            oos.writeObject(mapa);
-            return true;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar el archivo: " + nombreArchivo, e);
-        }
+    public boolean guardar(List<String> orden, int turnoActual) throws ExceptionPersistenciaFallida {
+        this.jugadoresOrdenados = orden;
+        this.turnoActual = turnoActual;
+        return repositorioPartida.guardar(this.idPartida, this);
     }
     
-
     /**
-     * Carga el estado del juego desde un archivo serializado previamente con {@code guardar},
+     * Carga el estado del juego desde el repositorio de partidas,
      * sobrescribiendo el estado del objeto actual.
      *
-     * @pre Debe existir un archivo de partidas guardadas con el ID especificado.
+     * @pre Debe existir una partida guardada con el ID especificado.
      * @param idPartida El ID de la partida a cargar.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al cargar la partida o si no se encuentra.
      * @post Si la partida existe, el estado del objeto actual se actualiza con el estado guardado.
-     * @throws RuntimeException Si ocurre un error de I/O o si la clase no se encuentra
-     * durante la deserialización, envolviendo la excepción original
-     * ({@code IOException} o {@code ClassNotFoundException}).
      */
-    @SuppressWarnings("unchecked")
-    public void cargarDesdeArchivo(int idPartida) {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        if (!archivo.exists()) {
-            return;
-        }
+    public void cargarDesdeArchivo(int idPartida) throws ExceptionPersistenciaFallida {
     
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
-                ControladorJuego controlador = mapa.get(idPartida);
-                if (controlador != null) {
-                    this.tablero = controlador.tablero;
-                    this.bolsa = controlador.bolsa;
-                    this.direction = controlador.direction;
-                    this.juegoTerminado = controlador.juegoTerminado;
-                    this.juegoIniciado = controlador.juegoIniciado;
-                    this.lastCrossCheck = controlador.lastCrossCheck;
-                    this.nombreDiccionario = controlador.nombreDiccionario;
-                    this.alfabeto = controlador.alfabeto;
-                    this.jugadores = controlador.jugadores;
-                    this.idPartida = controlador.idPartida;
-                }
+        try {
+            ControladorJuego loadedGame = repositorioPartida.cargar(idPartida);
+            if (loadedGame != null) {
+                this.tablero = loadedGame.tablero;
+                this.bolsa = loadedGame.bolsa;
+                this.direction = loadedGame.direction;
+                this.juegoTerminado = loadedGame.juegoTerminado;
+                this.juegoIniciado = loadedGame.juegoIniciado;
+                this.lastCrossCheck = loadedGame.lastCrossCheck;
+                this.nombreDiccionario = loadedGame.nombreDiccionario;
+                this.alfabeto = loadedGame.alfabeto;
+                this.jugadores = loadedGame.jugadores;
+                this.idPartida = loadedGame.idPartida;
+                this.jugadoresOrdenados = loadedGame.jugadoresOrdenados;
+                this.turnoActual = loadedGame.turnoActual;
             } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+                throw new ExceptionPersistenciaFallida("Partida no encontrada con ID: " + idPartida);
             }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        } catch (ExceptionPersistenciaFallida e) {
+            throw e;
         }
     }
-    
-
 
     /**
-     * Lista todos los IDs de partidas guardadas disponibles.
+     * Obtiene el nombre del diccionario asociado a una partida específica.
+     *
+     * @param idPartida el identificador único de la partida.
+     * @return el nombre del diccionario utilizado en la partida, o {@code null} si no se encuentra la partida.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al intentar cargar la partida desde el repositorio.
+     */
+    public static String obtenerDiccionarioPartida(int idPartida) throws ExceptionPersistenciaFallida {
+        ControladorJuego loadedGame = repositorioPartida.cargar(idPartida);
+        if (loadedGame != null) return loadedGame.nombreDiccionario;
+        return null;
+    }
+    
+    /**
+     * Obtiene el número de jugadores asociado a una partida específica.
+     *
+     * @param idPartida el identificador único de la partida.
+     * @return la cantidad de jugadores en la partida, o -1 si no se encuentra la partida.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al intentar cargar la partida desde el repositorio.
+     */
+    public static int getNumJugadoresPartida(int idPartida) throws ExceptionPersistenciaFallida {
+        ControladorJuego loadedGame = repositorioPartida.cargar(idPartida);
+        if (loadedGame != null) return loadedGame.jugadores.size();
+        return -1;
+    }
+
+    /**
+     * Lista todos los IDs de partidas guardadas disponibles en el repositorio.
      *
      * @pre No hay precondiciones específicas.
      * @return Una {@code List<Integer>} con los IDs de las partidas guardadas.
-     * La lista estará vacía si el archivo no existe o no contiene partidas.
+     * La lista estará vacía si no existen partidas guardadas.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al acceder al repositorio.
      * @post Se devuelve una lista con los IDs de las partidas guardadas sin modificar el estado del sistema.
-     * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
      */
-    @SuppressWarnings("unchecked")
-    public static List<Integer> listarArchivosGuardados() {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        List<Integer> archivosGuardados = new ArrayList<>();
-    
-        if (!archivo.exists()) {
-            return archivosGuardados; // archivo vacío, lista vacía
+    public static List<Integer> listarArchivosGuardados() throws ExceptionPersistenciaFallida {
+
+        try {
+            return repositorioPartida.listarTodas();
+        } catch (ExceptionPersistenciaFallida e) {
+            return new ArrayList<>();
         }
-    
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                Map<Integer, ControladorJuego> mapa = (Map<Integer, ControladorJuego>) obj;
-                archivosGuardados.addAll(mapa.keySet());
-            } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
-        }
-    
-        return archivosGuardados;
     }
     
     /**
-     * Intenta eliminar una partida guardada especificada por su ID.
+     * Intenta eliminar una partida guardada especificada por su ID del repositorio.
      *
      * @pre No hay precondiciones específicas.
      * @param idPartida El ID de la partida a eliminar.
      * @return {@code true} si la partida existía y fue eliminada con éxito,
-     * {@code false} en caso contrario (ej., la partida no existía o hubo un problema de permisos).
-     * @post Si la partida existía, se elimina del archivo de partidas guardadas.
-     * @throws RuntimeException Si ocurre un error al manipular el archivo de partidas.
+     * {@code false} en caso contrario (ej., la partida no existía o hubo un error).
+     * @throws ExceptionPersistenciaFallida si ocurre un error al acceder al repositorio.
+     * @post Si la partida existía, se elimina del repositorio de partidas guardadas.
      */
-    @SuppressWarnings("unchecked")
-    public static boolean eliminarArchivoGuardado(int idPartida) {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-    
-        Map<Integer, ControladorJuego> mapa;
-        if (!archivo.exists()) {
-            return false; // no hay nada que eliminar
+    public static boolean eliminarArchivoGuardado(int idPartida) throws ExceptionPersistenciaFallida {
+        try {
+            boolean success = repositorioPartida.eliminar(idPartida);
+            return success;
+        } catch (ExceptionPersistenciaFallida e) {
+            return false;
         }
-    
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                mapa = (Map<Integer, ControladorJuego>) obj;
-            } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al manipular el archivo: " + nombreArchivo, e);
-        }
-    
-        if (mapa.containsKey(idPartida)) {
-            mapa.remove(idPartida);
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo))) {
-                oos.writeObject(mapa);
-                return true;
-            } catch (IOException e) {
-                throw new RuntimeException("Error al guardar el archivo tras eliminar partida.", e);
-            }
-        }
-    
-        return false;
+
     }
 
     /**
-     * Obtiene el conjunto de jugadores asociados a una partida guardada específica.
+     * Obtiene el mapa de jugadores asociados a una partida guardada específica.
      *
      * @pre No hay precondiciones específicas.
      * @param idPartida El ID de la partida de la que se quieren obtener los jugadores.
-     * @return Un {@code Set<String>} con los nombres de los jugadores de la partida.
-     * Devuelve null si el archivo no existe o un conjunto vacío si la partida no existe.
-     * @post Se devuelve un conjunto con los nombres de los jugadores sin modificar el estado del sistema.
-     * @throws RuntimeException Si ocurre un error al leer el archivo de partidas.
+     * @return Un {@code Map<String, Integer>} con los nombres de los jugadores y sus puntuaciones.
+     * Devuelve un mapa vacío si el archivo no existe o si la partida no existe.
+     * @throws ExceptionPersistenciaFallida si ocurre un error al cargar la partida desde el repositorio.
+     * @post Se devuelve un mapa con los jugadores y sus puntuaciones sin modificar el estado del sistema.
      */
-    @SuppressWarnings("unchecked")
-    public static Map<String, Integer> getJugadoresPorId(int idPartida) {
-        String nombreArchivo = "src/main/resources/persistencias/partidas.dat";
-        File archivo = new File(nombreArchivo);
-        Map<Integer, ControladorJuego> mapa;
-    
-        if (!archivo.exists()) {
-            return null; // no hay nada que cargar
-        }
-    
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
-            Object obj = ois.readObject();
-            if (obj instanceof Map) {
-                mapa = (Map<Integer, ControladorJuego>) obj;
-                ControladorJuego controlador = mapa.get(idPartida);
-                return controlador != null ? controlador.getJugadoresActuales() : new HashMap<String, Integer>();
+    public static Map<String, Integer> getJugadoresPorId(int idPartida) throws ExceptionPersistenciaFallida {
+
+        try {
+            ControladorJuego controlador = repositorioPartida.cargar(idPartida);
+            if (controlador != null) {
+            return controlador.getJugadoresActuales();
             } else {
-                throw new RuntimeException("El archivo no contiene un Map<Integer, ControladorJuego> válido.");
+            return new HashMap<String, Integer>();
             }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error al cargar el archivo: " + nombreArchivo, e);
+        } catch (ExceptionPersistenciaFallida e) {
+            return new HashMap<String, Integer>();
         }
+        
     }
     
     /**
-     * Obtiene el conjunto (Set) de nombres de los jugadores actualmente registrados en la partida.
+     * Obtiene el listado (Map) de nombres de los jugadores actualmente registrados en la partida.
      *
      * @pre No hay precondiciones específicas, pero se espera que el juego haya sido inicializado.
-     * @return Un {@code Set<String>} que contiene los nombres únicos de los jugadores.
-     * Puede devolver un Set vacío si no hay jugadores.
-     * @post Se devuelve una copia del conjunto de jugadores sin modificar el estado del juego.
+     * @return Un {@code Map<String, Integer>} que contiene los nombres únicos de los jugadores y sus respectivos puntuaciones.
+     * Puede devolver un mapa vacío si no hay jugadores.
+     * @post Se devuelve una copia del mapa de jugadores sin modificar el estado del juego.
      */
     public Map<String, Integer> getJugadoresActuales() {
-        // Asume que existe una variable de instancia Set<String> jugadores
         return jugadores;
     }
+
+    /**
+     * Obtiene el identificador único de la partida actual.
+     * 
+     * @return El ID de la partida actual, o -1 si no se ha asignado un ID.
+     * @pre No hay precondiciones específicas.
+     * @post Se devuelve el ID de la partida sin modificar el estado del juego.
+     */
+    public int getIdPartida() {
+        return idPartida;
+    }
+
+    public List<String> getJugadoresOrdenados() {
+        List<String> copia = new ArrayList<>(jugadoresOrdenados);
+        Collections.rotate(copia, -this.turnoActual);
+        return copia;
+    }
+    
  }

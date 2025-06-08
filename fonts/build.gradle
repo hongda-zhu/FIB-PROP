@@ -23,10 +23,20 @@ application {
 
 jar {
     manifest {
-        attributes 'Main-Class': application.mainClass
+        attributes 'Main-Class': application.mainClass.get()
     }
+
     archiveFileName = 'scrabble.jar'
+
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
 
 java {
     toolchain {
@@ -54,12 +64,44 @@ test {
     }
 }
 
+// Configuración de Javadoc para soportar etiquetas personalizadas
+javadoc {
+    options {
+        encoding = 'UTF-8'
+        charSet = 'UTF-8'
+        author = true
+        version = true
+        use = true
+        windowTitle = "Scrabble API Documentation"
+        docTitle = "Scrabble Game - API Documentation"
+        
+        // Configurar etiquetas personalizadas
+        tags = [
+            'pre:a:Precondición:',
+            'post:a:Postcondición:'
+        ]
+        
+        // Configurar niveles de advertencia
+        addStringOption('Xdoclint:none', '-quiet')
+        
+        // Incluir todos los paquetes
+        addStringOption('sourcepath', 'src/main/java')
+    }
+    
+    // Configurar archivos fuente
+    source = sourceSets.main.allJava
+    classpath = configurations.compileClasspath
+    
+    // Configurar directorio de salida
+    destinationDir = file("$buildDir/docs/javadoc")
+}
+
 
 sourceSets {
     main {
         resources {
             srcDirs = ["src/main/resources"]
-            includes = ["**/*.fxml", "**/*.css", "**/*.properties", "**/*.wav"]
+            includes = ["**/*.fxml", "**/*.css", "**/*.properties", "**/*.wav", "**/*.png", "**/*.mp3"]
         }
     }
     temp {

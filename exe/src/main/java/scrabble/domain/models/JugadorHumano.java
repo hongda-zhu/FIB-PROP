@@ -5,6 +5,15 @@ import java.util.Map;
 
 /**
  * Clase que representa a un jugador humano en el sistema.
+ * 
+ * Esta clase extiende la funcionalidad base de Jugador añadiendo características específicas
+ * para jugadores humanos, incluyendo el estado de participación en partidas y el seguimiento
+ * de la partida actual. Los jugadores humanos persisten en el sistema y mantienen sus
+ * estadísticas entre sesiones de juego.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class JugadorHumano extends Jugador {
     private static final long serialVersionUID = 1L;
@@ -13,11 +22,14 @@ public class JugadorHumano extends Jugador {
 
     /**
      * Constructor de la clase JugadorHumano.
+     * Crea un nuevo jugador humano con el nombre especificado, inicializando
+     * su estado como no participante en ninguna partida.
      * 
      * @pre El nombre no debe ser null.
      *      El nombre debe ser único en el sistema.
      * @param nombre Nombre del jugador, sirve como identificador único
-     * @post Se crea una nueva instancia de JugadorHumano con el nombre especificado.
+     * @post Se crea una nueva instancia de JugadorHumano con el nombre especificado,
+     *       marcado como no en partida y con un rack vacío inicializado.
      * @throws NullPointerException si el nombre es null
      */
     public JugadorHumano(String nombre) {

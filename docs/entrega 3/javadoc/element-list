@@ -1,0 +1,15 @@
+scrabble
+scrabble.domain
+scrabble.domain.controllers
+scrabble.domain.controllers.subcontrollers
+scrabble.domain.models
+scrabble.domain.models.rankingStrategy
+scrabble.domain.persistences.implementaciones
+scrabble.domain.persistences.interfaces
+scrabble.excepciones
+scrabble.helpers
+scrabble.presentation
+scrabble.presentation.componentes
+scrabble.presentation.popups
+scrabble.presentation.viewControllers
+scrabble.presentation.views

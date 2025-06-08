@@ -10,6 +10,16 @@ import java.util.Set;
 /**
  * Clase que implementa un diccionario de palabras para el juego de Scrabble.
  * Gestiona un solo conjunto de palabras con su alfabeto y configuración de fichas.
+ * 
+ * Esta clase encapsula toda la funcionalidad relacionada con el manejo de diccionarios,
+ * incluyendo la estructura DAWG para almacenamiento eficiente de palabras, el alfabeto
+ * con valores de puntuación, la configuración de fichas y la gestión de comodines.
+ * Proporciona métodos para validación de palabras, consulta de estadísticas y
+ * manipulación del contenido del diccionario.
+ * 
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class Diccionario implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -36,9 +46,11 @@ public class Diccionario implements Serializable {
 
     /**
      * Constructor por defecto que inicializa las estructuras de datos.
+     * Crea un diccionario vacío listo para ser configurado con palabras, alfabeto y fichas.
      * 
      * @pre No hay precondiciones específicas.
      * @post Se crea una nueva instancia de Diccionario con las estructuras DAWG, alphabet, bag y comodines vacías.
+     *       Todas las estructuras están inicializadas y listas para recibir datos.
      */
     public Diccionario() {
         this.dawg = new Dawg();
@@ -64,7 +76,7 @@ public class Diccionario implements Serializable {
             throw new NullPointerException("La lista de palabras no puede ser null");
         }
         
-        Dawg newDawg = new Dawg();
+        Dawg newDawg = new Dawg(this.alphabet.keySet());
         inicializarDawg(newDawg, palabras);
         this.dawg = newDawg;
     }
@@ -90,6 +102,7 @@ public class Diccionario implements Serializable {
         for (String palabra : palabras) {
             dawg.insert(palabra);
         }
+
         dawg.finish(); // Finaliza la construcción del DAWG
     }
 
@@ -436,7 +449,7 @@ public class Diccionario implements Serializable {
         palabras.remove(palabra);
         
         // Reconstruimos el DAWG
-        Dawg newDawg = new Dawg();
+        Dawg newDawg = new Dawg(this.alphabet.keySet());
         inicializarDawg(newDawg, palabras);
         this.dawg = newDawg;
         

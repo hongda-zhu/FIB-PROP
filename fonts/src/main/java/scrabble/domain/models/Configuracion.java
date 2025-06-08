@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * Clase que representa la configuración de la aplicación.
- * Encapsula los datos de configuración como idioma, tema, volumen, diccionario y tamaño de tablero.
+ * Encapsula los datos de configuración como tema, volumen, diccionario y tamaño de tablero.
  * Proporciona una gestión centralizada de todas las preferencias del usuario y configuraciones
  * del sistema, incluyendo configuraciones de audio, visuales y de juego. Implementa Serializable
  * para permitir la persistencia de las configuraciones entre sesiones.
@@ -18,21 +18,18 @@ public class Configuracion implements Serializable {
     private static final long serialVersionUID = 1L;
     
     // Valores por defecto
-    private static final String IDIOMA_DEFAULT = "ESPAÑOL";
     private static final String DICCIONARIO_DEFAULT = "ESP";
-    private static final String TEMA_DEFAULT = "CLARO";
+    private static final String TEMA_DEFAULT = "Claro";
     private static final int VOLUMEN_DEFAULT = 50;
     private static final int TAMANO_DEFAULT = 15;
     private static final boolean MUSICA_DEFAULT = true;
     private static final boolean SONIDO_DEFAULT = true;
     // Opciones válidas
-    public static final String[] IDIOMAS_VALIDOS = {"ESPAÑOL", "INGLÉS"};
-    public static final String[] TEMAS_VALIDOS = {"CLARO", "OSCURO"};
+    public static final String[] TEMAS_VALIDOS = {"Claro", "Oscuro"};
     public static final int VOLUMEN_MIN = 0;
     public static final int VOLUMEN_MAX = 100;
     public static final int TAMANO_MIN = 15;
     // Atributos
-    private String idioma;
     private String tema;
     private String diccionario;
     private boolean musica;
@@ -45,14 +42,13 @@ public class Configuracion implements Serializable {
     /**
      * Constructor por defecto.
      * Inicializa la configuración con valores predeterminados que proporcionan
-     * una experiencia de usuario estándar. Establece el idioma en español,
+     * una experiencia de usuario estándar.
      * tema claro, volúmenes al 50%, y tablero de tamaño estándar (15x15).
      * 
      * @pre No hay precondiciones específicas.
      * @post Se crea una nueva configuración con los valores por defecto.
      */
     public Configuracion() {
-        this.idioma = IDIOMA_DEFAULT;
         this.tema = TEMA_DEFAULT;
         this.tamanoTablero = TAMANO_DEFAULT;
         this.diccionario = DICCIONARIO_DEFAULT;
@@ -69,7 +65,7 @@ public class Configuracion implements Serializable {
      * Los valores deben cumplir con las restricciones definidas por las constantes
      * de validación de la clase.
      * 
-     * @param idioma Idioma inicial de la interfaz
+     * 
      * @param tema Tema visual inicial (claro/oscuro)
      * @param volumen Nivel de volumen inicial (0-100)
      * @param tamano Tamaño del tablero inicial (mínimo 15)
@@ -78,8 +74,7 @@ public class Configuracion implements Serializable {
      * @post Se crea una nueva configuración con los valores especificados.
      * @throws IllegalArgumentException si alguno de los valores no es válido
      */
-    public Configuracion(String idioma, String tema, int volumen, int tamano, String diccionario) {
-        setIdioma(idioma);
+    public Configuracion(String tema, int volumen, int tamano, String diccionario) {
         setTema(tema);
         setTamano(tamano);
         setDiccionario(diccionario);
@@ -142,38 +137,6 @@ public class Configuracion implements Serializable {
     public void setDiccionario(String diccionario) {
         // Se permite que el diccionario sea null para el que caso donde el sistema se haya quedado sin diccionarios
         this.diccionario = diccionario;
-    }
-
-    /**
-     * Obtiene el idioma actual configurado.
-     * Devuelve el idioma de la interfaz de usuario que está actualmente
-     * configurado en el sistema.
-     * 
-     * @return Idioma actual de la interfaz
-     * @pre No hay precondiciones específicas.
-     * @post Se devuelve el idioma configurado actualmente.
-     */
-    public String getIdioma() {
-        return idioma;
-    }
-    
-    /**
-     * Establece un nuevo idioma.
-     * Cambia el idioma de la interfaz de usuario. El idioma debe ser uno
-     * de los valores válidos definidos en IDIOMAS_VALIDOS para garantizar
-     * que existe soporte de localización.
-     * 
-     * @param idioma Idioma a establecer (debe estar en IDIOMAS_VALIDOS)
-     * @pre El idioma no debe ser null.
-     * @post El idioma de la interfaz se actualiza al valor especificado.
-     * @throws IllegalArgumentException si el idioma no es válido
-     * @throws NullPointerException si idioma es null
-     */
-    public void setIdioma(String idioma) {
-        if (idioma == null) {
-            throw new NullPointerException("El idioma no puede ser null");
-        }
-        this.idioma = idioma;
     }
     
     /**

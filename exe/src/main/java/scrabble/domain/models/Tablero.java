@@ -1,18 +1,37 @@
 package scrabble.domain.models;
-
-import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
-import scrabble.helpers.Tuple;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import scrabble.helpers.Bonus;
+import scrabble.helpers.Direction;
+import scrabble.helpers.Tuple;
+
 /**
  * Clase que representa el tablero de juego de Scrabble.
  * Gestiona la disposición de fichas, bonificaciones especiales y cálculo de puntuaciones.
- * Permite crear tableros de diferentes tamaños, siendo el estándar de 15x15.
+ * Permite crear tableros de diferentes tamaños, siendo el estándar de 15x15, y proporciona
+ * toda la funcionalidad necesaria para el desarrollo de una partida de Scrabble.
+ * 
+ * El tablero mantiene dos matrices principales: una para las fichas colocadas y otra
+ * para las bonificaciones de cada casilla. Las bonificaciones incluyen multiplicadores
+ * de letra (DL, TL) y de palabra (DW, TW), así como la casilla especial central.
+ * 
+ * La clase proporciona métodos para:
+ * - Colocar y obtener fichas en posiciones específicas
+ * - Validar posiciones y verificar si están ocupadas
+ * - Calcular puntuaciones considerando bonificaciones
+ * - Realizar movimientos completos con cálculo automático de puntos
+ * - Obtener el estado actual del tablero para persistencia
+ * 
+ * Implementa Serializable para permitir la persistencia de partidas en curso,
+ * manteniendo el estado completo del tablero entre sesiones.
+ * 
+ * 
+ * @version 1.0
+ * @since 1.0
  */
 public class Tablero implements Serializable{
     private static final long serialVersionUID = 1L;
@@ -43,18 +62,7 @@ public class Tablero implements Serializable{
         }
     }
 
-    /**
-     * Enumeración que define los tipos de bonificación disponibles en el tablero.
-     * N: Normal (sin bonificación)
-     * TW: Triple Word (triplica puntos de la palabra)
-     * TL: Triple Letter (triplica puntos de la letra)
-     * DW: Double Word (duplica puntos de la palabra)
-     * DL: Double Letter (duplica puntos de la letra)
-     * X: Casilla especial (duplica puntos de la letra)
-     */
-    public enum Bonus {
-        N, TW, TL, DW, DL, X
-    }
+
 
     /**
      * Constructor por defecto. Crea un tablero de 15x15.
@@ -240,6 +248,32 @@ public class Tablero implements Serializable{
         return sb.toString();
     }
     
+    /**
+    * @pre -
+    * @return estadoTablero Mapa de las posiciones con letra y la letra
+    * Método para obtener el estado actual del tablero 
+    */
+    public Map<Tuple<Integer, Integer>, String> getEstadoTablero() {
+        Map<Tuple<Integer, Integer>, String> estadoTablero = new HashMap<>();
+            
+            if (tablero == null) {
+                System.err.println("Tablero null");
+                return estadoTablero; 
+            }
+            
+            for (int fila = 0; fila < N; fila++) {
+                for (int columna = 0; columna < N; columna++) {
+                    String letra = tablero[fila][columna];
+                    
+                    if (letra != null && !letra.trim().isEmpty()) {
+                        Tuple<Integer, Integer> posicion = new Tuple<>(fila, columna);
+                        estadoTablero.put(posicion, letra);
+                    }
+                }
+            }
+            
+            return estadoTablero;
+    }      
     /**
      * Obtiene la ficha en una posición específica del tablero.
      * 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import scrabble.helpers.Bonus;
 import scrabble.helpers.Direction;
 import scrabble.helpers.Tuple;
 
@@ -61,18 +62,7 @@ public class Tablero implements Serializable{
         }
     }
 
-    /**
-     * Enumeración que define los tipos de bonificación disponibles en el tablero.
-     * N: Normal (sin bonificación)
-     * TW: Triple Word (triplica puntos de la palabra)
-     * TL: Triple Letter (triplica puntos de la letra)
-     * DW: Double Word (duplica puntos de la palabra)
-     * DL: Double Letter (duplica puntos de la letra)
-     * X: Casilla especial (duplica puntos de la letra)
-     */
-    public enum Bonus {
-        N, TW, TL, DW, DL, X
-    }
+
 
     /**
      * Constructor por defecto. Crea un tablero de 15x15.

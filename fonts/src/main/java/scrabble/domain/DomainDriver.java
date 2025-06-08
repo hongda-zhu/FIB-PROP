@@ -20,7 +20,6 @@ import java.util.Set;
 
 import scrabble.domain.controllers.ControladorDomain;
 import scrabble.excepciones.ExceptionDiccionarioExist;
-import scrabble.excepciones.ExceptionLanguageNotExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
 import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.excepciones.ExceptionRankingOperationFailed;
@@ -247,10 +246,14 @@ public class DomainDriver {
     public static void managePartidaIniciar(String idiomaSeleccionado, Map<String, Integer> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException, ExceptionPersistenciaFallida{
 
         if (!cargado) controladorDomain.managePartidaIniciar(idiomaSeleccionado, jugadoresSeleccionados, N);
+        List<String> ordenTurnos = new ArrayList<>(jugadoresSeleccionados.keySet());
+        Collections.shuffle(ordenTurnos); // orden aleatorio de inicio
+
+        if (cargado) ordenTurnos = controladorDomain.getJugadoresOrdenados();
 
         while (!controladorDomain.isJuegoTerminado()) {
 
-            for (String nombreJugador : jugadoresSeleccionados.keySet()) {
+            for (String nombreJugador : ordenTurnos) {
 
                 System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
                 System.out.println(controladorDomain.mostrarRack(nombreJugador));
@@ -263,7 +266,8 @@ public class DomainDriver {
                     while (!jugadaValida) {
                         result = jugarTurno();
                         if (result.x == "X") {
-                            juegoPausado();
+                            int indiceJugadorActual = ordenTurnos.indexOf(nombreJugador);
+                            juegoPausado(ordenTurnos, indiceJugadorActual);
                             System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
                             System.out.println(controladorDomain.mostrarRack(nombreJugador));
                         } else if (result.x == "P") {
@@ -317,7 +321,7 @@ public class DomainDriver {
         return fichasCambiar;
     }
 
-    public static void juegoPausado() throws IOException {
+    public static void juegoPausado(List<String> orden, int turnoActual) throws IOException {
         System.out.println("Juego pausado. Selecciona una opción del menú.");
         ShowMenu("partidapausada");
         boolean continuar = false;
@@ -346,7 +350,7 @@ public class DomainDriver {
                         System.out.println("+--------------------------------------+");
                         System.out.println("| GUARDANDO PARTIDA                    |");
                         System.out.println("+--------------------------------------+");
-                        controladorDomain.guardarPartida();
+                        controladorDomain.guardarPartida(orden, turnoActual);
                         System.out.println("| Partida guardada correctamente.      |");
                         System.out.println("+--------------------------------------+");
                     } else {
@@ -1746,7 +1750,7 @@ public class DomainDriver {
         
         // Intentar importar el diccionario
         try {
-            controladorDomain.crearDiccionario(nombreDiccionario, rutaValida);
+            // controladorDomain.crearDiccionario(nombreDiccionario, rutaValida);
             showNotification("GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO", 
                             "¡Diccionario '" + nombreDiccionario + "' importado y cargado exitosamente desde:",
                             rutaValida);
@@ -2847,7 +2851,7 @@ public class DomainDriver {
                         System.out.println("| Diccionario seleccionado correctamente: " + idiomaSeleccionado + " ".repeat(78 - 46 - idiomaSeleccionado.length()) + "|");
                         System.out.println("|                                                                              |");
                         System.out.println("+------------------------------------------------------------------------------+");
-                    } catch (ExceptionLanguageNotExist e) {
+                    } catch (ExceptionDiccionarioExist e) {
                         System.out.println("+------------------------------------------------------------------------------+");
                         System.out.println("| ERROR                                                                        |");
                         System.out.println("|                                                                              |");

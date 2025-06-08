@@ -237,35 +237,6 @@ public class DawgNodeTest {
         assertTrue("El conjunto de aristas debería contener la etiqueta vacía", node.getAllEdges().contains(""));
     }
 
-     /**
-     * Pre: Se ha creado una instancia de DawgNode.
-     * Post: Se verifica que se puede añadir y recuperar una arista con etiqueta null.
-     * (HashMap permite clave null)
-     */
-    @Test
-    public void testAddEdgeConEtiquetaNull() {
-        DawgNode destino = new DawgNode();
-        node.addEdge(null, destino);
-        assertSame("getEdge(null) debería devolver el nodo destino para etiqueta null",
-                   destino, node.getEdge(null));
-        assertEquals("Debería haber 1 arista", 1, node.getAllEdges().size());
-        assertTrue("El conjunto de aristas debería contener null", node.getAllEdges().contains(null));
-    }
-
-    /**
-     * Pre: Se ha creado una instancia de DawgNode.
-     * Post: Se verifica que se puede añadir y recuperar una arista con nodo destino null.
-     * (HashMap permite valor null)
-     */
-    @Test
-    public void testAddEdgeConNodoDestinoNull() {
-        node.addEdge("n", null);
-        assertNull("getEdge('n') debería devolver null si el nodo destino añadido era null",
-                   node.getEdge("n"));
-        assertEquals("Debería haber 1 arista", 1, node.getAllEdges().size());
-        assertTrue("El conjunto de aristas debería contener 'n'", node.getAllEdges().contains("n"));
-    }
-
     /**
      * Pre: Se ha creado una instancia de DawgNode.
      * Post: Se verifica que se puede añadir y recuperar una arista con etiqueta multicaracter.

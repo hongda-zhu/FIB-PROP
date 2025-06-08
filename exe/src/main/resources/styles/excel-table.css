@@ -1,0 +1,29 @@
+.table-view.excel-table {
+  -fx-background-color: white;
+  -fx-border-color: #cccccc;
+  -fx-table-cell-border-color: #e0e0e0;
+  -fx-padding: 0;
+  -fx-font-size: 13px;
+  -fx-fixed-cell-size: 25px;
+}
+
+.table-view.excel-table .column-header-background {
+  -fx-background-color: #f4f4f4;
+}
+
+.table-view.excel-table .table-cell {
+  -fx-alignment: center;
+  -fx-background-color: white;
+  -fx-text-fill: #2c3e50;
+  -fx-border-color: #e0e0e0;
+}
+
+.table-view.excel-table .table-row-cell:focused .table-cell:selected {
+  -fx-background-color: #e1f5fe;
+  -fx-border-color: #64b5f6;
+}
+
+.table-view.excel-table .table-cell:filled:focused {
+  -fx-background-insets: 0;
+  -fx-padding: 4 8 4 8;
+}

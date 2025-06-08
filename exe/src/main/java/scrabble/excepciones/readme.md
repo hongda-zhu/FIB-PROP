@@ -8,26 +8,27 @@ Este directorio (`scrabble.excepciones`) contiene las clases de excepciones pers
 
 ### Excepciones de Usuario y Autenticación
 
--   **`ExceptionUserExist.java`**: Lanzada cuando se intenta crear/registrar un usuario que ya existe.
+-   **`ExceptionUserExist.java`**: Lanzada cuando se intenta crear/registrar un usuario que ya existe en el sistema.
 -   **`ExceptionUserNotExist.java`**: Lanzada cuando se intenta operar con un usuario que no existe.
--   **`ExceptionUserInGame.java`**: Lanzada cuando se intenta realizar una operación incompatible con un usuario que ya está en una partida (potencialmente para futuras funcionalidades).
--   **`ExceptionUserEsIA.java`**: Lanzada al intentar realizar una operación no permitida para un jugador de tipo IA (ej. intentar loguear una IA).
+-   **`ExceptionUserInGame.java`**: Lanzada cuando se intenta realizar una operación con un usuario que ya está participando en una partida activa.
+-   **`ExceptionUserEsIA.java`**: Lanzada al intentar realizar una operación no permitida para un jugador de tipo IA (eliminación, login, etc.).
+-   **`ExceptionUserLoggedIn.java`**: Lanzada cuando se detecta un conflicto de estado de sesión de usuario (ej. login cuando ya está autenticado).
 
 ### Excepciones de Partida y Jugabilidad
 
--   **`ExceptionNotEnoughTiles.java`**: Lanzada cuando la bolsa no tiene suficientes fichas para una operación (robar, cambiar).
--   **`ExceptionPalabraInvalida.java`**: Lanzada cuando una palabra no es válida según las reglas del juego (no en diccionario, mala colocación, etc.). Es una excepción clave en la jugabilidad.
--   **`ExceptionPalabraExist.java`**: Lanzada al intentar añadir una palabra que ya existe (ej. en la gestión de diccionarios).
--   **`ExceptionPalabraNotExist.java`**: Lanzada al intentar operar con una palabra que no existe (ej. eliminarla de un diccionario).
--   **`ExceptionPalabraVacia.java`**: Lanzada si se intenta validar o colocar una palabra vacía.
+-   **`ExceptionNotEnoughTiles.java`**: Lanzada cuando no hay suficientes fichas disponibles para completar una operación (robar, cambiar, validar movimientos).
+-   **`ExceptionPalabraInvalida.java`**: Lanzada cuando una palabra contiene caracteres no válidos para el diccionario o no cumple las reglas de validación.
+-   **`ExceptionPalabraExist.java`**: Lanzada al intentar añadir una palabra que ya existe en el diccionario durante operaciones de gestión.
+-   **`ExceptionPalabraNotExist.java`**: Lanzada al intentar operar con una palabra que no existe en la estructura DAWG del diccionario.
+-   **`ExceptionPersistenciaFallida.java`**: Lanzada cuando ocurren errores durante operaciones de persistencia de datos (E/O, serialización, acceso a archivos).
 
-### Excepciones de Gestión (Diccionarios, Idiomas, Config.)
+### Excepciones de Gestión (Diccionarios, Config.)
 
 -   **`ExceptionDiccionarioExist.java`**: Lanzada al intentar crear/importar un diccionario con un nombre que ya existe.
 -   **`ExceptionDiccionarioNotExist.java`**: Lanzada al intentar operar (eliminar, usar) con un diccionario que no existe.
--   **`ExceptionLanguageNotExist.java`**: Lanzada al intentar usar/referenciar un idioma no existente.
+-   **`ExceptionDiccionarioOperacionFallida.java`**: Lanzada cuando falla una operación específica sobre un diccionario (creación, modificación, eliminación, importación, validación).
+-   **`ExceptionLoggingOperacion.java`**: Excepción especial para transmitir mensajes informativos y de logging entre capas del sistema.
 
 ### Excepciones de Ranking y Puntuaciones
 
--   **`ExceptionRankingOperationFailed.java`**: Lanzada cuando una operación general sobre el ranking (ej. guardado, carga) falla.
--   **`ExceptionInvalidScore.java`**: Lanzada si se intenta registrar o usar una puntuación con un valor inválido (ej. negativo donde no debe serlo).
+-   **`ExceptionRankingOperationFailed.java`**: Lanzada cuando una operación en el sistema de ranking no se puede completar (actualización de estadísticas, cálculo de posiciones, persistencia).

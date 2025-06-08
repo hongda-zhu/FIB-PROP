@@ -9,27 +9,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Collections;
-import java.util.Arrays;
-import scrabble.helpers.Dificultad;
 
 import scrabble.domain.controllers.ControladorDomain;
-import scrabble.domain.controllers.subcontrollers.ControladorJuego.Direction;
 import scrabble.excepciones.ExceptionDiccionarioExist;
-import scrabble.excepciones.ExceptionLanguageNotExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 import scrabble.excepciones.ExceptionRankingOperationFailed;
 import scrabble.excepciones.ExceptionUserEsIA;
 import scrabble.excepciones.ExceptionUserExist;
 import scrabble.excepciones.ExceptionUserInGame;
 import scrabble.excepciones.ExceptionUserLoggedIn;
 import scrabble.excepciones.ExceptionUserNotExist;
+import scrabble.helpers.Dificultad;
+import scrabble.helpers.Direction;
 import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 
@@ -243,13 +243,17 @@ public class DomainDriver {
     }
 
 
-    public static void managePartidaIniciar(String idiomaSeleccionado, Map<String, Integer> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException{
+    public static void managePartidaIniciar(String idiomaSeleccionado, Map<String, Integer> jugadoresSeleccionados, Integer N, boolean cargado) throws IOException, ExceptionPersistenciaFallida{
 
         if (!cargado) controladorDomain.managePartidaIniciar(idiomaSeleccionado, jugadoresSeleccionados, N);
+        List<String> ordenTurnos = new ArrayList<>(jugadoresSeleccionados.keySet());
+        Collections.shuffle(ordenTurnos); // orden aleatorio de inicio
+
+        if (cargado) ordenTurnos = controladorDomain.getJugadoresOrdenados();
 
         while (!controladorDomain.isJuegoTerminado()) {
 
-            for (String nombreJugador : jugadoresSeleccionados.keySet()) {
+            for (String nombreJugador : ordenTurnos) {
 
                 System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
                 System.out.println(controladorDomain.mostrarRack(nombreJugador));
@@ -262,7 +266,8 @@ public class DomainDriver {
                     while (!jugadaValida) {
                         result = jugarTurno();
                         if (result.x == "X") {
-                            juegoPausado();
+                            int indiceJugadorActual = ordenTurnos.indexOf(nombreJugador);
+                            juegoPausado(ordenTurnos, indiceJugadorActual);
                             System.out.println(controladorDomain.mostrarStatusPartida(nombreJugador));
                             System.out.println(controladorDomain.mostrarRack(nombreJugador));
                         } else if (result.x == "P") {
@@ -316,7 +321,7 @@ public class DomainDriver {
         return fichasCambiar;
     }
 
-    public static void juegoPausado() throws IOException {
+    public static void juegoPausado(List<String> orden, int turnoActual) throws IOException {
         System.out.println("Juego pausado. Selecciona una opción del menú.");
         ShowMenu("partidapausada");
         boolean continuar = false;
@@ -345,7 +350,7 @@ public class DomainDriver {
                         System.out.println("+--------------------------------------+");
                         System.out.println("| GUARDANDO PARTIDA                    |");
                         System.out.println("+--------------------------------------+");
-                        controladorDomain.guardarPartida();
+                        controladorDomain.guardarPartida(orden, turnoActual);
                         System.out.println("| Partida guardada correctamente.      |");
                         System.out.println("+--------------------------------------+");
                     } else {
@@ -476,8 +481,6 @@ public class DomainDriver {
         List<String> ganadoresPartida6 = Arrays.asList("jiahao");
         controladorDomain.finalizarPartidaJugadoresMultiple(puntuacionesPartida6, ganadoresPartida6);
         
-        // Guardar los datos del ranking
-        controladorDomain.guardarRanking();
         System.out.println("Datos de ranking inicializados correctamente.");
         
         // Mostrar un resumen de las estadísticas generadas
@@ -935,7 +938,7 @@ public class DomainDriver {
         System.out.println("+------------------------------------------------------------------------------+");
         System.out.println("| JUGADORES REGISTRADOS                                                        |");
         System.out.println("+------------------------------------------------------------------------------+");
-        System.out.println("| NOMBRE            | TIPO      | JUGANDO | PARTIDA ACTUAL    | PUNTOS TOTAL   |");
+        System.out.println("| NOMBRE            | TIPO      | JUGANDO | 0    | PUNTOS TOTAL   |");
         System.out.println("+-------------------+-----------+---------+-------------------+----------------+");
         
         // Obtener la lista de usuarios humanos y ordenarla alfabéticamente
@@ -1747,7 +1750,7 @@ public class DomainDriver {
         
         // Intentar importar el diccionario
         try {
-            controladorDomain.crearDiccionario(nombreDiccionario, rutaValida);
+            // controladorDomain.crearDiccionario(nombreDiccionario, rutaValida);
             showNotification("GESTIÓN DE DICCIONARIOS > IMPORTAR DICCIONARIO", 
                             "¡Diccionario '" + nombreDiccionario + "' importado y cargado exitosamente desde:",
                             rutaValida);
@@ -2335,7 +2338,7 @@ public class DomainDriver {
         }
     }
 
-    public static void managePartidaMenu() throws IOException{
+    public static void managePartidaMenu() throws IOException, ExceptionPersistenciaFallida{
         boolean volver = false;
 
         while (!volver) {
@@ -2413,7 +2416,7 @@ public class DomainDriver {
         }
     }
 
-    private static void managePartidaCargar() throws IOException {
+    private static void managePartidaCargar() throws IOException, ExceptionPersistenciaFallida {
         boolean volver = false;
 
         while (!volver) {
@@ -2466,7 +2469,7 @@ public class DomainDriver {
         }
     }
 
-    public static void managePartidaDefinir() throws IOException {
+    public static void managePartidaDefinir() throws IOException, ExceptionPersistenciaFallida {
         boolean volver = false;
         String idiomaSeleccionado = "";
         Map<String, Integer> jugadoresSeleccionados = new HashMap<>();
@@ -2848,7 +2851,7 @@ public class DomainDriver {
                         System.out.println("| Diccionario seleccionado correctamente: " + idiomaSeleccionado + " ".repeat(78 - 46 - idiomaSeleccionado.length()) + "|");
                         System.out.println("|                                                                              |");
                         System.out.println("+------------------------------------------------------------------------------+");
-                    } catch (ExceptionLanguageNotExist e) {
+                    } catch (ExceptionDiccionarioExist e) {
                         System.out.println("+------------------------------------------------------------------------------+");
                         System.out.println("| ERROR                                                                        |");
                         System.out.println("|                                                                              |");
@@ -2905,8 +2908,6 @@ public class DomainDriver {
             }
         } while (!opcion.equals("0"));
         
-        // Guardar los datos del ranking al salir del menú
-        controladorDomain.guardarRanking();
         
         // Mostrar el menú principal al volver
         ShowMenu("principal");
@@ -2982,8 +2983,6 @@ public class DomainDriver {
                 // Intentar eliminar jugador del ranking
                 boolean eliminado = controladorDomain.eliminarUsuarioRanking(nombreJugador);
                 
-                // Guardar los cambios inmediatamente
-                controladorDomain.guardarRanking();
                 
                 // Verificar estado después de la eliminación
                 boolean existeDespues = controladorDomain.perteneceRanking(nombreJugador);
@@ -3016,8 +3015,6 @@ public class DomainDriver {
             System.out.println("\nOperación cancelada.");
         }
         
-        // Guardar los cambios en el ranking una vez más para asegurar que se guardan
-        controladorDomain.guardarRanking();
     }
 
     /**
@@ -3145,8 +3142,6 @@ public class DomainDriver {
             }
         }
         
-        // Guardar los datos del ranking al salir del menú
-        controladorDomain.guardarRanking();
         
         // Mostrar el menú principal al volver
         ShowMenu("principal");
@@ -3713,9 +3708,7 @@ public class DomainDriver {
             } else {
                 System.out.println("✗ ERROR: La puntuación total NO ha sido reseteada a 0");
             }
-            
-            // 9. Guardar cambios en el ranking
-            controladorDomain.guardarRanking();
+            ;
             System.out.println("\nPrueba de eliminación de usuario del ranking completada.");
             
         } catch (Exception e) {

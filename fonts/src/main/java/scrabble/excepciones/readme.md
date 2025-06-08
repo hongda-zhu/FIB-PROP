@@ -22,12 +22,11 @@ Este directorio (`scrabble.excepciones`) contiene las clases de excepciones pers
 -   **`ExceptionPalabraNotExist.java`**: Lanzada al intentar operar con una palabra que no existe en la estructura DAWG del diccionario.
 -   **`ExceptionPersistenciaFallida.java`**: Lanzada cuando ocurren errores durante operaciones de persistencia de datos (E/O, serialización, acceso a archivos).
 
-### Excepciones de Gestión (Diccionarios, Idiomas, Config.)
+### Excepciones de Gestión (Diccionarios, Config.)
 
 -   **`ExceptionDiccionarioExist.java`**: Lanzada al intentar crear/importar un diccionario con un nombre que ya existe.
 -   **`ExceptionDiccionarioNotExist.java`**: Lanzada al intentar operar (eliminar, usar) con un diccionario que no existe.
 -   **`ExceptionDiccionarioOperacionFallida.java`**: Lanzada cuando falla una operación específica sobre un diccionario (creación, modificación, eliminación, importación, validación).
--   **`ExceptionLanguageNotExist.java`**: Lanzada al intentar usar/referenciar un idioma no existente o no soportado por la aplicación.
 -   **`ExceptionLoggingOperacion.java`**: Excepción especial para transmitir mensajes informativos y de logging entre capas del sistema.
 
 ### Excepciones de Ranking y Puntuaciones

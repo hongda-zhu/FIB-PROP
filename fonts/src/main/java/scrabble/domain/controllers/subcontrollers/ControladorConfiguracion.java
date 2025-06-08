@@ -26,7 +26,7 @@ public class ControladorConfiguracion {
      * Repositorio para manejar la persistencia de la configuración.
      */
     private RepositorioConfiguracion repositorio;
-
+    private Configuracion configuracionActual;
     /**
      * Constructor para la clase ControladorConfiguracion.
      * Inicializa una nueva instancia de Configuracion y carga los valores guardados si existen.
@@ -39,6 +39,7 @@ public class ControladorConfiguracion {
      */
     public ControladorConfiguracion() {
         this(new RepositorioConfiguracionImpl());
+
     }
 
     /**
@@ -56,8 +57,24 @@ public class ControladorConfiguracion {
             throw new NullPointerException("El repositorio no puede ser null");
         }
         this.repositorio = repositorio;
+        inicializarConfiguracion();
     }
 
+    private void inicializarConfiguracion() {
+        try {
+            this.configuracionActual = repositorio.cargar();
+            
+            // Verificar si se cargó una configuración existente o se creó una nueva
+            if (configuracionActual == null) {
+                configuracionActual = new Configuracion();
+                repositorio.guardar(configuracionActual);
+            }            
+        } catch (Exception e) {
+            System.err.println("Error al inicializar configuración: " + e.getMessage());
+            this.configuracionActual = new Configuracion();
+        }
+    }
+    
     /**
      * Obtiene el tema visual actual configurado en la aplicación.
      *
@@ -67,7 +84,7 @@ public class ControladorConfiguracion {
      *       obtenido del objeto Configuracion cargado.
      */
     public String obtenerTema() {
-        return this.repositorio.cargar().getTema();
+        return configuracionActual.getTema();
     }
 
     /**
@@ -89,7 +106,7 @@ public class ControladorConfiguracion {
      * @post Se devuelve un String que representa el diccionario actual configurado en la aplicación.
      */
     public String obtenerDiccionario() {
-        return this.repositorio.cargar().getDiccionario();
+        return this.configuracionActual.getDiccionario();
     }
 
     /**
@@ -100,7 +117,7 @@ public class ControladorConfiguracion {
      * @post Se devuelve un entero que representa el tamano actual configurado en la aplicación.
      */
     public int obtenerTamano() {
-        return this.repositorio.cargar().getTamano();
+        return this.configuracionActual.getTamano();
     }
 
     /**
@@ -112,7 +129,7 @@ public class ControladorConfiguracion {
      *       obtenido del objeto Configuracion cargado.
      */
     public boolean isMusica() {
-        return this.repositorio.cargar().isMusica();
+        return this.configuracionActual.isMusica();
     }
 
     /**
@@ -124,7 +141,7 @@ public class ControladorConfiguracion {
      *       obtenido del objeto Configuracion cargado.
      */
     public boolean isSonido() {
-        return this.repositorio.cargar().isSonido();
+        return this.configuracionActual.isSonido();
     }
 
     /**
@@ -136,7 +153,7 @@ public class ControladorConfiguracion {
      *       obtenido del objeto Configuracion cargado.
      */
     public int getVolumenMusica() {
-        return this.repositorio.cargar().getVolumenMusica();
+        return this.configuracionActual.getVolumenMusica();
     }
 
     /**
@@ -148,7 +165,7 @@ public class ControladorConfiguracion {
      *       obtenido del objeto Configuracion cargado.
      */
     public int getVolumenSonido() {
-        return this.repositorio.cargar().getVolumenSonido();
+        return this.configuracionActual.getVolumenSonido();
     }
 
 
@@ -163,9 +180,8 @@ public class ControladorConfiguracion {
      * @throws NullPointerException si el parámetro t es null
      */
     public void setTema(String t) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setTema(t);
-        repositorio.guardar(configuracion);
+        configuracionActual.setTema(t);
+        repositorio.guardar(configuracionActual);
     }
 
     /**
@@ -193,9 +209,8 @@ public class ControladorConfiguracion {
      * @throws NullPointerException si el parámetro d es null
      */
     public void setDiccionario(String d) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setDiccionario(d);
-        repositorio.guardar(configuracion);
+        configuracionActual.setDiccionario(d);
+        repositorio.guardar(configuracionActual);
     }
 
     /**
@@ -208,9 +223,8 @@ public class ControladorConfiguracion {
      * @throws ExceptionPersistenciaFallida Si ocurre un error al guardar la configuración.
      */
     public void setTamano(int t) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setTamano(t);
-        repositorio.guardar(configuracion);
+        configuracionActual.setTamano(t);
+        repositorio.guardar(configuracionActual);
     }
 
     /**
@@ -223,9 +237,8 @@ public class ControladorConfiguracion {
      * @throws ExceptionPersistenciaFallida Si ocurre un error al guardar la configuración.
      */
     public void setMusica(boolean b) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setMusica(b);
-        repositorio.guardar(configuracion);
+        configuracionActual.setMusica(b);
+        repositorio.guardar(configuracionActual);
     }
 
     /**
@@ -239,9 +252,8 @@ public class ControladorConfiguracion {
      * @throws IllegalArgumentException si el volumen está fuera del rango permitido por el modelo Configuracion.
      */
     public void setVolumenMusica(int t) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setVolumenMusica(t);
-        repositorio.guardar(configuracion);
+        configuracionActual.setVolumenMusica(t);
+        repositorio.guardar(configuracionActual);
     }
 
     /**
@@ -254,9 +266,8 @@ public class ControladorConfiguracion {
      * @throws ExceptionPersistenciaFallida Si ocurre un error al guardar la configuración.
      */
     public void setSonido(boolean b) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setSonido(b);
-        repositorio.guardar(configuracion);
+        configuracionActual.setSonido(b);
+        repositorio.guardar(configuracionActual);
     }
 
     /**
@@ -270,9 +281,8 @@ public class ControladorConfiguracion {
      * @throws IllegalArgumentException si el volumen está fuera del rango permitido por el modelo Configuracion.
      */
     public void setVolumenSonido(int t) throws ExceptionPersistenciaFallida {
-        Configuracion configuracion = repositorio.cargar();
-        configuracion.setVolumenSonido(t);
-        repositorio.guardar(configuracion);
+        configuracionActual.setVolumenSonido(t);
+        repositorio.guardar(configuracionActual);
     }
 
     /**
@@ -332,13 +342,13 @@ public class ControladorConfiguracion {
      * @post Se devuelve un mapa no nulo con la información de configuración actual.
      */
     public Map<String, String> getConfMap() {
-        Configuracion c = repositorio.cargar();
         Map<String, String> m = new HashMap<>();
-        m.put("tema", c.getTema());
-        m.put("musica", String.valueOf(c.isMusica()));
-        m.put("sonido", String.valueOf(c.isSonido()));
-        m.put("volumenMusica", String.valueOf(c.getVolumenMusica()));
-        m.put("volumenSonido", String.valueOf(c.getVolumenSonido()));
+        m.put("tema", configuracionActual.getTema() != null ? configuracionActual.getTema() : "Claro");
+        m.put("musica", String.valueOf(configuracionActual != null ? configuracionActual.isMusica() : true));
+        m.put("sonido", String.valueOf(configuracionActual != null ? configuracionActual.isSonido() : true));
+        m.put("volumenMusica", String.valueOf(configuracionActual != null ? configuracionActual.getVolumenMusica() : 50));
+        m.put("volumenSonido", String.valueOf(configuracionActual != null ? configuracionActual.getVolumenSonido() : 50));
+
         return m;
     }
 }

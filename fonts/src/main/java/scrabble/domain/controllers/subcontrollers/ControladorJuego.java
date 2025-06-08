@@ -2,6 +2,7 @@ package scrabble.domain.controllers.subcontrollers;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import scrabble.helpers.Triple;
 import scrabble.helpers.Tuple;
 import scrabble.helpers.Dificultad;
 import scrabble.helpers.Direction;
+import scrabble.helpers.Bonus;
 
 /**
  * Controlador principal para la gestión completa de partidas de Scrabble.
@@ -58,12 +60,9 @@ public class ControladorJuego implements Serializable {
     private String nombreDiccionario;
     private Map<String, Integer> jugadores;
     private static RepositorioPartida repositorioPartida;
-    
-
-    private Set<String> alfabeto = Set.of(
-        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
-        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
-    );
+    private List<String> jugadoresOrdenados;
+    private int turnoActual = 0;
+    private Set<String> alfabeto;
 
     /**
      * Constructor por defecto para la clase ControladorJuego.
@@ -86,6 +85,7 @@ public class ControladorJuego implements Serializable {
         this.bolsa = null;
         this.controladorDiccionario = ControladorDiccionario.getInstance();
         repositorioPartida = new RepositorioPartidaImpl();
+        this.alfabeto = new HashSet<>();
     }
 
     /**
@@ -106,6 +106,14 @@ public class ControladorJuego implements Serializable {
         return this.tablero.getSize();
     }    
 
+   /**
+     * Obtiene el índice en la lista del jugador a quien le toca jugar 
+     * 
+     * @return  El índice turnoActual
+     */
+    public int getTurnoActual() {
+        return this.turnoActual;
+    }
     
     /**
      * Inicializa el juego configurando el tablero, diccionario, idioma y bolsa de fichas.
@@ -127,6 +135,7 @@ public class ControladorJuego implements Serializable {
         this.juegoIniciado = false;
         this.juegoTerminado = false;
         this.idPartida = repositorioPartida.generarNuevoId();
+        this.alfabeto = controladorDiccionario.getTokensAlfabeto(nombreDiccionario);
         
         Map<String, Integer> fichas = controladorDiccionario.getFichas(nombreDiccionario);
         this.bolsa = new Bolsa();
@@ -184,9 +193,7 @@ public class ControladorJuego implements Serializable {
         for (Map.Entry<String, Integer> entry : fichas.entrySet()) {
             String ficha = entry.getKey();
             int cantidad = entry.getValue();
-            for (int i = 0; i < cantidad; i++) {
-                this.bolsa.agregarFichas(ficha, cantidad);
-            }
+            this.bolsa.agregarFichas(ficha, cantidad);
         }
     }
 
@@ -321,27 +328,34 @@ public class ControladorJuego implements Serializable {
      */
     public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendLeft(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, int limit) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
+    
         words.addAll(extendRight(partialWord, rack, nextPos, false));
-
+    
         if (limit > 0){
-            for (String c : this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord)) {
-                if (rack.containsKey(c) ||rack.containsKey("#")) {
+            Set<String> posibles = this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord);
+    
+            for (String c : posibles) {
+                if (rack.containsKey(c) || rack.containsKey("#")) {
+    
                     String newPartialWord = partialWord + c;
                     Map<String, Integer> newRack = new HashMap<>(rack);
-
-                    if (!rack.containsKey(c)) c = "#";
-
-                    if (newRack.get(c) == 1) {
-                        newRack.remove(c);
+                    String usada = c;
+    
+                    if (!rack.containsKey(c)) usada = "#";
+    
+                    if (newRack.get(usada) == 1) {
+                        newRack.remove(usada);
                     } else {
-                        newRack.put(c, newRack.get(c) - 1);
+                        newRack.put(usada, newRack.get(usada) - 1);
                     }
+    
                     words.addAll(extendLeft(newPartialWord, newRack, nextPos, limit - 1));
                 }
             }
         }
         return words;
     }
+    
 
     /**
      * Extiende una palabra hacia la derecha añadiendo letras disponibles del atril.
@@ -367,26 +381,28 @@ public class ControladorJuego implements Serializable {
      * @post Se devuelve un conjunto (posiblemente vacío) de jugadas válidas.
      * @throws NullPointerException Si alguno de los parámetros es null.
      */
-    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, boolean archorFilled) {
+    public Set<Triple<String,Tuple<Integer, Integer>, Direction>> extendRight(String partialWord, Map<String, Integer> rack, Tuple<Integer, Integer> nextPos, boolean anchorFilled) {
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> words = new HashSet<>();
-
-        if(!this.tablero.isFilled(nextPos) && this.controladorDiccionario.isFinal(nombreDiccionario, partialWord) && archorFilled) {
+    
+        if (!this.tablero.isFilled(nextPos) && this.controladorDiccionario.isFinal(nombreDiccionario, partialWord) && anchorFilled) {
             words.add(new Triple<>(partialWord, before(nextPos), this.direction));
         }
-        if (this.tablero.validPosition(nextPos)){
+    
+        if (this.tablero.validPosition(nextPos)) {
             if (this.tablero.isEmpty(nextPos)) {
-
                 for (String c : this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord)) {
                     Set<String> allowedChars = this.lastCrossCheck.get(nextPos);
-                    if ((rack.containsKey(c) || rack.containsKey("#")) && allowedChars != null && allowedChars.contains(c)) {
+                    if ((rack.containsKey(c) || rack.containsKey("#")) && allowedChars != null && allowedChars.contains(c)) {    
                         String newPartialWord = partialWord + c;
                         Map<String, Integer> newRack = new HashMap<>(rack);
-
-                        if (!rack.containsKey(c)) c = "#";
-                        if (newRack.get(c) == 1) {
-                            newRack.remove(c);
+                        String usada = c;
+    
+                        if (!rack.containsKey(c)) usada = "#";
+    
+                        if (newRack.get(usada) == 1) {
+                            newRack.remove(usada);
                         } else {
-                            newRack.put(c, newRack.get(c) - 1);
+                            newRack.put(usada, newRack.get(usada) - 1);
                         }
                         words.addAll(extendRight(newPartialWord, newRack, after(nextPos), true));
                     }
@@ -395,13 +411,14 @@ public class ControladorJuego implements Serializable {
                 String c = String.valueOf(this.tablero.getTile(nextPos));
                 if (this.controladorDiccionario.getAvailableEdges(nombreDiccionario, partialWord).contains(c)) {
                     String newPartialWord = partialWord + c;
-                    
                     words.addAll(extendRight(newPartialWord, rack, after(nextPos), true));
                 }
             }
         }
+    
         return words;
     }
+    
 
     /**
      * Realiza una verificación cruzada en el tablero para determinar letras válidas.
@@ -483,47 +500,41 @@ public class ControladorJuego implements Serializable {
      * @throws NullPointerException Si el rack es null o si el tablero o diccionario no están inicializados.
      */
     public Set<Triple<String,Tuple<Integer, Integer>, Direction>> searchAllMoves(Map<String, Integer> rack, boolean juegoIniciado) {
+
+
         Set<Triple<String,Tuple<Integer, Integer>, Direction>> answers = new HashSet<>();
         Set<Tuple<Integer, Integer>> anchors = find_anchors(juegoIniciado);
-
+        
         for (Direction dir : Direction.values()) {
-
             this.direction = dir;
-
             this.lastCrossCheck = crossCheck();
-            
+    
             for (Tuple<Integer, Integer> pos : anchors) {
-                
                 if (this.tablero.isFilled(before(pos))) {
-                    
                     String partial_word = "";
                     Tuple<Integer, Integer> before_pos = pos;
-                    
-                while(tablero.isFilled(before(before_pos))) {
-                    partial_word = tablero.getTile(before(before_pos)) + partial_word;
-                    before_pos = before(before_pos);
-                }
-                
-                if (this.controladorDiccionario.nodeExists(nombreDiccionario, partial_word)) {
-                    answers.addAll(this.extendRight(partial_word, rack, pos, false));
-                }
+                    while (tablero.isFilled(before(before_pos))) {
+                        partial_word = tablero.getTile(before(before_pos)) + partial_word;
+                        before_pos = before(before_pos);
+                    }
+                    if (this.controladorDiccionario.nodeExists(nombreDiccionario, partial_word)) {
+                        answers.addAll(this.extendRight(partial_word, rack, pos, false));
+                    }
                 } else {
-
                     Tuple<Integer, Integer> before_pos = pos;
                     int limit = 0;
-                    while(tablero.isEmpty(before(before_pos)) && !anchors.contains(before(before_pos))) {
+                    while (tablero.isEmpty(before(before_pos)) && !anchors.contains(before(before_pos))) {
                         limit += 1;
                         before_pos = before(before_pos);
                     }
-                    
-                    answers.addAll(extendLeft("", rack, pos, limit)); //areglable
-                    
+                    answers.addAll(extendLeft("", rack, pos, limit));
                 }
-                
             }
         }
+    
         return answers;
     }
+    
 
     /**
      * Realiza un movimiento en el tablero colocando las letras correspondientes.
@@ -546,35 +557,59 @@ public class ControladorJuego implements Serializable {
      * @throws NullPointerException Si alguno de los parámetros es null.
      * @throws IllegalArgumentException Si el movimiento intenta colocar letras fuera del tablero.
      */
-    public Map<String, Integer> makeMove(Triple<String,Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        String word = move.x.toUpperCase();
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
+public Map<String, Integer> makeMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+    String word = move.x.toUpperCase();
+    Tuple<Integer, Integer> pos = move.y;
+    Direction dir = move.z;
 
-        Map<String, Integer> newRack = new HashMap<>(rack);
+    Map<String, Integer> newRack = new HashMap<>(rack);
 
-        for (int i = word.length() - 1; i >= 0; i--) {
-            String letter = String.valueOf(word.charAt(i)).toUpperCase();
-            
-            if ((newRack.containsKey(letter) || newRack.containsKey("#")) && this.tablero.isEmpty(pos)) {
-                String letraParaEliminar = letter;
-                if (!newRack.containsKey(letter)) letraParaEliminar = "#";
+    int i = word.length() - 1;
+    while (i >= 0) {
+        String letter;
 
-                if (newRack.get(letraParaEliminar) == 1) {
-                    newRack.remove(letraParaEliminar);
-                } else {
-                    newRack.put(letraParaEliminar, newRack.get(letraParaEliminar) - 1);
-                }
-            }
-            this.tablero.setTile(pos, String.valueOf(letter));
-            if (dir == Direction.HORIZONTAL) {
-                pos = new Tuple<Integer, Integer>(pos.x, pos.y - 1); 
+        // Intentar extraer un dígrafo de dos letras
+        if (i > 0) {
+            String potentialDiletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(potentialDiletter)) {
+                letter = potentialDiletter;
+                i -= 2;
             } else {
-                pos = new Tuple<Integer, Integer>(pos.x - 1, pos.y);
+                letter = String.valueOf(word.charAt(i));
+                i -= 1;
+            }
+        } else {
+            letter = String.valueOf(word.charAt(i));
+            i -= 1;
+        }
+
+
+        if (this.tablero.isEmpty(pos)) {
+            if (newRack.containsKey(letter) || newRack.containsKey("#")) {
+                String fichaUsada = newRack.containsKey(letter) ? letter : "#";
+
+                if (newRack.get(fichaUsada) == 1) {
+                    newRack.remove(fichaUsada);
+                } else {
+                    newRack.put(fichaUsada, newRack.get(fichaUsada) - 1);
+                }
+            } else {
+                throw new IllegalStateException("No tienes la letra '" + letter + "' en el atril.");
             }
         }
-        return newRack;
+
+        this.tablero.setTile(pos, letter);
+
+        // Avanzar posición
+        pos = (dir == Direction.HORIZONTAL)
+            ? new Tuple<>(pos.x, pos.y - 1)
+            : new Tuple<>(pos.x - 1, pos.y);
     }
+
+    return newRack;
+}
+
+
 
     /**
      * Calcula los puntos obtenidos por un movimiento específico.
@@ -594,58 +629,78 @@ public class ControladorJuego implements Serializable {
      * @post Se devuelve un entero no negativo que representa la puntuación del movimiento.
      * @throws NullPointerException Si el parámetro move es null o si el tablero no está inicializado.
      */
-    public int calculateMovePoints(Triple<String,Tuple<Integer, Integer>, Direction> move) {
+    /**
+ * Calcula los puntos obtenidos por una jugada según las bonificaciones del tablero.
+ * Compatible con letras multicaracter (e.g., "CH", "LL", "RR").
+ *
+ * @param move Triple con palabra, posición inicial y dirección.
+ * @return Total de puntos obtenidos por la jugada.
+ */
+public int calculateMovePoints(Triple<String, Tuple<Integer, Integer>, Direction> move) {
+    int points = 0;
+    int doubleTimes = 0;
+    int tripleTimes = 0;
 
-        int points = 0;
-        int doubleTimes = 0;
-        int tripleTimes = 0;
-        
-        String word = move.x;
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
+    String word = move.x.toUpperCase();
+    Tuple<Integer, Integer> pos = move.y;
+    Direction dir = move.z;
 
-        for (int i = word.length() - 1; i >= 0; i--) {
-            int letterPoint = controladorDiccionario.getPuntaje(nombreDiccionario, String.valueOf(word.charAt(i)));
-            if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
-                points += letterPoint;
+    int i = word.length() - 1;
+    while (i >= 0) {
+
+
+        String symbol;
+
+        if (i > 0) {
+            String potentialDiletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(potentialDiletter)) {
+                symbol = potentialDiletter;
+                i -= 2;
             } else {
-                switch (this.tablero.getBonus(pos)) {
-                    case TW:
-                        points += letterPoint;
-                        tripleTimes++;
-                        break;
-                    case TL:
-                        points += letterPoint * 3;
-                        break;
-                    case DW:
-                        points += letterPoint;
-                        doubleTimes++;
-                        break;
-                    case DL:
-                        points += letterPoint * 2;
-                        break;
-                    case X:
-                        points += letterPoint * 2;
-                        break;
-                    default:
-                        points += letterPoint;
-                        break;
-                }
+                symbol = String.valueOf(word.charAt(i));
+                i -= 1;
             }
-            pos = dir == Direction.HORIZONTAL? new Tuple<>(pos.x, pos.y - 1): new Tuple<>(pos.x - 1, pos.y);
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i -= 1;
         }
-        return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes); 
+
+        int letterPoint = controladorDiccionario.getPuntaje(nombreDiccionario, symbol);
+
+        if (this.tablero.isFilled(new Tuple<>(pos.x, pos.y))) {
+            points += letterPoint;
+        } else {
+            switch (this.tablero.getBonus(pos)) {
+                case TW:
+                    points += letterPoint;
+                    tripleTimes++;
+                    break;
+                case TL:
+                    points += letterPoint * 3;
+                    break;
+                case DW:
+                    points += letterPoint;
+                    doubleTimes++;
+                    break;
+                case DL:
+                    points += letterPoint * 2;
+                    break;
+                case X:
+                    points += letterPoint * 2;
+                    break;
+                default:
+                    points += letterPoint;
+                    break;
+            }
+        }
+
+        // Avanzar posición en sentido inverso
+        pos = (dir == Direction.HORIZONTAL) ? new Tuple<>(pos.x, pos.y - 1) : new Tuple<>(pos.x - 1, pos.y);
     }
 
-    /**
-     * Verifica si un movimiento es válido según las reglas del juego.
-     * Utiliza el método searchAllMoves para determinar si el movimiento está
-     * entre los movimientos válidos posibles.
-     * 
-     * @param move Movimiento a evaluar (palabra, posición, dirección).
-     * @param rack Mapa de letras disponibles en el atril del jugador.
-     * @return true si el movimiento es válido, false en caso contrario.
-     */
+    return points * (int) Math.pow(2, doubleTimes) * (int) Math.pow(3, tripleTimes);
+}
+
 
     /**
      * Verifica si un movimiento es válido según las reglas del juego.
@@ -687,78 +742,118 @@ public class ControladorJuego implements Serializable {
       *       para el primer turno del juego.
       * @throws NullPointerException Si alguno de los parámetros es null.
       */
-      public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
-        if (move == null || rack == null) {
-            throw new NullPointerException("Move o rack es null");
-        }
-    
-        String word = move.x;
-        Tuple<Integer, Integer> pos = move.y;
-        Direction dir = move.z;
-    
-    
-        // Check if the word fits within the board boundaries
-        Tuple<Integer, Integer> currentPos = new Tuple<>(pos.x, pos.y);
-        for (int i = word.length() - 1; i >= 0; i--) {
-            if (!tablero.validPosition(currentPos)) {
-                return false;
+public boolean isValidFirstMove(Triple<String, Tuple<Integer, Integer>, Direction> move, Map<String, Integer> rack) {
+    if (move == null || rack == null) {
+        throw new NullPointerException("Move o rack es null");
+    }
+
+    String word = move.x.toUpperCase();
+    Tuple<Integer, Integer> pos = move.y;
+    Direction dir = move.z;
+
+    // Verificar si la palabra cabe dentro del tablero
+    Tuple<Integer, Integer> currentPos = new Tuple<>(pos.x, pos.y);
+    int i = word.length() - 1;
+    while (i >= 0) {
+        String symbol;
+        if (i > 0) {
+            String diletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(diletter)) {
+                symbol = diletter;
+                i -= 2;
+            } else {
+                symbol = String.valueOf(word.charAt(i));
+                i -= 1;
             }
-            currentPos = dir == Direction.HORIZONTAL
-                ? new Tuple<>(currentPos.x, currentPos.y - 1)
-                : new Tuple<>(currentPos.x - 1, currentPos.y);
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i -= 1;
         }
-    
-    
-        // Reset position to the starting point
-        currentPos = new Tuple<>(pos.x, pos.y);
-    
-        // Check if the word is placed on the center tile
-        boolean centerTileCovered = false;
-        for (int i = word.length() - 1; i >= 0; i--) {
-            if (currentPos.equals(tablero.getCenter())) {
-                centerTileCovered = true;
-            }
-            currentPos = dir == Direction.HORIZONTAL
-                ? new Tuple<>(currentPos.x, currentPos.y - 1)
-                : new Tuple<>(currentPos.x - 1, currentPos.y);
-        }
-    
-        if (!centerTileCovered) {
+
+        if (!tablero.validPosition(currentPos)) {
             return false;
         }
-    
-        // Check if the word can be formed using the rack
-        Map<String, Integer> tempRack = new HashMap<>(rack);
-    
-        for (int i = 0; i < word.length(); i++) {
-            String letter = String.valueOf(word.charAt(i)).toUpperCase();
-            String diletter = "";
-            if (i + 1 < word.length()) {
-                diletter = letter + String.valueOf(word.charAt(i + 1)).toUpperCase();
-            }
-    
-            if (tempRack.containsKey(letter) || tempRack.containsKey(diletter)) {
-                String key = tempRack.containsKey(diletter) ? diletter : letter;
-                if (tempRack.get(key) == 1) {
-                    tempRack.remove(key);
-                } else {
-                    tempRack.put(key, tempRack.get(key) - 1);
-                }
-            } else if (tempRack.containsKey("#")) { // Use blank tile
-                if (tempRack.get("#") == 1) {
-                    tempRack.remove("#");
-                } else {
-                    tempRack.put("#", tempRack.get("#") - 1);
-                }
-            } else {
-                return false;
-            }
-        }
-    
-        boolean found = this.controladorDiccionario.existePalabra(nombreDiccionario, word);
-        return found;
+
+        currentPos = dir == Direction.HORIZONTAL
+            ? new Tuple<>(currentPos.x, currentPos.y - 1)
+            : new Tuple<>(currentPos.x - 1, currentPos.y);
     }
-    
+
+    // Verificar si cubre la casilla central
+    currentPos = new Tuple<>(pos.x, pos.y);
+    i = word.length() - 1;
+    boolean centerTileCovered = false;
+
+    while (i >= 0) {
+        String symbol;
+        if (i > 0) {
+            String diletter = word.substring(i - 1, i + 1);
+            if (alfabeto.contains(diletter)) {
+                symbol = diletter;
+                i -= 2;
+            } else {
+                symbol = String.valueOf(word.charAt(i));
+                i -= 1;
+            }
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i -= 1;
+        }
+
+        if (currentPos.equals(tablero.getCenter())) {
+            centerTileCovered = true;
+        }
+
+        currentPos = dir == Direction.HORIZONTAL
+            ? new Tuple<>(currentPos.x, currentPos.y - 1)
+            : new Tuple<>(currentPos.x - 1, currentPos.y);
+    }
+
+    if (!centerTileCovered) return false;
+
+    // Verificar si la palabra se puede formar con el atril
+    Map<String, Integer> tempRack = new HashMap<>(rack);
+    i = 0;
+    while (i < word.length()) {
+        String symbol;
+
+        if (i + 1 < word.length()) {
+            String diletter = word.substring(i, i + 2);
+            if (alfabeto.contains(diletter)) {
+                symbol = diletter;
+                i += 2;
+            } else {
+                symbol = String.valueOf(word.charAt(i));
+                i += 1;
+            }
+        } else {
+            symbol = String.valueOf(word.charAt(i));
+            i += 1;
+        }
+
+        if (tempRack.containsKey(symbol)) {
+            int count = tempRack.get(symbol);
+            if (count == 1) {
+                tempRack.remove(symbol);
+            } else {
+                tempRack.put(symbol, count - 1);
+            }
+        } else if (tempRack.containsKey("#")) { // Comodín
+            int count = tempRack.get("#");
+            if (count == 1) {
+                tempRack.remove("#");
+            } else {
+                tempRack.put("#", count - 1);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // Verificar si la palabra existe en el diccionario
+    return this.controladorDiccionario.existePalabra(nombreDiccionario, word);
+}
+
     
 
     /**
@@ -778,7 +873,9 @@ public class ControladorJuego implements Serializable {
      private Tuple<Map<String, Integer>, Integer> realizarAccion(Triple<String,Tuple<Integer, Integer>, Direction> move, String nombreJugador, Map<String, Integer> rack, boolean isIA, Dificultad dificultad, boolean isFirst) {
         if (!isIA) { 
             this.juegoIniciado = true;
-            return new Tuple<Map<String,Integer>,Integer>(this.makeMove(move, rack), this.calculateMovePoints(move));
+            int points = calculateMovePoints(move);
+            Map <String, Integer> newRack = this.makeMove(move, rack);
+            return new Tuple<Map<String,Integer>,Integer>(newRack, points);
         } else {
             Set<Triple<String,Tuple<Integer, Integer>, Direction>> moves = this.searchAllMoves(rack, this.juegoIniciado);
             if (moves == null || moves.isEmpty()) {
@@ -938,7 +1035,9 @@ public class ControladorJuego implements Serializable {
      * @throws ExceptionPersistenciaFallida si ocurre un error durante el proceso de guardado.
      * @post Si la operación es exitosa, el estado del juego se guarda en el repositorio.
      */
-    public boolean guardar() throws ExceptionPersistenciaFallida {
+    public boolean guardar(List<String> orden, int turnoActual) throws ExceptionPersistenciaFallida {
+        this.jugadoresOrdenados = orden;
+        this.turnoActual = turnoActual;
         return repositorioPartida.guardar(this.idPartida, this);
     }
     
@@ -966,6 +1065,8 @@ public class ControladorJuego implements Serializable {
                 this.alfabeto = loadedGame.alfabeto;
                 this.jugadores = loadedGame.jugadores;
                 this.idPartida = loadedGame.idPartida;
+                this.jugadoresOrdenados = loadedGame.jugadoresOrdenados;
+                this.turnoActual = loadedGame.turnoActual;
             } else {
                 throw new ExceptionPersistenciaFallida("Partida no encontrada con ID: " + idPartida);
             }
@@ -1085,4 +1186,11 @@ public class ControladorJuego implements Serializable {
     public int getIdPartida() {
         return idPartida;
     }
+
+    public List<String> getJugadoresOrdenados() {
+        List<String> copia = new ArrayList<>(jugadoresOrdenados);
+        Collections.rotate(copia, -this.turnoActual);
+        return copia;
+    }
+    
  }

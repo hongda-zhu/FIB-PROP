@@ -18,9 +18,6 @@ Las clases helper siguen principios de diseño orientado a objetos y proporciona
   
 ### Enumeraciones del Dominio
 
-- **`Idioma.java`**  
-  Define los idiomas soportados para la interfaz de usuario (ESPANOL, CATALAN, INGLES). Se utiliza en la configuración del sistema para determinar la localización de textos y mensajes.
-
 - **`Tema.java`**  
   Define los temas visuales disponibles para la aplicación (CLARO, OSCURO). Permite a los usuarios personalizar la apariencia de la interfaz según sus preferencias.
 

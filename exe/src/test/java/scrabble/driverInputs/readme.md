@@ -36,4 +36,4 @@ Ficheros necesarios para el testeo por la naturaleza aleatoria del juego:
 
 - RankingInput.txt:
   Casos de uso: ver ranking, consultar historial de un jugador, filtrar ranking
-  Clases involucradas: Ranking, RankingOrderStrategyFactory, RankingOrderStrategy, PuntuacionTotalStrategy, MaximaScoreStrategy, MediaScoreStrategy, VictoriasStrategy, RankingDataProvider, PlayerRankingStats, ControladorRanking, ControladorDomain.
+  Clases involucradas: Ranking, RankingOrderStrategyFactory, RankingOrderStrategy, PuntuacionTotalStrategy, MaximaScoreStrategy, MediaScoreStrategy, VictoriasStrategy, PartidasJugadasStrategy, PlayerRankingStats, ControladorRanking, ControladorDomain.

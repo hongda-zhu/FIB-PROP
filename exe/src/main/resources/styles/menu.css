@@ -1,0 +1,53 @@
+.menu-button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1a237e;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-background-radius: 28;
+    -fx-border-radius: 28;
+    -fx-border-color: rgba(26, 35, 126, 0.1);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.menu-button:hover {
+    -fx-background-color: #f8f9fa;
+    -fx-text-fill: #1565c0;
+    -fx-border-color: rgba(21, 101, 192, 0.3);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 3);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.menu-button:pressed {
+    -fx-background-color: #eceff1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 1);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.exit-button {
+    -fx-background-color: #1a237e;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-background-radius: 28;
+    -fx-border-radius: 28;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+.exit-button:hover {
+    -fx-background-color: #303f9f;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 18, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.exit-button:pressed {
+    -fx-background-color: #1565c0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 2);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}

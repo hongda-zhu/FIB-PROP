@@ -3,28 +3,49 @@ package scrabble.helpers;
 import java.io.Serializable;
 import java.util.Objects;
 /**
- * Una clase genérica que representa una tupla inmutable de tres elementos.
+ * Clase genérica que representa una tupla mutable de tres elementos.
  * 
- * @param <A> el tipo del primer elemento
- * @param <B> el tipo del segundo elemento
- * @param <C> el tipo del tercer elemento
+ * Esta clase proporciona una estructura de datos simple para agrupar tres valores
+ * relacionados de tipos potencialmente diferentes. Es ampliamente utilizada en el
+ * sistema para representar movimientos de Scrabble (palabra, posición, dirección),
+ * coordenadas tridimensionales y otros conjuntos de datos relacionados.
+ * 
+ * Características principales:
+ * - Genérica: soporta cualquier tipo de datos para cada elemento
+ * - Mutable: permite modificar los valores después de la creación
+ * - Serializable: puede ser persistida y transmitida
+ * - Implementa equals() y hashCode() para comparaciones correctas
+ * - Acceso directo a campos públicos para simplicidad
+ * 
+ * Casos de uso típicos:
+ * - Representación de movimientos: (palabra, posición, dirección)
+ * - Coordenadas con metadatos: (x, y, tipo)
+ * - Resultados de operaciones: (éxito, valor, mensaje)
+ * 
+ * @param <A> Tipo del primer elemento (x)
+ * @param <B> Tipo del segundo elemento (y)  
+ * @param <C> Tipo del tercer elemento (z)
+ * 
+ * @version 2.0
+ * @since 1.0
  */
 public class Triple<A, B, C> implements Serializable{
     private static final long serialVersionUID = 1L;
     
     /** El primer valor de la tupla. */
-    public final A x;
+    public A x;
     /** El segundo valor de la tupla. */ 
-    public final B y;
+    public B y;
     /** El tercer valor de la tupla. */   
-    public final C z;
+    public C z;
 
     /**
-     * Crea una nueva tupla de tres elementos.
+     * Constructor que crea una nueva tupla de tres elementos.
      *
-     * @param x el primer valor
-     * @param y el segundo valor
-     * @param z el tercer valor
+     * @param x El primer valor de la tupla.
+     * @param y El segundo valor de la tupla.
+     * @param z El tercer valor de la tupla.
+     * @post Se crea una nueva instancia de Triple con los valores proporcionados.
      */
     public Triple(A x, B y, C z) {
         this.x = x;
@@ -57,6 +78,20 @@ public class Triple<A, B, C> implements Serializable{
      */
     public C getz() {
         return z;
+    }
+
+    /**
+     * Actualiza todos los valores de esta tupla con los valores de otra tupla.
+     * Método de conveniencia para copiar completamente el contenido de otra tupla.
+     *
+     * @param triple La tupla de origen desde donde copiar los valores.
+     * @pre El parámetro triple no debe ser null.
+     * @post Los valores x, y, z de esta tupla se actualizan con los valores correspondientes de la tupla origen.
+     */
+    public void setFromTriple(Triple<A, B, C> triple) {
+        this.x = triple.getx();
+        this.y = triple.gety();
+        this.z = triple.getz();
     }
 
     /**

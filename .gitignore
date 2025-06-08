@@ -16,7 +16,6 @@ out/
 .classpath
 .project
 .settings/
-bin/
 
 # NetBeans
 nbproject/

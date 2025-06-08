@@ -336,6 +336,7 @@ public class ControladorDomain {
         Map<String, Integer> rack = controladorJugador.getRack(nombreJugador);
         boolean esIA = controladorJugador.esIA(nombreJugador);
         Dificultad dificultad = getNivelDificultad(nombreJugador);
+        
         return (move.x == "P" || move.x == "CF")? null: controladorJuego.realizarTurno(move, nombreJugador, rack, esIA, dificultad);
     }
 
@@ -389,8 +390,7 @@ public class ControladorDomain {
                     }   
                 }
             }            
-                controladorJugador.clearSkipTrack(nombreJugador);        
-
+            controladorJugador.clearSkipTrack(nombreJugador);        
             return result.y;
         }
         return 0;               
@@ -560,9 +560,7 @@ public class ControladorDomain {
         for (Map.Entry<String, Integer> entry : fichasBolsa.entrySet()) {
             String letra = entry.getKey();
             int cantidad = entry.getValue();
-            for (int i = 0; i < cantidad; i++) {
-                rack.put(letra, rack.getOrDefault(letra, 0) + 1);
-            }
+            rack.put(letra, rack.getOrDefault(letra, 0) + cantidad);
         }
         controladorJugador.inicializarRack(nombre, rack);
 
@@ -1140,9 +1138,10 @@ public class ControladorDomain {
      * @throws ExceptionPalabraInvalida Si las palabras contienen caracteres no válidos
      * @throws ExceptionLoggingOperacion Si falla la operación de creación
      */
-    public void crearDiccionario(String nombre, String path) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida {
+    public void crearDiccionario(String nombre, List<String> alfabeto, List<String> palabras) throws ExceptionDiccionarioExist, IOException, ExceptionPalabraInvalida {
         try {
-            controladorDiccionario.crearDiccionario(nombre, path);
+            String directory = controladorDiccionario.crearDesdeTexto(nombre, alfabeto, palabras);
+            controladorDiccionario.crearDiccionario(nombre, directory);
         } catch (ExceptionDiccionarioOperacionFallida e) {
             throw new ExceptionLoggingOperacion("Error al crear el diccionario: " + e.getMessage(), "creación", true);
         }
@@ -1187,6 +1186,41 @@ public class ControladorDomain {
      */
     public List<String> getDiccionariosDisponibles() {
         return controladorDiccionario.getDiccionariosDisponibles();
+    }
+
+    /**
+     * Inicializa los diccionarios disponibles a partir de los subdirectorios en el directorio de recursos.
+     * Cada subdirectorio debe contener los archivos 'alpha.txt' y 'words.txt' para ser considerado válido.
+     * 
+     * @pre El directorio "src/main/resources/diccionarios/" debe existir y contener subdirectorios con archivos válidos.
+     * @post Se añaden al sistema todos los lenguajes válidos que aún no estuvieran registrados previamente.
+     */
+
+    public void inicializarDiccionarios() {
+        String resourcesPath = "src/main/resources/diccionarios/";
+        java.io.File resourcesDir = new java.io.File(resourcesPath);
+
+        if (resourcesDir.exists() && resourcesDir.isDirectory()) {
+            java.io.File[] directories = resourcesDir.listFiles(java.io.File::isDirectory);
+
+            if (directories != null) {
+                for (java.io.File dir : directories) {
+                    String languageName = dir.getName();
+                    java.io.File alphaFile = new java.io.File(dir, "alpha.txt");
+                    java.io.File wordsFile = new java.io.File(dir, "words.txt");
+
+                    if (alphaFile.exists() && wordsFile.exists()) {
+                        try {
+                            if (!existeLenguaje(languageName)) {
+                                anadirLenguaje(languageName, alphaFile.getPath(), wordsFile.getPath());
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error al cargar el lenguaje '" + languageName + "': " + e.getMessage());
+                        }
+                    } 
+                }
+            }
+        } 
     }
 
     /**
@@ -1458,9 +1492,9 @@ public class ControladorDomain {
      * @return true si se guardó correctamente, false en caso de error
      * @post La partida se persiste en el almacenamiento si no hay errores.
      */
-    public boolean guardarPartida() {
+    public boolean guardarPartida(List<String> orden, int turnoActual) {
         try {
-            return controladorJuego.guardar();
+            return controladorJuego.guardar(orden, turnoActual);
         } catch (ExceptionPersistenciaFallida e) {
             return false;
         }
@@ -1479,6 +1513,15 @@ public class ControladorDomain {
         } catch (ExceptionPersistenciaFallida e) {
             e.printStackTrace();
         }
+    }
+
+   /**
+     * Obtiene el índice en la lista del jugador a quien le toca jugar 
+     * 
+     * @return  El índice turnoActual
+     */
+    public int getTurnoActual() {
+        return controladorJuego.getTurnoActual();
     }
 
     /**
@@ -1587,6 +1630,18 @@ public class ControladorDomain {
      */
     public Map<String, Integer> getJugadoresActuales() {
         return controladorJuego.getJugadoresActuales();
+    }
+
+
+    /**
+     * Obtiene el mapa de jugadores participantes en la partida actual.
+     * 
+     * @pre Debe haber una partida iniciada.
+     * @return mapa de jugadores con sus puntuaciones actuales
+     * @post Se devuelve el mapa sin modificar el estado de la partida.
+     */
+    public List<String> getJugadoresOrdenados() {
+        return controladorJuego.getJugadoresOrdenados();
     }
 
     /**
@@ -1807,8 +1862,12 @@ public class ControladorDomain {
     * @throws IllegalArgumentException si el diccionario no es uno de los valores permitidos
     * @throws NullPointerException si el parámetro diccionario es null
     */
-    public void establecerDiccionario(String diccionario) throws ExceptionPersistenciaFallida {
-        controladorConfiguracion.setDiccionario(diccionario);
+    public void establecerDiccionario(String diccionario)  {
+        try {
+            controladorConfiguracion.setDiccionario(diccionario);        
+        } catch (ExceptionPersistenciaFallida e) {
+            
+        }
     }
 
     /**
@@ -1820,8 +1879,12 @@ public class ControladorDomain {
     * @throws ExceptionPersistenciaFallida si ocurre un error al guardar la configuración
     * @throws IllegalArgumentException si el tamaño está fuera del rango permitido
     */
-    public void establecerTamano(int tamano) throws ExceptionPersistenciaFallida {
-        controladorConfiguracion.setTamano(tamano);
+    public void establecerTamano(int tamano)  {
+        try {
+            controladorConfiguracion.setTamano(tamano);
+            
+        } catch (ExceptionPersistenciaFallida e) {
+        }
     }   
 
     /**

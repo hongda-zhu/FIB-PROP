@@ -24,6 +24,7 @@ import scrabble.excepciones.ExceptionPalabraExist;
 import scrabble.excepciones.ExceptionPalabraInvalida;
 import scrabble.excepciones.ExceptionPalabraNotExist;
 import scrabble.excepciones.ExceptionPalabraVacia;
+import scrabble.excepciones.ExceptionPersistenciaFallida;
 
 /**
  * Controlador para la gestión de diccionarios en el juego de Scrabble.
@@ -75,7 +76,24 @@ public class ControladorDiccionario {
         }
         return instance;
     }
-    
+
+
+    /**
+     * Crea el directorio "/Nombre" con alpha.txt y words.txt.
+     *
+     * @pre El nombre debe ser único y no nulo. Las listas de alfabeto y palabras no deben ser nulas.
+     * @param nombre Nombre único del diccionario.
+     * @param alfabeto Lista de strings con formato "letra frecuencia puntuacion".
+     * @param palabras Lista de palabras del diccionario.
+     * @return path de directorio del diccionario si se creó exitosamente, null en caso contrario.
+     * @throws ExceptionDiccionarioOperacionFallida Si ocurre un error al crear los archivos o el directorio.
+     * @post Si no ocurre ninguna excepción, se crea un nuevo directorio con los archivos alpha.txt y words.txt correctamente inicializados.
+     */
+    public String crearDesdeTexto(String nombre, List<String> alfabeto, List<String> palabras) throws ExceptionDiccionarioOperacionFallida {
+        return repositorio.crearDesdeTexto(nombre, alfabeto, palabras);
+    }
+
+
     /**
      * Lee un archivo línea por línea y devuelve su contenido como una lista de strings.
      * 
@@ -93,6 +111,7 @@ public class ControladorDiccionario {
                 .toList();
     }
     
+
     /**
      * Crea o carga un diccionario en memoria desde el path especificado.
      * 
